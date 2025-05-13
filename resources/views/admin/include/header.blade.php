@@ -780,7 +780,7 @@
                                             <span data-feather="user"></span> Profile</a>
                                     </li>
                                     <li>
-                                        <a href="">
+                                        <a href="{{ route('admin.logout') }}">
                                             <span data-feather="log-out"></span> Sign Out</a>
                                     </li>
                                 </ul>

@@ -36,4 +36,11 @@ class LoginController extends Controller
         return back()->withErrors(['email' => 'Invalid credentials']);
     }
 
+     // Logout the user
+    public function logout()
+    {
+        Auth::logout();
+        return redirect()->route('admin.login');
+    }
+
 }

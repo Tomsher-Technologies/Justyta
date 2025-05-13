@@ -7,9 +7,10 @@ use App\Http\Controllers\Admin\LoginController;
 
 
 Route::prefix('admin')->group(function () {
-    Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('login', [LoginController::class, 'login']);
+    Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
+    Route::get('login', [LoginController::class, 'showLoginForm'])->name('admin.login');
+    Route::post('login', [LoginController::class, 'login'])->name('login');
+    Route::get('logout', [LoginController::class, 'logout'])->name('admin.logout');
 });
 
 Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->group(function () {
