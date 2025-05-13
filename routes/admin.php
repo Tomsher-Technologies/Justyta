@@ -13,7 +13,7 @@ Route::prefix('admin')->group(function () {
 });
 
 Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
 
     // User Management
     Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
