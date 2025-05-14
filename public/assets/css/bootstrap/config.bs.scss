@@ -17,20 +17,20 @@ $border-radius-md: 6px;
 
 // theme color
 $light-gray: #9299b8;
-$primary: #5f63f2;
-$secondary: #ff69a5;
+$primary: #08683d;
+$secondary: #c4af7d;
 $success: #20c997;
 $info: #2c99ff;
 $warning: #fa8b0c;
 $danger: #ff4d4f;
-$dark: #272b41;
+$dark: #08683d;
 $light: #9299b8;
 $extra-light: #adb4d2;
 $gray: #5a5f7d;
 $gray-solid: #9299b8;
 $body-color: #666d92;
 $text-color: #666d92;
-$third:$primary;
+$third:#4d1717;
 
 $theme-colors: ();
 
@@ -64,8 +64,8 @@ $other-colors: (
 );
 
 $hover-colors: (
-  "primary": #4347d9,
-  "secondary": #e34a87,
+  "primary": #08683d,
+  "secondary": #c4af7d,
   "success": #0cab7c,
   "info": #0d79df,
   "warning": #d47407,

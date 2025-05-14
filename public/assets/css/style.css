@@ -1331,15 +1331,18 @@ a:hover h3,
 a:hover h4,
 a:hover h5,
 a:hover h6 {
-  color: #5f63f2;
+  color: #ae872a;
 }
 
 .bg-primary, .mailbar-toggle span, .kb__header-search-form .input-group button, .testimonial-slider-global.slick-slider .slick-dots li.slick-active button, .banner-feature--8, .banner-feature--5, .banner-feature--2, .version-list__single ul.version-primary li::after, .ail-light:checked + .ail-btn, .ail-light + .ail-btn, .search-keyword ul li a.active, .wizard9 .checkout-progress2 .step.current span:first-child, .checkout-progress div.step.current span:nth-of-type(1), .ui-slider .ui-slider-range, .fc-daygrid-day .fc-daygrid-event.primary, #full-calendar .fc-toolbar-chunk .fc-button-group .fc-button-primary.fc-button-active, .new-member .modal-header .close:hover, .atbd-tab .nav-link:after, .radio-horizontal-list2 .custom-radio input[type=radio] + label:before, .custom-radio input[type=radio]:checked + label:after, .atbd-steps__item.active .atbd-steps__line, .atbd-steps__item.active .atbd-steps__icon, .atbd-steps__item.finished .atbd-steps__line, .atbd-tag.tag-primary, .atbd-menu__link:after, .modal-content.modal-bg-primary, .atbd-pagination__link:hover, .atbd-pagination__link.active, .notification-content__body .custom-control-input:checked ~ .custom-control-label::before, .account-profile #remove_pro_pic, .account-profile-cards__button button.active, .ap-tab-main .nav-link:after, .custom-checkbox.checkbox-theme-2 input[type=checkbox] + label::before, .custom-checkbox input[type=checkbox]:checked + label:after, .feature-cards figcaption button:hover, .card .card-header .card-tab-links li a.active:before, .card .card-header .card-tab .btn.active:hover, .card .card-header .card-tab .btn.active, .card .card-header .card-tab .btn.btn-white.active:hover, .custom-switch.switch-primary .custom-control-input:checked ~ .custom-control-label::before, .custom-switch .custom-control-input .custom-control-input:checked ~ .custom-control-label::before, .avatar.avatar-primary, .atbd-nav-controller .nav .nav-link.active:not(:first-child):before, .atbd-button-group.btn-group-withIcon .btn:hover, .btn.btn-transparent-primary:hover, .badge-dot.dot-primary, .strikingDash-top-menu > ul > li .megaMenu-wrapper.megaMenu-small ul li > a:hover:after, .strikingDash-top-menu > ul > li .megaMenu-wrapper.megaMenu-small ul li > a.active:after, .daterangepicker .ranges li.active, .daterangepicker.single .calendar-table tbody td.today, .daterangepicker.single .calendar-table tbody td.active, .daterangepicker.show-calendar .calendar-table tbody td.available.active.start-date:after, .daterangepicker.show-calendar .calendar-table tbody td.available.active.start-date:before, .daterangepicker.show-calendar .calendar-table tbody td.available.active.end-date:after, .daterangepicker.show-calendar .calendar-table tbody td.available.active.end-date:before, .daterangepicker .ranges ul li.active {
-  background: #5f63f2;
+  background: #08683d;
 }
 
+.dot-secondary{
+  background: #c4af7d;
+}
 .iborder-primary {
-  color: #5f63f2;
+  color: #08683d;
 }
 
 .outline-primary {
@@ -1379,11 +1382,11 @@ a:hover h6 {
 }
 
 .bg-secondary, .fc-daygrid-day .fc-daygrid-event.secondary, .atbd-tag.tag-secondary, .ffw:hover button:hover, .ffw:hover button, .custom-switch.switch-secondary .custom-control-input:checked ~ .custom-control-label::before, .btn.btn-transparent-secondary:hover {
-  background: #ff69a5;
+  background: #08683d;
 }
 
 .iborder-secondary {
-  color: #ff69a5;
+  color: #08683d;
 }
 
 .outline-secondary {
@@ -2693,14 +2696,14 @@ table.fc-scrollgrid thead .fc-scroller-harness .card.fc-scroller .card-body, .sl
 
 .btn-primary:hover {
   color: #fff;
-  background-color: #4347d9;
-  border-color: #4347d9;
+  background-color: #017c43;
+	border-color: #017c43;
 }
 
 .btn-secondary:hover {
-  color: #fff;
-  background-color: #e34a87;
-  border-color: #e34a87;
+  color: #000;
+  background-color: #b79d61;
+  border-color: #b79d61;
 }
 
 .btn-success:hover {
@@ -5177,7 +5180,7 @@ ul {
   margin-bottom: 25px;
 }
 .sidebar__menu-group ul.sidebar_nav {
-  margin: 100px 0 0 0;
+  margin: 90px 0 0 0;
   padding: 0;
   list-style: none;
 }
@@ -5188,7 +5191,7 @@ ul {
   font-size: 12px;
   font-weight: 500;
   padding: 0 30px;
-  margin-bottom: 10px;
+  margin-bottom: 0px !important;
 }
 .sidebar__menu-group ul.sidebar_nav li > a {
   display: flex;
@@ -5229,7 +5232,7 @@ ul {
   color: rgb(255, 255, 255);
 }
 .sidebar__menu-group ul.sidebar_nav li ul {
-  padding: 8px 0px 12px 36px;
+  padding: 1px 0px 1px 36px;
 }
 .sidebar__menu-group ul.sidebar_nav li.has-child.open > a .toggle-icon:before {
   content: "\f107";
@@ -5863,8 +5866,8 @@ ul {
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 23px;
-  margin-top: 23px;
+  margin-bottom: 10px;
+  margin-top: 15px;
 }
 @media only screen and (max-width: 575px) {
   .breadcrumb-main {
@@ -11699,7 +11702,7 @@ table.table-basic tr td.card .card-body,
   width: 1em;
   height: 1em;
   transform: rotate(45deg);
-  animation: rotate 1.2s infinite linear;
+  animation: rotate 2s infinite linear;
 }
 .atbd-spin-dots .spin-dot {
   transform: scale(0.75);
@@ -16193,7 +16196,7 @@ table.table-basic tr td {
 table.table-basic .table-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
 }
 table.table-basic .table-actions a:not(:last-child) {
   margin-right: 16px;
@@ -16242,7 +16245,7 @@ table.table-rounded tbody tr td:last-child {
 }
 .table4 .table td {
   border-bottom: 1px solid #e3e6ef;
-  padding: 18px 20px;
+  padding: 5px 10px 5px;
 }
 .table4 .table thead th {
   border-bottom: 1px solid #e3e6ef;
@@ -16258,8 +16261,8 @@ table.table-rounded tbody tr td:last-child {
   background-color: #fafafa;
 }
 .table4 .userDatatable-header th {
-  background-color: #fafafa;
-  padding: 15px 20px 15px 20px;
+  background-color: #e2d8bf;
+  padding: 10px 20px 10px 10px;
 }
 .table4 .userDatatable-title {
   color: rgba(0, 0, 0, 0.85);

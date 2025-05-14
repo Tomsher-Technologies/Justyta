@@ -16,19 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth' => Authenticate::class,
             'user_type' => \App\Http\Middleware\UserTypeMiddleware::class,
+             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
     })
-    // ->withMiddleware(function () {
-    //     return [
-    //         // Global middleware
-    //     ];
-    // }, function () {
-    //     return [
-    //         // Route middleware (aliases)
-    //         'auth' => App\Http\Middleware\Authenticate::class,
-    //         'user_type' => App\Http\Middleware\UserTypeMiddleware::class,
-    //     ];
-    // })
+   
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
