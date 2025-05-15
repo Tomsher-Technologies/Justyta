@@ -106,6 +106,24 @@ NB: this file contains the list of components/scss partial along with the style.
 
   05. RESPONSIVE CSS
 ***************************/
+
+:root {
+	--primary: #08683d;
+	--primary-light: #08683d8d;
+	--secondary: #c4af7d;
+	--secondary-light: #b79d61;
+	--success: #20c997;
+	--info: #2c99ff;
+	--warning: #fa8b0c;
+	--danger: #ff4d4f;
+	--light: #9299b8;
+	--dark: #272b41;
+	--text: #666d92;
+	--extra-light: #adb4d2;
+	--gray: #5a5f7d;
+	--third: #4d1717;
+	--white: #ffffff;
+}
 .m-top-0 {
   margin-top: 0px;
 }
@@ -1335,14 +1353,14 @@ a:hover h6 {
 }
 
 .bg-primary, .mailbar-toggle span, .kb__header-search-form .input-group button, .testimonial-slider-global.slick-slider .slick-dots li.slick-active button, .banner-feature--8, .banner-feature--5, .banner-feature--2, .version-list__single ul.version-primary li::after, .ail-light:checked + .ail-btn, .ail-light + .ail-btn, .search-keyword ul li a.active, .wizard9 .checkout-progress2 .step.current span:first-child, .checkout-progress div.step.current span:nth-of-type(1), .ui-slider .ui-slider-range, .fc-daygrid-day .fc-daygrid-event.primary, #full-calendar .fc-toolbar-chunk .fc-button-group .fc-button-primary.fc-button-active, .new-member .modal-header .close:hover, .atbd-tab .nav-link:after, .radio-horizontal-list2 .custom-radio input[type=radio] + label:before, .custom-radio input[type=radio]:checked + label:after, .atbd-steps__item.active .atbd-steps__line, .atbd-steps__item.active .atbd-steps__icon, .atbd-steps__item.finished .atbd-steps__line, .atbd-tag.tag-primary, .atbd-menu__link:after, .modal-content.modal-bg-primary, .atbd-pagination__link:hover, .atbd-pagination__link.active, .notification-content__body .custom-control-input:checked ~ .custom-control-label::before, .account-profile #remove_pro_pic, .account-profile-cards__button button.active, .ap-tab-main .nav-link:after, .custom-checkbox.checkbox-theme-2 input[type=checkbox] + label::before, .custom-checkbox input[type=checkbox]:checked + label:after, .feature-cards figcaption button:hover, .card .card-header .card-tab-links li a.active:before, .card .card-header .card-tab .btn.active:hover, .card .card-header .card-tab .btn.active, .card .card-header .card-tab .btn.btn-white.active:hover, .custom-switch.switch-primary .custom-control-input:checked ~ .custom-control-label::before, .custom-switch .custom-control-input .custom-control-input:checked ~ .custom-control-label::before, .avatar.avatar-primary, .atbd-nav-controller .nav .nav-link.active:not(:first-child):before, .atbd-button-group.btn-group-withIcon .btn:hover, .btn.btn-transparent-primary:hover, .badge-dot.dot-primary, .strikingDash-top-menu > ul > li .megaMenu-wrapper.megaMenu-small ul li > a:hover:after, .strikingDash-top-menu > ul > li .megaMenu-wrapper.megaMenu-small ul li > a.active:after, .daterangepicker .ranges li.active, .daterangepicker.single .calendar-table tbody td.today, .daterangepicker.single .calendar-table tbody td.active, .daterangepicker.show-calendar .calendar-table tbody td.available.active.start-date:after, .daterangepicker.show-calendar .calendar-table tbody td.available.active.start-date:before, .daterangepicker.show-calendar .calendar-table tbody td.available.active.end-date:after, .daterangepicker.show-calendar .calendar-table tbody td.available.active.end-date:before, .daterangepicker .ranges ul li.active {
-  background: #08683d;
+  background: var(--primary);
 }
 
 .dot-secondary{
-  background: #c4af7d;
+  background: var(--secondary);
 }
 .iborder-primary {
-  color: #08683d;
+  color: var(--primary);
 }
 
 .outline-primary {
@@ -1382,11 +1400,11 @@ a:hover h6 {
 }
 
 .bg-secondary, .fc-daygrid-day .fc-daygrid-event.secondary, .atbd-tag.tag-secondary, .ffw:hover button:hover, .ffw:hover button, .custom-switch.switch-secondary .custom-control-input:checked ~ .custom-control-label::before, .btn.btn-transparent-secondary:hover {
-  background: #08683d;
+  background: var(--primary);
 }
 
 .iborder-secondary {
-  color: #08683d;
+  color: var(--primary);
 }
 
 .outline-secondary {
@@ -1692,7 +1710,7 @@ table.table-rounded tr td, table.table-basic tr td, .orderDatatable-title, .paym
 .area-drawer-wrapper h6, .atbd-drawer__body p, .atbd-drawer__header .drawer-title, .page-info__single span, .page-title__left .title-text, .statistics-countdown__time, .statistics-item__number, .atbd-steps__text, .atbd-pop-message__text p, .atbd-submenu li a, .atbd-submenu .submenu-title, .timeline-box--3.basic-timeline .timeline li .timeline-single .timeline-single__days span, .form-basic label, .new-member-modal .form-group label, .userDatatable-inline-title h6,
 .userDatatable-content, .media-ui .user-group-progress-top p, .user-social-profile .edit-profile__body label, .users-list-body__title span span, .atbd-notice__content .notice-list__text, .signUp-admin-right .card .card-header h6, .edit-profile__body .form-group label, .ap-product .table thead tr th, .sales-target__progress-bar .total-count, .crm .table-selling-content .title, .crm .deals-table-wrap .table--default td, .revenue-chart-box__data, .revenue-chart-legend__data span, .device-pieChart-wrap .pie-chart-legend span, .atbd-empty__text, .atbd-notification-box__close svg,
 .atbd-notification-box__close img, .atbd-comment-box__content .cci__author-info, .badge.badge-transparent.badge-danger, .dynamic-badge-block .atbd-button-group .btn-icon svg, .strikingDash-top-menu > ul > li .megaMenu-wrapper.megaMenu-wide > li .mega-title, .daterangepicker.single .calendar-table tbody td, .chartjs-tooltip table tbody td, .atbd-message {
-  color: #272b41;
+  color:#272b41;
 }
 
 .bg-dark, .atbd-mailCompose__header, .banner-feature--4, .atbd-slider .tooltip-text, .btn.btn-transparent-dark:hover, .layout-dark .sidebar .sidebar__menu-group ul li ul li > a:hover, .layout-dark .sidebar .sidebar__menu-group ul li ul li > a.active, .layout-dark .sidebar, .overlay-dark-sidebar,
@@ -17124,7 +17142,7 @@ table.table-rounded tbody tr td:last-child {
   margin-left: 8px;
 }
 .pricing__price .pricing_value {
-  margin-top: 21px;
+  margin-top: 10px;
 }
 .pricing__price .pricing_subtitle {
   font-size: 13px;

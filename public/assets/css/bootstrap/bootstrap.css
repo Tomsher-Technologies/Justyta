@@ -8577,12 +8577,12 @@ a.text-primary:focus {
 }
 
 .text-secondary {
-	color: #ff69a5 !important;
+	color: var(--secondary) !important;
 }
 
 a.text-secondary:hover,
 a.text-secondary:focus {
-	color: #ff1d77 !important;
+	color: var(--secondary-light) !important;
 }
 
 .text-success {

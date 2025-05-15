@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\MembershipPlanController;
 
 
 Route::prefix('admin')->group(function () {
@@ -26,6 +27,12 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     // Manage roles & permissions
     Route::resource('roles', RoleController::class);
     Route::get('/roles/edit/{id}', [RoleController::class, 'edit'])->name('roles.edit');
+
+    // Manage membership plans
+    Route::resource('membership-plans', MembershipPlanController::class);
+
+    // Manage law firms
+    Route::resource('vendors', VendorController::class);
 
     // User Management
     Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');

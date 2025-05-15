@@ -36,3 +36,32 @@ function getActiveLanguage()
     }
     return 'en';
 }
+
+function uploadImage($type, $imageUrl, $filename = null){
+    $data_url = '';
+    $ext = $imageUrl->getClientOriginalExtension();
+    
+    $path = $type.'/';
+    
+    $filename = $path . $filename.'_'.time() . '.' . $ext;
+
+    $imageContents = file_get_contents($imageUrl);
+
+    // Save the original image in the storage folder
+    Storage::disk('public')->put($filename, $imageContents);
+    $data_url = Storage::url($filename);
+    
+    return $data_url;
+}
+
+function getUploadedImage(?string $path, string $default = 'assets/img/default_image.png'): string
+{
+    if ($path) {
+        $relativePath = str_replace('/storage/', '', $path);
+        if (Storage::disk('public')->exists($relativePath)) {
+            return asset($path);
+        }
+    }
+
+    return asset($default);
+}

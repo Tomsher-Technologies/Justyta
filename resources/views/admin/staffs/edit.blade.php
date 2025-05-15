@@ -80,8 +80,8 @@
                         </div>
                         <div class="form-group row mb-0">
                             <div class="col-sm-9 offset-sm-3 d-flex flex-wrap align-items-end">
-                                <button type="submit" class="btn btn-primary btn-xs ">Save</button>
-                                <a href="{{ route('staffs.index') }}" class="btn btn-secondary btn-square btn-xs ml-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary btn-sm ">Save</button>
+                                <a href="{{ route('staffs.index') }}" class="btn btn-secondary btn-square btn-sm ml-2">Cancel</a>
                             </div>
                         </div>
                     </div>

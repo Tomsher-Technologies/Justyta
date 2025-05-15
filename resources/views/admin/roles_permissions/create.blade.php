@@ -61,8 +61,8 @@
                                 </div>
                                 <div class="form-group row mb-0">
                                     <div class="col-sm-12 d-flex flex-wrap align-items-end">
-                                        <button type="submit" class="btn btn-primary btn-xs ">Save</button>
-                                        <a href="{{ route('roles.index') }}" class="btn btn-secondary btn-square btn-xs ml-2">Cancel</a>
+                                        <button type="submit" class="btn btn-primary btn-sm ">Save</button>
+                                        <a href="{{ route('roles.index') }}" class="btn btn-secondary btn-square btn-sm ml-2">Cancel</a>
                                     </div>
                                 </div>
                             </form>

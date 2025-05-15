@@ -41,8 +41,8 @@
                             </div>
                             
                             <div class="col-md-3 mb-1 d-flex flex-wrap align-items-end">
-                                <button class="btn btn-primary btn-xs " type="submit">Filter</button>
-                                <a href="{{ route('staffs.index') }}" class="btn btn-secondary btn-square btn-xs ml-2">Reset</a>
+                                <button class="btn btn-primary btn-sm " type="submit">Filter</button>
+                                <a href="{{ route('staffs.index') }}" class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
                             </div>
                         </form>
 
