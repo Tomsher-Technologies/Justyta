@@ -43,7 +43,7 @@ function uploadImage($type, $imageUrl, $filename = null){
     
     $path = $type.'/';
     
-    $filename = $path . $filename.'_'.time() . '.' . $ext;
+    $filename = $path . $filename.'_'.time().'_'.rand(10, 9999) . '.' . $ext;
 
     $imageContents = file_get_contents($imageUrl);
 

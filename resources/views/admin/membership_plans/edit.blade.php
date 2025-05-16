@@ -17,7 +17,7 @@
 
                                 <!-- Title -->
                                 <div class="col-md-6 mb-25">
-                                    <label class="form-label">Title <span class="text-danger">*</span></label>
+                                    <label  class="col-form-label color-dark fw-500 align-center">Title <span class="text-danger">*</span></label>
                                     <input type="text" name="title" value="{{ old('title', $plan->title) }}"
                                         class="form-control ih-medium ip-gray radius-xs b-light px-15">
                                     @error('title')
@@ -27,7 +27,7 @@
 
                                 <!-- Icon -->
                                 <div class="col-md-6 mb-25">
-                                    <label class="form-label">Icon <span class="text-danger">*</span></label>
+                                    <label  class="col-form-label color-dark fw-500 align-center">Icon <span class="text-danger">*</span></label>
                                     <input type="file" name="icon"
                                         class="form-control ih-medium ip-gray radius-xs b-light px-15">
                                     <img src="{{ asset(getUploadedImage($plan->icon)) }}" alt="Plan Icon" class="mt-2"
@@ -39,7 +39,7 @@
 
                                 <!-- Amount -->
                                 <div class="col-md-6 mb-25">
-                                    <label class="form-label">Amount (Plan Price/Year) <span
+                                    <label  class="col-form-label color-dark fw-500 align-center">Amount (Plan Price/Year) <span
                                             class="text-danger">*</span></label>
                                     <input type="number" step="0.01" name="amount"
                                         value="{{ old('amount', $plan->amount) }}"
@@ -51,7 +51,7 @@
 
                                 <!-- Member Count -->
                                 <div class="col-md-6 mb-25">
-                                    <label class="form-label">Member Count (Max Users Access) <span
+                                    <label  class="col-form-label color-dark fw-500 align-center">Member Count (Max Users Access) <span
                                             class="text-danger">*</span></label>
                                     <input type="number" name="member_count"
                                         value="{{ old('member_count', $plan->member_count) }}"
@@ -63,7 +63,7 @@
 
                                 <!-- EN → AR Translation Price -->
                                 <div class="col-md-6 mb-25">
-                                    <label class="form-label">EN → AR Translation / Page <span
+                                    <label  class="col-form-label color-dark fw-500 align-center">EN → AR Translation / Page <span
                                             class="text-danger">*</span></label>
                                     <input type="number" step="0.01" name="en_ar_price"
                                         value="{{ old('en_ar_price', $plan->en_ar_price) }}"
@@ -75,7 +75,7 @@
 
                                 <!-- Foreign → AR Translation Price -->
                                 <div class="col-md-6 mb-25">
-                                    <label class="form-label">Foreign → AR Translation / Page <span
+                                    <label  class="col-form-label color-dark fw-500 align-center">Foreign → AR Translation / Page <span
                                             class="text-danger">*</span></label>
                                     <input type="number" step="0.01" name="for_ar_price"
                                         value="{{ old('for_ar_price', $plan->for_ar_price) }}"
@@ -87,7 +87,7 @@
 
                                 <!-- Job Posts -->
                                 <div class="col-md-6 mb-25">
-                                    <label class="form-label">Job Posts / Year <span class="text-danger">*</span></label>
+                                    <label  class="col-form-label color-dark fw-500 align-center">Job Posts / Year <span class="text-danger">*</span></label>
                                     <input type="number" name="job_post_count"
                                         value="{{ old('job_post_count', $plan->job_post_count) }}"
                                         class="form-control ih-medium ip-gray radius-xs b-light px-15">
@@ -98,7 +98,7 @@
 
                                 <!-- Free Ad Days -->
                                 <div class="col-md-6 mb-25">
-                                    <label class="form-label">Annual Free Advertisement Days <span
+                                    <label  class="col-form-label color-dark fw-500 align-center">Annual Free Advertisement Days <span
                                             class="text-danger">*</span></label>
                                     <input type="number" name="annual_free_ad_days"
                                         value="{{ old('annual_free_ad_days', $plan->annual_free_ad_days) }}"
@@ -110,7 +110,7 @@
 
                                 <!-- Welcome Gift -->
                                 <div class="col-md-6 mb-25">
-                                    <label class="form-label">Welcome Gift <span class="text-danger">*</span></label>
+                                    <label  class="col-form-label color-dark fw-500 align-center">Welcome Gift <span class="text-danger">*</span></label>
                                     <select name="welcome_gift"
                                         class="form-select form-control ih-medium ip-gray radius-xs b-light px-15">
                                         <option value="no"
@@ -141,7 +141,7 @@
 
                                 @foreach ($radios as $field => $label)
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label d-block">{{ $label }}</label>
+                                        <label  class="col-form-label color-dark fw-500 align-center">{{ $label }}</label>
                                         <div class="radio-horizontal-list d-flex">
                                             <div class="radio-theme-default custom-radio ">
                                                 <input class="radio" type="radio" name="{{ $field }}"

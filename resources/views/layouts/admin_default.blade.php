@@ -119,6 +119,14 @@
         }
 
         setInterval(simulate, 60000);
+
+        $(".datepicker").datepicker({
+            dateFormat: "d MM yy",
+            duration: "medium",
+            changeMonth: true,
+            changeYear: true,
+            minDate: 0 // Only allow today and future dates
+        });
     </script>
     @yield('script')
 </body>

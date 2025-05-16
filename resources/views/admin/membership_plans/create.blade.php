@@ -15,64 +15,64 @@
 
                             <!-- Title -->
                             <div class="col-md-6 mb-25">
-                                <label class="form-label">Title <span class="text-danger">*</span></label>
-                                <input type="text" name="title" value="{{ old('title') }}" class="form-control ih-medium ip-gray radius-xs b-light px-15" placeholder="Enter title">
+                                <label  class="col-form-label color-dark fw-500 align-center">Title <span class="text-danger">*</span></label>
+                                <input type="text" name="title" value="{{ old('title') }}" class="form-control ih-small ip-gray radius-xs b-light px-15" placeholder="Enter title">
                                 @error('title') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
                             <!-- Icon -->
                             <div class="col-md-6 mb-25">
-                                <label class="form-label">Icon <span class="text-danger">*</span></label>
-                                <input type="file" name="icon" class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                <label  class="col-form-label color-dark fw-500 align-center">Icon <span class="text-danger">*</span></label>
+                                <input type="file" name="icon" class="form-control ih-small ip-gray radius-xs b-light px-15">
                                 @error('icon') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
                             <!-- Amount -->
                             <div class="col-md-6 mb-25">
-                                <label class="form-label">Amount (Plan Price/Year) <span class="text-danger">*</span></label>
-                                <input type="number" step="0.01" name="amount" value="{{ old('amount') }}" class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                <label  class="col-form-label color-dark fw-500 align-center">Amount (Plan Price/Year) <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" name="amount" value="{{ old('amount') }}" class="form-control ih-small ip-gray radius-xs b-light px-15">
                                 @error('amount') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
                             <!-- Member Count -->
                             <div class="col-md-6 mb-25">
-                                <label class="form-label">Member Count (Max Users Access) <span class="text-danger">*</span></label>
-                                <input type="number" name="member_count" value="{{ old('member_count') }}" class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                <label  class="col-form-label color-dark fw-500 align-center">Member Count (Max Users Access) <span class="text-danger">*</span></label>
+                                <input type="number" name="member_count" value="{{ old('member_count') }}" class="form-control ih-small ip-gray radius-xs b-light px-15">
                                 @error('member_count') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
                             <!-- EN → AR Translation Price -->
                             <div class="col-md-6 mb-25">
-                                <label class="form-label">EN → AR Translation / Page <span class="text-danger">*</span></label>
-                                <input type="number" step="0.01" name="en_ar_price" value="{{ old('en_ar_price') }}" class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                <label  class="col-form-label color-dark fw-500 align-center">EN → AR Translation / Page <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" name="en_ar_price" value="{{ old('en_ar_price') }}" class="form-control ih-small ip-gray radius-xs b-light px-15">
                                 @error('en_ar_price') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
                             <!-- Foreign → AR Translation Price -->
                             <div class="col-md-6 mb-25">
-                                <label class="form-label">Foreign → AR Translation / Page <span class="text-danger">*</span></label>
-                                <input type="number" step="0.01" name="for_ar_price" value="{{ old('for_ar_price') }}" class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                <label  class="col-form-label color-dark fw-500 align-center">Foreign → AR Translation / Page <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" name="for_ar_price" value="{{ old('for_ar_price') }}" class="form-control ih-small ip-gray radius-xs b-light px-15">
                                 @error('for_ar_price') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
                             <!-- Job Posts -->
                             <div class="col-md-6 mb-25">
-                                <label class="form-label">Job Posts / Year <span class="text-danger">*</span></label>
-                                <input type="number" name="job_post_count" value="{{ old('job_post_count') }}" class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                <label  class="col-form-label color-dark fw-500 align-center">Job Posts / Year <span class="text-danger">*</span></label>
+                                <input type="number" name="job_post_count" value="{{ old('job_post_count') }}" class="form-control ih-small ip-gray radius-xs b-light px-15">
                                 @error('job_post_count') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
                             <!-- Free Ad Days -->
                             <div class="col-md-6 mb-25">
-                                <label class="form-label">Annual Free Advertisement Days <span class="text-danger">*</span></label>
-                                <input type="number" name="annual_free_ad_days" value="{{ old('annual_free_ad_days') }}" class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                <label  class="col-form-label color-dark fw-500 align-center">Annual Free Advertisement Days <span class="text-danger">*</span></label>
+                                <input type="number" name="annual_free_ad_days" value="{{ old('annual_free_ad_days') }}" class="form-control ih-small ip-gray radius-xs b-light px-15">
                                 @error('annual_free_ad_days') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
                             <!-- Welcome Gift -->
                             <div class="col-md-6 mb-25">
-                                <label class="form-label">Welcome Gift <span class="text-danger">*</span></label>
-                                <select name="welcome_gift" class="form-select form-control ih-medium ip-gray radius-xs b-light px-15">
+                                <label  class="col-form-label color-dark fw-500 align-center">Welcome Gift <span class="text-danger">*</span></label>
+                                <select name="welcome_gift" class="form-select form-control ih-small ip-gray radius-xs b-light px-15">
                                     <option value="no" {{ old('welcome_gift') == 'no' ? 'selected' : '' }}>No</option>
                                     <option value="special" {{ old('welcome_gift') == 'special' ? 'selected' : '' }}>Special</option>
                                     <option value="premium" {{ old('welcome_gift') == 'premium' ? 'selected' : '' }}>Premium</option>
@@ -82,7 +82,7 @@
 
                             <!-- Live Online Consultancy -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label d-block">Access to Live Online Consultancy</label>
+                                <label  class="col-form-label color-dark fw-500 align-center">Access to Live Online Consultancy</label>
 
                                 <div class="radio-horizontal-list d-flex">
                                     <div class="radio-theme-default custom-radio ">
@@ -105,7 +105,7 @@
 
                             <!-- Specific Law Firm Choice -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label d-block">Specific Law Firm Choice</label>
+                                <label  class="col-form-label color-dark fw-500 align-center">Specific Law Firm Choice</label>
                                 <div class="radio-horizontal-list d-flex">
                                     <div class="radio-theme-default custom-radio ">
                                         <input class="radio" type="radio" name="specific_law_firm_choice" id="specific_law_firm_choice_yes" value="1" {{ old('specific_law_firm_choice', '0') == '1' ? 'checked' : '' }}>
@@ -127,7 +127,7 @@
 
                             <!-- Annual Legal Consultancy -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label d-block">Annual Legal Consultancy Contracts</label>
+                                <label  class="col-form-label color-dark fw-500 align-center">Annual Legal Consultancy Contracts</label>
                                 <div class="radio-horizontal-list d-flex">
                                     <div class="radio-theme-default custom-radio ">
                                         <input class="radio" type="radio" name="annual_legal_contract" id="annual_legal_contract_yes" value="1" {{ old('annual_legal_contract', '0') == '1' ? 'checked' : '' }}>
@@ -148,7 +148,7 @@
 
                             <!-- Unlimited Training Applications -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label d-block">Unlimited Training Applications</label>
+                                <label  class="col-form-label color-dark fw-500 align-center">Unlimited Training Applications</label>
                                 <div class="radio-horizontal-list d-flex">
                                     <div class="radio-theme-default custom-radio ">
                                         <input class="radio" type="radio" name="unlimited_training_applications" id="unlimited_training_applications_yes" value="1" {{ old('unlimited_training_applications', '0') == '1' ? 'checked' : '' }}>
@@ -170,7 +170,7 @@
 
                             <!-- Active -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label d-block">Active</label>
+                                <label  class="col-form-label color-dark fw-500 align-center">Active</label>
                                 <div class="radio-horizontal-list d-flex">
                                     <div class="radio-theme-default custom-radio ">
                                         <input class="radio" type="radio" name="is_active" id="is_active_yes" value="1" {{ old('is_active', '1') == '1' ? 'checked' : '' }}>
