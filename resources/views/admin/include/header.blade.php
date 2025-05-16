@@ -5,10 +5,7 @@
                 <img class="svg" src="{{ asset('assets/img/svg/bars.svg') }}" alt="img"></a>
             <a class="navbar-brand" href="#"><img class="dark" src="{{ asset('assets/img/logo_text.png') }}" alt="svg"><img
                     class="light" src="{{ asset('assets/img/logo_text.png') }}" alt="img"></a>
-            <form action="/" class="search-form">
-                <span data-feather="search"></span>
-                <input class="form-control mr-sm-2 box-shadow-none" type="text" placeholder="Search...">
-            </form>
+            
             <div class="top-menu">
 
                 <div class="strikingDash-top-menu position-relative">

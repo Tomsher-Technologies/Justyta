@@ -111,7 +111,7 @@ NB: this file contains the list of components/scss partial along with the style.
 	--primary: #08683d;
 	--primary-light: #08683d8d;
 	--secondary: #c4af7d;
-	--secondary-light: #b79d61;
+	--secondary-light: #d6c192;
 	--success: #20c997;
 	--info: #2c99ff;
 	--warning: #fa8b0c;
@@ -1715,7 +1715,8 @@ table.table-rounded tr td, table.table-basic tr td, .orderDatatable-title, .paym
 
 .bg-dark, .atbd-mailCompose__header, .banner-feature--4, .atbd-slider .tooltip-text, .btn.btn-transparent-dark:hover, .layout-dark .sidebar .sidebar__menu-group ul li ul li > a:hover, .layout-dark .sidebar .sidebar__menu-group ul li ul li > a.active, .layout-dark .sidebar, .overlay-dark-sidebar,
 .customizer-overlay {
-  background: #272b41;
+  /* background: #272b41; */
+  background: var(--primary);
 }
 
 .iborder-dark {
@@ -3962,7 +3963,8 @@ ul {
 
 .layout-dark .header-top,
 .layout-dark .mobile-author-actions.show {
-  background-color: #22253a;
+  /* background-color: #22253a; */
+  background-color: var(--secondary-light);
 }
 
 .navbar {
@@ -5271,10 +5273,14 @@ ul {
 .sidebar-toggle:hover {
   background-color: rgba(95, 99, 242, 0.1);
 }
+.sidebar-toggle svg{
+  fill: var(--primary);
+}
 .sidebar-toggle:hover svg #Path_1,
 .sidebar-toggle:hover svg #Path_2,
 .sidebar-toggle:hover svg #Path_3 {
-  fill: #5f63f2;
+  /* fill: #5f63f2; */
+  fill: var(--primary);
 }
 
 .layout-dark .sidebar .sidebar__menu-group ul li.menu-title span {
