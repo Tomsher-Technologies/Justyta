@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\MembershipPlanController;
 use App\Http\Controllers\Admin\VendorController;
+use App\Http\Controllers\Admin\DropdownOptionController;
+
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -33,6 +35,15 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 
     // Manage law firms
     Route::resource('vendors', VendorController::class);
+
+    // List all dropdowns
+    Route::get('admin/dropdowns', [DropdownOptionController::class, 'dropdowns'])->name('dropdowns.index');
+
+    // Show options for a specific dropdown
+    Route::get('admin/dropdowns/{dropdown}/options', [DropdownOptionController::class, 'index'])->name('dropdown-options.index');
+    Route::post('dropdowns/{dropdown}/options', [DropdownOptionController::class, 'store'])->name('dropdown-options.store');
+    Route::put('dropdown-options/{option}', [DropdownOptionController::class, 'update'])->name('dropdown-options.update');
+    Route::post('/dropdown-options/status', [DropdownOptionController::class, 'updateStatus'])->name('dropdown-options.status');
 
     // User Management
     Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');

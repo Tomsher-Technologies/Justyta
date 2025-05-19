@@ -21,9 +21,12 @@
                             <span class="toggle-icon"></span>
                         </a>
                         <ul>
-                            <li>
-                                <a class="{{ areActiveRoutes(['vendors.create']) }}" href="{{ route('vendors.create') }}">Add New Law Firm</a>
-                            </li>
+                            @can('add_vendor')
+                                <li>
+                                    <a class="{{ areActiveRoutes(['vendors.create']) }}" href="{{ route('vendors.create') }}">Add New Law Firm</a>
+                                </li>
+                            @endcan
+                            
                             <li>
                                 <a class="{{ areActiveRoutes(['vendors.edit','vendors.index']) }}" href="{{ route('vendors.index') }}">All Law Firms</a>
                             </li>
@@ -32,7 +35,7 @@
                 @endcan
 
 
-                @canany(['manage_plan'])
+                @canany(['manage_plan','manage_dropdown_option'])
                     <li class="menu-title m-top-10">
                         <span>Settings</span>
                     </li>
@@ -55,6 +58,16 @@
                             </li>
                         </ul>
                     </li>
+                    @endcan
+
+                    @can('manage_dropdown_option')
+                        <li class="">
+                            <a href="{{ route('dropdowns.index') }}" class="{{ areActiveRoutes(['dropdowns.index','dropdown-options.index']) }}">
+                                <span data-feather="list" class="nav-icon"></span>
+                                <span class="menu-text">Dropdown Items</span>
+                            </a>
+                        
+                        </li>
                     @endcan
                 @endcanany
                

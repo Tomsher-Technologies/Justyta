@@ -15,6 +15,16 @@ use Carbon\Carbon;
 
 class VendorController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('auth');
+       
+        $this->middleware('permission:manage_vendors',  ['only' => ['index','destroy']]);
+        $this->middleware('permission:add_vendor',  ['only' => ['create','store']]);
+        $this->middleware('permission:edit_vendor',  ['only' => ['edit','update']]);
+    }
+
+
     public function index(Request $request)
     {
         $query = Vendor::with('user', 'currentSubscription.plan');

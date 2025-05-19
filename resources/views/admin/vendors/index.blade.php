@@ -8,10 +8,12 @@
                 <h4 class="text-capitalize breadcrumb-title">All Law Firms</h4>
                 <div class="breadcrumb-action justify-content-center flex-wrap">
                     
-                    <div class="action-btn">
-                        <a href="{{ route('vendors.create') }}" class="btn btn-sm btn-primary btn-add">
-                            <i class="la la-plus"></i> Add New Law Firm</a>
-                    </div>
+                    @can('add_vendor')
+                        <div class="action-btn">
+                            <a href="{{ route('vendors.create') }}" class="btn btn-sm btn-primary btn-add">
+                                <i class="la la-plus"></i> Add New Law Firm</a>
+                        </div>
+                    @endcan
                 </div>
             </div>
         </div>
