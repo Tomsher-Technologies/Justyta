@@ -9,7 +9,7 @@ use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\MembershipPlanController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\DropdownOptionController;
-
+use App\Http\Controllers\Admin\DocumentTypeController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -45,10 +45,13 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::put('dropdown-options/{option}', [DropdownOptionController::class, 'update'])->name('dropdown-options.update');
     Route::post('/dropdown-options/status', [DropdownOptionController::class, 'updateStatus'])->name('dropdown-options.status');
 
+    // Manage document types
+    Route::resource('document-types', DocumentTypeController::class);
+    Route::post('/document-types/status', [DocumentTypeController::class, 'updateStatus'])->name('document-types.status');
     // User Management
-    Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
-    Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
-    Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+    // Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+    // Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
+    // Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
 });
 
 

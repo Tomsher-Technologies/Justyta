@@ -8752,7 +8752,7 @@ button.bg-white:focus {
 }
 
 .text-primary {
-    color: #5f63f2 !important;
+    color: var(--primary) !important;
 }
 
 a.text-primary:hover,
@@ -8761,7 +8761,7 @@ a.text-primary:focus {
 }
 
 .text-secondary {
-    color: var(--secondary) !important;
+    color: #bc9b4e !important;
 }
 
 a.text-secondary:hover,

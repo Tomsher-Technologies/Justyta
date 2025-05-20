@@ -11,6 +11,17 @@ use App\Models\Language;
 
 class DropdownOptionController extends Controller
 {
+
+    function __construct()
+    {
+        $this->middleware('auth');
+       
+        $this->middleware('permission:manage_dropdown_option',  ['only' => ['index','destroy']]);
+        $this->middleware('permission:view_dropdown_option',  ['only' => ['dropdowns','index']]);
+        $this->middleware('permission:add_dropdown_option',  ['only' => ['create','store']]);
+        $this->middleware('permission:edit_dropdown_option',  ['only' => ['edit','update']]);
+    }
+
     public function dropdowns()
     {
         $dropdowns = Dropdown::orderBy('name')->get();
