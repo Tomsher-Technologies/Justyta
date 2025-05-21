@@ -15,12 +15,12 @@
                                 @method('PATCH')
                                 <div class="form-group row mb-25">
                                     <div class="col-sm-12 d-flex aling-items-center">
-                                        <label for="inputName"
-                                            class=" col-form-label color-dark fw-500 align-center">Role Name <span class="text-danger">*</span></label>
+                                        <label for="inputName" class=" col-form-label color-dark fw-500 align-center">Role
+                                            Name <span class="text-danger">*</span></label>
                                     </div>
                                     <div class="col-sm-12">
-                                        <input type="text" placeholder="Enter role name" value="{{ old('name', $role->name) }}"
-                                            id="name" name="name"
+                                        <input type="text" placeholder="Enter role name"
+                                            value="{{ old('name', $role->name) }}" id="name" name="name"
                                             class="form-control ih-medium ip-gray radius-xs b-light px-15">
                                         @error('name')
                                             <div class="alert alert-danger">{{ $message }}</div>
@@ -43,11 +43,13 @@
                                             @endphp
                                             <div class="col-sm-12 d-flex mt-2">
                                                 <div class="permission-group">
-                                                    <label class="parent-label checkbox-label">
+
+                                                    <label class="parent-label custom-checkbox-label">
                                                         <input type="checkbox" name="permissions[]"
                                                             value="{{ $parent->name }}" {{ $selected }}
-                                                            class="parent-checkbox  demo-sw mr-2"
+                                                            class="parent-checkbox demo-sw mr-2"
                                                             data-parent="{{ $parent->name }}">
+                                                        <span class="custom-checkmark"></span>
                                                         {{ $parent->title }}
                                                     </label>
 
@@ -55,15 +57,22 @@
                                                         @foreach ($parent->children as $child)
                                                             @php
                                                                 $selectedChild = '';
-                                                                if (in_array($child->id, old('permission', $rolePermissions))) {
+                                                                if (
+                                                                    in_array(
+                                                                        $child->id,
+                                                                        old('permission', $rolePermissions),
+                                                                    )
+                                                                ) {
                                                                     $selectedChild = 'checked';
                                                                 }
                                                             @endphp
-                                                            <label class="child-label checkbox-label">
+
+                                                            <label class="custom-checkbox-label">
                                                                 <input type="checkbox" name="permissions[]"
-                                                                    value="{{ $child->name }}" {{$selectedChild}}
-                                                                    class="child-checkbox  demo-sw mr-2"
+                                                                    value="{{ $child->name }}" {{ $selectedChild }}
+                                                                    class="child-checkbox"
                                                                     data-parent="{{ $parent->name }}">
+                                                                <span class="custom-checkmark"></span>
                                                                 {{ $child->title }}
                                                             </label>
                                                         @endforeach
@@ -95,6 +104,55 @@
 
 @section('style')
     <style>
+        .custom-checkbox-label {
+            position: relative;
+            padding-left: 28px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            user-select: none;
+        }
+
+        .custom-checkbox-label input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .custom-checkmark {
+            position: absolute;
+            left: 0;
+            top: 2px;
+            height: 15px;
+            width: 15px;
+            background-color: #ccc;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .custom-checkbox-label input:checked~.custom-checkmark {
+            background-color: #08834a;
+        }
+
+        .custom-checkmark::after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .custom-checkbox-label input:checked~.custom-checkmark::after {
+            display: block;
+            left: 6px;
+            top: 2px;
+            width: 4px;
+            height: 9px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
         /* Style the checkbox container */
         .permission-group {
             /* margin-bottom: 15px; */
@@ -120,14 +178,6 @@
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-        }
-
-        /* Custom styled checkboxes */
-        input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            margin-right: 2px;
-            cursor: pointer;
         }
 
         /* Label hover effect */

@@ -11,6 +11,14 @@ use Illuminate\Support\Facades\Storage;
 
 class ServiceController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('auth');
+       
+        $this->middleware('permission:manage_service',  ['only' => ['index','destroy']]);
+        $this->middleware('permission:view_service',  ['only' => ['index']]);
+        $this->middleware('permission:edit_service',  ['only' => ['edit','update','updateStatus']]);
+    }
 
     public function index()
     {

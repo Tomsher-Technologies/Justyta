@@ -36,7 +36,7 @@ class PermissionSeeder extends Seeder
             ['id' => 24, 'parent_id' => 21, 'name' => 'edit_document_type', 'title' => 'Edit Document Type', 'guard_name' => 'web', 'is_active' => 1],
             ['id' => 25, 'parent_id' => null, 'name' => 'manage_service', 'title' => 'Manage Services', 'guard_name' => 'web', 'is_active' => 1],
             ['id' => 26, 'parent_id' => 25, 'name' => 'view_service', 'title' => 'View Service', 'guard_name' => 'web', 'is_active' => 1],
-            ['id' => 27, 'parent_id' => 25, 'name' => 'add_service', 'title' => 'Add Service', 'guard_name' => 'web', 'is_active' => 1],
+            ['id' => 27, 'parent_id' => 25, 'name' => 'add_service', 'title' => 'Add Service', 'guard_name' => 'web', 'is_active' => 0],
             ['id' => 28, 'parent_id' => 25, 'name' => 'edit_service', 'title' => 'Edit Service', 'guard_name' => 'web', 'is_active' => 1],
         ]);
     }
