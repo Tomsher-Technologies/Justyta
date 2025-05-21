@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\MembershipPlanController;
 use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\DropdownOptionController;
 use App\Http\Controllers\Admin\DocumentTypeController;
+use App\Http\Controllers\Admin\ServiceController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -48,6 +49,13 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     // Manage document types
     Route::resource('document-types', DocumentTypeController::class);
     Route::post('/document-types/status', [DocumentTypeController::class, 'updateStatus'])->name('document-types.status');
+
+    // Manage service 
+    Route::resource('services', ServiceController::class);
+
+    // Optional: For status toggle via AJAX
+    Route::post('services/{id}/toggle-status', [ServiceController::class, 'toggleStatus'])->name('services.toggleStatus');
+    Route::post('/services/status', [ServiceController::class, 'updateStatus'])->name('services.status');
     // User Management
     // Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
     // Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');

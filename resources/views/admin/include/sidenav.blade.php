@@ -13,6 +13,16 @@
 
                 </li>
 
+                @can('manage_service')
+                    <li class="">
+                        <a href="{{ route('services.index') }}"
+                            class="{{ areActiveRoutes(['services.index', 'services.edit']) }}">
+                            <span data-feather="layers" class="nav-icon"></span>
+                            <span class="menu-text">Services</span>
+                        </a>
+                    </li>
+                @endcan
+
                 @can('manage_vendors')
                     <li class="has-child {{ areActiveRoutes(['vendors.create', 'vendors.index']) }}">
                         <a href="#" class="{{ areActiveRoutes(['vendors.create', 'vendors.index']) }}">
@@ -76,6 +86,8 @@
 
                         </li>
                     @endcan
+
+
 
                     @can('manage_document_type')
                         <li class="">
