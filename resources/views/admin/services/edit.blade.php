@@ -92,6 +92,14 @@
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
                                             </div>
+
+                                            <div class="form-group">
+                                                <label class="col-form-label color-dark fw-500">Form Section Info
+                                                    ({{ $lang->name }})
+                                                </label>
+                                                <textarea name="translations[{{ $lang->code }}][info]" @if ($lang->rtl == 1) dir="rtl" @endif
+                                                    class="form-control ip-gray radius-xs b-light px-15" rows="2">{{ old('translations.' . $lang->code . '.info', $trans->info ?? '') }}</textarea>
+                                            </div>
                                         </div>
                                     @endforeach
 

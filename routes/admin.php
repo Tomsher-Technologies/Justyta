@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\DropdownOptionController;
 use App\Http\Controllers\Admin\DocumentTypeController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\PageController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -52,10 +53,11 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 
     // Manage service 
     Route::resource('services', ServiceController::class);
-
-    // Optional: For status toggle via AJAX
-    Route::post('services/{id}/toggle-status', [ServiceController::class, 'toggleStatus'])->name('services.toggleStatus');
     Route::post('/services/status', [ServiceController::class, 'updateStatus'])->name('services.status');
+
+    // Manage pages
+    Route::resource('pages', PageController::class);
+
     // User Management
     // Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
     // Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');

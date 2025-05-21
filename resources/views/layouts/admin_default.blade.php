@@ -1,15 +1,16 @@
 <!doctype html>
 <html lang="en" dir="ltr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="robots" content="noindex">
+    <meta name="robots" content="noindex, nofollow">
     <title>{{ env('APP_NAME') }}</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/fontawesome.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
@@ -25,14 +26,15 @@
     <link rel="icon" href="{{ asset('assets/img/favicon.ico') }}">
     @yield('style')
     <style>
-        body{
+        body {
             font-size: 13px !important;
         }
     </style>
 </head>
+
 <body class="layout-light side-menu overlayScroll">
     <div class="mobile-search">
-       
+
     </div>
 
     <div class="mobile-author-actions"></div>
@@ -74,16 +76,16 @@
     <script src="{{ asset('assets/js/moment.js') }}"></script>
     <script src="{{ asset('assets/js/daterangepicker.js') }}"></script>
     <script src="{{ asset('assets/js/main.js') }}"></script>
-   
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-   
+
 
     <script>
         toastr.options = {
-            "closeButton": true,             // Adds the close (×) button
-            "progressBar": true,             // Shows the loading/progress bar
-            "timeOut": "5000",               // Auto-close after 5 seconds
-            "extendedTimeOut": "1000",       // Extra time when hovered
+            "closeButton": true, // Adds the close (×) button
+            "progressBar": true, // Shows the loading/progress bar
+            "timeOut": "5000", // Auto-close after 5 seconds
+            "extendedTimeOut": "1000", // Extra time when hovered
             "positionClass": "toast-top-right", // Position (you can change this)
             "showDuration": "300",
             "hideDuration": "1000",
@@ -110,7 +112,10 @@
             console.log(new Date());
             const events = ['mousemove', 'keydown', 'scroll', 'click'];
             events.forEach(eventType => {
-                const event = new Event(eventType, { bubbles: true, cancelable: true });
+                const event = new Event(eventType, {
+                    bubbles: true,
+                    cancelable: true
+                });
                 document.dispatchEvent(event);
             });
         }
@@ -127,4 +132,5 @@
     </script>
     @yield('script')
 </body>
+
 </html>

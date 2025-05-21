@@ -100,6 +100,43 @@
                     @endcan
                 @endcanany
 
+                @canany(['manage_website_settings'])
+                    <li class="menu-title m-top-10">
+                        <span>Wbsite Contents</span>
+                    </li>
+                    @can('update_header')
+                        <li class="">
+                            <a href="{{ route('dropdowns.index') }}"
+                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index']) }}">
+                                <span data-feather="list" class="nav-icon"></span>
+                                <span class="menu-text">Header</span>
+                            </a>
+
+                        </li>
+                    @endcan
+
+                    @can('update_footer')
+                        <li class="">
+                            <a href="{{ route('dropdowns.index') }}"
+                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index']) }}">
+                                <span data-feather="list" class="nav-icon"></span>
+                                <span class="menu-text">Footer</span>
+                            </a>
+
+                        </li>
+                    @endcan
+
+                    @can('update_page_contents')
+                        <li class="">
+                            <a href="{{ route('pages.index') }}" class="{{ areActiveRoutes(['pages.index', 'pages.edit']) }}">
+                                <span data-feather="file-text" class="nav-icon"></span>
+                                <span class="menu-text">Page Contents</span>
+                            </a>
+
+                        </li>
+                    @endcan
+                @endcanany
+
                 @canany(['manage_roles', 'manage_staff'])
                     <li class="menu-title m-top-10">
                         <span>Staff & Roles</span>

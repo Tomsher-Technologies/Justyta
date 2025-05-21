@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('service_translations', function (Blueprint $table) {
+        Schema::create('page_translations', function (Blueprint $table) {
             $table->engine('InnoDB');
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
             $table->id();
-            $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
+            $table->foreignId('page_id')->constrained()->onDelete('cascade');
             $table->string('lang');
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->text('info')->nullable();
+            $table->string('title')->nullable();       // Optional
+            $table->text('description')->nullable();   // Optional
+            $table->longText('content')->nullable();   // Optional
             $table->timestamps();
+
+            $table->unique(['page_id', 'lang']);
         });
     }
 
@@ -30,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('service_translations');
+        Schema::dropIfExists('page_translations');
     }
 };

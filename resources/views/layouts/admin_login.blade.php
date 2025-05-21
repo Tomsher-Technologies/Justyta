@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ env('APP_NAME') }}</title>
@@ -53,8 +54,8 @@
     <script src="{{ asset('assets/js/moment.js') }}"></script>
     <script src="{{ asset('assets/js/daterangepicker.js') }}"></script>
     <script src="{{ asset('assets/js/main.js') }}"></script>
-    
-   
+
+
 
     @yield('script')
     <!-- endinject-->

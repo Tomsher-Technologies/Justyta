@@ -72,7 +72,7 @@ class ServiceController extends Controller
         foreach ($request->translations as $langId => $transData) {
             ServiceTranslation::updateOrCreate(
                 ['service_id' => $service->id, 'lang' => $langId],
-                ['description' => $transData['description'] ?? null]
+                ['description' => $transData['description'] ?? null,'info' => $transData['info'] ?? null]
             );
         }
         session()->flash('success', 'Service updated successfully.');
