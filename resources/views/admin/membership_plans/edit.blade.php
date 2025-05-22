@@ -16,22 +16,63 @@
                             <div class="row">
 
                                 <!-- Title -->
-                                <div class="col-md-6 mb-25">
-                                    <label  class="col-form-label color-dark fw-500 align-center">Title <span class="text-danger">*</span></label>
-                                    <input type="text" name="title" value="{{ old('title', $plan->title) }}"
-                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
-                                    @error('title')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
+                                <div class="col-md-12 mb-3">
+                                    <!-- Language Tabs -->
+                                    <ul class="nav nav-tabs custom-lang-tabs w-100" id="langTabs" role="tablist"
+                                        style="display: flex; flex-wrap: wrap;">
+                                        @foreach ($languages as $lang)
+                                            <li class="nav-item flex-fill text-center">
+                                                <a class="nav-link @if ($loop->first) active @endif"
+                                                    id="tab-{{ $lang->code }}" data-toggle="tab"
+                                                    href="#lang-{{ $lang->code }}" role="tab"
+                                                    aria-controls="lang-{{ $lang->code }}"
+                                                    aria-selected="{{ $loop->first ? 'true' : 'false' }}">
+                                                    <span class="flag-icon flag-icon-{{ $lang->flag }} mr-1"></span>
+                                                    {{ $lang->name }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+
+                                    <!-- Tab Contents -->
+                                    <div class="tab-content custom-tab-content" id="langTabsContent">
+                                        @foreach ($languages as $lang)
+                                            @php
+                                                $trans = $plan->translations->firstWhere('lang', $lang->code);
+                                            @endphp
+                                            <div class="tab-pane fade @if ($loop->first) show active @endif"
+                                                id="lang-{{ $lang->code }}" role="tabpanel"
+                                                aria-labelledby="tab-{{ $lang->code }}">
+                                                <div class="form-group">
+                                                    <label class="col-form-label color-dark fw-500 align-center">Title
+                                                        ({{ $lang->name }})
+                                                        @if ($lang->code == 'en')
+                                                            <span class="text-danger">*</span>
+                                                        @endif
+                                                    </label>
+                                                    <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
+                                                        name="translations[{{ $lang->code }}][title]"
+                                                        class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                                        value="{{ old('translations.' . $lang->code . '.title', $trans->title ?? '') }}">
+                                                    @error("translations.$lang->code.title")
+                                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+
+                                            </div>
+                                        @endforeach
+
+                                    </div>
                                 </div>
 
                                 <!-- Icon -->
                                 <div class="col-md-6 mb-25">
-                                    <label  class="col-form-label color-dark fw-500 align-center">Icon <span class="text-danger">*</span></label>
+                                    <label class="col-form-label color-dark fw-500 align-center">Icon <span
+                                            class="text-danger">*</span></label>
                                     <input type="file" name="icon"
                                         class="form-control ih-medium ip-gray radius-xs b-light px-15">
                                     <img src="{{ asset(getUploadedImage($plan->icon)) }}" alt="Plan Icon" class="mt-2"
-                                            style="max-width: 80px;">
+                                        style="max-width: 80px;">
                                     @error('icon')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
@@ -39,8 +80,8 @@
 
                                 <!-- Amount -->
                                 <div class="col-md-6 mb-25">
-                                    <label  class="col-form-label color-dark fw-500 align-center">Amount (Plan Price/Year) <span
-                                            class="text-danger">*</span></label>
+                                    <label class="col-form-label color-dark fw-500 align-center">Amount (Plan Price/Year)
+                                        <span class="text-danger">*</span></label>
                                     <input type="number" step="0.01" name="amount"
                                         value="{{ old('amount', $plan->amount) }}"
                                         class="form-control ih-medium ip-gray radius-xs b-light px-15">
@@ -51,8 +92,8 @@
 
                                 <!-- Member Count -->
                                 <div class="col-md-6 mb-25">
-                                    <label  class="col-form-label color-dark fw-500 align-center">Member Count (Max Users Access) <span
-                                            class="text-danger">*</span></label>
+                                    <label class="col-form-label color-dark fw-500 align-center">Member Count (Max Users
+                                        Access) <span class="text-danger">*</span></label>
                                     <input type="number" name="member_count"
                                         value="{{ old('member_count', $plan->member_count) }}"
                                         class="form-control ih-medium ip-gray radius-xs b-light px-15">
@@ -63,8 +104,8 @@
 
                                 <!-- EN → AR Translation Price -->
                                 <div class="col-md-6 mb-25">
-                                    <label  class="col-form-label color-dark fw-500 align-center">EN → AR Translation / Page <span
-                                            class="text-danger">*</span></label>
+                                    <label class="col-form-label color-dark fw-500 align-center">EN → AR Translation / Page
+                                        <span class="text-danger">*</span></label>
                                     <input type="number" step="0.01" name="en_ar_price"
                                         value="{{ old('en_ar_price', $plan->en_ar_price) }}"
                                         class="form-control ih-medium ip-gray radius-xs b-light px-15">
@@ -75,8 +116,8 @@
 
                                 <!-- Foreign → AR Translation Price -->
                                 <div class="col-md-6 mb-25">
-                                    <label  class="col-form-label color-dark fw-500 align-center">Foreign → AR Translation / Page <span
-                                            class="text-danger">*</span></label>
+                                    <label class="col-form-label color-dark fw-500 align-center">Foreign → AR Translation /
+                                        Page <span class="text-danger">*</span></label>
                                     <input type="number" step="0.01" name="for_ar_price"
                                         value="{{ old('for_ar_price', $plan->for_ar_price) }}"
                                         class="form-control ih-medium ip-gray radius-xs b-light px-15">
@@ -87,7 +128,8 @@
 
                                 <!-- Job Posts -->
                                 <div class="col-md-6 mb-25">
-                                    <label  class="col-form-label color-dark fw-500 align-center">Job Posts / Year <span class="text-danger">*</span></label>
+                                    <label class="col-form-label color-dark fw-500 align-center">Job Posts / Year <span
+                                            class="text-danger">*</span></label>
                                     <input type="number" name="job_post_count"
                                         value="{{ old('job_post_count', $plan->job_post_count) }}"
                                         class="form-control ih-medium ip-gray radius-xs b-light px-15">
@@ -98,8 +140,8 @@
 
                                 <!-- Free Ad Days -->
                                 <div class="col-md-6 mb-25">
-                                    <label  class="col-form-label color-dark fw-500 align-center">Annual Free Advertisement Days <span
-                                            class="text-danger">*</span></label>
+                                    <label class="col-form-label color-dark fw-500 align-center">Annual Free Advertisement
+                                        Days <span class="text-danger">*</span></label>
                                     <input type="number" name="annual_free_ad_days"
                                         value="{{ old('annual_free_ad_days', $plan->annual_free_ad_days) }}"
                                         class="form-control ih-medium ip-gray radius-xs b-light px-15">
@@ -110,7 +152,8 @@
 
                                 <!-- Welcome Gift -->
                                 <div class="col-md-6 mb-25">
-                                    <label  class="col-form-label color-dark fw-500 align-center">Welcome Gift <span class="text-danger">*</span></label>
+                                    <label class="col-form-label color-dark fw-500 align-center">Welcome Gift <span
+                                            class="text-danger">*</span></label>
                                     <select name="welcome_gift"
                                         class="form-select form-control ih-medium ip-gray radius-xs b-light px-15">
                                         <option value="no"
@@ -141,12 +184,13 @@
 
                                 @foreach ($radios as $field => $label)
                                     <div class="col-md-6 mb-3">
-                                        <label  class="col-form-label color-dark fw-500 align-center">{{ $label }}</label>
+                                        <label
+                                            class="col-form-label color-dark fw-500 align-center">{{ $label }}</label>
                                         <div class="radio-horizontal-list d-flex">
                                             <div class="radio-theme-default custom-radio ">
                                                 <input class="radio" type="radio" name="{{ $field }}"
-                                                id="{{ $field }}_yes" value="1"
-                                                {{ old($field, $plan->$field) == '1' ? 'checked' : '' }}>
+                                                    id="{{ $field }}_yes" value="1"
+                                                    {{ old($field, $plan->$field) == '1' ? 'checked' : '' }}>
                                                 <label for="{{ $field }}_yes">
                                                     <span class="radio-text">Yes</span>
                                                 </label>
@@ -154,8 +198,8 @@
 
                                             <div class="radio-theme-default custom-radio ">
                                                 <input class="radio" type="radio" name="{{ $field }}"
-                                                id="{{ $field }}_no" value="0"
-                                                {{ old($field, $plan->$field) == '0' ? 'checked' : '' }}>
+                                                    id="{{ $field }}_no" value="0"
+                                                    {{ old($field, $plan->$field) == '0' ? 'checked' : '' }}>
                                                 <label for="{{ $field }}_no">
                                                     <span class="radio-text">No</span>
                                                 </label>
@@ -181,4 +225,57 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('style')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css@4.1.7/css/flag-icons.min.css">
+
+    <style>
+        .ck-editor__editable_inline {
+            min-height: 400px;
+            /* or 300px, etc. */
+        }
+
+        .flag-icon {
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .custom-lang-tabs {
+            /* margin-top: 20px; */
+            border-bottom: 0;
+            background: #f1f1f1;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+
+        .custom-lang-tabs .nav-link {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: #555;
+            border-radius: 0;
+            transition: background-color 0.3s ease;
+            padding: 12px 0;
+        }
+
+        .custom-lang-tabs .nav-link:hover {
+            background-color: #e2e6ea;
+        }
+
+        .custom-lang-tabs .nav-link.active {
+            background-color: #d3be89cf;
+            color: #000;
+            /* border-color: #c4b07f; */
+            font-weight: 500;
+        }
+
+        .custom-tab-content {
+            border: 1px solid #ddd;
+            border-top: none;
+            padding: 20px;
+            border-radius: 0 0 8px 8px;
+            background-color: #fff;
+        }
+    </style>
 @endsection

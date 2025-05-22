@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\MembershipPlan;
+use App\Models\MembershipPlanTranslation;
+use App\Models\Language;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -28,14 +30,15 @@ class MembershipPlanController extends Controller
     // Show create form
     public function create()
     {
-        return view('admin.membership_plans.create');
+        $languages = Language::where('status', 1)->get();
+        return view('admin.membership_plans.create', compact('languages'));
     }
 
     // Store new plan
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'translations.en.title' => 'required|string|max:255',
             'icon' => 'required|image|mimes:png,jpg,jpeg,svg|max:2048',
             'amount' => 'required|numeric',
             'member_count' => 'required|integer',
@@ -49,6 +52,10 @@ class MembershipPlanController extends Controller
             'annual_legal_contract' => 'required|boolean',
             'unlimited_training_applications' => 'required|boolean',
             'is_active' => 'required|boolean',
+        ],[
+            'translations.en.title.required' => 'The english title field is required.',
+            'translations.en.title.max' => 'The english title may not be greater than 255 characters.',
+            'translations.en.title.string' => 'The english title must be a valid text string.',
         ]);
 
         $iconPath = '';
@@ -56,22 +63,34 @@ class MembershipPlanController extends Controller
             $iconPath = uploadImage('membership_icons', $request->icon, 'image_1');
         }
       
-        MembershipPlan::create([
-            'title' => $request->title,
-            'icon' => $iconPath,
-            'amount' => $request->amount,
-            'member_count' => $request->member_count,
-            'en_ar_price' => $request->en_ar_price,
-            'for_ar_price' => $request->for_ar_price,
-            'job_post_count' => $request->job_post_count,
-            'annual_free_ad_days' => $request->annual_free_ad_days,
-            'welcome_gift' => $request->welcome_gift,
-            'live_online' => $request->live_online,
-            'specific_law_firm_choice' => $request->specific_law_firm_choice,
-            'annual_legal_contract' => $request->annual_legal_contract,
-            'unlimited_training_applications' => $request->unlimited_training_applications,
-            'is_active' => $request->is_active,
-        ]);
+        $plan = MembershipPlan::create([
+                    'icon' => $iconPath,
+                    'amount' => $request->amount,
+                    'member_count' => $request->member_count,
+                    'en_ar_price' => $request->en_ar_price,
+                    'for_ar_price' => $request->for_ar_price,
+                    'job_post_count' => $request->job_post_count,
+                    'annual_free_ad_days' => $request->annual_free_ad_days,
+                    'welcome_gift' => $request->welcome_gift,
+                    'live_online' => $request->live_online,
+                    'specific_law_firm_choice' => $request->specific_law_firm_choice,
+                    'annual_legal_contract' => $request->annual_legal_contract,
+                    'unlimited_training_applications' => $request->unlimited_training_applications,
+                    'is_active' => $request->is_active,
+                ]);
+
+        foreach ($request->translations as $lang => $trans) {
+            if($lang == 'en'){
+                $plan->title = $trans['title'];
+                $plan->save();
+            }
+            if($trans['title'] != ''){
+                MembershipPlanTranslation::updateOrCreate(
+                    ['membership_plan_id' => $plan->id, 'lang' => $lang],
+                    ['title' => $trans['title']]
+                );
+            }
+        }
 
         session()->flash('success', 'Membership Plan created successfully.');
         return redirect()->route('membership-plans.index');
@@ -81,7 +100,9 @@ class MembershipPlanController extends Controller
     public function edit($id)
     {
         $plan = MembershipPlan::findOrFail($id);
-        return view('admin.membership_plans.edit', compact('plan'));
+        $plan->load('translations');
+        $languages = Language::where('status', 1)->get();
+        return view('admin.membership_plans.edit', compact('plan','languages'));
     }
 
     // Update existing plan
@@ -90,7 +111,7 @@ class MembershipPlanController extends Controller
         $plan = MembershipPlan::findOrFail($id);
 
         $request->validate([
-            'title' => 'required|string|max:255',
+            'translations.en.title' => 'required|string|max:255',
             'icon' => 'nullable|image|mimes:png,jpg,jpeg,svg|max:2048',
             'amount' => 'required|numeric',
             'member_count' => 'required|integer',
@@ -104,10 +125,14 @@ class MembershipPlanController extends Controller
             'annual_legal_contract' => 'required|boolean',
             'unlimited_training_applications' => 'required|boolean',
             'is_active' => 'required|boolean',
+        ],[
+            'translations.en.title.required' => 'The english title field is required.',
+            'translations.en.title.max' => 'The english title may not be greater than 255 characters.',
+            'translations.en.title.string' => 'The english title must be a valid text string.',
         ]);
 
         $data = $request->only([
-            'title', 'amount', 'member_count', 'en_ar_price', 'for_ar_price',
+            'amount', 'member_count', 'en_ar_price', 'for_ar_price',
             'job_post_count', 'annual_free_ad_days', 'welcome_gift',
             'live_online', 'specific_law_firm_choice', 'annual_legal_contract',
             'unlimited_training_applications', 'is_active',
@@ -123,6 +148,17 @@ class MembershipPlanController extends Controller
         }
 
         $plan->update($data);
+
+        foreach ($request->translations as $lang => $trans) {
+            if($lang == 'en'){
+                $plan->title = $trans['title'];
+                $plan->save();
+            }
+            MembershipPlanTranslation::updateOrCreate(
+                ['membership_plan_id' => $plan->id, 'lang' => $lang],
+                ['title' => $trans['title']]
+            );
+        }
 
         return redirect()->route('membership-plans.index')->with('success', 'Membership Plan updated successfully.');
     }
