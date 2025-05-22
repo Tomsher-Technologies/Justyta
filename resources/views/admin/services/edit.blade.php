@@ -41,7 +41,8 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="col-form-label color-dark fw-500">Status</label>
+                                <label class="col-form-label color-dark fw-500">Status <span
+                                        class="text-danger">*</span></label>
                                 <select name="status" class="form-control ih-small ip-gray radius-xs b-light px-15">
                                     <option value="1" {{ $service->status ? 'selected' : '' }}>Active</option>
                                     <option value="0" {{ !$service->status ? 'selected' : '' }}>Inactive</option>
@@ -83,6 +84,9 @@
                                             <div class="form-group">
                                                 <label class="col-form-label color-dark fw-500">Description
                                                     ({{ $lang->name }})
+                                                    @if ($lang->code == 'en')
+                                                        <span class="text-danger">*</span>
+                                                    @endif
                                                 </label>
                                                 <textarea name="translations[{{ $lang->code }}][description]" @if ($lang->rtl == 1) dir="rtl" @endif
                                                     class="form-control ip-gray radius-xs b-light px-15 @error('translations.' . $lang->code . '.description') is-invalid @enderror"

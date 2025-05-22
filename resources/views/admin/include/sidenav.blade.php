@@ -24,8 +24,9 @@
                 @endcan
 
                 @can('manage_vendors')
-                    <li class="has-child {{ areActiveRoutes(['vendors.create', 'vendors.index']) }}">
-                        <a href="#" class="{{ areActiveRoutes(['vendors.create', 'vendors.index']) }}">
+                    <li class="has-child {{ areActiveRoutes(['vendors.create', 'vendors.edit', 'vendors.index']) }}">
+                        <a href="#"
+                            class="{{ areActiveRoutes(['vendors.create', 'vendors.edit', 'vendors.index']) }}">
                             <span data-feather="users" class="nav-icon"></span>
                             <span class="menu-text">Law Firms</span>
                             <span class="toggle-icon"></span>
@@ -100,10 +101,11 @@
                     @endcan
                 @endcanany
 
-                @canany(['manage_website_settings'])
+                @canany(['manage_website_settings', 'manage_news'])
                     <li class="menu-title m-top-10">
                         <span>Wbsite Contents</span>
                     </li>
+
                     @can('update_header')
                         <li class="">
                             <a href="{{ route('dropdowns.index') }}"
@@ -135,6 +137,29 @@
 
                         </li>
                     @endcan
+
+                    @can('manage_news')
+                        <li class="has-child {{ areActiveRoutes(['news.create', 'news.edit', 'news.index']) }}">
+                            <a href="#" class="{{ areActiveRoutes(['news.create', 'news.edit', 'news.index']) }}">
+                                <span data-feather="globe" class="nav-icon"></span>
+                                <span class="menu-text">News</span>
+                                <span class="toggle-icon"></span>
+                            </a>
+                            <ul>
+                                @can('add_news')
+                                    <li>
+                                        <a class="{{ areActiveRoutes(['news.create']) }}" href="{{ route('news.create') }}">Add
+                                            New News</a>
+                                    </li>
+                                @endcan
+                                <li>
+                                    <a class="{{ areActiveRoutes(['news.edit', 'news.index']) }}"
+                                        href="{{ route('news.index') }}">All News</a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endcan
+
                 @endcanany
 
                 @canany(['manage_roles', 'manage_staff'])
@@ -143,8 +168,8 @@
                     </li>
 
                     @can('manage_staff')
-                        <li class="has-child {{ areActiveRoutes(['staffs.create', 'staffs.index']) }}">
-                            <a href="#" class="{{ areActiveRoutes(['staffs.create', 'staffs.index']) }}">
+                        <li class="has-child {{ areActiveRoutes(['staffs.create', 'staffs.edit', 'staffs.index']) }}">
+                            <a href="#" class="{{ areActiveRoutes(['staffs.create', 'staffs.edit', 'staffs.index']) }}">
                                 <span data-feather="users" class="nav-icon"></span>
                                 <span class="menu-text">Staffs</span>
                                 <span class="toggle-icon"></span>
@@ -174,7 +199,8 @@
                             <ul>
                                 @can('add_role')
                                     <li>
-                                        <a class="{{ areActiveRoutes(['roles.create']) }}" href="{{ route('roles.create') }}">Add
+                                        <a class="{{ areActiveRoutes(['roles.create']) }}"
+                                            href="{{ route('roles.create') }}">Add
                                             New Role</a>
                                     </li>
                                 @endcan

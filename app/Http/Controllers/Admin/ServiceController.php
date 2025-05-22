@@ -51,7 +51,7 @@ class ServiceController extends Controller
             'status' => 'required|boolean',
             'translations.en.description' => 'required|string',
         ],[
-            'translations.en.description.required' => 'The English description field is required.',
+            'translations.en.description.required' => 'The english description field is required.',
         ]);
 
         $iconPath = $service->icon;

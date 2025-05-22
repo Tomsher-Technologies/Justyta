@@ -77,7 +77,10 @@ class DropdownOptionController extends Controller
         $request->validate([
             'status' => 'required|in:active,inactive',
             'sort_order' => 'nullable|integer',
-            'translations.*.name' => 'required|string',
+            'translations.en.name' => 'required|string',
+        ],[
+            'translations.en.name.required' => 'This field is required',
+            'status.required' => 'Status is required',
         ]);
 
         $option->update([

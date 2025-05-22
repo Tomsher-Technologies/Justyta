@@ -24,6 +24,9 @@
                                                     <div class="col-md-3">
                                                         <label class="col-form-label color-dark fw-500 align-center">Name
                                                             ({{ $lang->name }})
+                                                            @if ($lang->code == 'en')
+                                                                <span class="text-danger">*</span>
+                                                            @endif
                                                         </label>
                                                         <input type="text" name="translations[{{ $lang->code }}][name]"
                                                             class="form-control ih-small ip-gray radius-xs b-light px-15 @error('translations.' . $lang->code . '.name') is-invalid @enderror"
@@ -35,7 +38,8 @@
                                                 @endforeach
 
                                                 <div class="col-md-2">
-                                                    <label class="col-form-label color-dark fw-500 align-center">Status</label>
+                                                    <label class="col-form-label color-dark fw-500 align-center">Status <span
+                                                            class="text-danger">*</span></label>
                                                     <select name="status"
                                                         class="form-control ih-small ip-gray radius-xs b-light px-15 @error('status') is-invalid @enderror">
                                                         <option value="active"
@@ -171,10 +175,13 @@
                             <div class="col-md-6">
                                 <label class="col-form-label color-dark fw-500 align-center">Name
                                     ({{ $lang->name }})
+                                    @if ($lang->code == 'en')
+                                        <span class="text-danger">*</span>
+                                    @endif
                                 </label>
                                 <input type="text" name="translations[{{ $lang->code }}][name]"
                                     class="form-control ih-small ip-gray radius-xs b-light px-15"
-                                    id="edit-name-{{ $lang->code }}">
+                                    id="edit-name-{{ $lang->code }}" @if ($lang->code == 'en') required @endif>
                             </div>
                         @endforeach
 
@@ -222,16 +229,8 @@
                 $('#edit-sort-order').val(sortOrder);
 
                 @foreach ($languages as $lang)
-                    const name_ {
-                        {
-                            $lang - > code
-                        }
-                    } = button.data('name-{{ $lang->code }}');
-                    $('#edit-name-{{ $lang->code }}').val(name_ {
-                        {
-                            $lang - > code
-                        }
-                    });
+                    const name_{{ $lang->code }} = button.data('name-{{ $lang->code }}');
+                    $('#edit-name-{{ $lang->code }}').val(name_{{ $lang->code }});
                 @endforeach
             });
 

@@ -122,6 +122,14 @@
 
         setInterval(simulate, 60000);
 
+        $(".alldatepicker").datepicker({
+            dateFormat: "d MM yy",
+            duration: "medium",
+            changeMonth: true,
+            changeYear: true,
+            maxDate: 0
+        });
+
         $(".datepicker").datepicker({
             dateFormat: "d MM yy",
             duration: "medium",

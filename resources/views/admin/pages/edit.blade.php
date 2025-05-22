@@ -46,9 +46,14 @@
                                                 <div class="form-group">
                                                     <label class="col-form-label color-dark fw-500">Title
                                                         ({{ $lang->name }})
+                                                        @if ($lang->code == 'en')
+                                                            <span class="text-danger">*</span>
+                                                        @endif
                                                     </label>
-                                                    <input type="text" name="translations[{{ $lang->code }}][title]"
-                                                        class="form-control" value="{{ $trans->title ?? '' }}">
+                                                    <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
+                                                        name="translations[{{ $lang->code }}][title]"
+                                                        class="form-control" value="{{ $trans->title ?? '' }}"
+                                                        @if ($lang->code == 'en') required @endif>
                                                 </div>
                                             @endif
 
@@ -56,10 +61,13 @@
                                                 <div class="form-group">
                                                     <label class="col-form-label color-dark fw-500">Description
                                                         ({{ $lang->name }})
+                                                        @if ($lang->code == 'en')
+                                                            <span class="text-danger">*</span>
+                                                        @endif
                                                     </label>
                                                     <textarea name="translations[{{ $lang->code }}][description]" @if ($lang->rtl == 1) dir="rtl" @endif
                                                         class="form-control ip-gray radius-xs b-light px-15 @error('translations.' . $lang->code . '.description') is-invalid @enderror"
-                                                        rows="5">{{ old('translations.' . $lang->code . '.description', $trans->description ?? '') }}</textarea>
+                                                        rows="5" @if ($lang->code == 'en') required @endif>{{ old('translations.' . $lang->code . '.description', $trans->description ?? '') }}</textarea>
 
                                                     @error("translations.$lang->code.description")
                                                         <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -77,9 +85,13 @@
                                                 <div class="form-group">
                                                     <label class="col-form-label color-dark fw-500">Content
                                                         ({{ $lang->name }})
+                                                        @if ($lang->code == 'en')
+                                                            <span class="text-danger">*</span>
+                                                        @endif
                                                     </label>
                                                     <textarea name="translations[{{ $lang->code }}][content]" @if ($lang->rtl == 1) dir="rtl" @endif
-                                                        class="form-control ip-gray radius-xs b-light px-15" rows="5">{{ old('translations.' . $lang->code . '.content', $trans->content ?? '') }}</textarea>
+                                                        @if ($lang->code == 'en') required @endif class="form-control ip-gray radius-xs b-light px-15"
+                                                        rows="5">{{ old('translations.' . $lang->code . '.content', $trans->content ?? '') }}</textarea>
                                                 </div>
                                             @endif
                                         </div>

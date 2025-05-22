@@ -254,7 +254,7 @@
 
             $('.edit-btn').click(function() {
                 let button = $(this);
-
+                $('#formErrors').addClass('d-none');
                 $('#typeId').val(button.data('id'));
                 $('#typeName').val(button.data('name'));
                 $('#typeParent').val(button.data('parent'));
