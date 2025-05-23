@@ -83,3 +83,10 @@
 .w-95 {
     width: 95% !important;
 }
+
+hr {
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    border: 0 !important;
+    border-top: 1px solid #e3e6ef !important;
+}

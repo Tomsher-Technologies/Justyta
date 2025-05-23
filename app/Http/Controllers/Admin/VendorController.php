@@ -62,47 +62,62 @@ class VendorController extends Controller
 
     public function store(Request $request)
     {
+        
          $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email',
             'phone' => 'required|string|max:20',
+            'owner_name' => 'required|string|max:255',
+            'owner_email' => 'required|email|unique:users,email',
+            'owner_phone' => 'required|string|max:20',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'office_address' => 'nullable|string',
-            'city_emirate' => 'nullable|string|max:255',
+            'emirate_id' => 'required',
             'country' => 'nullable|string|max:255',
             'subscription_plan_id' => 'required',
             'password' => 'required|string|min:6|confirmed',
             'trade_license' => 'required|file|mimes:jpg,jpeg,png,svg,pdf|max:2048',
-            'trade_license_expiry' => 'nullable|date',
+            'trade_license_expiry' => 'required|date',
             'emirates_id_front' => 'required|file|mimes:jpg,jpeg,png,svg,pdf|max:2048',
             'emirates_id_back' => 'required|file|mimes:jpg,jpeg,png,svg,pdf|max:2048',
-            'emirates_id_expiry' => 'nullable|date',
+            'emirates_id_expiry' => 'required|date',
             'residence_visa' => 'required|file|mimes:jpg,jpeg,png,svg,pdf|max:2048',
-            'residence_visa_expiry' => 'nullable|date',
+            'residence_visa_expiry' => 'required|date',
             'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf|max:2048',
-            'passport_expiry' => 'nullable|date',
+            'passport_expiry' => 'required|date',
             'card_of_law' => 'required|file|mimes:jpg,jpeg,png,svg,pdf|max:2048',
-            'card_of_law_expiry' => 'nullable|date',
+            'card_of_law_expiry' => 'required|date',
+        ],[
+            '*.required' => 'This field is required.'
         ]);
-
 
         if ($validator->fails()) {
             return redirect()->route('vendors.create')->withErrors($validator)->withInput();
         }
+        // echo '<pre>';
+        // print_r($request->all());
+        // die;
 
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'email' => $request->owner_email,
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
             'user_type' => 'vendor',
         ]);
 
         $vendor = new Vendor([
-            'logo'                  => $request->hasfile('logo') ? uploadImage('vendors/'.$user->id, $request->logo, 'image_') : NULL,
+            'law_firm_name'         => $request->name, 
+            'law_firm_email'        => $request->email, 
+            'law_firm_phone'        => $request->phone, 
             'office_address'        => $request->office_address,
-            'city'                  => $request->city,
-            'country'               => $request->country,
+            'owner_name'            => $request->owner_name, 
+            'owner_email'           => $request->owner_email,  
+            'owner_phone'           => $request->owner_phone,  
+            'emirate_id'            => $request->emirate_id, 
+            'trn'                   => $request->trn, 
+            'logo'                  => $request->hasfile('logo') ? uploadImage('vendors/'.$user->id, $request->logo, 'image_') : NULL, 
+            'about' => $request->about,  
+            'country' => 'UAE', 
             'trade_license'         => $request->hasfile('trade_license') ? uploadImage('vendors/'.$user->id, $request->trade_license, 'image_') : NULL,
             'trade_license_expiry'  => $request->trade_license_expiry ? Carbon::parse($request->trade_license_expiry)->format('Y-m-d') : null,
             'emirates_id_front'     => $request->hasfile('emirates_id_front') ? uploadImage('vendors/'.$user->id, $request->emirates_id_front, 'image_') : NULL,

@@ -11,6 +11,16 @@ use Carbon\Carbon;
 
 class NewsController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('auth');
+       
+        $this->middleware('permission:manage_news',  ['only' => ['index']]);
+        $this->middleware('permission:delete_news',  ['only' => ['destroy']]);
+        $this->middleware('permission:add_news',  ['only' => ['create','store']]);
+        $this->middleware('permission:edit_news',  ['only' => ['edit','update']]);
+    }
+
     public function index()
     {
         $news = News::with('translations')->orderBy('news_date','desc')->paginate(15);

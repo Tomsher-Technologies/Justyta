@@ -13,7 +13,7 @@ use App\Http\Controllers\Admin\DocumentTypeController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\NewsController;
-
+use App\Http\Controllers\Admin\JobPostController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -63,6 +63,9 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     //Manage news
     Route::resource('news', NewsController::class);
     Route::post('/news/status', [NewsController::class, 'updateStatus'])->name('news.status');
+
+    //Manage job posts
+    Route::resource('job-posts', JobPostController::class);
 
     // User Management
     // Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');

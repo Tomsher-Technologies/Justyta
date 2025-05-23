@@ -48,6 +48,30 @@
                 @endcan
 
 
+                @can('manage_job_post')
+                    <li class="has-child {{ areActiveRoutes(['job-posts.create', 'job-posts.edit', 'job-posts.index']) }}">
+                        <a href="#"
+                            class="{{ areActiveRoutes(['job-posts.create', 'job-posts.edit', 'job-posts.index']) }}">
+                            <span data-feather="briefcase" class="nav-icon"></span>
+                            <span class="menu-text">Job Posts</span>
+                            <span class="toggle-icon"></span>
+                        </a>
+                        <ul>
+                            @can('add_job_post')
+                                <li>
+                                    <a class="{{ areActiveRoutes(['job-posts.create']) }}"
+                                        href="{{ route('job-posts.create') }}">Add New Job Post</a>
+                                </li>
+                            @endcan
+
+                            <li>
+                                <a class="{{ areActiveRoutes(['job-posts.edit', 'job-posts.index']) }}"
+                                    href="{{ route('job-posts.index') }}">All Job Posts</a>
+                            </li>
+                        </ul>
+                    </li>
+                @endcan
+
                 @canany(['manage_plan', 'manage_dropdown_option'])
                     <li class="menu-title m-top-10">
                         <span>Settings</span>
