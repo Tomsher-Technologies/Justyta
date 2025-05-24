@@ -30,4 +30,17 @@ class Vendor extends Model
         return $this->hasOne(VendorSubscription::class)->latestOfMany();
     }
 
+    protected static function booted()
+    {
+        static::creating(function ($vendor) {
+            $vendor->ref_no = self::generateReferenceNumber();
+        });
+    }
+
+    public static function generateReferenceNumber()
+    {
+        $lastId = self::max('id') ?? 0;
+        $nextId = $lastId + 1;
+        return 'LF-' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
+    }
 }

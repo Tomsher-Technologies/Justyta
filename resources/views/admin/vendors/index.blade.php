@@ -26,10 +26,10 @@
 
                             <form method="GET" action="{{ route('vendors.index') }}">
                                 <div class="row mb-2">
-                                    <div class="col-md-3 input-group  mb-1">
+                                    <div class="col-md-4 input-group  mb-1">
                                         <input type="text" name="keyword" value="{{ request('keyword') }}"
                                             class="form-control ih-small ip-gray radius-xs b-light px-15"
-                                            placeholder="Search name, email or phone">
+                                            placeholder="Search name, email, phone or reference no.">
                                     </div>
                                     <div class="col-md-3 input-group  mb-1">
                                         <select name="plan_id"
@@ -43,7 +43,19 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-3 mb-1 d-flex flex-wrap align-items-end">
+
+                                    <div class="col-md-3 input-group  mb-1">
+                                        <select name="status"
+                                            class="form-control ih-small ip-gray radius-xs b-light px-15">
+                                            <option value="">--Select Status--</option>
+                                            <option value="1" {{ request()->status == 1 ? 'selected' : '' }}>Active
+                                            </option>
+                                            <option value="2" {{ request()->status == 2 ? 'selected' : '' }}>Inactive
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-2 mb-1 d-flex flex-wrap align-items-end">
                                         <button class="btn btn-primary btn-sm " type="submit">Filter</button>
                                         <a href="{{ route('vendors.index') }}"
                                             class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
@@ -56,6 +68,7 @@
                                     <thead>
                                         <tr class="userDatatable-header">
                                             <th class="text-center">#</th>
+                                            <th>Reference No</th>
                                             <th width="25%">Law Firm Name</th>
                                             <th>Owner</th>
                                             <th class="text-center">Plan</th>
@@ -74,6 +87,7 @@
                                                         <td class="text-center">
                                                             {{ $key + 1 + ($vendors->currentPage() - 1) * $vendors->perPage() }}
                                                         </td>
+                                                        <td class="text-center">{{ $vendor->ref_no }}</td>
                                                         <td>
                                                             <div class="d-flex align-items-center">
                                                                 @if ($vendor->logo)
@@ -203,7 +217,7 @@
             /* margin-bottom: 8px; */
             color: var(--primary);
             /* border-bottom: 1px solid #e9ecef;
-                                            padding-bottom: 4px; */
+                                                                                                padding-bottom: 4px; */
         }
 
         .custom-popover .popover-item i {

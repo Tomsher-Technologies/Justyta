@@ -17,33 +17,27 @@
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
 
-                            {{-- <form class="row mb-2" id="sort_brands" action="" method="GET">
-                                <div class="col-md-3 input-group  mb-1">
-                                    <input type="text" class="form-control ih-small ip-gray radius-xs b-light px-15"
-                                        id="search"
-                                        name="search"@isset($sort_search) value="{{ $sort_search }}" @endisset
-                                        placeholder="Type name,email or phone">
-                                </div>
+                            <form method="GET" action="{{ route('services.index') }}">
+                                <div class="row mb-2">
 
-                                <div class="col-md-3 input-group  mb-1">
-                                    <select name="role_id"
-                                        class="form-control ih-small ip-gray radius-xs b-light px-15 aiz-selectpicker">
-                                        <option value="">All Roles</option>
-                                        @foreach (Spatie\Permission\Models\Role::where('is_active', 1)->get() as $role)
-                                            <option value="{{ $role->name }}"
-                                                {{ $role_id == $role->name ? 'selected' : '' }}>
-                                                {{ $role->name }}
+                                    <div class="col-md-3 input-group  mb-1">
+                                        <select name="status"
+                                            class="form-control ih-small ip-gray radius-xs b-light px-15">
+                                            <option value="">--Select Status--</option>
+                                            <option value="1" {{ request()->status == 1 ? 'selected' : '' }}>Active
                                             </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                            <option value="2" {{ request()->status == 2 ? 'selected' : '' }}>Inactive
+                                            </option>
+                                        </select>
+                                    </div>
 
-                                <div class="col-md-3 mb-1 d-flex flex-wrap align-items-end">
-                                    <button class="btn btn-primary btn-sm " type="submit">Filter</button>
-                                    <a href="{{ route('staffs.index') }}"
-                                        class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
+                                    <div class="col-md-3 mb-1 d-flex flex-wrap align-items-end">
+                                        <button class="btn btn-primary btn-sm " type="submit">Filter</button>
+                                        <a href="{{ route('services.index') }}"
+                                            class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
+                                    </div>
                                 </div>
-                            </form> --}}
+                            </form>
 
                             <div class="table-responsive">
                                 <table class="table table-bordered table-basic mb-0">

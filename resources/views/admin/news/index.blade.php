@@ -22,6 +22,27 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
+                            <form method="GET" action="{{ route('news.index') }}">
+                                <div class="row mb-2">
+
+                                    <div class="col-md-3 input-group  mb-1">
+                                        <select name="status"
+                                            class="form-control ih-small ip-gray radius-xs b-light px-15">
+                                            <option value="">--Select Status--</option>
+                                            <option value="1" {{ request()->status == 1 ? 'selected' : '' }}>Active
+                                            </option>
+                                            <option value="2" {{ request()->status == 2 ? 'selected' : '' }}>Inactive
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 mb-1 d-flex flex-wrap align-items-end">
+                                        <button class="btn btn-primary btn-sm " type="submit">Filter</button>
+                                        <a href="{{ route('news.index') }}"
+                                            class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
+                                    </div>
+                                </div>
+                            </form>
                             <div class="table-responsive">
                                 <table class="table table-bordered table-basic mb-0">
                                     <thead>

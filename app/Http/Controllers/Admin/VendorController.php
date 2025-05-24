@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+
 
 class VendorController extends Controller
 {
@@ -39,10 +41,24 @@ class VendorController extends Controller
         // Filter by keyword in name, email or phone
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
-            $query->whereHas('user', function ($q) use ($keyword) {
-                $q->where('name', 'like', "%{$keyword}%")
-                ->orWhere('email', 'like', "%{$keyword}%")
-                ->orWhere('phone', 'like', "%{$keyword}%");
+            $query->where('law_firm_name', 'like', "%{$keyword}%")
+                ->orWhere('law_firm_email', 'like', "%{$keyword}%")
+                ->orWhere('law_firm_phone', 'like', "%{$keyword}%")
+                ->orWhere('owner_name', 'like', "%{$keyword}%")
+                ->orWhere('owner_email', 'like', "%{$keyword}%")
+                ->orWhere('owner_phone', 'like', "%{$keyword}%")
+                ->orWhere('ref_no', 'like', "%{$keyword}%");
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            // Assuming 1 = active, 2 = inactive; 
+            $query->whereHas('user', function ($q) use ($request) {
+                 if ($request->status == 1) {
+                    $q->where('banned', 0);
+                } elseif ($request->status == 2) {
+                    $q->where('banned', 1);
+                }
             });
         }
 
@@ -167,29 +183,37 @@ class VendorController extends Controller
     {
         $vendor = Vendor::with(['user', 'currentSubscription'])->findOrFail($id);
         $user = $vendor->user;
-
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email',
             'phone' => 'required|string|max:20',
+            'owner_name' => 'required|string|max:255',
+            'owner_email' => [
+                    'required',
+                    'email',
+                    Rule::unique('users', 'email')
+                        ->ignore($user->id)
+                        ->where('user_type', 'vendor'),
+                ],
+            'owner_phone' => 'required|string|max:20',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:2048',
-            'office_address' => 'nullable|string',
-            'city_emirate' => 'nullable|string|max:255',
+            'emirate_id' => 'required',
             'country' => 'nullable|string|max:255',
             'subscription_plan_id' => 'required',
             'password' => 'nullable|string|min:6|confirmed',
-
             'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
-            'trade_license_expiry' => 'nullable|date',
+            'trade_license_expiry' => 'required|date',
             'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
             'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
-            'emirates_id_expiry' => 'nullable|date',
+            'emirates_id_expiry' => 'required|date',
             'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
-            'residence_visa_expiry' => 'nullable|date',
+            'residence_visa_expiry' => 'required|date',
             'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
-            'passport_expiry' => 'nullable|date',
+            'passport_expiry' => 'required|date',
             'card_of_law' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
-            'card_of_law_expiry' => 'nullable|date',
+            'card_of_law_expiry' => 'required|date',
+        ],[
+            '*.required' => 'This field is required.'
         ]);
 
         if ($validator->fails()) {
@@ -198,7 +222,7 @@ class VendorController extends Controller
 
         $user->update([
             'name' => $request->name,
-            'email' => $request->email,
+            'email' => $request->owner_email,
             'phone' => $request->phone,
             'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
         ]);
@@ -206,10 +230,18 @@ class VendorController extends Controller
         $uploadPath = 'vendors/' . $user->id;
 
         $vendor->update([
-            'logo'                  => $this->replaceFile($request, 'logo', $vendor, $uploadPath),
+            'law_firm_name'         => $request->name, 
+            'law_firm_email'        => $request->email, 
+            'law_firm_phone'        => $request->phone, 
             'office_address'        => $request->office_address,
-            'city'                  => $request->city,
-            'country'               => $request->country,
+            'owner_name'            => $request->owner_name, 
+            'owner_email'           => $request->owner_email,  
+            'owner_phone'           => $request->owner_phone,  
+            'emirate_id'            => $request->emirate_id, 
+            'trn'                   => $request->trn, 
+            'logo'                  => $this->replaceFile($request, 'logo', $vendor, $uploadPath),
+            'about' => $request->about,  
+            'country' => 'UAE', 
             'trade_license'         => $this->replaceFile($request, 'trade_license', $vendor, $uploadPath),
             'trade_license_expiry'  => $request->trade_license_expiry ? Carbon::parse($request->trade_license_expiry)->format('Y-m-d') : $vendor->trade_license_expiry,
             'emirates_id_front'     => $this->replaceFile($request, 'emirates_id_front', $vendor, $uploadPath),
@@ -222,7 +254,6 @@ class VendorController extends Controller
             'card_of_law'           => $this->replaceFile($request, 'card_of_law', $vendor, $uploadPath),
             'card_of_law_expiry'    => $request->card_of_law_expiry ? Carbon::parse($request->card_of_law_expiry)->format('Y-m-d') : $vendor->card_of_law_expiry,
         ]);
-
 
         $user->vendor()->save($vendor);
         $plan = MembershipPlan::findOrFail($request->subscription_plan_id);
@@ -258,7 +289,7 @@ class VendorController extends Controller
             ]);
         }
 
-        session()->flash('success', 'Law Firm created successfully.');
+        session()->flash('success', 'Law Firm updated successfully.');
         return redirect()->route('vendors.index');
     }
 

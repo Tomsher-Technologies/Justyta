@@ -20,12 +20,23 @@ class ServiceController extends Controller
         $this->middleware('permission:edit_service',  ['only' => ['edit','update','updateStatus']]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $services = Service::with([
             'translations',
             'children.translations'
-        ])->orderBy('id')->get();
+        ])->orderBy('id');
+        
+        // Filter by status
+        if ($request->filled('status')) {
+            // Assuming 1 = active, 2 = inactive; 
+            if ($request->status == 1) {
+                $services->where('status', 1);
+            } elseif ($request->status == 2) {
+                $services->where('status', 0);
+            }
+        }
+        $services = $services->get();
 
         $defaultLangId = Language::where('code', 'en')->first()->id ?? 1;
 

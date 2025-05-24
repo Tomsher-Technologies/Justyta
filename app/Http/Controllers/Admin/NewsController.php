@@ -21,9 +21,21 @@ class NewsController extends Controller
         $this->middleware('permission:edit_news',  ['only' => ['edit','update']]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $news = News::with('translations')->orderBy('news_date','desc')->paginate(15);
+        $query = News::with('translations')->orderBy('news_date','desc');
+        
+        // Filter by status
+        if ($request->filled('status')) {
+            // Assuming 1 = active, 2 = inactive; 
+            if ($request->status == 1) {
+                $query->where('status', 1);
+            } elseif ($request->status == 2) {
+                $query->where('status', 0);
+            }
+        }
+
+        $news = $query->paginate(15);
         return view('admin.news.index', compact('news'));
     }
 
