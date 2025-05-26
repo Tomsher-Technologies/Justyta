@@ -236,7 +236,8 @@
 
                                         <div class="col-md-4 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center">Residence Visa
-                                                <span class="text-danger">*</span></label>
+                                                {{-- <span class="text-danger">*</span> --}}
+                                            </label>
                                             <input type="file" name="residence_visa" id="residence_visaInput"
                                                 accept="image/*,application/pdf"
                                                 class="form-control ih-small ip-gray radius-xs b-light px-15">
@@ -249,7 +250,9 @@
 
                                         <div class="col-md-4 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center">Residence Visa
-                                                Expiry <span class="text-danger">*</span> </label>
+                                                Expiry
+                                                {{-- <span class="text-danger">*</span>  --}}
+                                            </label>
                                             <input type="text" name="residence_visa_expiry" placeholder="d M Y"
                                                 class="form-control ih-small ip-gray radius-xs b-light px-15 datepicker"
                                                 value="{{ old('residence_visa_expiry') }}">

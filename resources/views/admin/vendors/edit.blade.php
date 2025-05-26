@@ -158,7 +158,7 @@
 
                                 <div class="col-md-4 mb-3">
                                     <label class="col-form-label color-dark fw-500 align-center">Trade License
-                                        Expiry</label>
+                                        Expiry <span class="text-danger">*</span></label>
                                     <input type="text" name="trade_license_expiry" placeholder="d M Y"
                                         class="form-control ih-small ip-gray radius-xs b-light px-15 datepicker"
                                         value="{{ old('trade_license_expiry', $vendor->trade_license_expiry ? \Carbon\Carbon::parse($vendor->trade_license_expiry)->format('d F Y') : '') }}">
@@ -277,7 +277,7 @@
 
                                 <div class="col-md-4 mb-3">
                                     <label class="col-form-label color-dark fw-500 align-center">Emirates ID
-                                        Expiry </label>
+                                        Expiry <span class="text-danger">*</span> </label>
                                     <input type="text" name="emirates_id_expiry" placeholder="d M Y"
                                         class="form-control ih-small ip-gray radius-xs b-light px-15 datepicker"
                                         value="{{ old('emirates_id_expiry', $vendor->emirates_id_expiry ? \Carbon\Carbon::parse($vendor->emirates_id_expiry)->format('d F Y') : '') }}">
@@ -288,7 +288,8 @@
 
                                 <div class="col-md-4 mb-3">
                                     <label class="col-form-label color-dark fw-500 align-center">Residence Visa
-                                        <span class="text-danger">*</span></label>
+                                        {{-- <span class="text-danger">*</span> --}}
+                                    </label>
                                     <input type="file" name="residence_visa" id="residence_visaInput"
                                         accept="image/*,application/pdf"
                                         class="form-control ih-small ip-gray radius-xs b-light px-15">
@@ -359,7 +360,7 @@
 
                                 <div class="col-md-4 mb-3">
                                     <label class="col-form-label color-dark fw-500 align-center">Passport
-                                        Expiry</label>
+                                        Expiry <span class="text-danger">*</span></label>
                                     <input type="text" name="passport_expiry" placeholder="d M Y"
                                         class="form-control ih-small ip-gray radius-xs b-light px-15 datepicker"
                                         value="{{ old('passport_expiry', $vendor->passport_expiry ? \Carbon\Carbon::parse($vendor->passport_expiry)->format('d F Y') : '') }}">
@@ -401,7 +402,7 @@
 
                                 <div class="col-md-4 mb-3">
                                     <label class="col-form-label color-dark fw-500 align-center">Card of Law
-                                        Expiry</label>
+                                        Expiry <span class="text-danger">*</span></label>
                                     <input type="text" name="card_of_law_expiry" placeholder="d M Y"
                                         class="form-control ih-small ip-gray radius-xs b-light px-15 datepicker"
                                         value="{{ old('card_of_law_expiry', $vendor->card_of_law_expiry ? \Carbon\Carbon::parse($vendor->card_of_law_expiry)->format('d F Y') : '') }}">
