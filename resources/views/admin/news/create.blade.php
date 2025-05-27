@@ -234,7 +234,7 @@
 @endsection
 
 @section('script')
-    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <script src="{{ asset('assets/js/tinymce/tinymce.min.js') }}"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -260,24 +260,19 @@
 
             // Initialize CKEditor on all .texteditor fields
             document.querySelectorAll('.texteditor').forEach(function(el) {
-                ClassicEditor
-                    .create(el, {
-                        language: el.getAttribute('dir') === 'rtl' ? 'ar' : 'en',
-                        toolbar: {
-                            items: [
-                                'heading', '|',
-                                'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
-                                'outdent', 'indent', '|',
-                                'undo', 'redo', 'blockQuote', 'insertTable'
-                            ]
-                        }
-                    })
-                    .then(editor => {
-                        editor.ui.view.editable.element.style.minHeight = '400px';
-                    })
-                    .catch(error => {
-                        console.error(error);
-                    });
+                tinymce.init({
+                    target: el,
+                    directionality: el.getAttribute('dir') === 'rtl' ? 'rtl' : 'ltr',
+                    height: 400,
+                    license_key: 'gpl',
+                    toolbar: 'undo redo | bold italic underline removeformat | alignleft aligncenter alignright | link | bullist numlist | outdent indent | blockquote | table | code preview',
+                    plugins: 'preview directionality code lists link table advlist',
+                    menubar: true,
+                    // Optional: remove status bar for a cleaner look
+                    statusbar: true,
+                    // Accept GPL license to remove evaluation warning:
+                
+                });
             });
 
         });

@@ -18,9 +18,9 @@
     <link rel="stylesheet" href="{{ asset('assets/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/star-rating-svg.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/wickedpicker.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/daterangepicker.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/line-awesome.min.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap/daterangepicker.css') }}" />
     <!-- endinject -->
 
     <link rel="icon" href="{{ asset('assets/img/favicon.ico') }}">
@@ -77,7 +77,8 @@
     <script src="{{ asset('assets/js/jquery.star-rating-svg.min.js') }}"></script>
     <script src="{{ asset('assets/js/wickedpicker.min.js') }}"></script>
     <script src="{{ asset('assets/js/moment.js') }}"></script>
-    <script src="{{ asset('assets/js/daterangepicker.js') }}"></script>
+    {{-- <script src="{{ asset('assets/js/daterangepicker.js') }}"></script> --}}
+    <script src="{{ asset('assets/js/bootstrap/daterangepicker.min.js') }}"></script>
     <script src="{{ asset('assets/js/main.js') }}"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

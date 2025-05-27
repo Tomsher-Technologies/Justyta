@@ -90,3 +90,8 @@ hr {
     border: 0 !important;
     border-top: 1px solid #e3e6ef !important;
 }
+
+.daterangepicker {
+    z-index: 9999 !important;
+}
+

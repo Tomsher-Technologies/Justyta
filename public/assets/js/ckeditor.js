@@ -1,0 +1,1 @@
+// Simulated CKEditor build JS file with sourceEditing plugin

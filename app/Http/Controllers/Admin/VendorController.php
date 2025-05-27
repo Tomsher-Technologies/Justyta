@@ -41,13 +41,15 @@ class VendorController extends Controller
         // Filter by keyword in name, email or phone
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
-            $query->where('law_firm_name', 'like', "%{$keyword}%")
-                ->orWhere('law_firm_email', 'like', "%{$keyword}%")
-                ->orWhere('law_firm_phone', 'like', "%{$keyword}%")
-                ->orWhere('owner_name', 'like', "%{$keyword}%")
-                ->orWhere('owner_email', 'like', "%{$keyword}%")
-                ->orWhere('owner_phone', 'like', "%{$keyword}%")
-                ->orWhere('ref_no', 'like', "%{$keyword}%");
+            $query->where(function ($q) use ($keyword){
+                $q->where('law_firm_name', 'like', "%{$keyword}%")
+                    ->orWhere('law_firm_email', 'like', "%{$keyword}%")
+                    ->orWhere('law_firm_phone', 'like', "%{$keyword}%")
+                    ->orWhere('owner_name', 'like', "%{$keyword}%")
+                    ->orWhere('owner_email', 'like', "%{$keyword}%")
+                    ->orWhere('owner_phone', 'like', "%{$keyword}%")
+                    ->orWhere('ref_no', 'like', "%{$keyword}%");
+            });
         }
 
         // Filter by status

@@ -10,6 +10,11 @@ class JobPost extends Model
         'user_id', 'user_type', 'ref_no', 'type', 'emirate', 'job_posted_date', 'deadline_date', 'status'
     ];
 
+    public function post_owner()
+    {
+        return $this->belongsTo(User::class,'user_id');
+    }
+
     public function translations()
     {
         return $this->hasMany(JobPostTranslation::class);
@@ -19,6 +24,11 @@ class JobPost extends Model
     {
         $lang = $lang ?: app()->getLocale();
         return $this->translations->where('lang', $lang)->first();
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Emirate::class,'emirate');
     }
 
      protected static function booted()

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Language;
 use App\Models\JobPost;
 use App\Models\JobPostTranslation;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class JobPostController extends Controller
 {
@@ -19,69 +22,146 @@ class JobPostController extends Controller
         $this->middleware('permission:edit_plan',  ['only' => ['edit','update']]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $job_posts = JobPost::with('translations')->orderBy('id','desc')->paginate(15);
-        return view('admin.job_posts.index', compact('job_posts'));
+        $query = JobPost::with(['translations','location','post_owner'])->orderBy('id','desc');
+
+        // Filter by keyword in name, email or phone
+        if ($request->filled('keyword')) {
+            $keyword = $request->keyword;
+            $query->where(function ($q) use ($keyword) {
+                $q->where('ref_no', 'like', "%{$keyword}%")
+                ->orWhereHas('translations', function ($qu) use ($keyword) {
+                    $qu->where('title', 'like', "%{$keyword}%");
+                });
+            });
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            // Assuming 1 = active, 2 = inactive; 
+            if ($request->status == 1) {
+                $query->where('status', 1);
+            } elseif ($request->status == 2) {
+                $query->where('status', 0);
+            }
+        }
+
+        if($request->filled('user_id')){
+            $query->where('user_id', $request->user_id);
+        }
+
+        if($request->filled('posted_date')){
+            $dates = explode(' - ', $request->posted_date);
+
+            if (count($dates) === 2) {
+                $startDate = $dates[0];
+                $endDate = $dates[1];
+
+                $query->whereBetween('job_posted_date', [$startDate, $endDate]);
+            }
+        }
+
+        if($request->filled('deadline_date')){
+            $datesDead = explode(' - ', $request->deadline_date);
+
+            if (count($datesDead) === 2) {
+                $startDateDead = $datesDead[0];
+                $endDateDead = $datesDead[1];
+
+                $query->whereBetween('deadline_date', [$startDateDead, $endDateDead]);
+            }
+        }
+
+        $job_posts = $query->paginate(15);
+        $users = User::whereIn('user_type', ['admin','staff','vendor'])->orderBy('name','asc')->get();
+        return view('admin.job_posts.index', compact('job_posts','users'));
     }
 
     public function create()
     {
-        return view('admin.job_posts.create');
+        $languages = Language::where('status', 1)->orderBy('id')->get();
+        return view('admin.job_posts.create',compact('languages'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'type' => 'required',
-            'salary_type' => 'required',
-            'job_posted_date' => 'required|date',
+            'emirate' => 'required',
             'deadline_date' => 'required|date',
-            'translations.*.title' => 'required',
-            'translations.*.description' => 'required',
-            'translations.*.salary' => 'required',
-            'translations.*.job_location' => 'required',
+            'translations.en.title' => 'required',
+            'translations.en.description' => 'required',
+            'translations.en.salary' => 'required'
+        ],[
+            '*.required' => 'This field is required',
+            'translations.en.*.required' => 'This field is required',
         ]);
 
         $job = JobPost::create([
             'type' => $request->type,
-            'salary_type' => $request->salary_type,
-            'job_posted_date' => $request->job_posted_date,
-            'deadline_date' => $request->deadline_date,
+            'job_posted_date' => date('Y-m-d'),
+            'deadline_date' => $request->deadline_date ? Carbon::parse($request->deadline_date)->format('Y-m-d') : null,
             'user_id' => auth()->id(),
+            'user_type' => 'admin',
+            'emirate' => $request->emirate
         ]);
 
-        foreach ($request->translations as $locale => $data) {
-            $data['locale'] = $locale;
+        foreach ($request->translations as $lang => $data) {
+            $data['lang'] = $lang;
             $data['job_post_id'] = $job->id;
             JobPostTranslation::create($data);
         }
-
-        return redirect()->route('job-posts.index')->with('success', 'Job created!');
+        session()->flash('success', 'Job post created successfully.');
+        return redirect()->route('job-posts.index');
     }
 
     public function edit(JobPost $jobPost)
     {
         $jobPost->load('translations');
-        return view('admin.job_posts.edit', compact('jobPost'));
+        $languages = Language::where('status', 1)->orderBy('id')->get();
+        return view('admin.job_posts.edit', compact('jobPost','languages'));
     }
 
     public function update(Request $request, JobPost $jobPost)
     {
-        $jobPost->update([
-            'type' => $request->type,
-            'salary_type' => $request->salary_type,
-            'job_posted_date' => $request->job_posted_date,
-            'deadline_date' => $request->deadline_date,
+
+        $request->validate([
+            'type' => 'required',
+            'emirate' => 'required',
+            'deadline_date' => 'required|date',
+            'translations.en.title' => 'required',
+            'translations.en.description' => 'required',
+            'translations.en.salary' => 'required'
+        ],[
+            '*.required' => 'This field is required',
+            'translations.en.*.required' => 'This field is required',
         ]);
 
-        foreach ($request->translations as $locale => $data) {
+        $jobPost->update([
+            'type' => $request->type,
+            'emirate' => $request->emirate,
+            'deadline_date' => $request->deadline_date ? Carbon::parse($request->deadline_date)->format('Y-m-d') : null,
+        ]);
+            // 'user_id' => auth()->id(),
+            // 'user_type' => 'admin',
+            
+        foreach ($request->translations as $lang => $data) {
             JobPostTranslation::updateOrCreate(
-                ['job_post_id' => $jobPost->id, 'locale' => $locale],
+                ['job_post_id' => $jobPost->id, 'lang' => $lang],
                 $data
             );
         }
+        session()->flash('Job post details updated successfully.');
+        return redirect()->route('job-posts.index');
+    }
 
-        return redirect()->route('job-posts.index')->with('success', 'Job updated!');
+    public function updateStatus(Request $request)
+    {
+        $jobpost = JobPost::findOrFail($request->id);
+        $jobpost->status = $request->status;
+        $jobpost->save();
+       
+        return 1;
     }
 }

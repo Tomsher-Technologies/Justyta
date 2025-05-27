@@ -1142,8 +1142,8 @@
       showOn: "focus",
       rangeSeparator: " - ",
       dateFormat: "dd/mm/yy",
-      useHiddenAltFields: true,
-      constrainInput: true
+      // useHiddenAltFields: true,
+      // constrainInput: true
     });
   });
 

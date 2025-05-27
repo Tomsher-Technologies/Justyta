@@ -66,7 +66,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 
     //Manage job posts
     Route::resource('job-posts', JobPostController::class);
-
+    Route::post('/job-posts/status', [JobPostController::class, 'updateStatus'])->name('job-posts.status');  
     // User Management
     // Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
     // Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
