@@ -27,7 +27,8 @@
                     <li class="has-child {{ areActiveRoutes(['vendors.create', 'vendors.edit', 'vendors.index']) }}">
                         <a href="#"
                             class="{{ areActiveRoutes(['vendors.create', 'vendors.edit', 'vendors.index']) }}">
-                            <span data-feather="users" class="nav-icon"></span>
+                            {{-- <span data-feather="user-plus" class="nav-icon"></span> --}}
+                            <i class="la la-building nav-icon"></i>
                             <span class="menu-text">Law Firms</span>
                             <span class="toggle-icon"></span>
                         </a>
@@ -47,6 +48,30 @@
                     </li>
                 @endcan
 
+                @can('manage_lawyers')
+                    <li class="has-child {{ areActiveRoutes(['lawyers.create', 'lawyers.edit', 'lawyers.index']) }}">
+                        <a href="#"
+                            class="{{ areActiveRoutes(['lawyers.create', 'lawyers.edit', 'lawyers.index']) }}">
+                            {{-- <span data-feather="users" class="nav-icon"></span> --}}
+                            <i class="la la-users nav-icon"></i>
+                            <span class="menu-text">Lawyers</span>
+                            <span class="toggle-icon"></span>
+                        </a>
+                        <ul>
+                            @can('add_lawyer')
+                                <li>
+                                    <a class="{{ areActiveRoutes(['lawyers.create']) }}"
+                                        href="{{ route('lawyers.create') }}">Add New Lawyer</a>
+                                </li>
+                            @endcan
+
+                            <li>
+                                <a class="{{ areActiveRoutes(['lawyers.edit', 'lawyers.index']) }}"
+                                    href="{{ route('lawyers.index') }}">All Lawyers</a>
+                            </li>
+                        </ul>
+                    </li>
+                @endcan
 
                 @can('manage_job_post')
                     <li class="has-child {{ areActiveRoutes(['job-posts.create', 'job-posts.edit', 'job-posts.index']) }}">
@@ -184,6 +209,27 @@
                         </li>
                     @endcan
 
+                    @can('manage_faqs')
+                        <li class="has-child {{ areActiveRoutes(['faqs.create', 'faqs.edit', 'faqs.index']) }}">
+                            <a href="#" class="{{ areActiveRoutes(['faqs.create', 'faqs.edit', 'faqs.index']) }}">
+                                <span data-feather="help-circle" class="nav-icon"></span>
+                                <span class="menu-text">FAQs</span>
+                                <span class="toggle-icon"></span>
+                            </a>
+                            <ul>
+                                @can('add_faq')
+                                    <li>
+                                        <a class="{{ areActiveRoutes(['faqs.create']) }}" href="{{ route('faqs.create') }}">Add
+                                            New FAQ</a>
+                                    </li>
+                                @endcan
+                                <li>
+                                    <a class="{{ areActiveRoutes(['faqs.edit', 'faqs.index']) }}"
+                                        href="{{ route('faqs.index') }}">All FAQs</a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endcan
                 @endcanany
 
                 @canany(['manage_roles', 'manage_staff'])
@@ -194,7 +240,8 @@
                     @can('manage_staff')
                         <li class="has-child {{ areActiveRoutes(['staffs.create', 'staffs.edit', 'staffs.index']) }}">
                             <a href="#" class="{{ areActiveRoutes(['staffs.create', 'staffs.edit', 'staffs.index']) }}">
-                                <span data-feather="users" class="nav-icon"></span>
+                                {{-- <span data-feather="users" class="nav-icon"></span> --}}
+                                <i class="la la-user-lock nav-icon"></i>
                                 <span class="menu-text">Staffs</span>
                                 <span class="toggle-icon"></span>
                             </a>

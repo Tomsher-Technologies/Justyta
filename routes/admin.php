@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\JobPostController;
+use App\Http\Controllers\Admin\FaqController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -67,6 +68,18 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     //Manage job posts
     Route::resource('job-posts', JobPostController::class);
     Route::post('/job-posts/status', [JobPostController::class, 'updateStatus'])->name('job-posts.status');  
+
+    //Manage faqs
+    Route::resource('faqs', FaqController::class)->except(['show']);
+    Route::post('/faq/status', [FaqController::class, 'updateStatus'])->name('faqs.status');  
+
+    // Manage lawyers
+    Route::resource('lawyers', VendorController::class);
+
+
+
+
+
     // User Management
     // Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
     // Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');

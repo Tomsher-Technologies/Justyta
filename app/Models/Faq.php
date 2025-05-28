@@ -4,18 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Emirate extends Model
+class Faq extends Model
 {
-    protected $fillable = [];
+    protected $fillable = ['status', 'sort_order'];
 
     public function translations()
     {
-        return $this->hasMany(EmirateTranslation::class);
+        return $this->hasMany(FaqTranslation::class);
     }
 
     public function translation($lang = null)
     {
-        $lang = $lang ?: app()->getLocale();
+        $lang = $lang ?? app()->getLocale();
         return $this->translations->where('lang', $lang)->first();
     }
 
@@ -31,4 +31,5 @@ class Emirate extends Model
 
         return $translations != null ? $translations->$field : $this->$field;
     }
+    
 }

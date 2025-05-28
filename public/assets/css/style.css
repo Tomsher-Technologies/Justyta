@@ -6858,6 +6858,7 @@ ul {
     margin-right: 20px;
     width: 16px;
     transition: all 0.3s ease;
+    font-size: 17px !important;
 }
 .sidebar__menu-group ul.sidebar_nav li > a .toggle-icon {
     font-size: 12px;
