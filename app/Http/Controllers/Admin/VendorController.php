@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\MembershipPlan;
+use App\Models\Language;
+use App\Models\VendorTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -25,7 +27,6 @@ class VendorController extends Controller
         $this->middleware('permission:add_vendor',  ['only' => ['create','store']]);
         $this->middleware('permission:edit_vendor',  ['only' => ['edit','update']]);
     }
-
 
     public function index(Request $request)
     {
@@ -64,7 +65,7 @@ class VendorController extends Controller
             });
         }
 
-        $vendors = $query->paginate(10); // or ->get() if you don’t want pagination
+        $vendors = $query->orderBy('id', 'DESC')->paginate(15); // or ->get() if you don’t want pagination
 
         // Optional: to populate dropdowns
         $plans = MembershipPlan::get();
@@ -75,14 +76,15 @@ class VendorController extends Controller
     public function create()
     {
         $plans = MembershipPlan::where('is_active', 1)->get();
-        return view('admin.vendors.create', compact('plans'));
+        $languages = Language::where('status', 1)->get();
+        return view('admin.vendors.create', compact('plans','languages'));
     }
 
     public function store(Request $request)
     {
         
          $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'translations.en.name' => 'required|string|max:255',
             'email' => 'required|email',
             'phone' => 'required|string|max:20',
             'owner_name' => 'required|string|max:255',
@@ -110,8 +112,12 @@ class VendorController extends Controller
             'passport_expiry' => 'required|date',
             'card_of_law' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:2048',
             'card_of_law_expiry' => 'required|date',
+            'consultation_commission' => 'required'
         ],[
-            '*.required' => 'This field is required.'
+            '*.required' => 'This field is required.',
+            'translations.en.name.required' => 'The lawyer name in english is required.',
+            'translations.en.name.max' => 'The lawyer name in english may not be greater than 255 characters.',
+            'translations.en.name.string' => 'The lawyer name in english must be a valid text string.',
         ]);
 
         if ($validator->fails()) {
@@ -122,7 +128,7 @@ class VendorController extends Controller
         // die;
 
         $user = User::create([
-            'name' => $request->name,
+            'name' => $request->translations['en']['name'],
             'email' => $request->owner_email,
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
@@ -130,33 +136,45 @@ class VendorController extends Controller
         ]);
 
         $vendor = new Vendor([
-            'law_firm_name'         => $request->name, 
-            'law_firm_email'        => $request->email, 
-            'law_firm_phone'        => $request->phone, 
-            'office_address'        => $request->office_address,
-            'owner_name'            => $request->owner_name, 
-            'owner_email'           => $request->owner_email,  
-            'owner_phone'           => $request->owner_phone,  
-            'emirate_id'            => $request->emirate_id, 
-            'trn'                   => $request->trn, 
-            'logo'                  => $request->hasfile('logo') ? uploadImage('vendors/'.$user->id, $request->logo, 'image_') : NULL, 
-            'about' => $request->about,  
+            'consultation_commission'   => $request->consultation_commission,
+            'law_firm_name'             => $request->translations['en']['name'], 
+            'law_firm_email'            => $request->email, 
+            'law_firm_phone'            => $request->phone, 
+            'office_address'            => $request->office_address,
+            'owner_name'                => $request->owner_name, 
+            'owner_email'               => $request->owner_email,  
+            'owner_phone'               => $request->owner_phone,  
+            'emirate_id'                => $request->emirate_id, 
+            'trn'                       => $request->trn, 
+            'logo'                      => $request->hasfile('logo') ? uploadImage('vendors/'.$user->id, $request->logo, 'image_') : NULL,  
             'country' => 'UAE', 
-            'trade_license'         => $request->hasfile('trade_license') ? uploadImage('vendors/'.$user->id, $request->trade_license, 'image_') : NULL,
-            'trade_license_expiry'  => $request->trade_license_expiry ? Carbon::parse($request->trade_license_expiry)->format('Y-m-d') : null,
-            'emirates_id_front'     => $request->hasfile('emirates_id_front') ? uploadImage('vendors/'.$user->id, $request->emirates_id_front, 'image_') : NULL,
-            'emirates_id_back'      => $request->hasfile('emirates_id_back') ? uploadImage('vendors/'.$user->id, $request->emirates_id_back, 'image_') : NULL,
-            'emirates_id_expiry'    => $request->emirates_id_expiry ? Carbon::parse($request->emirates_id_expiry)->format('Y-m-d') : null,
-            'residence_visa'        => $request->hasfile('residence_visa') ? uploadImage('vendors/'.$user->id, $request->residence_visa, 'image_') : NULL,
-            'residence_visa_expiry' => $request->residence_visa_expiry ? Carbon::parse($request->residence_visa_expiry)->format('Y-m-d') : null,
-            'passport'              => $request->hasfile('passport') ? uploadImage('vendors/'.$user->id, $request->passport, 'image_') : NULL,
-            'passport_expiry'       => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : null,
-            'card_of_law'           => $request->hasfile('card_of_law') ? uploadImage('vendors/'.$user->id, $request->card_of_law, 'image_') : NULL,
-            'card_of_law_expiry'    => $request->card_of_law_expiry ? Carbon::parse($request->card_of_law_expiry)->format('Y-m-d') : null,
+            'trade_license'             => $request->hasfile('trade_license') ? uploadImage('vendors/'.$user->id, $request->trade_license, 'image_') : NULL,
+            'trade_license_expiry'      => $request->trade_license_expiry ? Carbon::parse($request->trade_license_expiry)->format('Y-m-d') : null,
+            'emirates_id_front'         => $request->hasfile('emirates_id_front') ? uploadImage('vendors/'.$user->id, $request->emirates_id_front, 'image_') : NULL,
+            'emirates_id_back'          => $request->hasfile('emirates_id_back') ? uploadImage('vendors/'.$user->id, $request->emirates_id_back, 'image_') : NULL,
+            'emirates_id_expiry'        => $request->emirates_id_expiry ? Carbon::parse($request->emirates_id_expiry)->format('Y-m-d') : null,
+            'residence_visa'            => $request->hasfile('residence_visa') ? uploadImage('vendors/'.$user->id, $request->residence_visa, 'image_') : NULL,
+            'residence_visa_expiry'     => $request->residence_visa_expiry ? Carbon::parse($request->residence_visa_expiry)->format('Y-m-d') : null,
+            'passport'                  => $request->hasfile('passport') ? uploadImage('vendors/'.$user->id, $request->passport, 'image_') : NULL,
+            'passport_expiry'           => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : null,
+            'card_of_law'               => $request->hasfile('card_of_law') ? uploadImage('vendors/'.$user->id, $request->card_of_law, 'image_') : NULL,
+            'card_of_law_expiry'        => $request->card_of_law_expiry ? Carbon::parse($request->card_of_law_expiry)->format('Y-m-d') : null,
         ]);
 
         $user->vendor()->save($vendor);
         $plan = MembershipPlan::findOrFail($request->subscription_plan_id);
+
+        foreach ($request->translations as $lang => $fields) {
+            if(!empty($fields['name']) || !empty($fields['about'])){
+                VendorTranslation::updateOrCreate(
+                    ['vendor_id' => $vendor->id, 'lang' => $lang],
+                    [
+                        'law_firm_name' => $fields['name'],
+                        'about' => $fields['about']
+                    ]
+                );
+            }
+        }
         // Now store subscription with a snapshot
         $vendor->subscriptions()->create([
             'membership_plan_id'                => $plan->id,
@@ -184,7 +202,8 @@ class VendorController extends Controller
     {
         $vendor = Vendor::with('user', 'currentSubscription.plan')->findOrFail($id);
         $plans = MembershipPlan::where('is_active', 1)->get();
-        return view('admin.vendors.edit', compact('vendor','plans'));
+        $languages = Language::where('status', 1)->get();
+        return view('admin.vendors.edit', compact('vendor','plans','languages'));
     }
 
     public function update(Request $request, $id)
@@ -192,7 +211,7 @@ class VendorController extends Controller
         $vendor = Vendor::with(['user', 'currentSubscription'])->findOrFail($id);
         $user = $vendor->user;
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'translations.en.name' => 'required|string|max:255',
             'email' => 'required|email',
             'phone' => 'required|string|max:20',
             'owner_name' => 'required|string|max:255',
@@ -220,8 +239,12 @@ class VendorController extends Controller
             'passport_expiry' => 'required|date',
             'card_of_law' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
             'card_of_law_expiry' => 'required|date',
+            'consultation_commission' => 'required'
         ],[
-            '*.required' => 'This field is required.'
+            '*.required' => 'This field is required.',
+            'translations.en.name.required' => 'The lawyer name in english is required.',
+            'translations.en.name.max' => 'The lawyer name in english may not be greater than 255 characters.',
+            'translations.en.name.string' => 'The lawyer name in english must be a valid text string.',
         ]);
 
         if ($validator->fails()) {
@@ -238,32 +261,45 @@ class VendorController extends Controller
         $uploadPath = 'vendors/' . $user->id;
 
         $vendor->update([
-            'law_firm_name'         => $request->name, 
-            'law_firm_email'        => $request->email, 
-            'law_firm_phone'        => $request->phone, 
-            'office_address'        => $request->office_address,
-            'owner_name'            => $request->owner_name, 
-            'owner_email'           => $request->owner_email,  
-            'owner_phone'           => $request->owner_phone,  
-            'emirate_id'            => $request->emirate_id, 
-            'trn'                   => $request->trn, 
-            'logo'                  => $this->replaceFile($request, 'logo', $vendor, $uploadPath),
-            'about' => $request->about,  
+            'consultation_commission'   => $request->consultation_commission,
+            'law_firm_name'             => $request->name, 
+            'law_firm_email'            => $request->email, 
+            'law_firm_phone'            => $request->phone, 
+            'office_address'            => $request->office_address,
+            'owner_name'                => $request->owner_name, 
+            'owner_email'               => $request->owner_email,  
+            'owner_phone'               => $request->owner_phone,  
+            'emirate_id'                => $request->emirate_id, 
+            'trn'                       => $request->trn, 
+            'logo'                      => $this->replaceFile($request, 'logo', $vendor, $uploadPath),
             'country' => 'UAE', 
-            'trade_license'         => $this->replaceFile($request, 'trade_license', $vendor, $uploadPath),
-            'trade_license_expiry'  => $request->trade_license_expiry ? Carbon::parse($request->trade_license_expiry)->format('Y-m-d') : $vendor->trade_license_expiry,
-            'emirates_id_front'     => $this->replaceFile($request, 'emirates_id_front', $vendor, $uploadPath),
-            'emirates_id_back'      => $this->replaceFile($request, 'emirates_id_back', $vendor, $uploadPath),
-            'emirates_id_expiry'    => $request->emirates_id_expiry ? Carbon::parse($request->emirates_id_expiry)->format('Y-m-d') : $vendor->emirates_id_expiry,
-            'residence_visa'        => $this->replaceFile($request, 'residence_visa', $vendor, $uploadPath),
-            'residence_visa_expiry' => $request->residence_visa_expiry ? Carbon::parse($request->residence_visa_expiry)->format('Y-m-d') : $vendor->residence_visa_expiry,
-            'passport'              => $this->replaceFile($request, 'passport', $vendor, $uploadPath),
-            'passport_expiry'       => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : $vendor->passport_expiry,
-            'card_of_law'           => $this->replaceFile($request, 'card_of_law', $vendor, $uploadPath),
-            'card_of_law_expiry'    => $request->card_of_law_expiry ? Carbon::parse($request->card_of_law_expiry)->format('Y-m-d') : $vendor->card_of_law_expiry,
+            'trade_license'             => $this->replaceFile($request, 'trade_license', $vendor, $uploadPath),
+            'trade_license_expiry'      => $request->trade_license_expiry ? Carbon::parse($request->trade_license_expiry)->format('Y-m-d') : $vendor->trade_license_expiry,
+            'emirates_id_front'         => $this->replaceFile($request, 'emirates_id_front', $vendor, $uploadPath),
+            'emirates_id_back'          => $this->replaceFile($request, 'emirates_id_back', $vendor, $uploadPath),
+            'emirates_id_expiry'        => $request->emirates_id_expiry ? Carbon::parse($request->emirates_id_expiry)->format('Y-m-d') : $vendor->emirates_id_expiry,
+            'residence_visa'            => $this->replaceFile($request, 'residence_visa', $vendor, $uploadPath),
+            'residence_visa_expiry'     => $request->residence_visa_expiry ? Carbon::parse($request->residence_visa_expiry)->format('Y-m-d') : $vendor->residence_visa_expiry,
+            'passport'                  => $this->replaceFile($request, 'passport', $vendor, $uploadPath),
+            'passport_expiry'           => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : $vendor->passport_expiry,
+            'card_of_law'               => $this->replaceFile($request, 'card_of_law', $vendor, $uploadPath),
+            'card_of_law_expiry'        => $request->card_of_law_expiry ? Carbon::parse($request->card_of_law_expiry)->format('Y-m-d') : $vendor->card_of_law_expiry,
         ]);
 
         $user->vendor()->save($vendor);
+
+        foreach ($request->translations as $lang => $fields) {
+            if(!empty($fields['name']) || !empty($fields['about'])){
+                VendorTranslation::updateOrCreate(
+                    ['vendor_id' => $vendor->id, 'lang' => $lang],
+                    [
+                        'law_firm_name' => $fields['name'],
+                        'about' => $fields['about']
+                    ]
+                );
+            }
+        }
+
         $plan = MembershipPlan::findOrFail($request->subscription_plan_id);
 
         // Check if the plan has changed

@@ -22,15 +22,59 @@
                                         <div class="col-md-12 mb-4">
                                             <h5><u>Law Firm Details</u></h5>
                                         </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label class="col-form-label color-dark fw-500 align-center">Name <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="text" name="name" placeholder="Enter law firm name"
-                                                class="form-control ih-small ip-gray radius-xs b-light px-15 "
-                                                value="{{ old('name') }}" />
-                                            @error('name')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+
+                                        <div class="col-md-12 mb-3">
+                                            <!-- Language Tabs -->
+                                            <ul class="nav nav-tabs custom-lang-tabs w-100" id="langTabs" role="tablist"
+                                                style="display: flex; flex-wrap: wrap;">
+                                                @foreach ($languages as $lang)
+                                                    <li class="nav-item flex-fill text-center">
+                                                        <a class="nav-link @if ($loop->first) active @endif"
+                                                            id="tab-{{ $lang->code }}" data-toggle="tab"
+                                                            href="#lang-{{ $lang->code }}" role="tab"
+                                                            aria-controls="lang-{{ $lang->code }}"
+                                                            aria-selected="{{ $loop->first ? 'true' : 'false' }}">
+                                                            <span class="flag-icon flag-icon-{{ $lang->flag }} mr-1"></span>
+                                                            {{ $lang->name }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+
+                                            <!-- Tab Contents -->
+                                            <div class="tab-content custom-tab-content" id="langTabsContent">
+                                                @foreach ($languages as $lang)
+                                                    <div class="tab-pane fade @if ($loop->first) show active @endif"
+                                                        id="lang-{{ $lang->code }}" role="tabpanel"
+                                                        aria-labelledby="tab-{{ $lang->code }}">
+
+                                                        <div class="form-group">
+                                                            <label class="col-form-label color-dark fw-500 align-center">Law Firm Name
+                                                                ({{ $lang->name }})
+                                                                @if ($lang->code == 'en')
+                                                                    <span class="text-danger">*</span>
+                                                                @endif
+                                                            </label>
+                                                            <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
+                                                                name="translations[{{ $lang->code }}][name]" placeholder="Enter law firm name ({{ $lang->name }})"
+                                                                class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                                                value="{{ old('translations.' . $lang->code . '.name', '') }}">
+                                                            @error("translations.$lang->code.name")
+                                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label class="col-form-label color-dark fw-500 align-center">About
+                                                                Firm ({{ $lang->name }})</label>
+                                                            <textarea name="translations[{{ $lang->code }}][about]"  @if ($lang->rtl == 1) dir="rtl" @endif class="form-control ip-gray radius-xs b-light px-15 " rows="4"
+                                                                placeholder="Enter details about law firm ({{ $lang->name }})">{{ old('translations.' . $lang->code . '.about', '') }}</textarea>
+                                                        </div>
+                                            
+                                                    </div>
+                                                @endforeach
+
+                                            </div>
                                         </div>
 
                                         <div class="col-md-4 mb-3">
@@ -144,15 +188,7 @@
                                             @enderror
                                         </div>
 
-                                        <div class="col-md-8 mb-3">
-                                            <label class="col-form-label color-dark fw-500 align-center">About
-                                                Firm</label>
-                                            <textarea name="about" class="form-control ip-gray radius-xs b-light px-15 " rows="4"
-                                                placeholder="Enter details about law firm">{{ old('about') }}</textarea>
-                                            @error('about')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
+                                        
                                     </div>
                                 </div>
 
@@ -337,6 +373,24 @@
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3 mt-2">
+                                            <h5><u>Admin Commissions</u></h5>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center">Online Consultation Commission (%) <span class="text-danger">*</span></label>
+
+                                            <input type="number" step="0.01" name="consultation_commission" class="form-control ih-small ip-gray radius-xs b-light px-15 " value="{{ old('consultation_commission', 0) }}">
+                                            @error('consultation_commission')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>

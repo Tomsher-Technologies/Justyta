@@ -255,10 +255,10 @@
                                         <div class="col-md-4 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center">Emirates ID
                                                 Front </label>
-                                            <input type="file" name="emirates_id_front" id="emirates_id_frontInput"
+                                            <input type="file" name="emirate_id_front" id="emirates_id_frontInput"
                                                 accept="image/*,application/pdf"
                                                 class="form-control ih-small ip-gray radius-xs b-light px-15">
-                                            @error('emirates_id_front')
+                                            @error('emirate_id_front')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                             <div id="emirates_id_frontPreview" class="mt-2"
@@ -284,10 +284,10 @@
                                         <div class="col-md-4 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center">Emirates ID
                                                 Back </label>
-                                            <input type="file" name="emirates_id_back" id="emirates_id_backInput"
+                                            <input type="file" name="emirate_id_back" id="emirates_id_backInput"
                                                 accept="image/*,application/pdf"
                                                 class="form-control ih-small ip-gray radius-xs b-light px-15 ">
-                                            @error('emirates_id_back')
+                                            @error('emirate_id_back')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                            
