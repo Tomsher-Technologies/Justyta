@@ -181,55 +181,10 @@
 @endsection
 
 @section('style')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css@4.1.7/css/flag-icons.min.css">
+    
 
     <style>
-        .ck-editor__editable_inline {
-            min-height: 400px;
-            /* or 300px, etc. */
-        }
-
-        .flag-icon {
-            margin-right: 6px;
-            vertical-align: middle;
-        }
-
-        .custom-lang-tabs {
-            /* margin-top: 20px; */
-            border-bottom: 0;
-            background: #f1f1f1;
-            border-radius: 8px 8px 0 0;
-            overflow: hidden;
-        }
-
-        .custom-lang-tabs .nav-link {
-            width: 100%;
-            border: none;
-            background: transparent;
-            color: #555;
-            border-radius: 0;
-            transition: background-color 0.3s ease;
-            padding: 12px 0;
-        }
-
-        .custom-lang-tabs .nav-link:hover {
-            background-color: #e2e6ea;
-        }
-
-        .custom-lang-tabs .nav-link.active {
-            background-color: #d3be89cf;
-            color: #000;
-            /* border-color: #c4b07f; */
-            font-weight: 500;
-        }
-
-        .custom-tab-content {
-            border: 1px solid #ddd;
-            border-top: none;
-            padding: 20px;
-            border-radius: 0 0 8px 8px;
-            background-color: #fff;
-        }
+      
     </style>
 @endsection
 

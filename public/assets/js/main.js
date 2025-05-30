@@ -712,10 +712,10 @@
   });
 
   $("#select-tag,#select-tag2").select2({
-    placeholder: "Tags Mode",
+    placeholder: "Select options..",
     dropdownCssClass: "tag",
-    tags: ["red", "green", "blue"],
     allowClear: true,
+    width: '100%'
   });
 
 

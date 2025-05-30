@@ -14,16 +14,19 @@
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/fontawesome.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}">
+ 
     <link rel="stylesheet" href="{{ asset('assets/css/select2.min.css') }}">
+      
     <link rel="stylesheet" href="{{ asset('assets/css/star-rating-svg.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/wickedpicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/line-awesome.min.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap/daterangepicker.css') }}" />
+     <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}">
     <!-- endinject -->
 
     <link rel="icon" href="{{ asset('assets/img/favicon.ico') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css@4.1.7/css/flag-icons.min.css">
     @yield('style')
     <style>
         body {
@@ -141,6 +144,11 @@
             changeYear: true,
             minDate: 0 // Only allow today and future dates
         });
+
+            $('.select2').select2({
+                width: '100%',
+                placeholder: 'Select options'
+            });
     </script>
     @yield('script')
 </body>

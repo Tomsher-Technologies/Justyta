@@ -1,17 +1,17 @@
-@extends('layouts.admin_default', ['title' => 'All Law Firms'])
+@extends('layouts.admin_default', ['title' => 'All Lawyers'])
 
 @section('content')
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
-                    <h4 class="text-capitalize breadcrumb-title">All Law Firms</h4>
+                    <h4 class="text-capitalize breadcrumb-title">All Lawyers</h4>
                     <div class="breadcrumb-action justify-content-center flex-wrap">
 
-                        @can('add_vendor')
+                        @can('add_lawyer')
                             <div class="action-btn">
-                                <a href="{{ route('vendors.create') }}" class="btn btn-sm btn-primary btn-add">
-                                    <i class="la la-plus"></i> Add New Law Firm</a>
+                                <a href="{{ route('lawyers.create') }}" class="btn btn-sm btn-primary btn-add">
+                                    <i class="la la-plus"></i> Add New Lawyer</a>
                             </div>
                         @endcan
                     </div>
@@ -24,29 +24,29 @@
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
 
-                            <form method="GET" action="{{ route('vendors.index') }}">
+                            <form method="GET" action="{{ route('lawyers.index') }}">
                                 <div class="row mb-2">
                                     <div class="col-md-4 input-group  mb-1">
-                                        <input type="text" name="keyword" value="{{ request('keyword') }}"
-                                            class="form-control ih-small ip-gray radius-xs b-light px-15"
-                                            placeholder="Search name, email, phone or reference no.">
+                                        <label class="col-md-12 col-form-label color-dark fw-500 align-center pl-0">Search with keyword</label>
+                                        <input type="text" name="keyword" value="{{ request('keyword') }}" class="col-md-12 form-control ih-small ip-gray radius-xs b-light px-15" placeholder="Search name, email, phone or reference no.">
                                     </div>
                                     <div class="col-md-3 input-group  mb-1">
-                                        <select name="plan_id"
-                                            class="form-control ih-small ip-gray radius-xs b-light px-15 aiz-selectpicker">
-                                            <option value="">-- Select Plan --</option>
-                                            @foreach ($plans as $plan)
-                                                <option value="{{ $plan->id }}"
-                                                    {{ request('plan_id') == $plan->id ? 'selected' : '' }}>
-                                                    {{ $plan->title }}
+                                        <label class="col-md-12 col-form-label color-dark fw-500 align-center pl-0">Lawfirm</label>
+                                        <select name="lawfirm_id" class="col-md-12 form-control ih-small ip-gray radius-xs b-light px-15 select2" >
+                                            <option value="">-- Select Lawfirm --</option>
+                                            @foreach ($lawfirms as $lf)
+                                                <option value="{{ $lf->id }}"
+                                                    {{ request('lawfirm_id') == $lf->id ? 'selected' : '' }}>
+                                                    {{ $lf->law_firm_name }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
 
                                     <div class="col-md-3 input-group  mb-1">
+                                        <label class="col-md-12 col-form-label color-dark fw-500 align-center pl-0">Status</label>
                                         <select name="status"
-                                            class="form-control ih-small ip-gray radius-xs b-light px-15">
+                                            class="col-md-12 form-control ih-small ip-gray radius-xs b-light px-15">
                                             <option value="">--Select Status--</option>
                                             <option value="1" {{ request()->status == 1 ? 'selected' : '' }}>Active
                                             </option>
@@ -57,7 +57,7 @@
 
                                     <div class="col-md-2 mb-1 d-flex flex-wrap align-items-end">
                                         <button class="btn btn-primary btn-sm " type="submit">Filter</button>
-                                        <a href="{{ route('vendors.index') }}"
+                                        <a href="{{ route('lawyers.index') }}"
                                             class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
                                     </div>
                                 </div>
@@ -68,77 +68,67 @@
                                     <thead>
                                         <tr class="userDatatable-header">
                                             <th class="text-center">#</th>
-                                            <th>Reference No</th>
-                                            <th width="25%">Law Firm Name</th>
-                                            <th>Owner</th>
-                                            <th class="text-center">Plan</th>
-                                            <th class="text-center">Start Date</th>
-                                            <th class="text-center">End Date</th>
-                                            <th class="text-center">Total Members</th>
+                                            <th class="text-center">Reference No</th>
+                                            <th width="25%">Lawyer Name</th>
+                                            <th width="25%">LawFirm</th>
+                                            <th class="text-center">No. Of Consultations</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @can('view_vendor')
-                                            @if ($vendors->isNotEmpty())
-                                                @foreach ($vendors as $key => $vendor)
+                                        @can('view_lawyer')
+                                            @if ($lawyers->isNotEmpty())
+                                                @foreach ($lawyers as $key => $lawyer)
                                                     <tr>
                                                         <td class="text-center">
-                                                            {{ $key + 1 + ($vendors->currentPage() - 1) * $vendors->perPage() }}
+                                                            {{ $key + 1 + ($lawyers->currentPage() - 1) * $lawyers->perPage() }}
                                                         </td>
-                                                        <td class="text-center">{{ $vendor->ref_no }}</td>
+                                                        <td class="text-center">{{ $lawyer->ref_no }}</td>
                                                         <td>
                                                             <div class="d-flex align-items-center">
-                                                                @if ($vendor->logo)
-                                                                    <img src="{{ asset(getUploadedImage($vendor->logo)) }}"
-                                                                        alt="Logo" class="list-avatar">
+                                                                @if ($lawyer->profile_photo)
+                                                                    <img src="{{ asset(getUploadedImage($lawyer->profile_photo)) }}"
+                                                                        alt="{{ $lawyer->full_name }}" class="list-avatar">
                                                                 @endif
-                                                                {{ $vendor->law_firm_name }}
+                                                                {{ $lawyer->full_name }}
                                                                 <i class="fas fa-info-circle text-primary ml-2 popover-toggle"
                                                                     tabindex="0" data-toggle="popover" data-placement="bottom"
                                                                     data-html="true" data-trigger="manual"
-                                                                    title='<div class="popover-title">Law Firm Contact Info</div>'
+                                                                    title='<div class="popover-title">Lawyer Contact Info</div>'
                                                                     data-content='
                                                                         <div class="custom-popover">
-                                                                            <div class="popover-item"><i class="fas fa-envelope"></i> {{ $vendor->law_firm_email }}</div>
-                                                                            <div class="popover-item"><i class="fas fa-phone"></i> {{ $vendor->law_firm_phone }}</div>
+                                                                            <div class="popover-item"><i class="fas fa-envelope"></i> {{ $lawyer->email }}</div>
+                                                                            <div class="popover-item"><i class="fas fa-phone"></i> {{ $lawyer->phone }}</div>
                                                                         </div>
                                                                     '></i>
                                                             </div>
                                                         </td>
                                                         <td>
-                                                            {{ $vendor->owner_name }}
+                                                            {{ $lawyer->lawfirm->law_firm_name ?? '-' }}
                                                             <i class="fas fa-info-circle text-primary ml-2 popover-toggle"
                                                                 tabindex="0" data-toggle="popover" data-placement="bottom"
                                                                 data-html="true" data-trigger="manual"
-                                                                title='<div class="popover-title">Owner Contact Info</div>'
+                                                                title='<div class="popover-title">Lawfirm Owner Contact Info</div>'
                                                                 data-content='
                                                                         <div class="custom-popover">
-                                                                            <div class="popover-item"><i class="fas fa-envelope"></i> {{ $vendor->owner_email }}</div>
-                                                                            <div class="popover-item"><i class="fas fa-phone"></i> {{ $vendor->owner_phone }}</div>
+                                                                            <div class="popover-item"><i class="fas fa-user"></i> {{ $lawyer->lawfirm->owner_name }}</div>
+                                                                            <div class="popover-item"><i class="fas fa-envelope"></i> {{ $lawyer->lawfirm->owner_email }}</div>
+                                                                            <div class="popover-item"><i class="fas fa-phone"></i> {{ $lawyer->lawfirm->owner_phone }}</div>
                                                                         </div>
                                                                     '></i>
                                                         </td>
-                                                        <td class="text-center">
-                                                            {{ $vendor->currentSubscription->plan->title ?? 'N/A' }}</td>
-                                                        <td class="text-center">
-                                                            {{ $vendor->currentSubscription?->subscription_start ? \Carbon\Carbon::parse($vendor->currentSubscription->subscription_start)->format('d M Y') : '-' }}
-                                                        </td>
-                                                        <td class="text-center">
-                                                            {{ $vendor->currentSubscription?->subscription_end ? \Carbon\Carbon::parse($vendor->currentSubscription->subscription_end)->format('d M Y') : '-' }}
-                                                        </td>
-
+                                                       
                                                         <td class="text-center"> 0</td>
                                                         <td class="text-center">
-                                                            @can('edit_vendor')
+                                                            @can('edit_lawyer')
                                                                 <div class="atbd-switch-wrap">
                                                                     <div
                                                                         class="custom-control custom-switch switch-secondary switch-sm ">
                                                                         <input type="checkbox" class="custom-control-input"
                                                                             id="switch-s1_{{ $key }}"
                                                                             onchange="update_status(this)"
-                                                                            value="{{ $vendor->user->id }}" <?php if ($vendor->user->banned == 0) {
+                                                                            value="{{ $lawyer->user->id }}" <?php if ($lawyer->user->banned == 0) {
                                                                                 echo 'checked';
                                                                             } ?>>
                                                                         <label class="custom-control-label"
@@ -148,10 +138,10 @@
                                                             @endcan
                                                         </td>
                                                         <td class="text-center">
-                                                            @can('edit_vendor')
+                                                            @can('edit_lawyer')
                                                                 <div class="table-actions">
-                                                                    <a href="{{ route('vendors.edit', $vendor->id) }}"
-                                                                        title="Edit Vendor">
+                                                                    <a href="{{ route('lawyers.edit', $lawyer->id) }}"
+                                                                        title="Edit lawyer">
                                                                         <span data-feather="edit"></span>
                                                                     </a>
                                                                 </div>
@@ -177,7 +167,7 @@
                                 </table>
                                 <div class="aiz-pagination mt-4">
                                     @can('view_staff')
-                                        {{ $vendors->appends(request()->input())->links('pagination::bootstrap-5') }}
+                                        {{ $lawyers->appends(request()->input())->links('pagination::bootstrap-5') }}
                                     @endcan
                                 </div>
                             </div>
@@ -192,7 +182,10 @@
 @endsection
 
 @section('style')
+<!-- Bootstrap Select CSS -->
     <style>
+
+        
         .popover-header {
             background-color: var(--secondary);
             /*#e2d8bf*/
@@ -229,9 +222,12 @@
 
 @section('script_first')
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <!-- Bootstrap Select JS -->
+    
 @endsection
 
 @section('script')
+    
     <script type="text/javascript">
         function update_status(el) {
             if (el.checked) {
@@ -245,7 +241,7 @@
                 status: status
             }, function(data) {
                 if (data == 1) {
-                    toastr.success('Law firm status updated successfully');
+                    toastr.success('Lawyer status updated successfully');
                     setTimeout(function() {
                         window.location.reload();
                     }, 3000);
@@ -260,6 +256,11 @@
         }
 
         $(function() {
+            $('.select2').select2({
+                width: '100%',
+                placeholder: 'Select options'
+            });
+
             $('.popover-toggle').popover();
 
             // Show on hover/focus

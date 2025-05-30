@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\JobPostController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\LawyerController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -74,7 +75,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::post('/faq/status', [FaqController::class, 'updateStatus'])->name('faqs.status');  
 
     // Manage lawyers
-    Route::resource('lawyers', VendorController::class);
+    Route::resource('lawyers', LawyerController::class);
 
 
 
