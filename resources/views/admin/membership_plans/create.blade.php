@@ -119,7 +119,7 @@
 
                                 <!-- Job Posts -->
                                 <div class="col-md-6 mb-25">
-                                    <label class="col-form-label color-dark fw-500 align-center">Job Posts / Year <span
+                                    <label class="col-form-label color-dark fw-500 align-center">Job Posts / Month <span
                                             class="text-danger">*</span></label>
                                     <input type="number" name="job_post_count" value="{{ old('job_post_count') }}"
                                         class="form-control ih-small ip-gray radius-xs b-light px-15">
