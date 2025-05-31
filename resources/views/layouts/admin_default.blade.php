@@ -134,7 +134,8 @@
             duration: "medium",
             changeMonth: true,
             changeYear: true,
-            maxDate: 0
+            maxDate: 0,
+            yearRange: "c-80:c"
         });
 
         $(".datepicker").datepicker({

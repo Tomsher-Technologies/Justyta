@@ -24,7 +24,7 @@
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
 
-                            <form method="GET" action="{{ route('lawyers.index') }}">
+                            <form method="GET" action="{{ route('lawyers.index') }}" autocomplete="off">
                                 <div class="row mb-2">
                                     <div class="col-md-4 input-group  mb-1">
                                         <label class="col-md-12 col-form-label color-dark fw-500 align-center pl-0">Search with keyword</label>

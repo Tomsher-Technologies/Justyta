@@ -10,7 +10,7 @@
                     </div>
                     <div class="card-body py-md-20">
                         <div class="horizontal-form">
-                            <form action="{{ route('roles.store') }}" method="POST">
+                            <form action="{{ route('roles.store') }}" method="POST" autocomplete="off">
                                 @csrf
                                 <div class="form-group row mb-25">
                                     <div class="col-sm-12 d-flex aling-items-center">

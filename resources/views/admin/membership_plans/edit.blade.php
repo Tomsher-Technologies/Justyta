@@ -9,7 +9,7 @@
                         <h6>Edit Membership Plan</h6>
                     </div>
                     <div class="card-body pb-md-30">
-                        <form action="{{ route('membership-plans.update', $plan->id) }}" method="POST"
+                        <form action="{{ route('membership-plans.update', $plan->id) }}" autocomplete="off" method="POST"
                             enctype="multipart/form-data">
                             @csrf
                             @method('PUT')

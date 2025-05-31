@@ -13,7 +13,7 @@
             <div class="col-lg-12">
                 <div class="card card-default card-md mb-4">
                     <div class="card-body pb-md-30">
-                        <form action="{{ route('lawyers.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('lawyers.store') }}" method="POST" enctype="multipart/form-data" autocomplete="off">
                             @csrf
                             <div class="row">
                                 <!-- Law Firm Details -->

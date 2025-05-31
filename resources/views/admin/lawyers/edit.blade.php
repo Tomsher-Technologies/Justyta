@@ -13,7 +13,7 @@
             <div class="col-lg-12">
                 <div class="card card-default card-md mb-4">
                     <div class="card-body pb-md-30">
-                        <form action="{{ route('lawyers.update', $lawyer->id) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('lawyers.update', $lawyer->id) }}" autocomplete="off" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('put')
                             <div class="row">

@@ -17,7 +17,7 @@
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
 
-                            <form method="GET" action="{{ route('services.index') }}">
+                            <form method="GET" action="{{ route('services.index') }}" autocomplete="off">
                                 <div class="row mb-2">
 
                                     <div class="col-md-3 input-group  mb-1">

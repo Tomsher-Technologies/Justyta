@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\JobPostController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\LawyerController;
+use App\Http\Controllers\Admin\TranslatorController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -77,7 +78,8 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     // Manage lawyers
     Route::resource('lawyers', LawyerController::class);
 
-
+    // Manage Translators
+    Route::resource('translators', TranslatorController::class);
 
 
 

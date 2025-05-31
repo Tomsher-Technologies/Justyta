@@ -97,6 +97,31 @@
                     </li>
                 @endcan
 
+                @can('manage_translators')
+                    <li class="has-child {{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index']) }}">
+                        <a href="#"
+                            class="{{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index']) }}">
+                            {{-- <span data-feather="users" class="nav-icon"></span> --}}
+                            <i class="las la-language nav-icon"></i>
+                            <span class="menu-text">Translators</span>
+                            <span class="toggle-icon"></span>
+                        </a>
+                        <ul>
+                            @can('add_translator')
+                                <li>
+                                    <a class="{{ areActiveRoutes(['translators.create']) }}"
+                                        href="{{ route('translators.create') }}">Add New Translators</a>
+                                </li>
+                            @endcan
+
+                            <li>
+                                <a class="{{ areActiveRoutes(['translators.edit', 'translators.index']) }}"
+                                    href="{{ route('translators.index') }}">All Translators</a>
+                            </li>
+                        </ul>
+                    </li>
+                @endcan
+
                 @canany(['manage_plan', 'manage_dropdown_option'])
                     <li class="menu-title m-top-10">
                         <span>Settings</span>
@@ -106,7 +131,9 @@
                             class="has-child {{ areActiveRoutes(['membership-plans.create', 'membership-plans.edit', 'membership-plans.index']) }}">
                             <a href="#"
                                 class="{{ areActiveRoutes(['membership-plans.create', 'membership-plans.edit', 'membership-plans.index']) }}">
-                                <span data-feather="dollar-sign" class="nav-icon"></span>
+                                {{-- <span data-feather="dollar-sign" class="nav-icon"></span> --}}
+                                <i class="las la-dollar-sign nav-icon"></i>
+                                {{-- <i class="fas fa-dollar-sign nav-icon"></i> --}}
                                 <span class="menu-text">Membership Plans</span>
                                 <span class="toggle-icon"></span>
                             </a>

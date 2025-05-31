@@ -61,4 +61,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Lawyer::class);
     }
+
+    public function translator()
+    {
+        return $this->hasOne(Translator::class);
+    }
 }

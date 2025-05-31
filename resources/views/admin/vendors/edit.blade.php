@@ -13,7 +13,7 @@
             <div class="col-lg-12">
                 <div class="card card-default card-md mb-4">
                     <div class="card-body pb-md-30">
-                        <form action="{{ route('vendors.update', $vendor->id) }}" method="POST"
+                        <form action="{{ route('vendors.update', $vendor->id) }}" method="POST" autocomplete="off"
                             enctype="multipart/form-data">
                             @csrf
                             <input name="_method" type="hidden" value="PATCH">

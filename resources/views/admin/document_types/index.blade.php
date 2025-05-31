@@ -25,7 +25,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
-                            <form class="row mb-2" id="sort_brands" action="" method="GET">
+                            <form class="row mb-2" id="sort_brands" action="" method="GET" autocomplete="off">
                                 <div class="col-md-3 input-group  mb-1">
                                     <input type="text" class="form-control ih-small ip-gray radius-xs b-light px-15"
                                         id="search" name="search" value="{{ request()->search }}"
@@ -181,7 +181,7 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="documentTypeModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal fade" id="documentTypeModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" autocomplete="off">
         <div class="modal-dialog">
             <form id="documentTypeForm">
                 @csrf

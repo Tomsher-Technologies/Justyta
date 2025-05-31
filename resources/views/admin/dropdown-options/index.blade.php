@@ -16,7 +16,7 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="horizontal-form">
-                                        <form method="POST" action="{{ route('dropdown-options.store', $dropdown->id) }}">
+                                        <form method="POST" action="{{ route('dropdown-options.store', $dropdown->id) }}" autocomplete="off">
                                             @csrf
                                             <div class="row mb-3">
 
@@ -158,7 +158,7 @@
 
     {{-- Edit Modal --}}
     <div class="modal fade" id="editOptionModal" tabindex="-1" role="dialog" aria-labelledby="editOptionModalLabel"
-        aria-hidden="true">
+        aria-hidden="true" autocomplete="off">
         <div class="modal-dialog modal-lg">
             <form method="POST" id="editOptionForm">
                 @csrf

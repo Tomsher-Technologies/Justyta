@@ -9,7 +9,7 @@
                         <h6>Create Membership Plan</h6>
                     </div>
                     <div class="card-body pb-md-30">
-                        <form action="{{ route('membership-plans.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('membership-plans.store') }}" autocomplete="off" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
 

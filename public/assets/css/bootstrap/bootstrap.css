@@ -5034,8 +5034,9 @@ a.badge-primary.focus {
 }
 
 .badge-secondary {
-    color: #212529;
-    background-color: #ff69a5;
+    color: var(--primary) !important;
+    background-color: var(--secondary-light) !important;
+    font-weight: 700 !important;
 }
 
 a.badge-secondary:hover,

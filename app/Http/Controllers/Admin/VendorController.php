@@ -96,21 +96,21 @@ class VendorController extends Controller
                         ->where('user_type', 'vendor'),
                 ],
             'owner_phone' => 'required|string|max:20',
-            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:200',
             'emirate_id' => 'required',
             'country' => 'nullable|string|max:255',
             'subscription_plan_id' => 'required',
             'password' => 'required|string|min:6|confirmed',
-            'trade_license' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:2048',
+            'trade_license' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'trade_license_expiry' => 'required|date',
-            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:2048',
-            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:2048',
+            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'emirates_id_expiry' => 'required|date',
-            // 'residence_visa' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:2048',
+            // 'residence_visa' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             // 'residence_visa_expiry' => 'required|date',
-            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:2048',
+            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'passport_expiry' => 'required|date',
-            'card_of_law' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:2048',
+            'card_of_law' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'card_of_law_expiry' => 'required|date',
             'consultation_commission' => 'required'
         ],[
@@ -146,18 +146,18 @@ class VendorController extends Controller
             'owner_phone'               => $request->owner_phone,  
             'emirate_id'                => $request->emirate_id, 
             'trn'                       => $request->trn, 
-            'logo'                      => $request->hasfile('logo') ? uploadImage('vendors/'.$user->id, $request->logo, 'image_') : NULL,  
+            'logo'                      => $request->hasfile('logo') ? uploadImage('vendors/'.$user->id, $request->logo, 'logo_') : NULL,  
             'country' => 'UAE', 
-            'trade_license'             => $request->hasfile('trade_license') ? uploadImage('vendors/'.$user->id, $request->trade_license, 'image_') : NULL,
+            'trade_license'             => $request->hasfile('trade_license') ? uploadImage('vendors/'.$user->id, $request->trade_license, 'trade_license_') : NULL,
             'trade_license_expiry'      => $request->trade_license_expiry ? Carbon::parse($request->trade_license_expiry)->format('Y-m-d') : null,
-            'emirates_id_front'         => $request->hasfile('emirates_id_front') ? uploadImage('vendors/'.$user->id, $request->emirates_id_front, 'image_') : NULL,
-            'emirates_id_back'          => $request->hasfile('emirates_id_back') ? uploadImage('vendors/'.$user->id, $request->emirates_id_back, 'image_') : NULL,
+            'emirates_id_front'         => $request->hasfile('emirates_id_front') ? uploadImage('vendors/'.$user->id, $request->emirates_id_front, 'emirates_id_front_') : NULL,
+            'emirates_id_back'          => $request->hasfile('emirates_id_back') ? uploadImage('vendors/'.$user->id, $request->emirates_id_back, 'emirates_id_back_') : NULL,
             'emirates_id_expiry'        => $request->emirates_id_expiry ? Carbon::parse($request->emirates_id_expiry)->format('Y-m-d') : null,
-            'residence_visa'            => $request->hasfile('residence_visa') ? uploadImage('vendors/'.$user->id, $request->residence_visa, 'image_') : NULL,
+            'residence_visa'            => $request->hasfile('residence_visa') ? uploadImage('vendors/'.$user->id, $request->residence_visa, 'residence_visa_') : NULL,
             'residence_visa_expiry'     => $request->residence_visa_expiry ? Carbon::parse($request->residence_visa_expiry)->format('Y-m-d') : null,
-            'passport'                  => $request->hasfile('passport') ? uploadImage('vendors/'.$user->id, $request->passport, 'image_') : NULL,
+            'passport'                  => $request->hasfile('passport') ? uploadImage('vendors/'.$user->id, $request->passport, 'passport_') : NULL,
             'passport_expiry'           => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : null,
-            'card_of_law'               => $request->hasfile('card_of_law') ? uploadImage('vendors/'.$user->id, $request->card_of_law, 'image_') : NULL,
+            'card_of_law'               => $request->hasfile('card_of_law') ? uploadImage('vendors/'.$user->id, $request->card_of_law, 'card_of_law_') : NULL,
             'card_of_law_expiry'        => $request->card_of_law_expiry ? Carbon::parse($request->card_of_law_expiry)->format('Y-m-d') : null,
         ]);
 
@@ -223,21 +223,21 @@ class VendorController extends Controller
                         ->where('user_type', 'vendor'),
                 ],
             'owner_phone' => 'required|string|max:20',
-            'logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:2048',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:200',
             'emirate_id' => 'required',
             'country' => 'nullable|string|max:255',
             'subscription_plan_id' => 'required',
             'password' => 'nullable|string|min:6|confirmed',
-            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
+            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
             'trade_license_expiry' => 'required|date',
-            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
-            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
+            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
             'emirates_id_expiry' => 'required|date',
-            // 'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
+            // 'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
             // 'residence_visa_expiry' => 'required|date',
-            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
+            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
             'passport_expiry' => 'required|date',
-            'card_of_law' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:2048',
+            'card_of_law' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
             'card_of_law_expiry' => 'required|date',
             'consultation_commission' => 'required'
         ],[
@@ -271,18 +271,18 @@ class VendorController extends Controller
             'owner_phone'               => $request->owner_phone,  
             'emirate_id'                => $request->emirate_id, 
             'trn'                       => $request->trn, 
-            'logo'                      => $this->replaceFile($request, 'logo', $vendor, $uploadPath),
+            'logo'                      => $this->replaceFile($request, 'logo', $vendor, $uploadPath,'logo_'),
             'country' => 'UAE', 
-            'trade_license'             => $this->replaceFile($request, 'trade_license', $vendor, $uploadPath),
+            'trade_license'             => $this->replaceFile($request, 'trade_license', $vendor, $uploadPath,'trade_license_'),
             'trade_license_expiry'      => $request->trade_license_expiry ? Carbon::parse($request->trade_license_expiry)->format('Y-m-d') : $vendor->trade_license_expiry,
-            'emirates_id_front'         => $this->replaceFile($request, 'emirates_id_front', $vendor, $uploadPath),
-            'emirates_id_back'          => $this->replaceFile($request, 'emirates_id_back', $vendor, $uploadPath),
+            'emirates_id_front'         => $this->replaceFile($request, 'emirates_id_front', $vendor, $uploadPath,'emirates_id_front_'),
+            'emirates_id_back'          => $this->replaceFile($request, 'emirates_id_back', $vendor, $uploadPath,'emirates_id_back_'),
             'emirates_id_expiry'        => $request->emirates_id_expiry ? Carbon::parse($request->emirates_id_expiry)->format('Y-m-d') : $vendor->emirates_id_expiry,
-            'residence_visa'            => $this->replaceFile($request, 'residence_visa', $vendor, $uploadPath),
+            'residence_visa'            => $this->replaceFile($request, 'residence_visa', $vendor, $uploadPath,'residence_visa_'),
             'residence_visa_expiry'     => $request->residence_visa_expiry ? Carbon::parse($request->residence_visa_expiry)->format('Y-m-d') : $vendor->residence_visa_expiry,
-            'passport'                  => $this->replaceFile($request, 'passport', $vendor, $uploadPath),
+            'passport'                  => $this->replaceFile($request, 'passport', $vendor, $uploadPath,'passport_'),
             'passport_expiry'           => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : $vendor->passport_expiry,
-            'card_of_law'               => $this->replaceFile($request, 'card_of_law', $vendor, $uploadPath),
+            'card_of_law'               => $this->replaceFile($request, 'card_of_law', $vendor, $uploadPath,'card_of_law_'),
             'card_of_law_expiry'        => $request->card_of_law_expiry ? Carbon::parse($request->card_of_law_expiry)->format('Y-m-d') : $vendor->card_of_law_expiry,
         ]);
 
@@ -337,17 +337,17 @@ class VendorController extends Controller
         return redirect()->route('vendors.index');
     }
 
-    function replaceFile($request, $fieldName, $vendor, $uploadPath) {
+    function replaceFile($request, $fieldName, $lawyer, $uploadPath, $fileName = 'image_') {
         if ($request->hasFile($fieldName)) {
-            if (!empty($vendor->$fieldName)) {
-                $pathToDelete = str_replace('/storage/', '', $vendor->$fieldName);
+            if (!empty($lawyer->$fieldName)) {
+                $pathToDelete = str_replace('/storage/', '', $lawyer->$fieldName);
                 if (Storage::disk('public')->exists($pathToDelete)) {
                     Storage::disk('public')->delete($pathToDelete);
                 }
             }
-            return uploadImage($uploadPath, $request->file($fieldName), 'image_');
+            return uploadImage($uploadPath, $request->file($fieldName), $fileName);
         }
-        return $vendor->$fieldName;
+        return $lawyer->$fieldName;
     }
 
     private function upload($file)

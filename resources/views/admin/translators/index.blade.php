@@ -1,17 +1,17 @@
-@extends('layouts.admin_default', ['title' => 'All Law Firms'])
+@extends('layouts.admin_default', ['title' => 'All Translators'])
 
 @section('content')
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
-                    <h4 class="text-capitalize breadcrumb-title">All Law Firms</h4>
+                    <h4 class="text-capitalize breadcrumb-title">All Translators</h4>
                     <div class="breadcrumb-action justify-content-center flex-wrap">
 
-                        @can('add_vendor')
+                        @can('add_translator')
                             <div class="action-btn">
-                                <a href="{{ route('vendors.create') }}" class="btn btn-sm btn-primary btn-add">
-                                    <i class="la la-plus"></i> Add New Law Firm</a>
+                                <a href="{{ route('translators.create') }}" class="btn btn-sm btn-primary btn-add">
+                                    <i class="la la-plus"></i> Add New Translator</a>
                             </div>
                         @endcan
                     </div>
@@ -24,30 +24,29 @@
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
 
-                            <form method="GET" action="{{ route('vendors.index') }}" autocomplete="off">
+                            <form method="GET" action="{{ route('translators.index') }}" autocomplete="off">
                                 <div class="row mb-2">
-                                    <div class="col-md-4 input-group  mb-1">
+                                    <div class="col-md-3 input-group  mb-1">
                                         <input type="text" name="keyword" value="{{ request('keyword') }}"
                                             class="form-control ih-small ip-gray radius-xs b-light px-15"
                                             placeholder="Search name, email, phone or reference no.">
                                     </div>
                                     <div class="col-md-3 input-group  mb-1">
-                                        <select name="plan_id"
-                                            class="form-control ih-small ip-gray radius-xs b-light px-15 aiz-selectpicker">
-                                            <option value="">-- Select Plan --</option>
-                                            @foreach ($plans as $plan)
-                                                <option value="{{ $plan->id }}"
-                                                    {{ request('plan_id') == $plan->id ? 'selected' : '' }}>
-                                                    {{ $plan->title }}
+                                        
+                                        <select name="language_id" class="form-control select2 ih-small ip-gray radius-xs b-light px-15" id="select-tag2"  data-placeholder="Select Language" >
+                                            <option value="">Select Language</option>
+                                            @foreach($dropdowns['languages']->options as $option)
+                                                <option value="{{ $option->id }}"  {{ request('language_id') == $option->id ? 'selected' : '' }}>
+                                                    {{ $option->translations->first()->name ?? 'Unnamed' }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
 
-                                    <div class="col-md-3 input-group  mb-1">
+                                    <div class="col-md-2 input-group  mb-1">
                                         <select name="status"
                                             class="form-control ih-small ip-gray radius-xs b-light px-15">
-                                            <option value="">--Select Status--</option>
+                                            <option value="">Select Status</option>
                                             <option value="1" {{ request()->status == 1 ? 'selected' : '' }}>Active
                                             </option>
                                             <option value="2" {{ request()->status == 2 ? 'selected' : '' }}>Inactive
@@ -55,9 +54,18 @@
                                         </select>
                                     </div>
 
+                                    <div class="col-md-2 input-group  mb-1">
+                                        <select name="type"
+                                            class="form-control ih-small ip-gray radius-xs b-light px-15">
+                                            <option value="">Select Type</option>
+                                            <option value="inhouse" {{ request()->type == 'inhouse' ? 'selected' : '' }}>In-house</option>
+                                            <option value="external" {{ request()->type == 'external' ? 'selected' : '' }}>External</option>
+                                        </select>
+                                    </div>
+
                                     <div class="col-md-2 mb-1 d-flex flex-wrap align-items-end">
                                         <button class="btn btn-primary btn-sm " type="submit">Filter</button>
-                                        <a href="{{ route('vendors.index') }}"
+                                        <a href="{{ route('translators.index') }}"
                                             class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
                                     </div>
                                 </div>
@@ -68,77 +76,82 @@
                                     <thead>
                                         <tr class="userDatatable-header">
                                             <th class="text-center">#</th>
-                                            <th>Reference No</th>
-                                            <th width="25%">Law Firm Name</th>
-                                            <th>Owner</th>
-                                            <th class="text-center">Plan</th>
-                                            <th class="text-center">Start Date</th>
-                                            <th class="text-center">End Date</th>
-                                            <th class="text-center">Total Members</th>
+                                            <th class="text-center">Reference No</th>
+                                            <th width="25%">Name</th>
+                                            <th class="text-center">Type</th>
+                                            {{-- <th class="text-center">Email</th>
+                                            <th class="text-center">Phone</th> --}}
+                                            <th class="text-center" width="25%">Languages</th>
+                                            <th class="text-center">Total Translations</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @can('view_vendor')
-                                            @if ($vendors->isNotEmpty())
-                                                @foreach ($vendors as $key => $vendor)
+                                            @if ($translators->isNotEmpty())
+                                                @foreach ($translators as $key => $trans)
                                                     <tr>
                                                         <td class="text-center">
-                                                            {{ $key + 1 + ($vendors->currentPage() - 1) * $vendors->perPage() }}
+                                                            {{ $key + 1 + ($translators->currentPage() - 1) * $translators->perPage() }}
                                                         </td>
-                                                        <td class="text-center">{{ $vendor->ref_no }}</td>
+                                                        <td class="text-center">{{ $trans->ref_no }}</td>
                                                         <td>
                                                             <div class="d-flex align-items-center">
-                                                                @if ($vendor->logo)
-                                                                    <img src="{{ asset(getUploadedImage($vendor->logo)) }}"
-                                                                        alt="Logo" class="list-avatar">
+                                                                @if ($trans->image)
+                                                                    <img src="{{ asset(getUploadedImage($trans->image)) }}"
+                                                                        alt="{{ $trans->name }}" class="list-avatar">
                                                                 @endif
-                                                                {{ $vendor->law_firm_name }}
+                                                                {{ $trans->name }}
                                                                 <i class="fas fa-info-circle text-primary ml-2 popover-toggle"
                                                                     tabindex="0" data-toggle="popover" data-placement="bottom"
                                                                     data-html="true" data-trigger="manual"
-                                                                    title='<div class="popover-title">Law Firm Contact Info</div>'
+                                                                    title='<div class="popover-title">Contact Info</div>'
                                                                     data-content='
                                                                         <div class="custom-popover">
-                                                                            <div class="popover-item"><i class="fas fa-envelope"></i> {{ $vendor->law_firm_email }}</div>
-                                                                            <div class="popover-item"><i class="fas fa-phone"></i> {{ $vendor->law_firm_phone }}</div>
+                                                                            <div class="popover-item"><i class="fas fa-envelope"></i> {{ $trans->email }}</div>
+                                                                            <div class="popover-item"><i class="fas fa-phone"></i> {{ $trans->phone }}</div>
                                                                         </div>
                                                                     '></i>
                                                             </div>
                                                         </td>
-                                                        <td>
-                                                            {{ $vendor->owner_name }}
-                                                            <i class="fas fa-info-circle text-primary ml-2 popover-toggle"
-                                                                tabindex="0" data-toggle="popover" data-placement="bottom"
-                                                                data-html="true" data-trigger="manual"
-                                                                title='<div class="popover-title">Owner Contact Info</div>'
-                                                                data-content='
-                                                                        <div class="custom-popover">
-                                                                            <div class="popover-item"><i class="fas fa-envelope"></i> {{ $vendor->owner_email }}</div>
-                                                                            <div class="popover-item"><i class="fas fa-phone"></i> {{ $vendor->owner_phone }}</div>
-                                                                        </div>
-                                                                    '></i>
-                                                        </td>
                                                         <td class="text-center">
-                                                            {{ $vendor->currentSubscription->plan->title ?? 'N/A' }}</td>
-                                                        <td class="text-center">
-                                                            {{ $vendor->currentSubscription?->subscription_start ? \Carbon\Carbon::parse($vendor->currentSubscription->subscription_start)->format('d M Y') : '-' }}
+                                                            @if($trans->type === 'inhouse')
+                                                                In-House
+                                                            @elseif($trans->type === 'external')
+                                                                External
+                                                            @else
+                                                                Unknown
+                                                            @endif
                                                         </td>
+                                                        {{-- <td class="text-center"> {{ $trans->email ?? 'N/A' }}</td>
+                                                        <td class="text-center"> {{ $trans->phone ?? 'N/A' }}</td> --}}
                                                         <td class="text-center">
-                                                            {{ $vendor->currentSubscription?->subscription_end ? \Carbon\Carbon::parse($vendor->currentSubscription->subscription_end)->format('d M Y') : '-' }}
+                                                            @forelse ($trans->languages as $lang)
+                                                                <span class="badge badge-round badge-secondary badge-lg mr-1 mb-1">
+                                                                    {{ $lang->getTranslatedName('en') }}
+                                                                </span>
+                                                            @empty
+                                                                <span class="text-muted">No Languages</span>
+                                                            @endforelse
                                                         </td>
-
+                                                        {{-- <td>
+                                                            <ul class="list-unstyled mb-0">
+                                                                @foreach ($trans->languages as $lang)
+                                                                    <li>🌐 {{ $lang->getTranslatedName('en') }}</li>
+                                                                @endforeach
+                                                            </ul>
+                                                        </td> --}}
                                                         <td class="text-center"> 0</td>
                                                         <td class="text-center">
-                                                            @can('edit_vendor')
+                                                            @can('edit_translator')
                                                                 <div class="atbd-switch-wrap">
                                                                     <div
                                                                         class="custom-control custom-switch switch-secondary switch-sm ">
                                                                         <input type="checkbox" class="custom-control-input"
                                                                             id="switch-s1_{{ $key }}"
                                                                             onchange="update_status(this)"
-                                                                            value="{{ $vendor->user->id }}" <?php if ($vendor->user->banned == 0) {
+                                                                            value="{{ $trans->user->id }}" <?php if ($trans->user->banned == 0) {
                                                                                 echo 'checked';
                                                                             } ?>>
                                                                         <label class="custom-control-label"
@@ -148,10 +161,10 @@
                                                             @endcan
                                                         </td>
                                                         <td class="text-center">
-                                                            @can('edit_vendor')
+                                                            @can('edit_translator')
                                                                 <div class="table-actions">
-                                                                    <a href="{{ route('vendors.edit', $vendor->id) }}"
-                                                                        title="Edit Vendor">
+                                                                    <a href="{{ route('translators.edit', $trans->id) }}"
+                                                                        title="Edit Translator">
                                                                         <span data-feather="edit"></span>
                                                                     </a>
                                                                 </div>
@@ -177,7 +190,7 @@
                                 </table>
                                 <div class="aiz-pagination mt-4">
                                     @can('view_staff')
-                                        {{ $vendors->appends(request()->input())->links('pagination::bootstrap-5') }}
+                                        {{ $translators->appends(request()->input())->links('pagination::bootstrap-5') }}
                                     @endcan
                                 </div>
                             </div>
@@ -245,10 +258,10 @@
                 status: status
             }, function(data) {
                 if (data == 1) {
-                    toastr.success('Law firm status updated successfully');
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 3000);
+                    toastr.success('Translator status updated successfully');
+                    // setTimeout(function() {
+                    //     window.location.reload();
+                    // }, 3000);
 
                 } else {
                     toastr.error('Something went wrong');

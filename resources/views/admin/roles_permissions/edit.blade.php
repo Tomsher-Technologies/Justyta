@@ -10,7 +10,7 @@
                     </div>
                     <div class="card-body py-md-20">
                         <div class="horizontal-form">
-                            <form action="{{ route('roles.update', $role->id) }}" method="POST">
+                            <form action="{{ route('roles.update', $role->id) }}" method="POST" autocomplete="off">
                                 @csrf
                                 @method('PATCH')
                                 <div class="form-group row mb-25">
