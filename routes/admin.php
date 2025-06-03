@@ -80,6 +80,8 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 
     // Manage Translators
     Route::resource('translators', TranslatorController::class);
+    Route::get('default', [TranslatorController::class, 'showDefaultForm'])->name('translators.default');
+    Route::post('set-default', [TranslatorController::class, 'setDefault'])->name('translators.set-default');
 
 
 

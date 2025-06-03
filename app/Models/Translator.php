@@ -10,7 +10,7 @@ class Translator extends Model
         'user_id', 'ref_no', 'name', 'email', 'phone', 'company_name',
         'emirate_id', 'image', 'country', 'trade_license', 'trade_license_expiry',
         'emirates_id_front', 'emirates_id_back', 'emirates_id_expiry',
-        'residence_visa', 'residence_visa_expiry', 'passport', 'passport_expiry','type'
+        'residence_visa', 'residence_visa_expiry', 'passport', 'passport_expiry','type','is_default'
     ];
 
     public function user()
@@ -62,4 +62,10 @@ class Translator extends Model
         $nextId = $lastId + 1;
         return 'TR-' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
     }
+
+    public function defaultHistory()
+    {
+        return $this->hasMany(DefaultTranslatorHistory::class);
+    }
+
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Dropdown;
 use App\Models\User;
 use App\Models\Translator;
+use App\Models\DefaultTranslatorHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -24,6 +25,7 @@ class TranslatorController extends Controller
         $this->middleware('permission:manage_translators',  ['only' => ['index','destroy']]);
         $this->middleware('permission:add_translator',  ['only' => ['create','store']]);
         $this->middleware('permission:edit_translator',  ['only' => ['edit','update']]);
+        $this->middleware('permission:default_translator',  ['only' => ['showDefaultForm','setDefault']]);
     }
 
     public function index(Request $request)
@@ -290,4 +292,53 @@ class TranslatorController extends Controller
         return $lawyer->$fieldName;
     }
 
+
+    public function showDefaultForm()
+    {
+        $translators = Translator::with('user')->whereHas('user', function ($q) {
+                $q->where('banned', 0);
+            })->orderBy('name', 'ASC')->get();
+        $histories = DefaultTranslatorHistory::with('translator')->orderBy('id','desc')->paginate(2);
+
+        return view('admin.translators.default', compact('translators', 'histories'));
+    }
+
+    public function setDefault(Request $request)
+    {
+        $request->validate([
+            'translator_id' => 'required|exists:translators,id',
+        ],[
+            'translator_id.required' => 'This field is required.'
+        ]);
+
+        $newTranslatorId = $request->translator_id;
+
+        // End the current default
+        $current = Translator::where('is_default', 1)->first();
+
+       
+        if ($current && $current->id != $newTranslatorId) {
+            $current->update(['is_default' => 0]);
+            DefaultTranslatorHistory::where('translator_id', $current->id)->whereNull('ended_at')->update([
+                'ended_at' => Carbon::now(),
+            ]);
+        }
+
+        // Set new default
+        $newTranslator = Translator::findOrFail($newTranslatorId);
+        $newTranslator->update(['is_default' => 1]);
+
+        // Create history if not already started
+        $existingHistory = DefaultTranslatorHistory::where('translator_id', $newTranslatorId)
+            ->whereNull('ended_at')->first();
+
+        if (!$existingHistory) {
+            DefaultTranslatorHistory::create([
+                'translator_id' => $newTranslatorId,
+                'started_at' => Carbon::now(),
+            ]);
+        }
+        session()->flash('success', 'Default translator updated.');
+        return redirect()->route('translators.default');
+    }
 }

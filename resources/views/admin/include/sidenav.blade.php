@@ -118,6 +118,12 @@
                                 <a class="{{ areActiveRoutes(['translators.edit', 'translators.index']) }}"
                                     href="{{ route('translators.index') }}">All Translators</a>
                             </li>
+                            @can('default_translator')
+                                <li>
+                                    <a class="{{ areActiveRoutes(['translators.default']) }}"
+                                        href="{{ route('translators.default') }}">Set Default Translator</a>
+                                </li>
+                            @endcan
                         </ul>
                     </li>
                 @endcan

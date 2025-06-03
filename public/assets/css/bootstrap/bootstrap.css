@@ -5016,8 +5016,9 @@ a.badge:focus {
 }
 
 .badge-primary {
-    color: #fff;
-    background-color: #5f63f2;
+    color: #fffaef !important;
+    background-color: var(--primary) !important;
+    font-weight: 500 !important;
 }
 
 a.badge-primary:hover,
