@@ -78,6 +78,11 @@ class ServiceController extends Controller
             'icon' => $iconPath,
             'sort_order' => $request->sort_order ?? 0,
             'status' => $request->status,
+            'payment_active' => $request->payment_active ?? 0, 
+            'service_fee' => $request->service_fee,
+            'govt_fee' => $request->govt_fee,
+            'tax' => $request->tax_total,
+            'total_amount' => $request->total_amount
         ]);
 
         foreach ($request->translations as $langId => $transData) {

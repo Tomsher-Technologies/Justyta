@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Service extends Model
 {
-    protected $fillable = ['name', 'slug', 'parent_id', 'icon', 'sort_order', 'status', 'created_at'];
+    protected $fillable = ['name', 'slug', 'parent_id', 'icon', 'sort_order', 'status', 'created_at','payment_active', 'service_fee', 'govt_fee', 'tax','total_amount'];
 
     public function translations()
     {

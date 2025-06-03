@@ -3,7 +3,7 @@
 @section('content')
     <div class="container-fluid">
         <div class="row mt-4 mb-4">
-            <div class="col-lg-10 mx-auto">
+            <div class="col-lg-12 mx-auto">
                 <div class="card card-horizontal card-default card-md mb-4">
                     <div class="card-header">
                         <h5 class="mb-0 h4">Update Service Details : <strong>{{ $service->name }}</strong></h5>
@@ -15,7 +15,7 @@
                             @csrf
                             @method('PUT')
 
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="col-form-label color-dark fw-500">Icon <span
                                         class="text-danger">*</span></label>
                                 <input type="file" name="icon" accept="image/*"
@@ -33,14 +33,14 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="col-form-label color-dark fw-500">Sort Order</label>
                                 <input type="text" name="sort_order"
                                     class="form-control ih-small ip-gray radius-xs b-light px-15"
                                     value="{{ old('sort_order', $service->sort_order) }}" />
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="col-form-label color-dark fw-500">Status <span
                                         class="text-danger">*</span></label>
                                 <select name="status" class="form-control ih-small ip-gray radius-xs b-light px-15">
@@ -48,6 +48,49 @@
                                     <option value="0" {{ !$service->status ? 'selected' : '' }}>Inactive</option>
                                 </select>
                             </div>
+                            @if($service->slug != 'online-live-consultancy' && $service->slug != 'law-firm-services' && $service->slug != 'legal-translation')
+                                <div class="col-md-2 mb-3">
+                                    <label class="col-form-label color-dark fw-500">Payment <span
+                                            class="text-danger">*</span></label>
+                                    <div class="atbd-switch-wrap">
+                                        <div class="custom-control custom-switch switch-secondary switch-md ">
+                                            <input type="checkbox" name="payment_active" class="custom-control-input" id="switch-s1" onchange="checkPayment(this)" value="1" <?php if ($service->payment_active == 1) {
+                                                    echo 'checked';
+                                                } ?>>
+                                            <label class="custom-control-label"
+                                                for="switch-s1"></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="fee-section" class="col-md-10" style="display: {{ $service->payment_active ? 'flex' : 'none' }};">
+                                    <div class="col-md-3">
+                                        <label for="service_fee" class="col-form-label color-dark fw-500">Service Fee</label>
+                                        <input type="number" step="0.01" class="form-control ih-small ip-gray radius-xs b-light px-15" id="service_fee" name="service_fee"
+                                            value="{{ $service->service_fee ?? 0 }}" oninput="calculateFees()">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="govt_fee" class="col-form-label color-dark fw-500">Govt. Fee</label>
+                                        <input type="number" step="0.01" class="form-control ih-small ip-gray radius-xs b-light px-15" id="govt_fee" name="govt_fee"
+                                            value="{{ $service->govt_fee ?? 0 }}" oninput="calculateFees()">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="tax_total" class="col-form-label color-dark fw-500">Tax (5%)</label>
+                                        <input type="number" step="0.01" class="form-control ih-small ip-gray radius-xs b-light px-15" id="tax_total" name="tax_total"
+                                            value="{{ $service->tax ?? 0 }}" readonly>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="total_amount" class="col-form-label color-dark fw-500">Total Amount</label>
+                                        <input type="number" step="0.01" class="form-control ih-small ip-gray radius-xs b-light px-15" id="total_amount" name="total_amount" value="{{ $service->total_amount ?? 0 }}" readonly>
+                                    </div>
+                                </div>
+                            @elseif($service->slug != 'online-live-consultancy')
+                                
+                            @endif
+                            
 
                             <div class="col-md-12 mt-3">
                                 <!-- Language Tabs -->
@@ -194,5 +237,38 @@
                 }
             }
         });
+
+        function checkPayment(checkbox) {
+        const feeSection = document.getElementById('fee-section');
+        if (checkbox.checked) {
+            feeSection.style.display = 'flex';
+        } else {
+            feeSection.style.display = 'none';
+
+            // Optionally clear fee inputs
+            document.getElementById('service_fee').value = 0;
+            document.getElementById('govt_fee').value = 0;
+            document.getElementById('tax_total').value = 0;
+            document.getElementById('total_amount').value = 0;
+        }
+    }
+
+    function calculateFees() {
+        const serviceFee = parseFloat(document.getElementById('service_fee').value) || 0;
+        const govtFee = parseFloat(document.getElementById('govt_fee').value) || 0;
+
+        const tax = parseFloat((serviceFee * 0.05).toFixed(2));
+        const total = parseFloat((serviceFee + govtFee + tax).toFixed(2));
+
+        document.getElementById('tax_total').value = tax;
+        document.getElementById('total_amount').value = total;
+    }
+
+    // Initial calculation if values are pre-filled
+    document.addEventListener('DOMContentLoaded', function () {
+        if (document.getElementById('switch-s1').checked) {
+            calculateFees();
+        }
+    });
     </script>
 @endsection
