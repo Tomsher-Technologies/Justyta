@@ -4645,7 +4645,7 @@ table.fc-scrollgrid thead .fc-scroller-harness .card.fc-scroller .card-body,
 }
 
 .fw-500 {
-    font-weight: 500;
+    font-weight: 500 !important;
 }
 
 .fw-600 {
@@ -4653,7 +4653,7 @@ table.fc-scrollgrid thead .fc-scroller-harness .card.fc-scroller .card-body,
 }
 
 .fw-700 {
-    font-weight: 700;
+    font-weight: 700 !important;
 }
 
 .transparent {

@@ -87,8 +87,65 @@
                                         <input type="number" step="0.01" class="form-control ih-small ip-gray radius-xs b-light px-15" id="total_amount" name="total_amount" value="{{ $service->total_amount ?? 0 }}" readonly>
                                     </div>
                                 </div>
-                            @elseif($service->slug != 'online-live-consultancy')
-                                
+                            @elseif($service->slug == 'online-live-consultancy')
+                                <div class="col-md-12 mt-4">
+                                    <div class="col-md-12 mt-4">
+                                        <h5 class="mb-4">Consultation Duration & Amounts</h5>
+
+                                        <div class="row">
+                                            {{-- NORMAL CONSULTATION --}}
+                                            <div class="col-md-6">
+                                                <div class="card border h-100">
+                                                    <div class="card-header">
+                                                        <h6 class="mb-0 text-uppercase text-primary fw-700">Normal Consultation</h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            @foreach ($consultationDurations->where('type', 'normal') as $duration)
+                                                                <div class="col-md-6 mb-3">
+                                                                    <label class="fw-500 d-block ">
+                                                                        <span class="fw-700 color-dark">{{ $duration->duration }}</span> Minutes
+                                                                    </label>
+                                                                    <input type="number"
+                                                                        step="0.01"
+                                                                        name="durations[{{ $duration->id }}]"
+                                                                        class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                                                        value="{{ $duration->amount }}"
+                                                                        placeholder="AED">
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {{-- VIP CONSULTATION --}}
+                                            <div class="col-md-6">
+                                                <div class="card border h-100">
+                                                    <div class="card-header ">
+                                                        <h6 class="mb-0 text-uppercase text-secondary fw-700">VIP Consultation</h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            @foreach ($consultationDurations->where('type', 'vip') as $duration)
+                                                                <div class="col-md-6 mb-3">
+                                                                    <label class="fw-500 d-block">
+                                                                        <span class="fw-700 color-dark">{{ $duration->duration }}</span> Minutes
+                                                                    </label>
+                                                                    <input type="number"
+                                                                        step="0.01"
+                                                                        name="durations[{{ $duration->id }}]"
+                                                                        class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                                                        value="{{ $duration->amount }}"
+                                                                        placeholder="AED">
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                             @endif
                             
 

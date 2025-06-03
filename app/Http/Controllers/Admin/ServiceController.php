@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\Language;
 use App\Models\ServiceTranslation;
+use App\Models\ConsultationDuration;
 use Illuminate\Support\Facades\Storage;
 
 class ServiceController extends Controller
@@ -47,7 +48,13 @@ class ServiceController extends Controller
     {
         $service = Service::with('translations')->findOrFail($id);
         $languages = Language::where('status', 1)->get();
-        return view('admin.services.edit', compact('service', 'languages'));
+        $consultationDurations = [];
+
+        if ($service->slug === 'online-live-consultancy') {
+            $consultationDurations = ConsultationDuration::orderBy('type')->orderBy('duration')->get();
+        }
+
+        return view('admin.services.edit', compact('service', 'languages','consultationDurations'));
     }
 
     public function update(Request $request, $id)
@@ -79,10 +86,10 @@ class ServiceController extends Controller
             'sort_order' => $request->sort_order ?? 0,
             'status' => $request->status,
             'payment_active' => $request->payment_active ?? 0, 
-            'service_fee' => $request->service_fee,
-            'govt_fee' => $request->govt_fee,
-            'tax' => $request->tax_total,
-            'total_amount' => $request->total_amount
+            'service_fee' => $request->service_fee ?? 0,
+            'govt_fee' => $request->govt_fee ?? 0,
+            'tax' => $request->tax_total ?? 0,
+            'total_amount' => $request->total_amount ?? 0
         ]);
 
         foreach ($request->translations as $langId => $transData) {
@@ -90,6 +97,14 @@ class ServiceController extends Controller
                 ['service_id' => $service->id, 'lang' => $langId],
                 ['description' => $transData['description'] ?? null,'info' => $transData['info'] ?? null]
             );
+        }
+
+        if ($service->slug === 'online-live-consultancy' && $request->has('durations')) {
+            foreach ($request->durations as $durationId => $amount) {
+                ConsultationDuration::where('id', $durationId)->update([
+                    'amount' => $amount
+                ]);
+            }
         }
         session()->flash('success', 'Service updated successfully.');
         return redirect()->route('services.index');
