@@ -130,7 +130,7 @@
                                                             @foreach ($consultationDurations->where('type', 'vip') as $duration)
                                                                 <div class="col-md-6 mb-3">
                                                                     <label class="fw-500 d-block">
-                                                                        <span class="fw-700 color-dark">{{ $duration->duration }}</span> Minutes
+                                                                        <span class="fw-700 color-dark">{{ $duration->duration }}</span> Minutes                                                
                                                                     </label>
                                                                     <input type="number"
                                                                         step="0.01"

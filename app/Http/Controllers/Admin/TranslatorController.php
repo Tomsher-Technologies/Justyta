@@ -298,7 +298,7 @@ class TranslatorController extends Controller
         $translators = Translator::with('user')->whereHas('user', function ($q) {
                 $q->where('banned', 0);
             })->orderBy('name', 'ASC')->get();
-        $histories = DefaultTranslatorHistory::with('translator')->orderBy('id','desc')->paginate(2);
+        $histories = DefaultTranslatorHistory::with('translator')->orderBy('id','desc')->paginate(20);
 
         return view('admin.translators.default', compact('translators', 'histories'));
     }
