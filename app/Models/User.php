@@ -26,7 +26,8 @@ class User extends Authenticatable
         'password',
         'phone',
         'banned',
-        'user_type'
+        'user_type',
+        'image','otp_expires_at','otp'
     ];
 
     /**
