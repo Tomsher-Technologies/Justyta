@@ -1,0 +1,184 @@
+@extends('layouts.admin_default')
+
+@section('content')
+    <div class="container-fluid">
+        <div class="row mt-4 mb-4">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="card card-default card-md mb-4">
+                    <div class="card-header">
+                        <h6>Edit Membership Plan</h6>
+                    </div>
+                    <div class="card-body pb-md-30">
+                        <form action="{{ route('membership-plans.update', $plan->id) }}" method="POST"
+                            enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+                            <div class="row">
+
+                                <!-- Title -->
+                                <div class="col-md-6 mb-25">
+                                    <label  class="col-form-label color-dark fw-500 align-center">Title <span class="text-danger">*</span></label>
+                                    <input type="text" name="title" value="{{ old('title', $plan->title) }}"
+                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                    @error('title')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <!-- Icon -->
+                                <div class="col-md-6 mb-25">
+                                    <label  class="col-form-label color-dark fw-500 align-center">Icon <span class="text-danger">*</span></label>
+                                    <input type="file" name="icon"
+                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                    <img src="{{ asset(getUploadedImage($plan->icon)) }}" alt="Plan Icon" class="mt-2"
+                                            style="max-width: 80px;">
+                                    @error('icon')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <!-- Amount -->
+                                <div class="col-md-6 mb-25">
+                                    <label  class="col-form-label color-dark fw-500 align-center">Amount (Plan Price/Year) <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" name="amount"
+                                        value="{{ old('amount', $plan->amount) }}"
+                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                    @error('amount')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <!-- Member Count -->
+                                <div class="col-md-6 mb-25">
+                                    <label  class="col-form-label color-dark fw-500 align-center">Member Count (Max Users Access) <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" name="member_count"
+                                        value="{{ old('member_count', $plan->member_count) }}"
+                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                    @error('member_count')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <!-- EN → AR Translation Price -->
+                                <div class="col-md-6 mb-25">
+                                    <label  class="col-form-label color-dark fw-500 align-center">EN → AR Translation / Page <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" name="en_ar_price"
+                                        value="{{ old('en_ar_price', $plan->en_ar_price) }}"
+                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                    @error('en_ar_price')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <!-- Foreign → AR Translation Price -->
+                                <div class="col-md-6 mb-25">
+                                    <label  class="col-form-label color-dark fw-500 align-center">Foreign → AR Translation / Page <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" name="for_ar_price"
+                                        value="{{ old('for_ar_price', $plan->for_ar_price) }}"
+                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                    @error('for_ar_price')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <!-- Job Posts -->
+                                <div class="col-md-6 mb-25">
+                                    <label  class="col-form-label color-dark fw-500 align-center">Job Posts / Year <span class="text-danger">*</span></label>
+                                    <input type="number" name="job_post_count"
+                                        value="{{ old('job_post_count', $plan->job_post_count) }}"
+                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                    @error('job_post_count')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <!-- Free Ad Days -->
+                                <div class="col-md-6 mb-25">
+                                    <label  class="col-form-label color-dark fw-500 align-center">Annual Free Advertisement Days <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" name="annual_free_ad_days"
+                                        value="{{ old('annual_free_ad_days', $plan->annual_free_ad_days) }}"
+                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                    @error('annual_free_ad_days')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <!-- Welcome Gift -->
+                                <div class="col-md-6 mb-25">
+                                    <label  class="col-form-label color-dark fw-500 align-center">Welcome Gift <span class="text-danger">*</span></label>
+                                    <select name="welcome_gift"
+                                        class="form-select form-control ih-medium ip-gray radius-xs b-light px-15">
+                                        <option value="no"
+                                            {{ old('welcome_gift', $plan->welcome_gift) == 'no' ? 'selected' : '' }}>No
+                                        </option>
+                                        <option value="special"
+                                            {{ old('welcome_gift', $plan->welcome_gift) == 'special' ? 'selected' : '' }}>
+                                            Special</option>
+                                        <option value="premium"
+                                            {{ old('welcome_gift', $plan->welcome_gift) == 'premium' ? 'selected' : '' }}>
+                                            Premium</option>
+                                    </select>
+                                    @error('welcome_gift')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <!-- Radios -->
+                                @php
+                                    $radios = [
+                                        'live_online' => 'Access to Live Online Consultancy',
+                                        'specific_law_firm_choice' => 'Specific Law Firm Choice',
+                                        'annual_legal_contract' => 'Annual Legal Consultancy Contracts',
+                                        'unlimited_training_applications' => 'Unlimited Training Applications',
+                                        'is_active' => 'Active',
+                                    ];
+                                @endphp
+
+                                @foreach ($radios as $field => $label)
+                                    <div class="col-md-6 mb-3">
+                                        <label  class="col-form-label color-dark fw-500 align-center">{{ $label }}</label>
+                                        <div class="radio-horizontal-list d-flex">
+                                            <div class="radio-theme-default custom-radio ">
+                                                <input class="radio" type="radio" name="{{ $field }}"
+                                                id="{{ $field }}_yes" value="1"
+                                                {{ old($field, $plan->$field) == '1' ? 'checked' : '' }}>
+                                                <label for="{{ $field }}_yes">
+                                                    <span class="radio-text">Yes</span>
+                                                </label>
+                                            </div>
+
+                                            <div class="radio-theme-default custom-radio ">
+                                                <input class="radio" type="radio" name="{{ $field }}"
+                                                id="{{ $field }}_no" value="0"
+                                                {{ old($field, $plan->$field) == '0' ? 'checked' : '' }}>
+                                                <label for="{{ $field }}_no">
+                                                    <span class="radio-text">No</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        @error($field)
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                @endforeach
+
+                                <!-- Submit -->
+                                <div class="col-md-12 mb-3 d-flex flex-wrap align-items-center mt-4">
+                                    <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                                    <a href="{{ route('membership-plans.index') }}"
+                                        class="btn btn-secondary btn-square btn-sm ml-2">Cancel</a>
+                                </div>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
