@@ -43,6 +43,17 @@ class StaffController extends Controller
                 $q->where('name', $role_id);
             });
         }
+
+         // Filter by status
+        if ($request->filled('status')) {
+            // Assuming 1 = active, 2 = inactive; 
+            if ($request->status == 1) {
+                $users->where('banned', 0);
+            } elseif ($request->status == 2) {
+                $users->where('banned', 1);
+            }
+        }
+
         $users = $users->paginate(10);
        
         return view('admin.staffs.index', compact('users','sort_search','role_id'));
