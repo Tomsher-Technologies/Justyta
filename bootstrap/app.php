@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Auth\AuthenticationException;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -44,6 +45,15 @@ return Application::configure(basePath: dirname(__DIR__))
                     'status' => false,
                     'message' => 'HTTP method not allowed for this route.',
                 ], 405);
+            }
+        });
+
+        $exceptions->renderable(function (AuthenticationException $e, $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized access. Please login.'
+                ], 401);
             }
         });
     })->create();
