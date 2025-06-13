@@ -659,7 +659,7 @@
                         <i class="la la-search"></i>
                         <i class="la la-times"></i>
                     </a>
-                    <form action="/" class="search-form-topMenu">
+                    <form action="/" class="search-form-topMenu" autocomplete="off">
                         <span class="search-icon" data-feather="search"></span>
                         <input class="form-control mr-sm-2 box-shadow-none" type="text" placeholder="Search...">
                     </form>

@@ -26,7 +26,8 @@ class User extends Authenticatable
         'password',
         'phone',
         'banned',
-        'user_type'
+        'user_type',
+        'image','otp_expires_at','otp'
     ];
 
     /**
@@ -55,5 +56,15 @@ class User extends Authenticatable
     public function vendor()
     {
         return $this->hasOne(Vendor::class);
+    }
+
+    public function lawyer()
+    {
+        return $this->hasOne(Lawyer::class);
+    }
+
+    public function translator()
+    {
+        return $this->hasOne(Translator::class);
     }
 }
