@@ -130,7 +130,7 @@
 
                 @canany(['manage_plan', 'manage_dropdown_option'])
                     <li class="menu-title m-top-10">
-                        <span>Settings</span>
+                        <span>Settings</span> 
                     </li>
                     @can('manage_plan')
                         <li
