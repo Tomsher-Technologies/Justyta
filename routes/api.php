@@ -22,10 +22,11 @@ Route::group(['prefix' => 'v1'], function () {
 
         Route::middleware(['ensureFrontendRequestsAreStateful', 'auth:sanctum'])->group(function () {
             // Route::get('/services', [ServiceController::class, 'index']);
+            Route::post('/logout', [AuthController::class, 'logout']);
 
             Route::get('/home', [HomeController::class, 'home']);
             Route::get('/lawfirm-services', [HomeController::class, 'lawfirmServices']);
-
+            
 
             Route::get('/user', fn(\Illuminate\Http\Request $request) => $request->user());
         });
