@@ -26,7 +26,9 @@ Route::group(['prefix' => 'v1'], function () {
 
             Route::get('/home', [HomeController::class, 'home']);
             Route::get('/lawfirm-services', [HomeController::class, 'lawfirmServices']);
-            
+            Route::get('/search', [HomeController::class, 'search']);
+            Route::get('/news', [HomeController::class, 'news']);
+            Route::get('/news-details', [HomeController::class, 'newsDetails']);
 
             Route::get('/user', fn(\Illuminate\Http\Request $request) => $request->user());
         });

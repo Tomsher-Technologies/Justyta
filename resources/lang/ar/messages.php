@@ -41,6 +41,8 @@ return [
     'company-setup' => 'تأسيس شركة',
     'escrow-accounts' => 'حسابات الضمان',
     'depts-collection' => 'تحصيل الديون',
+    'logout_success' => 'تم تسجيل الخروج بنجاح',
+    'user_not_found' => 'المستخدم غير موجود',
     '' => '',
     '' => '',
     '' => '',
