@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\JobPostController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\LawyerController;
 use App\Http\Controllers\Admin\TranslatorController;
+use App\Http\Controllers\Admin\FreezoneController;
+use App\Http\Controllers\Admin\ContractTypeController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -44,17 +46,28 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::resource('vendors', VendorController::class);
 
     // List all dropdowns
-    Route::get('admin/dropdowns', [DropdownOptionController::class, 'dropdowns'])->name('dropdowns.index');
+    Route::get('/dropdowns', [DropdownOptionController::class, 'dropdowns'])->name('dropdowns.index');
 
     // Show options for a specific dropdown
-    Route::get('admin/dropdowns/{dropdown}/options', [DropdownOptionController::class, 'index'])->name('dropdown-options.index');
-    Route::post('dropdowns/{dropdown}/options', [DropdownOptionController::class, 'store'])->name('dropdown-options.store');
+    Route::get('/dropdowns/options/{dropdown}', [DropdownOptionController::class, 'index'])->name('dropdown-options.index');
+    Route::post('dropdowns/options/{dropdown}', [DropdownOptionController::class, 'store'])->name('dropdown-options.store');
     Route::put('dropdown-options/{option}', [DropdownOptionController::class, 'update'])->name('dropdown-options.update');
     Route::post('/dropdown-options/status', [DropdownOptionController::class, 'updateStatus'])->name('dropdown-options.status');
 
     // Manage document types
     Route::resource('document-types', DocumentTypeController::class);
     Route::post('/document-types/status', [DocumentTypeController::class, 'updateStatus'])->name('document-types.status');
+    Route::get('/document-types/edit/{id}', [DocumentTypeController::class, 'edit']);
+
+    // Manage free zones
+    Route::resource('free-zones', FreezoneController::class);
+    Route::post('/free-zones/status', [FreezoneController::class, 'updateStatus'])->name('free-zones.status');
+    Route::get('/free-zones/edit/{id}', [FreezoneController::class, 'edit']);
+
+    // Manage contract types
+    Route::resource('contract-types', ContractTypeController::class);
+    Route::post('/contract-types/status', [ContractTypeController::class, 'updateStatus'])->name('contract-types.status');
+    Route::get('/contract-types/edit/{id}', [ContractTypeController::class, 'edit']);
 
     // Manage service 
     Route::resource('services', ServiceController::class);

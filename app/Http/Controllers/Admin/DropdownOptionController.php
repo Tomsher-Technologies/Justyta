@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Emirate;
 use App\Models\Dropdown;
 use App\Models\DropdownOption;
 use App\Models\DropdownOptionTranslation;
@@ -24,18 +25,23 @@ class DropdownOptionController extends Controller
 
     public function dropdowns()
     {
-        $dropdowns = Dropdown::orderBy('name')->get();
+        $dropdowns = Dropdown::where('is_active',1)->orderBy('name')->get();
 
         return view('admin.dropdown-options.dropdowns', compact('dropdowns'));
     }
 
-    public function index($dropdownId)
+    public function index($dropdownSlug)
     {
-        $dropdown = Dropdown::findOrFail($dropdownId);
+        $dropdown = Dropdown::where('slug', $dropdownSlug)->first();
 
         $languages = Language::where('status', 1)->orderBy('id')->get();
 
         $options = $dropdown->options()->with('translations')->orderBy('sort_order')->get();
+
+        if($dropdown->slug === 'zones'){
+            $emirates = Emirate::where('status',1)->orderBy('id', 'ASC')->get();
+            return view('admin.dropdown-options.zones', compact('dropdown', 'languages','emirates', 'options'));
+        }
 
         return view('admin.dropdown-options.index', compact('dropdown', 'languages', 'options'));
     }

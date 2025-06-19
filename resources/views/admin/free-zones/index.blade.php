@@ -5,12 +5,12 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
-                    <h4 class="text-capitalize breadcrumb-title">Document Types</h4>
+                    <h4 class="text-capitalize breadcrumb-title">Free Zones</h4>
                     <div class="breadcrumb-action justify-content-center flex-wrap">
                         @can('add_dropdown_option')
                             <div class="action-btn">
-                                <button class="btn btn-primary btn-sm btn-add" id="addDocumentTypeBtn">
-                                    <i class="la la-plus"></i>Add Document Type
+                                <button class="btn btn-primary btn-sm btn-add" id="addFreeZoneBtn">
+                                    <i class="la la-plus"></i>Add Free Zone
                                 </button>
                             </div>
                         @endcan
@@ -29,13 +29,13 @@
                                 <div class="col-md-3 input-group  mb-1">
                                     <input type="text" class="form-control ih-small ip-gray radius-xs b-light px-15"
                                         id="search" name="search" value="{{ request()->search }}"
-                                        placeholder="Type document type name..">
+                                        placeholder="Type Free Zone name..">
                                 </div>
 
                                 <div class="col-md-3 input-group  mb-1">
                                     <select name="ptype_id"
                                         class="form-control ih-small ip-gray radius-xs b-light px-15 aiz-selectpicker">
-                                        <option value="">--Select Document Type--</option>
+                                        <option value="">--Select Emirate--</option>
                                         @foreach ($allParentTypes as $type)
                                             <option value="{{ $type->id }}"
                                                 {{ request()->ptype_id == $type->id ? 'selected' : '' }}>
@@ -57,7 +57,7 @@
 
                                 <div class="col-md-3 mb-1 d-flex flex-wrap align-items-end">
                                     <button class="btn btn-primary btn-sm " type="submit">Filter</button>
-                                    <a href="{{ route('document-types.index') }}"
+                                    <a href="{{ route('free-zones.index') }}"
                                         class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
                                 </div>
                             </form>
@@ -68,24 +68,24 @@
                                         <tr class="userDatatable-header">
                                             <th class="text-center">Sl No.</th>
                                             <th>Name</th>
-                                            <th>Parent</th>
+                                            <th>Emirate</th>
                                             <th class="text-center">Sort Order</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="documentTypesTable">
+                                    <tbody id="freezonesTable">
                                         @can('view_dropdown_option')
-                                            @if ($documentTypes->isNotEmpty())
-                                                @foreach ($documentTypes as $key => $type)
+                                            @if ($freezones->isNotEmpty())
+                                                @foreach ($freezones as $key => $type)
                                                     <tr data-id="{{ $type->id }}">
-                                                        <td class="text-center text-primary">
-                                                            {{ $key + 1 + ($documentTypes->currentPage() - 1) * $documentTypes->perPage() }}
+                                                        <td class="text-center ">
+                                                            {{ $key + 1 + ($freezones->currentPage() - 1) * $freezones->perPage() }}
                                                         </td>
-                                                        <td class="text-primary">{{ $type->name }}</td>
-                                                        <td class="text-primary">{{ $type->parent?->name ?? '-' }}</td>
-                                                        <td class="text-center text-primary">{{ $type->sort_order }}</td>
-                                                        <td class="text-center text-primary">
+                                                        <td class="">{{ $type->name }}</td>
+                                                        <td class="">{{ $type->emirate?->name ?? '-' }}</td>
+                                                        <td class="text-center ">{{ $type->sort_order }}</td>
+                                                        <td class="text-center ">
                                                             @can('edit_dropdown_option')
                                                                 <div class="atbd-switch-wrap">
                                                                     <div
@@ -106,52 +106,13 @@
                                                         <td class="text-center">
                                                             @can('edit_dropdown_option')
                                                                 <div class="table-actions">
-                                                                    <a class="edit-btn" data-id="{{ $type->id }}"  title="Edit Document Type">
+                                                                    <a class="edit-btn" data-id="{{ $type->id }}" title="Edit Free Zone">
                                                                         <span data-feather="edit"></span></a>
                                                                 </div>
                                                             @endcan
                                                         </td>
                                                     </tr>
-                                                    @foreach ($type->children as $j => $sub)
-                                                        <tr data-id="{{ $sub->id }}">
-                                                            <td></td>
-                                                            <td class="text-secondary">— {{ $sub->name }}</td>
-                                                            <td class="text-secondary">{{ $type->name }}</td>
-                                                            <td class="text-center text-secondary">{{ $sub->sort_order }}</td>
-                                                            <td class="text-center text-secondary">
-                                                                @can('edit_dropdown_option')
-                                                                    <div class="atbd-switch-wrap">
-                                                                        <div
-                                                                            class="custom-control custom-switch switch-secondary switch-sm ">
-                                                                            <input type="checkbox" class="custom-control-input"
-                                                                                id="switch-s1_s{{ $sub->id }}"
-                                                                                onchange="update_status(this)"
-                                                                                value="{{ $sub->id }}" <?php if ($sub->status == 1) {
-                                                                                    echo 'checked';
-                                                                                } ?>>
-                                                                            <label class="custom-control-label"
-                                                                                for="switch-s1_s{{ $sub->id }}"></label>
-                                                                        </div>
-                                                                    </div>
-                                                                @endcan
-
-                                                            </td>
-
-                                                            <td class="text-center">
-
-                                                                @can('edit_dropdown_option')
-                                                                    <div class="table-actions">
-                                                                        <a class="edit-btn" data-id="{{ $sub->id }}"
-                                                                            data-name="{{ $sub->name }}"
-                                                                            data-parent="{{ $sub->parent_id }}"
-                                                                            data-sort="{{ $sub->sort_order }}"
-                                                                            data-status="{{ $sub->status }}">
-                                                                            <span data-feather="edit"></span></a>
-                                                                    </div>
-                                                                @endcan
-                                                            </td>
-                                                        </tr>
-                                                    @endforeach
+                                                  
                                                 @endforeach
                                             @else
                                                 <tr>
@@ -177,15 +138,15 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="documentTypeModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" autocomplete="off">
+    <div class="modal fade" id="freezoneModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" autocomplete="off">
         <div class="modal-dialog modal-lg">
-            <form id="documentTypeForm">
+            <form id="FreeZoneForm">
                 @csrf
                 <input type="hidden" name="_method" value="POST">
                 <input type="hidden" name="id" id="typeId">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Add Document Type</h5>
+                        <h5 class="modal-title">Add Free Zone</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -200,11 +161,11 @@
                         </div> --}}
 
                         <div class="form-group mb-2 col-sm-6">
-                            <label class="col-form-label color-dark fw-500 align-center">Parent Type</label>
-                            <select name="parent_id" id="typeParent"
+                            <label class="col-form-label color-dark fw-500 align-center">Emirate <span class="text-danger">*</span></label>
+                            <select name="emirate_id" id="typeParent"
                                 class="form-control ih-small ip-gray radius-xs b-light px-15">
                                 <option value="">-- None --</option>
-                                @foreach ($documentTypes->whereNull('parent_id') as $parent)
+                                @foreach ($allParentTypes as $parent)
                                     <option value="{{ $parent->id }}">{{ $parent->name }}</option>
                                 @endforeach
                             </select>
@@ -256,14 +217,14 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script>
         $(document).ready(function() {
-            let modal = new bootstrap.Modal(document.getElementById('documentTypeModal'));
-            const storeUrl = "{{ url('admin/document-types') }}";
-            const updateUrl = "{{ url('admin/document-types') }}/"; // Append ID dynamically
-            const editUrl = "{{ url('admin/document-types/edit') }}/";
+            let modal = new bootstrap.Modal(document.getElementById('freezoneModal'));
+            const storeUrl = "{{ url('admin/free-zones') }}";
+            const updateUrl = "{{ url('admin/free-zones') }}/"; // Append ID dynamically
+            const editUrl = "{{ url('admin/free-zones/edit') }}/";
 
-            $('#addDocumentTypeBtn').click(function() {
-                $('.modal-title').text('Add Document Type');
-                $('#documentTypeForm')[0].reset();
+            $('#addFreeZoneBtn').click(function() {
+                $('.modal-title').text('Add Free Zone');
+                $('#FreeZoneForm')[0].reset();
                 $('#typeId').val('');
                 $('input[name="_method"]').val('POST');
                 $('#formErrors').addClass('d-none');
@@ -271,16 +232,16 @@
             });
 
             $('.edit-btn').click(function() {
-                $('.modal-title').text('Edit Document Type');
+                $('.modal-title').text('Edit Free Zone');
                 $('#formErrors').addClass('d-none');
                 const id = $(this).data('id');
-                editDocumentType(id);
+                editFreeZone(id);
             });
 
-            function editDocumentType(id) {
+            function editFreeZone(id) {
                 $.get(editUrl + id, function (data) {
                     $('#typeId').val(data.id);
-                    $('#typeParent').val(data.parent_id);
+                    $('#typeParent').val(data.emirate_id);
                     $('#typeStatus').val(data.status);
                     $('#typeSort').val(data.sort_order);
 
@@ -294,7 +255,7 @@
                         }
                     }
 
-                    $('#documentTypeModal').modal('show');
+                    $('#freezoneModal').modal('show');
                 });
             }
 
@@ -305,12 +266,12 @@
                 }
             });
 
-            $('#documentTypeForm').submit(function(e) {
+            $('#FreeZoneForm').submit(function(e) {
                 e.preventDefault();
                 let method = $('#typeId').val() ? 'PUT' : 'POST';
                 let id = $('#typeId').val();
                 let url = method === 'POST' ? storeUrl : updateUrl + id;
-                let formData = $('#documentTypeForm').serialize();
+                let formData = $('#FreeZoneForm').serialize();
 
                 $.ajax({
                     url: url,
@@ -335,7 +296,7 @@
             } else {
                 var status = 0;
             }
-            $.post('{{ route('document-types.status') }}', {
+            $.post('{{ route('free-zones.status') }}', {
                 _token: '{{ csrf_token() }}',
                 id: el.value,
                 status: status
