@@ -160,25 +160,37 @@
                     @endcan
 
                     @can('manage_dropdown_option')
-                        <li class="">
-                            <a href="{{ route('dropdowns.index') }}"
-                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index']) }}">
+                        <li class="has-child {{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index', 'document-types.index','free-zones.index','contract-types.index']) }}">
+                            <a href="#"
+                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index','document-types.index','free-zones.index','contract-types.index']) }}">
                                 <span data-feather="list" class="nav-icon"></span>
-                                <span class="menu-text">Dropdowns</span>
+                                <span class="menu-text">Dropdown Contents</span>
+                                <span class="toggle-icon"></span>
                             </a>
 
-                        </li>
-                    @endcan
+                            <ul>
 
+                                <li>
+                                    <a class="{{ areActiveRoutes(['contract-types.index']) }}"
+                                        href="{{ route('contract-types.index') }}">Contract Types</a>
+                                </li>
 
+                                <li>
+                                    <a class="{{ areActiveRoutes(['document-types.index']) }}"
+                                        href="{{ route('document-types.index') }}">Document Types</a>
+                                </li>
 
-                    @can('manage_document_type')
-                        <li class="">
-                            <a href="{{ route('document-types.index') }}"
-                                class="{{ areActiveRoutes(['document-types.index']) }}">
-                                <span data-feather="file" class="nav-icon"></span>
-                                <span class="menu-text">Document Types</span>
-                            </a>
+                                <li>
+                                    <a class="{{ areActiveRoutes(['free-zones.index']) }}"
+                                        href="{{ route('free-zones.index') }}">Free Zones</a>
+                                </li>
+
+                                <li>
+                                    <a class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index']) }}"
+                                        href="{{ route('dropdowns.index') }}">Other Dropdowns</a>
+                                </li>
+
+                            </ul>
                         </li>
                     @endcan
                 @endcanany

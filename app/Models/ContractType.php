@@ -4,20 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DocumentType extends Model
+class ContractType extends Model
 {
     protected $fillable = ['name', 'parent_id','status','sort_order'];
 
     // Relationship to parent
     public function parent()
     {
-        return $this->belongsTo(DocumentType::class, 'parent_id');
+        return $this->belongsTo(ContractType::class, 'parent_id');
     }
 
-    // Relationship to children (sub document types)
+    // Relationship to children (sub Contract types)
     public function children()
     {
-        return $this->hasMany(DocumentType::class, 'parent_id')->orderBy('sort_order');
+        return $this->hasMany(ContractType::class, 'parent_id')->orderBy('sort_order');
     }
 
     // Scope for only main types
@@ -34,7 +34,7 @@ class DocumentType extends Model
 
     public function translations()
     {
-        return $this->hasMany(DocumentTypeTranslation::class);
+        return $this->hasMany(ContractTypeTranslation::class);
     }
 
     public function translation($locale = null)

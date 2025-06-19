@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\DocumentType;
+use App\Models\ContractType;
 use App\Models\Language;
 
-class DocumentTypeController extends Controller
+class ContractTypeController extends Controller
 {
     function __construct()
     {
@@ -20,7 +20,7 @@ class DocumentTypeController extends Controller
 
     public function index(Request $request)
     {
-        $query = DocumentType::with('children')->whereNull('parent_id');
+        $query = ContractType::with('children')->whereNull('parent_id');
 
         // Search by name
         if ($request->filled('search')) {
@@ -42,20 +42,20 @@ class DocumentTypeController extends Controller
             }
         }
 
-        $documentTypes = $query->orderBy('sort_order')->paginate(20)->appends($request->all());
+        $contractTypes = $query->orderBy('sort_order')->paginate(20)->appends($request->all());
 
-        $allParentTypes = DocumentType::whereNull('parent_id')->orderBy('name')->get();
+        $allParentTypes = ContractType::whereNull('parent_id')->orderBy('name')->get();
 
         $languages = Language::where('status', 1)->orderBy('id')->get();
 
-        return view('admin.document_types.index', compact('documentTypes', 'allParentTypes','languages'));
+        return view('admin.contract_types.index', compact('contractTypes', 'allParentTypes','languages'));
     }
 
     public function store(Request $request)
     {
        
         $request->validate([
-            'parent_id' => 'nullable|exists:document_types,id',
+            'parent_id' => 'nullable|exists:contract_types,id',
             'status' => 'required|boolean',
             'sort_order' => 'nullable|integer',
             'translations.en.name' => 'required|string|max:255'
@@ -64,7 +64,7 @@ class DocumentTypeController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        $type = DocumentType::create([
+        $type = ContractType::create([
             'parent_id' => $request->parent_id,
             'status' => $request->status,
             'sort_order' => $request->sort_order,
@@ -83,7 +83,7 @@ class DocumentTypeController extends Controller
             }
         }
 
-        session()->flash('success', 'Document type created successfully.');
+        session()->flash('success', 'Contract type created successfully.');
 
         return response()->json(['success' => true, 'data' => $type]);
     }
@@ -91,7 +91,7 @@ class DocumentTypeController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'parent_id' => 'nullable|exists:document_types,id',
+            'parent_id' => 'nullable|exists:contract_types,id',
             'status' => 'required|boolean',
             'sort_order' => 'nullable|integer',
             'translations.en.name' => 'required|string|max:255'
@@ -100,41 +100,41 @@ class DocumentTypeController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        // Find the document type by ID
-        $documentType = DocumentType::find($id);
+        // Find the contract type by ID
+        $contractType = ContractType::find($id);
 
-        if (!$documentType) {
+        if (!$contractType) {
             return response()->json([
-                'error' => 'Document Type not found.'
+                'error' => 'Contract Type not found.'
             ], 404);
         }
-        $documentType->parent_id = $request->input('parent_id');
-        $documentType->status = $request->input('status');
-        $documentType->sort_order = $request->input('sort_order', 0);
-        $documentType->save();
+        $contractType->parent_id = $request->input('parent_id');
+        $contractType->status = $request->input('status');
+        $contractType->sort_order = $request->input('sort_order', 0);
+        $contractType->save();
 
         foreach ($request->translations as $lang => $data) {
             if($lang === 'en'){
-                $documentType->name = $data['name'];
-                $documentType->save();
+                $contractType->name = $data['name'];
+                $contractType->save();
             }
-            $documentType->translations()->updateOrCreate(
+            $contractType->translations()->updateOrCreate(
                 ['lang' => $lang],
                 ['name' => $data['name']]
             );
         }
 
-        session()->flash('success', 'Document type updated successfully.');
-        // return response()->json(['success' => true, 'data' => $documentType]);
+        session()->flash('success', 'Contract type updated successfully.');
+        // return response()->json(['success' => true, 'data' => $contractType]);
         return response()->json([
-            'message' => 'Document Type updated successfully',
-            'documentType' => $documentType
+            'message' => 'Contract Type updated successfully',
+            'contractType' => $contractType
         ]);
     }
 
     public function edit($id)
     {
-        $type = DocumentType::with('translations')->findOrFail($id);
+        $type = ContractType::with('translations')->findOrFail($id);
 
         // Return both main type fields and translations
         return response()->json([
@@ -146,28 +146,28 @@ class DocumentTypeController extends Controller
         ]);
     }
 
-    public function destroy(DocumentType $documentType)
+    public function destroy(ContractType $contractType)
     {
-        $documentType->delete();
-        return back()->with('success', 'Document Type deleted.');
+        $contractType->delete();
+        return back()->with('success', 'Contract Type deleted.');
     }
 
     public function updateStatus(Request $request)
     {
-        $documentType = DocumentType::findOrFail($request->id);
+        $contractType = ContractType::findOrFail($request->id);
         $newStatus = $request->status;
 
-        $documentType->status = $newStatus;
-        $documentType->save();
+        $contractType->status = $newStatus;
+        $contractType->save();
 
         // 1. If this is a parent and status changes, update all children
-        if ($documentType->parent_id === null) {
+        if ($contractType->parent_id === null) {
             // Update children
-            DocumentType::where('parent_id', $documentType->id)
+            ContractType::where('parent_id', $contractType->id)
                 ->update(['status' => $newStatus]);
         } else {
             // 2. If child is activated but parent is inactive, activate parent
-            $parent = DocumentType::find($documentType->parent_id);
+            $parent = ContractType::find($contractType->parent_id);
 
             if ($newStatus == 1 && $parent && $parent->status == 0) {
                 $parent->status = 1;
@@ -176,7 +176,7 @@ class DocumentTypeController extends Controller
 
             // 3. If child is inactivated and all siblings are also inactive, inactivate parent
             if ($newStatus == 0 && $parent) {
-                $allSiblingsInactive = DocumentType::where('parent_id', $parent->id)
+                $allSiblingsInactive = ContractType::where('parent_id', $parent->id)
                     ->where('status', 1)
                     ->exists() === false;
 

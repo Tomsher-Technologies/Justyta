@@ -10,7 +10,7 @@
                 <div class="row row-cols-1 row-cols-md-4 g-4">
                     @foreach ($dropdowns as $dropdown)
                         <div class="col mb-3">
-                            <a href="{{ route('dropdown-options.index', $dropdown->id) }}" class="text-decoration-none">
+                            <a href="{{ route('dropdown-options.index', $dropdown->slug) }}" class="text-decoration-none">
                                 <div class="card h-100 shadow-sm border-primary hover-shadow">
                                     <div
                                         class="card-body d-flex flex-column justify-content-center align-items-center text-center dropdown-card">
