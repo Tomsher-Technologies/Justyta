@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\DocumentType;
+use App\Models\FreeZone;
 use App\Models\Language;
+use App\Models\Emirate;
 
-class DocumentTypeController extends Controller
+class FreezoneController extends Controller
 {
     function __construct()
     {
@@ -20,7 +21,7 @@ class DocumentTypeController extends Controller
 
     public function index(Request $request)
     {
-        $query = DocumentType::with('children')->whereNull('parent_id');
+        $query = FreeZone::query();
 
         // Search by name
         if ($request->filled('search')) {
@@ -29,7 +30,7 @@ class DocumentTypeController extends Controller
 
         // Filter by parent type
         if ($request->filled('ptype_id')) {
-            $query->where('id', $request->ptype_id);
+            $query->where('emirate_id', $request->ptype_id);
         }
 
         // Filter by status
@@ -42,30 +43,31 @@ class DocumentTypeController extends Controller
             }
         }
 
-        $documentTypes = $query->orderBy('sort_order')->paginate(20)->appends($request->all());
+        $freezones = $query->orderBy('sort_order')->paginate(20)->appends($request->all());
 
-        $allParentTypes = DocumentType::whereNull('parent_id')->orderBy('name')->get();
+        $allParentTypes = Emirate::where('status',1)->orderBy('id')->get();
 
         $languages = Language::where('status', 1)->orderBy('id')->get();
 
-        return view('admin.document_types.index', compact('documentTypes', 'allParentTypes','languages'));
+        return view('admin.free-zones.index', compact('freezones', 'allParentTypes','languages'));
     }
 
     public function store(Request $request)
     {
        
         $request->validate([
-            'parent_id' => 'nullable|exists:document_types,id',
+            'emirate_id' => 'required|exists:emirates,id',
             'status' => 'required|boolean',
             'sort_order' => 'nullable|integer',
             'translations.en.name' => 'required|string|max:255'
         ],[
             'translations.en.name.required' => 'English name field is required',
             'status.required' => 'Status is required',
+            'emirate_id.required' => 'Emirate is required',
         ]);
 
-        $type = DocumentType::create([
-            'parent_id' => $request->parent_id,
+        $type = FreeZone::create([
+            'emirate_id' => $request->emirate_id,
             'status' => $request->status,
             'sort_order' => $request->sort_order,
         ]);
@@ -83,7 +85,7 @@ class DocumentTypeController extends Controller
             }
         }
 
-        session()->flash('success', 'Document type created successfully.');
+        session()->flash('success', 'Free zone created successfully.');
 
         return response()->json(['success' => true, 'data' => $type]);
     }
@@ -91,101 +93,76 @@ class DocumentTypeController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'parent_id' => 'nullable|exists:document_types,id',
+            'emirate_id' => 'required|exists:emirates,id',
             'status' => 'required|boolean',
             'sort_order' => 'nullable|integer',
             'translations.en.name' => 'required|string|max:255'
         ],[
             'translations.en.name.required' => 'English name field is required',
             'status.required' => 'Status is required',
+            'emirate_id.required' => 'Emirate is required',
         ]);
 
         // Find the document type by ID
-        $documentType = DocumentType::find($id);
+        $freeZone = FreeZone::find($id);
 
-        if (!$documentType) {
+        if (!$freeZone) {
             return response()->json([
-                'error' => 'Document Type not found.'
+                'error' => 'Free zone not found.'
             ], 404);
         }
-        $documentType->parent_id = $request->input('parent_id');
-        $documentType->status = $request->input('status');
-        $documentType->sort_order = $request->input('sort_order', 0);
-        $documentType->save();
+        $freeZone->emirate_id = $request->input('emirate_id');
+        $freeZone->status = $request->input('status');
+        $freeZone->sort_order = $request->input('sort_order', 0);
+        $freeZone->save();
 
         foreach ($request->translations as $lang => $data) {
             if($lang === 'en'){
-                $documentType->name = $data['name'];
-                $documentType->save();
+                $freeZone->name = $data['name'];
+                $freeZone->save();
             }
-            $documentType->translations()->updateOrCreate(
+            $freeZone->translations()->updateOrCreate(
                 ['lang' => $lang],
                 ['name' => $data['name']]
             );
         }
 
-        session()->flash('success', 'Document type updated successfully.');
-        // return response()->json(['success' => true, 'data' => $documentType]);
+        session()->flash('success', 'Free zone updated successfully.');
+        // return response()->json(['success' => true, 'data' => $freeZone]);
         return response()->json([
-            'message' => 'Document Type updated successfully',
-            'documentType' => $documentType
+            'message' => 'Free zone updated successfully',
+            'freeZone' => $freeZone
         ]);
     }
 
     public function edit($id)
     {
-        $type = DocumentType::with('translations')->findOrFail($id);
+        $type = FreeZone::with('translations')->findOrFail($id);
 
         // Return both main type fields and translations
         return response()->json([
             'id' => $type->id,
-            'parent_id' => $type->parent_id,
+            'emirate_id' => $type->emirate_id,
             'status' => $type->status,
             'sort_order' => $type->sort_order,
             'translations' => $type->translations->pluck('name', 'lang'),
         ]);
     }
 
-    public function destroy(DocumentType $documentType)
+    public function destroy(FreeZone $freeZone)
     {
-        $documentType->delete();
-        return back()->with('success', 'Document Type deleted.');
+        $freeZone->delete();
+        return back()->with('success', 'Free zone deleted.');
     }
 
     public function updateStatus(Request $request)
     {
-        $documentType = DocumentType::findOrFail($request->id);
+        $freeZone = FreeZone::findOrFail($request->id);
         $newStatus = $request->status;
 
-        $documentType->status = $newStatus;
-        $documentType->save();
-
-        // 1. If this is a parent and status changes, update all children
-        if ($documentType->parent_id === null) {
-            // Update children
-            DocumentType::where('parent_id', $documentType->id)
-                ->update(['status' => $newStatus]);
-        } else {
-            // 2. If child is activated but parent is inactive, activate parent
-            $parent = DocumentType::find($documentType->parent_id);
-
-            if ($newStatus == 1 && $parent && $parent->status == 0) {
-                $parent->status = 1;
-                $parent->save();
-            }
-
-            // 3. If child is inactivated and all siblings are also inactive, inactivate parent
-            if ($newStatus == 0 && $parent) {
-                $allSiblingsInactive = DocumentType::where('parent_id', $parent->id)
-                    ->where('status', 1)
-                    ->exists() === false;
-
-                if ($allSiblingsInactive) {
-                    $parent->status = 0;
-                    $parent->save();
-                }
-            }
-        }
+        $freeZone->status = $newStatus;
+        $freeZone->save();
+       
         return 1;
     }
 }
