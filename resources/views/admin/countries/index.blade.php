@@ -5,12 +5,12 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
-                    <h4 class="text-capitalize breadcrumb-title">Court Requests</h4>
+                    <h4 class="text-capitalize breadcrumb-title">Countries</h4>
                     <div class="breadcrumb-action justify-content-center flex-wrap">
                         @can('add_dropdown_option')
                             <div class="action-btn">
-                                <button class="btn btn-primary btn-sm btn-add" id="addCourtRequestBtn">
-                                    <i class="la la-plus"></i>Add Court Request
+                                <button class="btn btn-primary btn-sm btn-add" id="addcountryBtn">
+                                    <i class="la la-plus"></i>Add New Country
                                 </button>
                             </div>
                         @endcan
@@ -26,23 +26,10 @@
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
                             <form class="row mb-2" id="sort_brands" action="" method="GET" autocomplete="off">
-                                <div class="col-md-3 input-group  mb-1">
+                                <div class="col-md-4 input-group  mb-1">
                                     <input type="text" class="form-control ih-small ip-gray radius-xs b-light px-15"
                                         id="search" name="search" value="{{ request()->search }}"
-                                        placeholder="Type court request name..">
-                                </div>
-
-                                <div class="col-md-3 input-group  mb-1">
-                                    <select name="ptype_id"
-                                        class="form-control ih-small ip-gray radius-xs b-light px-15 aiz-selectpicker">
-                                        <option value="">--Select Court Request--</option>
-                                        @foreach ($allParentTypes as $type)
-                                            <option value="{{ $type->id }}"
-                                                {{ request()->ptype_id == $type->id ? 'selected' : '' }}>
-                                                {{ $type->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                        placeholder="Type country name..">
                                 </div>
 
                                 <div class="col-md-3 input-group  mb-1">
@@ -57,7 +44,7 @@
 
                                 <div class="col-md-3 mb-1 d-flex flex-wrap align-items-end">
                                     <button class="btn btn-primary btn-sm " type="submit">Filter</button>
-                                    <a href="{{ route('court-requests.index') }}"
+                                    <a href="{{ route('countries.index') }}"
                                         class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
                                 </div>
                             </form>
@@ -67,25 +54,21 @@
                                     <thead>
                                         <tr class="userDatatable-header">
                                             <th class="text-center">Sl No.</th>
-                                            <th>Name</th>
-                                            <th>Parent</th>
-                                            <th class="text-center">Sort Order</th>
+                                            <th>Country Name</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="courtRequestsTable">
+                                    <tbody id="countriesTable">
                                         @can('view_dropdown_option')
-                                            @if ($courtRequests->isNotEmpty())
-                                                @foreach ($courtRequests as $key => $type)
+                                            @if ($countries->isNotEmpty())
+                                                @foreach ($countries as $key => $type)
                                                     <tr data-id="{{ $type->id }}">
-                                                        <td class="text-center text-primary">
-                                                            {{ $key + 1 + ($courtRequests->currentPage() - 1) * $courtRequests->perPage() }}
+                                                        <td class="text-center ">
+                                                            {{ $key + 1 + ($countries->currentPage() - 1) * $countries->perPage() }}
                                                         </td>
-                                                        <td class="text-primary">{{ $type->name }}</td>
-                                                        <td class="text-primary">{{ $type->parent?->name ?? '-' }}</td>
-                                                        <td class="text-center text-primary">{{ $type->sort_order }}</td>
-                                                        <td class="text-center text-primary">
+                                                        <td class="">{{ $type->name }}</td>
+                                                        <td class="text-center ">
                                                             @can('edit_dropdown_option')
                                                                 <div class="atbd-switch-wrap">
                                                                     <div
@@ -106,52 +89,13 @@
                                                         <td class="text-center">
                                                             @can('edit_dropdown_option')
                                                                 <div class="table-actions">
-                                                                    <a class="edit-btn" data-id="{{ $type->id }}"  title="Edit Court Request">
+                                                                    <a class="edit-btn" data-id="{{ $type->id }}" title="Edit Country">
                                                                         <span data-feather="edit"></span></a>
                                                                 </div>
                                                             @endcan
                                                         </td>
                                                     </tr>
-                                                    @foreach ($type->children as $j => $sub)
-                                                        <tr data-id="{{ $sub->id }}">
-                                                            <td></td>
-                                                            <td class="text-secondary">— {{ $sub->name }}</td>
-                                                            <td class="text-secondary">{{ $type->name }}</td>
-                                                            <td class="text-center text-secondary">{{ $sub->sort_order }}</td>
-                                                            <td class="text-center text-secondary">
-                                                                @can('edit_dropdown_option')
-                                                                    <div class="atbd-switch-wrap">
-                                                                        <div
-                                                                            class="custom-control custom-switch switch-secondary switch-sm ">
-                                                                            <input type="checkbox" class="custom-control-input"
-                                                                                id="switch-s1_s{{ $sub->id }}"
-                                                                                onchange="update_status(this)"
-                                                                                value="{{ $sub->id }}" <?php if ($sub->status == 1) {
-                                                                                    echo 'checked';
-                                                                                } ?>>
-                                                                            <label class="custom-control-label"
-                                                                                for="switch-s1_s{{ $sub->id }}"></label>
-                                                                        </div>
-                                                                    </div>
-                                                                @endcan
-
-                                                            </td>
-
-                                                            <td class="text-center">
-
-                                                                @can('edit_dropdown_option')
-                                                                    <div class="table-actions">
-                                                                        <a class="edit-btn" data-id="{{ $sub->id }}"
-                                                                            data-name="{{ $sub->name }}"
-                                                                            data-parent="{{ $sub->parent_id }}"
-                                                                            data-sort="{{ $sub->sort_order }}"
-                                                                            data-status="{{ $sub->status }}">
-                                                                            <span data-feather="edit"></span></a>
-                                                                    </div>
-                                                                @endcan
-                                                            </td>
-                                                        </tr>
-                                                    @endforeach
+                                                  
                                                 @endforeach
                                             @else
                                                 <tr>
@@ -171,7 +115,7 @@
 
                                 <div class="aiz-pagination mt-4">
                                     @can('view_dropdown_option')
-                                        {{ $courtRequests->appends(request()->input())->links('pagination::bootstrap-5') }}
+                                        {{ $countries->appends(request()->input())->links('pagination::bootstrap-5') }}
                                     @endcan
                                 </div>
                             </div>
@@ -183,15 +127,15 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="courtRequestModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" autocomplete="off">
+    <div class="modal fade" id="countryModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" autocomplete="off">
         <div class="modal-dialog modal-lg">
-            <form id="courtRequestForm">
+            <form id="countryForm">
                 @csrf
                 <input type="hidden" name="_method" value="POST">
                 <input type="hidden" name="id" id="typeId">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Add Court Request</h5>
+                        <h5 class="modal-title">Add Country</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -204,23 +148,6 @@
                             <input type="text" name="name"
                                 class="form-control ih-small ip-gray radius-xs b-light px-15" id="typeName">
                         </div> --}}
-
-                        <div class="form-group mb-2 col-sm-6">
-                            <label class="col-form-label color-dark fw-500 align-center">Parent Type</label>
-                            <select name="parent_id" id="typeParent"
-                                class="form-control ih-small ip-gray radius-xs b-light px-15">
-                                <option value="">-- None --</option>
-                                @foreach ($courtRequests->whereNull('parent_id') as $parent)
-                                    <option value="{{ $parent->id }}">{{ $parent->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group mb-2 col-sm-6">
-                            <label class="col-form-label color-dark fw-500 align-center">Sort Order</label>
-                            <input type="number" name="sort_order" id="typeSort" value="0"
-                                class="form-control ih-small ip-gray radius-xs b-light px-15">
-                        </div>
 
                         @foreach ($languages as $lang)
                             <div class="form-group mb-2  col-sm-6">
@@ -262,14 +189,14 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script>
         $(document).ready(function() {
-            let modal = new bootstrap.Modal(document.getElementById('courtRequestModal'));
-            const storeUrl = "{{ url('admin/court-requests') }}";
-            const updateUrl = "{{ url('admin/court-requests') }}/"; // Append ID dynamically
-            const editUrl = "{{ url('admin/court-requests/edit') }}/";
+            let modal = new bootstrap.Modal(document.getElementById('countryModal'));
+            const storeUrl = "{{ url('admin/countries') }}";
+            const updateUrl = "{{ url('admin/countries') }}/"; // Append ID dynamically
+            const editUrl = "{{ url('admin/countries/edit') }}/";
 
-            $('#addCourtRequestBtn').click(function() {
-                $('.modal-title').text('Add Court Request');
-                $('#courtRequestForm')[0].reset();
+            $('#addcountryBtn').click(function() {
+                $('.modal-title').text('Add Country');
+                $('#countryForm')[0].reset();
                 $('#typeId').val('');
                 $('input[name="_method"]').val('POST');
                 $('#formErrors').addClass('d-none');
@@ -277,16 +204,16 @@
             });
 
             $('.edit-btn').click(function() {
-                $('.modal-title').text('Edit Court Request');
+                $('.modal-title').text('Edit Country');
                 $('#formErrors').addClass('d-none');
                 const id = $(this).data('id');
-                editCourtRequest(id);
+                editcountry(id);
             });
 
-            function editCourtRequest(id) {
+            function editcountry(id) {
                 $.get(editUrl + id, function (data) {
                     $('#typeId').val(data.id);
-                    $('#typeParent').val(data.parent_id);
+                    $('#typeParent').val(data.emirate_id);
                     $('#typeStatus').val(data.status);
                     $('#typeSort').val(data.sort_order);
 
@@ -300,7 +227,7 @@
                         }
                     }
 
-                    $('#courtRequestModal').modal('show');
+                    $('#countryModal').modal('show');
                 });
             }
 
@@ -311,12 +238,12 @@
                 }
             });
 
-            $('#courtRequestForm').submit(function(e) {
+            $('#countryForm').submit(function(e) {
                 e.preventDefault();
                 let method = $('#typeId').val() ? 'PUT' : 'POST';
                 let id = $('#typeId').val();
                 let url = method === 'POST' ? storeUrl : updateUrl + id;
-                let formData = $('#courtRequestForm').serialize();
+                let formData = $('#countryForm').serialize();
 
                 $.ajax({
                     url: url,
@@ -341,7 +268,7 @@
             } else {
                 var status = 0;
             }
-            $.post('{{ route('court-requests.status') }}', {
+            $.post('{{ route('countries.status') }}', {
                 _token: '{{ csrf_token() }}',
                 id: el.value,
                 status: status

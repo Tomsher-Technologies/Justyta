@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\ContractTypeController;
 use App\Http\Controllers\Admin\CourtRequestController;
 use App\Http\Controllers\Admin\PublicProsecutionController;
 use App\Http\Controllers\Admin\LicenseTypeController;
+use App\Http\Controllers\Admin\CountryController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -86,6 +87,11 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::resource('license-types', LicenseTypeController::class);
     Route::post('/license-types/status', [LicenseTypeController::class, 'updateStatus'])->name('license-types.status');
     Route::get('/license-types/edit/{id}', [LicenseTypeController::class, 'edit']);
+
+    // Manage countries
+    Route::resource('countries', CountryController::class);
+    Route::post('/countries/status', [CountryController::class, 'updateStatus'])->name('countries.status');
+    Route::get('/countries/edit/{id}', [CountryController::class, 'edit']);
 
     // Manage service 
     Route::resource('services', ServiceController::class);

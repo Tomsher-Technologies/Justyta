@@ -168,6 +168,12 @@
                                         @endcan
                                     </tbody>
                                 </table>
+
+                                <div class="aiz-pagination mt-4">
+                                    @can('view_dropdown_option')
+                                        {{ $documentTypes->appends(request()->input())->links('pagination::bootstrap-5') }}
+                                    @endcan
+                                </div>
                             </div>
                         </div>
                     </div>
