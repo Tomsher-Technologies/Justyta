@@ -43,4 +43,13 @@ return [
     'depts-collection' => '债务催收',
     'logout_success' => '成功登出',
     'user_not_found' => '未找到用户',
+    'profile_updation_success'      => '个人资料更新成功。',
+    'current_password_incorrect'    => '当前密码不正确。',
+    'password_changed_successfully' => '密码修改成功。',
+    'current_password_required'     => '当前密码是必填项。',
+    'new_password_required'         => '新密码是必填项。',
+    'new_password_min'              => '新密码至少需要 6 个字符。',
+    'new_password_confirmed'        => '密码确认不匹配。',
+    'account_deleted_successfully' => '您的账户已成功删除。',
+
 ];

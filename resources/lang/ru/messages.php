@@ -43,4 +43,13 @@ return [
     'depts-collection' => 'Взыскание долгов',
     'logout_success' => 'Вы успешно вышли из системы',
     'user_not_found' => 'Пользователь не найден',
+    'profile_updation_success'      => 'Профиль успешно обновлен.',
+    'current_password_incorrect'    => 'Текущий пароль неверен.',
+    'password_changed_successfully' => 'Пароль успешно изменен.',
+    'current_password_required'     => 'Текущий пароль обязателен.',
+    'new_password_required'         => 'Новый пароль обязателен.',
+    'new_password_min'              => 'Новый пароль должен содержать не менее 6 символов.',
+    'new_password_confirmed'        => 'Подтверждение пароля не совпадает.',
+    'account_deleted_successfully' => 'Ваша учетная запись успешно удалена.',
+
 ];

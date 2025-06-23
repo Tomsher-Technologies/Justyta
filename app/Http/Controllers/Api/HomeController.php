@@ -5,15 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Service;
 use App\Models\News;
+use App\Models\Contacts;
 use Illuminate\Http\Request;
+use App\Mail\ContactEnquiry;
+use Illuminate\Support\Facades\Validator;
 use DB;
+use Mail;
 
 class HomeController extends Controller
 {
     public function home(Request $request)
     {
 
-        $lang = $request->header('lang') ?? 'en'; // default to English
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English
         $services = Service::with(['translations' => function ($query) use ($lang) {
                 $query->where('lang', $lang);
             }])
@@ -43,8 +47,7 @@ class HomeController extends Controller
 
     public function lawfirmServices(Request $request)
     {
-
-        $lang = $request->header('lang') ?? 'en'; // default to English
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English
         $services = Service::with(['translations' => function ($query) use ($lang) {
                 $query->where('lang', $lang);
             }])
@@ -73,7 +76,7 @@ class HomeController extends Controller
 
     public function search(Request $request)
     {
-        $lang = $request->header('lang') ?? 'en'; // default to English
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English
         $keyword = $request->get('keyword');
         // DB::enableQueryLog();
         $services = Service::where('status', 1)
@@ -107,7 +110,7 @@ class HomeController extends Controller
 
     public function news(Request $request)
     {
-        $lang = $request->header('lang') ?? 'en';  // default to 'en'
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en');  // default to 'en'
         $limit = $request->get('limit', 10);
 
         $news = News::with(['translations' => function ($q) use ($lang) {
@@ -149,7 +152,7 @@ class HomeController extends Controller
 
     public function newsDetails(Request $request)
     {
-        $lang = $request->header('lang') ?? 'en';
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en');
         $id = $request->get('id');
 
         $news = News::with(['translations' => function ($q) use ($lang) {
@@ -167,6 +170,7 @@ class HomeController extends Controller
 
         return response()->json([
             'status' => true,
+            'message' => 'Success',
             'data' => [
                 'id' => $news->id,
                 'image' => $news->image,
@@ -182,5 +186,44 @@ class HomeController extends Controller
                 'og_description' => $translation->og_description ?? '',
             ]
         ]);
+    }
+
+    public function contactUs(Request $request){
+        $validator = Validator::make($request->all(), [
+            'name' => 'nullable',
+            'email' => 'required|email',
+            'phone' => 'required|numeric',
+            'subject' => 'required',
+            'message' => 'required'
+        ], [
+            'email.required'     => __('messages.email_required'),
+            'email.email'        => __('messages.valid_email'),
+            'phone.required'     => __('messages.phone_required'),
+            'message.required' => __('messages.enter_message'),
+            'subject.required' => __('messages.enter_subject')
+        ]);
+
+        if ($validator->fails()) {
+            $message = implode(' ', $validator->errors()->all());
+
+            return response()->json([
+                'status' => false,
+                'message' => $message,
+            ], 200);
+        }
+
+        $user = $request->user();
+
+        $con                = new Contacts;
+        $con->name          = $request->name ?? $user->name;
+        $con->email         = $request->email ?? NULL;
+        $con->phone         = $request->phone ?? NULL;
+        $con->subject       = $request->subject ?? NULL;
+        $con->message       = $request->message ?? NULL;
+        $con->save();
+
+        Mail::to(env('MAIL_ADMIN'))->queue(new ContactEnquiry($con));
+
+        return response()->json(['status' => true,"message"=> __('messages.contact_us_success'),"data" => []],200);
     }
 }
