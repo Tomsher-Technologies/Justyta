@@ -43,4 +43,13 @@ return [
     'depts-collection' => 'جمع‌آوری بدهی‌ها',
     'logout_success' => 'با موفقیت خارج شدید',
     'user_not_found' => 'کاربر پیدا نشد',
+    'profile_updation_success'      => 'پروفایل با موفقیت به‌روزرسانی شد.',
+    'current_password_incorrect'    => 'رمز عبور فعلی نادرست است.',
+    'password_changed_successfully' => 'رمز عبور با موفقیت تغییر یافت.',
+    'current_password_required'     => 'وارد کردن رمز عبور فعلی الزامی است.',
+    'new_password_required'         => 'وارد کردن رمز عبور جدید الزامی است.',
+    'new_password_min'              => 'رمز عبور جدید باید حداقل ۶ کاراکتر باشد.',
+    'new_password_confirmed'        => 'تأیید رمز عبور مطابقت ندارد.',
+    'account_deleted_successfully' => 'حساب شما با موفقیت حذف شد.',
+
 ];

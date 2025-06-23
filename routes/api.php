@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HomeController;
+use App\Http\Controllers\Api\UserController;
 
 Route::group(['prefix' => 'v1'], function () {
     Route::middleware('set_api_locale')->group(function () {
@@ -27,10 +28,22 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/home', [HomeController::class, 'home']);
             Route::get('/lawfirm-services', [HomeController::class, 'lawfirmServices']);
             Route::get('/search', [HomeController::class, 'search']);
+
+            //News
             Route::get('/news', [HomeController::class, 'news']);
             Route::get('/news-details', [HomeController::class, 'newsDetails']);
 
-            Route::get('/user', fn(\Illuminate\Http\Request $request) => $request->user());
+            // User Account
+            Route::get('/user-account', [UserController::class, 'account']);
+            Route::post('/edit-profile', [UserController::class, 'editProfile']);
+            Route::post('/change-password', [UserController::class, 'changePassword']);
+            Route::delete('/delete-account', [UserController::class, 'deleteAccount']);
+
+            //Contact US
+            Route::post('/contact-us', [HomeController::class, 'contactUs']);
+
+            // Job Posts
+            Route::get('/job-posts', [JobPostController::class, 'index']);
         });
 
         
@@ -39,7 +52,7 @@ Route::group(['prefix' => 'v1'], function () {
     Route::fallback(function () {
         return response()->json([
             'status' => false,
-            'message' => 'API route not found.',
+            'message' => 'Route not found.',
         ], 404);
     });
 });

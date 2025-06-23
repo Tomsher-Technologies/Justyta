@@ -43,4 +43,13 @@ return [
     'depts-collection' => 'Recouvrement de créances',
     'logout_success' => 'Déconnexion réussie',
     'user_not_found' => 'Utilisateur introuvable',
+    'profile_updation_success'      => 'Profil mis à jour avec succès.',
+    'current_password_incorrect'    => 'Le mot de passe actuel est incorrect.',
+    'password_changed_successfully' => 'Mot de passe modifié avec succès.',
+    'current_password_required'     => 'Le mot de passe actuel est requis.',
+    'new_password_required'         => 'Le nouveau mot de passe est requis.',
+    'new_password_min'              => 'Le nouveau mot de passe doit comporter au moins 6 caractères.',
+    'new_password_confirmed'        => 'La confirmation du mot de passe ne correspond pas.',
+    'account_deleted_successfully' => 'Votre compte a été supprimé avec succès.',
+
 ];
