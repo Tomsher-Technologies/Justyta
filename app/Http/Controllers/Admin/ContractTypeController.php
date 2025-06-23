@@ -20,8 +20,14 @@ class ContractTypeController extends Controller
 
     public function index(Request $request)
     {
-        $query = ContractType::with('children')->whereNull('parent_id');
-
+        $statusFilter = $request->input('status');
+        $query = ContractType::with(['children' => function ($childQuery) use ($statusFilter) {
+                if ($statusFilter == 1) {
+                    $childQuery->where('status', 1);
+                } elseif ($statusFilter == 2) {
+                    $childQuery->where('status', 0);
+                }
+            }])->whereNull('parent_id');
         // Search by name
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
@@ -32,14 +38,14 @@ class ContractTypeController extends Controller
             $query->where('id', $request->ptype_id);
         }
 
-        // Filter by status
-        if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
-            if ($request->status == 1) {
-                $query->where('status', 1);
-            } elseif ($request->status == 2) {
-                $query->where('status', 0);
-            }
+        // Apply status filter on parents
+        if ($statusFilter == 1 || $statusFilter == 2) {
+            $query->where(function ($q) use ($statusFilter) {
+                $q->where('status', $statusFilter == 1 ? 1 : 0)
+                ->orWhereHas('children', function ($q2) use ($statusFilter) {
+                    $q2->where('status', $statusFilter == 1 ? 1 : 0);
+                });
+            });
         }
 
         $contractTypes = $query->orderBy('sort_order')->paginate(20)->appends($request->all());

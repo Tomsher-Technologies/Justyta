@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\LawyerController;
 use App\Http\Controllers\Admin\TranslatorController;
 use App\Http\Controllers\Admin\FreezoneController;
 use App\Http\Controllers\Admin\ContractTypeController;
+use App\Http\Controllers\Admin\CourtRequestController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -68,6 +69,11 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::resource('contract-types', ContractTypeController::class);
     Route::post('/contract-types/status', [ContractTypeController::class, 'updateStatus'])->name('contract-types.status');
     Route::get('/contract-types/edit/{id}', [ContractTypeController::class, 'edit']);
+
+    // Manage court requests
+    Route::resource('court-requests', CourtRequestController::class);
+    Route::post('/court-requests/status', [CourtRequestController::class, 'updateStatus'])->name('court-requests.status');
+    Route::get('/court-requests/edit/{id}', [CourtRequestController::class, 'edit']);
 
     // Manage service 
     Route::resource('services', ServiceController::class);
