@@ -50,7 +50,7 @@ class CourtRequestController extends Controller
             });
         }
 
-        $courtRequests = $query->orderBy('sort_order')->paginate(20)->appends($request->all());
+        $courtRequests = $query->orderBy('sort_order')->paginate(10)->appends($request->all());
 
         $allParentTypes = CourtRequest::whereNull('parent_id')->orderBy('name')->get();
 

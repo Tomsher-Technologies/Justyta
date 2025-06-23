@@ -160,9 +160,9 @@
                     @endcan
 
                     @can('manage_dropdown_option')
-                        <li class="has-child {{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index', 'document-types.index','free-zones.index','contract-types.index','court-requests.index']) }}">
+                        <li class="has-child {{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index', 'document-types.index','free-zones.index','contract-types.index','court-requests.index','public-prosecutions.index','license-types.index']) }}">
                             <a href="#"
-                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index','document-types.index','free-zones.index','contract-types.index','court-requests.index']) }}">
+                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index','document-types.index','free-zones.index','contract-types.index','court-requests.index','public-prosecutions.index','license-types.index']) }}">
                                 <span data-feather="list" class="nav-icon"></span>
                                 <span class="menu-text">Dropdown Contents</span>
                                 <span class="toggle-icon"></span>
@@ -188,6 +188,16 @@
                                 <li>
                                     <a class="{{ areActiveRoutes(['free-zones.index']) }}"
                                         href="{{ route('free-zones.index') }}">Free Zones</a>
+                                </li>
+
+                                <li>
+                                    <a class="{{ areActiveRoutes(['license-types.index']) }}"
+                                        href="{{ route('license-types.index') }}">License Types & Activities</a>
+                                </li>
+
+                                <li>
+                                    <a class="{{ areActiveRoutes(['public-prosecutions.index']) }}"
+                                        href="{{ route('public-prosecutions.index') }}">Public Prosecution Types</a>
                                 </li>
 
                                 <li>

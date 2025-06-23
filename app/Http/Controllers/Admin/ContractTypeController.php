@@ -48,7 +48,7 @@ class ContractTypeController extends Controller
             });
         }
 
-        $contractTypes = $query->orderBy('sort_order')->paginate(20)->appends($request->all());
+        $contractTypes = $query->orderBy('sort_order')->paginate(10)->appends($request->all());
 
         $allParentTypes = ContractType::whereNull('parent_id')->orderBy('name')->get();
 

@@ -20,6 +20,8 @@ use App\Http\Controllers\Admin\TranslatorController;
 use App\Http\Controllers\Admin\FreezoneController;
 use App\Http\Controllers\Admin\ContractTypeController;
 use App\Http\Controllers\Admin\CourtRequestController;
+use App\Http\Controllers\Admin\PublicProsecutionController;
+use App\Http\Controllers\Admin\LicenseTypeController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -74,6 +76,16 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::resource('court-requests', CourtRequestController::class);
     Route::post('/court-requests/status', [CourtRequestController::class, 'updateStatus'])->name('court-requests.status');
     Route::get('/court-requests/edit/{id}', [CourtRequestController::class, 'edit']);
+
+    // Manage public prosecution types
+    Route::resource('public-prosecutions', PublicProsecutionController::class);
+    Route::post('/public-prosecutions/status', [PublicProsecutionController::class, 'updateStatus'])->name('public-prosecutions.status');
+    Route::get('/public-prosecutions/edit/{id}', [PublicProsecutionController::class, 'edit']);
+
+    // Manage License Types & Activities
+    Route::resource('license-types', LicenseTypeController::class);
+    Route::post('/license-types/status', [LicenseTypeController::class, 'updateStatus'])->name('license-types.status');
+    Route::get('/license-types/edit/{id}', [LicenseTypeController::class, 'edit']);
 
     // Manage service 
     Route::resource('services', ServiceController::class);
