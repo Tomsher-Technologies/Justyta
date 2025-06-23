@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\DocumentType;
+use App\Models\LicenseType;
 use App\Models\Language;
 
-class DocumentTypeController extends Controller
+class LicenseTypeController extends Controller
 {
     function __construct()
     {
@@ -21,15 +21,13 @@ class DocumentTypeController extends Controller
     public function index(Request $request)
     {
         $statusFilter = $request->input('status');
-        $query = DocumentType::with(['children' => function ($childQuery) use ($statusFilter) {
+        $query = LicenseType::with(['children' => function ($childQuery) use ($statusFilter) {
                 if ($statusFilter == 1) {
                     $childQuery->where('status', 1);
                 } elseif ($statusFilter == 2) {
                     $childQuery->where('status', 0);
                 }
             }])->whereNull('parent_id');
-
-
         // Search by name
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
@@ -50,20 +48,20 @@ class DocumentTypeController extends Controller
             });
         }
 
-        $documentTypes = $query->orderBy('sort_order')->paginate(10)->appends($request->all());
+        $licenseTypes = $query->orderBy('sort_order')->paginate(10)->appends($request->all());
 
-        $allParentTypes = DocumentType::whereNull('parent_id')->orderBy('name')->get();
+        $allParentTypes = LicenseType::whereNull('parent_id')->orderBy('name')->get();
 
         $languages = Language::where('status', 1)->orderBy('id')->get();
 
-        return view('admin.document_types.index', compact('documentTypes', 'allParentTypes','languages'));
+        return view('admin.license_types.index', compact('licenseTypes', 'allParentTypes','languages'));
     }
 
     public function store(Request $request)
     {
        
         $request->validate([
-            'parent_id' => 'nullable|exists:document_types,id',
+            'parent_id' => 'nullable|exists:license_types,id',
             'status' => 'required|boolean',
             'sort_order' => 'nullable|integer',
             'translations.en.name' => 'required|string|max:255'
@@ -72,7 +70,7 @@ class DocumentTypeController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        $type = DocumentType::create([
+        $type = LicenseType::create([
             'parent_id' => $request->parent_id,
             'status' => $request->status,
             'sort_order' => $request->sort_order,
@@ -91,7 +89,7 @@ class DocumentTypeController extends Controller
             }
         }
 
-        session()->flash('success', 'Document type created successfully.');
+        session()->flash('success', 'License type created successfully.');
 
         return response()->json(['success' => true, 'data' => $type]);
     }
@@ -99,7 +97,7 @@ class DocumentTypeController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'parent_id' => 'nullable|exists:document_types,id',
+            'parent_id' => 'nullable|exists:license_types,id',
             'status' => 'required|boolean',
             'sort_order' => 'nullable|integer',
             'translations.en.name' => 'required|string|max:255'
@@ -108,41 +106,41 @@ class DocumentTypeController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        // Find the document type by ID
-        $documentType = DocumentType::find($id);
+        // Find the license type by ID
+        $licenseType = LicenseType::find($id);
 
-        if (!$documentType) {
+        if (!$licenseType) {
             return response()->json([
-                'error' => 'Document Type not found.'
+                'error' => 'License Type not found.'
             ], 404);
         }
-        $documentType->parent_id = $request->input('parent_id');
-        $documentType->status = $request->input('status');
-        $documentType->sort_order = $request->input('sort_order', 0);
-        $documentType->save();
+        $licenseType->parent_id = $request->input('parent_id');
+        $licenseType->status = $request->input('status');
+        $licenseType->sort_order = $request->input('sort_order', 0);
+        $licenseType->save();
 
         foreach ($request->translations as $lang => $data) {
             if($lang === 'en'){
-                $documentType->name = $data['name'];
-                $documentType->save();
+                $licenseType->name = $data['name'];
+                $licenseType->save();
             }
-            $documentType->translations()->updateOrCreate(
+            $licenseType->translations()->updateOrCreate(
                 ['lang' => $lang],
                 ['name' => $data['name']]
             );
         }
 
-        session()->flash('success', 'Document type updated successfully.');
-        // return response()->json(['success' => true, 'data' => $documentType]);
+        session()->flash('success', 'License type updated successfully.');
+        // return response()->json(['success' => true, 'data' => $licenseType]);
         return response()->json([
-            'message' => 'Document Type updated successfully',
-            'documentType' => $documentType
+            'message' => 'License Type updated successfully',
+            'licenseType' => $licenseType
         ]);
     }
 
     public function edit($id)
     {
-        $type = DocumentType::with('translations')->findOrFail($id);
+        $type = LicenseType::with('translations')->findOrFail($id);
 
         // Return both main type fields and translations
         return response()->json([
@@ -154,28 +152,28 @@ class DocumentTypeController extends Controller
         ]);
     }
 
-    public function destroy(DocumentType $documentType)
+    public function destroy(LicenseType $licenseType)
     {
-        $documentType->delete();
-        return back()->with('success', 'Document Type deleted.');
+        $licenseType->delete();
+        return back()->with('success', 'License Type deleted.');
     }
 
     public function updateStatus(Request $request)
     {
-        $documentType = DocumentType::findOrFail($request->id);
+        $licenseType = LicenseType::findOrFail($request->id);
         $newStatus = $request->status;
 
-        $documentType->status = $newStatus;
-        $documentType->save();
+        $licenseType->status = $newStatus;
+        $licenseType->save();
 
         // 1. If this is a parent and status changes, update all children
-        if ($documentType->parent_id === null) {
+        if ($licenseType->parent_id === null) {
             // Update children
-            DocumentType::where('parent_id', $documentType->id)
+            LicenseType::where('parent_id', $licenseType->id)
                 ->update(['status' => $newStatus]);
         } else {
             // 2. If child is activated but parent is inactive, activate parent
-            $parent = DocumentType::find($documentType->parent_id);
+            $parent = LicenseType::find($licenseType->parent_id);
 
             if ($newStatus == 1 && $parent && $parent->status == 0) {
                 $parent->status = 1;
@@ -184,7 +182,7 @@ class DocumentTypeController extends Controller
 
             // 3. If child is inactivated and all siblings are also inactive, inactivate parent
             if ($newStatus == 0 && $parent) {
-                $allSiblingsInactive = DocumentType::where('parent_id', $parent->id)
+                $allSiblingsInactive = LicenseType::where('parent_id', $parent->id)
                     ->where('status', 1)
                     ->exists() === false;
 
