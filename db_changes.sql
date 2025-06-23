@@ -1,1 +1,0 @@
-ALTER TABLE `users` ADD `language` VARCHAR(5) NOT NULL DEFAULT 'en' AFTER `phone`;
