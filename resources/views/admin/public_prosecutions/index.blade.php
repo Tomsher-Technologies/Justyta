@@ -5,12 +5,12 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
-                    <h4 class="text-capitalize breadcrumb-title">Document Types</h4>
+                    <h4 class="text-capitalize breadcrumb-title">Public Prosecution Types</h4>
                     <div class="breadcrumb-action justify-content-center flex-wrap">
                         @can('add_dropdown_option')
                             <div class="action-btn">
-                                <button class="btn btn-primary btn-sm btn-add" id="addDocumentTypeBtn">
-                                    <i class="la la-plus"></i>Add Document Type
+                                <button class="btn btn-primary btn-sm btn-add" id="addpublicProsecutionBtn">
+                                    <i class="la la-plus"></i>Add Public Prosecution Type
                                 </button>
                             </div>
                         @endcan
@@ -26,16 +26,16 @@
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
                             <form class="row mb-2" id="sort_brands" action="" method="GET" autocomplete="off">
-                                <div class="col-md-3 input-group  mb-1">
+                                <div class="col-md-4 input-group  mb-1">
                                     <input type="text" class="form-control ih-small ip-gray radius-xs b-light px-15"
                                         id="search" name="search" value="{{ request()->search }}"
-                                        placeholder="Type document type name..">
+                                        placeholder="Type public prosecution type name..">
                                 </div>
 
-                                <div class="col-md-3 input-group  mb-1">
+                                <div class="col-md-4 input-group  mb-1">
                                     <select name="ptype_id"
                                         class="form-control ih-small ip-gray radius-xs b-light px-15 aiz-selectpicker">
-                                        <option value="">--Select Document Type--</option>
+                                        <option value="">--Select Public Prosecution Type--</option>
                                         @foreach ($allParentTypes as $type)
                                             <option value="{{ $type->id }}"
                                                 {{ request()->ptype_id == $type->id ? 'selected' : '' }}>
@@ -45,7 +45,7 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-3 input-group  mb-1">
+                                <div class="col-md-2 input-group  mb-1">
                                     <select name="status" class="form-control ih-small ip-gray radius-xs b-light px-15">
                                         <option value="">--Select Status--</option>
                                         <option value="1" {{ request()->status == 1 ? 'selected' : '' }}>Active
@@ -55,9 +55,9 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-3 mb-1 d-flex flex-wrap align-items-end">
+                                <div class="col-md-2 mb-1 d-flex flex-wrap align-items-end">
                                     <button class="btn btn-primary btn-sm " type="submit">Filter</button>
-                                    <a href="{{ route('document-types.index') }}"
+                                    <a href="{{ route('public-prosecutions.index') }}"
                                         class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
                                 </div>
                             </form>
@@ -74,13 +74,13 @@
                                             <th class="text-center">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="documentTypesTable">
+                                    <tbody id="publicProsecutionsTable">
                                         @can('view_dropdown_option')
-                                            @if ($documentTypes->isNotEmpty())
-                                                @foreach ($documentTypes as $key => $type)
+                                            @if ($publicProsecutions->isNotEmpty())
+                                                @foreach ($publicProsecutions as $key => $type)
                                                     <tr data-id="{{ $type->id }}">
                                                         <td class="text-center text-primary">
-                                                            {{ $key + 1 + ($documentTypes->currentPage() - 1) * $documentTypes->perPage() }}
+                                                            {{ $key + 1 + ($publicProsecutions->currentPage() - 1) * $publicProsecutions->perPage() }}
                                                         </td>
                                                         <td class="text-primary">{{ $type->name }}</td>
                                                         <td class="text-primary">{{ $type->parent?->name ?? '-' }}</td>
@@ -106,7 +106,7 @@
                                                         <td class="text-center">
                                                             @can('edit_dropdown_option')
                                                                 <div class="table-actions">
-                                                                    <a class="edit-btn" data-id="{{ $type->id }}"  title="Edit Document Type">
+                                                                    <a class="edit-btn" data-id="{{ $type->id }}"  title="Edit Public Prosecution Type">
                                                                         <span data-feather="edit"></span></a>
                                                                 </div>
                                                             @endcan
@@ -171,7 +171,7 @@
 
                                 <div class="aiz-pagination mt-4">
                                     @can('view_dropdown_option')
-                                        {{ $documentTypes->appends(request()->input())->links('pagination::bootstrap-5') }}
+                                        {{ $publicProsecutions->appends(request()->input())->links('pagination::bootstrap-5') }}
                                     @endcan
                                 </div>
                             </div>
@@ -183,15 +183,15 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="documentTypeModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" autocomplete="off">
+    <div class="modal fade" id="publicProsecutionModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" autocomplete="off">
         <div class="modal-dialog modal-lg">
-            <form id="documentTypeForm">
+            <form id="publicProsecutionForm">
                 @csrf
                 <input type="hidden" name="_method" value="POST">
                 <input type="hidden" name="id" id="typeId">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Add Document Type</h5>
+                        <h5 class="modal-title">Add Public Prosecution Type</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -210,7 +210,7 @@
                             <select name="parent_id" id="typeParent"
                                 class="form-control ih-small ip-gray radius-xs b-light px-15">
                                 <option value="">-- None --</option>
-                                @foreach ($documentTypes->whereNull('parent_id') as $parent)
+                                @foreach ($publicProsecutions->whereNull('parent_id') as $parent)
                                     <option value="{{ $parent->id }}">{{ $parent->name }}</option>
                                 @endforeach
                             </select>
@@ -262,14 +262,14 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script>
         $(document).ready(function() {
-            let modal = new bootstrap.Modal(document.getElementById('documentTypeModal'));
-            const storeUrl = "{{ url('admin/document-types') }}";
-            const updateUrl = "{{ url('admin/document-types') }}/"; // Append ID dynamically
-            const editUrl = "{{ url('admin/document-types/edit') }}/";
+            let modal = new bootstrap.Modal(document.getElementById('publicProsecutionModal'));
+            const storeUrl = "{{ url('admin/public-prosecutions') }}";
+            const updateUrl = "{{ url('admin/public-prosecutions') }}/"; // Append ID dynamically
+            const editUrl = "{{ url('admin/public-prosecutions/edit') }}/";
 
-            $('#addDocumentTypeBtn').click(function() {
-                $('.modal-title').text('Add Document Type');
-                $('#documentTypeForm')[0].reset();
+            $('#addpublicProsecutionBtn').click(function() {
+                $('.modal-title').text('Add Public Prosecution Type');
+                $('#publicProsecutionForm')[0].reset();
                 $('#typeId').val('');
                 $('input[name="_method"]').val('POST');
                 $('#formErrors').addClass('d-none');
@@ -277,13 +277,13 @@
             });
 
             $('.edit-btn').click(function() {
-                $('.modal-title').text('Edit Document Type');
+                $('.modal-title').text('Edit Public Prosecution Type');
                 $('#formErrors').addClass('d-none');
                 const id = $(this).data('id');
-                editDocumentType(id);
+                editpublicProsecution(id);
             });
 
-            function editDocumentType(id) {
+            function editpublicProsecution(id) {
                 $.get(editUrl + id, function (data) {
                     $('#typeId').val(data.id);
                     $('#typeParent').val(data.parent_id);
@@ -300,7 +300,7 @@
                         }
                     }
 
-                    $('#documentTypeModal').modal('show');
+                    $('#publicProsecutionModal').modal('show');
                 });
             }
 
@@ -311,12 +311,12 @@
                 }
             });
 
-            $('#documentTypeForm').submit(function(e) {
+            $('#publicProsecutionForm').submit(function(e) {
                 e.preventDefault();
                 let method = $('#typeId').val() ? 'PUT' : 'POST';
                 let id = $('#typeId').val();
                 let url = method === 'POST' ? storeUrl : updateUrl + id;
-                let formData = $('#documentTypeForm').serialize();
+                let formData = $('#publicProsecutionForm').serialize();
 
                 $.ajax({
                     url: url,
@@ -341,7 +341,7 @@
             } else {
                 var status = 0;
             }
-            $.post('{{ route('document-types.status') }}', {
+            $.post('{{ route('public-prosecutions.status') }}', {
                 _token: '{{ csrf_token() }}',
                 id: el.value,
                 status: status

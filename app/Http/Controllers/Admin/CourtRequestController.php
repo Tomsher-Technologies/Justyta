@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\DocumentType;
+use App\Models\CourtRequest;
 use App\Models\Language;
 
-class DocumentTypeController extends Controller
+class CourtRequestController extends Controller
 {
     function __construct()
     {
@@ -21,7 +21,7 @@ class DocumentTypeController extends Controller
     public function index(Request $request)
     {
         $statusFilter = $request->input('status');
-        $query = DocumentType::with(['children' => function ($childQuery) use ($statusFilter) {
+        $query = CourtRequest::with(['children' => function ($childQuery) use ($statusFilter) {
                 if ($statusFilter == 1) {
                     $childQuery->where('status', 1);
                 } elseif ($statusFilter == 2) {
@@ -50,20 +50,20 @@ class DocumentTypeController extends Controller
             });
         }
 
-        $documentTypes = $query->orderBy('sort_order')->paginate(10)->appends($request->all());
+        $courtRequests = $query->orderBy('sort_order')->paginate(10)->appends($request->all());
 
-        $allParentTypes = DocumentType::whereNull('parent_id')->orderBy('name')->get();
+        $allParentTypes = CourtRequest::whereNull('parent_id')->orderBy('name')->get();
 
         $languages = Language::where('status', 1)->orderBy('id')->get();
 
-        return view('admin.document_types.index', compact('documentTypes', 'allParentTypes','languages'));
+        return view('admin.court_requests.index', compact('courtRequests', 'allParentTypes','languages'));
     }
 
     public function store(Request $request)
     {
        
         $request->validate([
-            'parent_id' => 'nullable|exists:document_types,id',
+            'parent_id' => 'nullable|exists:court_requests,id',
             'status' => 'required|boolean',
             'sort_order' => 'nullable|integer',
             'translations.en.name' => 'required|string|max:255'
@@ -72,7 +72,7 @@ class DocumentTypeController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        $type = DocumentType::create([
+        $type = CourtRequest::create([
             'parent_id' => $request->parent_id,
             'status' => $request->status,
             'sort_order' => $request->sort_order,
@@ -91,7 +91,7 @@ class DocumentTypeController extends Controller
             }
         }
 
-        session()->flash('success', 'Document type created successfully.');
+        session()->flash('success', 'Court request created successfully.');
 
         return response()->json(['success' => true, 'data' => $type]);
     }
@@ -99,7 +99,7 @@ class DocumentTypeController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'parent_id' => 'nullable|exists:document_types,id',
+            'parent_id' => 'nullable|exists:court_requests,id',
             'status' => 'required|boolean',
             'sort_order' => 'nullable|integer',
             'translations.en.name' => 'required|string|max:255'
@@ -108,41 +108,41 @@ class DocumentTypeController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        // Find the document type by ID
-        $documentType = DocumentType::find($id);
+        // Find the Court request by ID
+        $courtRequest = CourtRequest::find($id);
 
-        if (!$documentType) {
+        if (!$courtRequest) {
             return response()->json([
-                'error' => 'Document Type not found.'
+                'error' => 'Court request not found.'
             ], 404);
         }
-        $documentType->parent_id = $request->input('parent_id');
-        $documentType->status = $request->input('status');
-        $documentType->sort_order = $request->input('sort_order', 0);
-        $documentType->save();
+        $courtRequest->parent_id = $request->input('parent_id');
+        $courtRequest->status = $request->input('status');
+        $courtRequest->sort_order = $request->input('sort_order', 0);
+        $courtRequest->save();
 
         foreach ($request->translations as $lang => $data) {
             if($lang === 'en'){
-                $documentType->name = $data['name'];
-                $documentType->save();
+                $courtRequest->name = $data['name'];
+                $courtRequest->save();
             }
-            $documentType->translations()->updateOrCreate(
+            $courtRequest->translations()->updateOrCreate(
                 ['lang' => $lang],
                 ['name' => $data['name']]
             );
         }
 
-        session()->flash('success', 'Document type updated successfully.');
-        // return response()->json(['success' => true, 'data' => $documentType]);
+        session()->flash('success', 'Court request updated successfully.');
+        // return response()->json(['success' => true, 'data' => $courtRequest]);
         return response()->json([
-            'message' => 'Document Type updated successfully',
-            'documentType' => $documentType
+            'message' => 'Court request updated successfully',
+            'courtRequest' => $courtRequest
         ]);
     }
 
     public function edit($id)
     {
-        $type = DocumentType::with('translations')->findOrFail($id);
+        $type = CourtRequest::with('translations')->findOrFail($id);
 
         // Return both main type fields and translations
         return response()->json([
@@ -154,28 +154,28 @@ class DocumentTypeController extends Controller
         ]);
     }
 
-    public function destroy(DocumentType $documentType)
+    public function destroy(CourtRequest $courtRequest)
     {
-        $documentType->delete();
-        return back()->with('success', 'Document Type deleted.');
+        $courtRequest->delete();
+        return back()->with('success', 'Court request deleted.');
     }
 
     public function updateStatus(Request $request)
     {
-        $documentType = DocumentType::findOrFail($request->id);
+        $courtRequest = CourtRequest::findOrFail($request->id);
         $newStatus = $request->status;
 
-        $documentType->status = $newStatus;
-        $documentType->save();
+        $courtRequest->status = $newStatus;
+        $courtRequest->save();
 
         // 1. If this is a parent and status changes, update all children
-        if ($documentType->parent_id === null) {
+        if ($courtRequest->parent_id === null) {
             // Update children
-            DocumentType::where('parent_id', $documentType->id)
+            CourtRequest::where('parent_id', $courtRequest->id)
                 ->update(['status' => $newStatus]);
         } else {
             // 2. If child is activated but parent is inactive, activate parent
-            $parent = DocumentType::find($documentType->parent_id);
+            $parent = CourtRequest::find($courtRequest->parent_id);
 
             if ($newStatus == 1 && $parent && $parent->status == 0) {
                 $parent->status = 1;
@@ -184,7 +184,7 @@ class DocumentTypeController extends Controller
 
             // 3. If child is inactivated and all siblings are also inactive, inactivate parent
             if ($newStatus == 0 && $parent) {
-                $allSiblingsInactive = DocumentType::where('parent_id', $parent->id)
+                $allSiblingsInactive = CourtRequest::where('parent_id', $parent->id)
                     ->where('status', 1)
                     ->exists() === false;
 

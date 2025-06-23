@@ -31,6 +31,7 @@ class HomeController extends Controller
             $translation = $service->translations->first();
             return [
                 'id' => $service->id,
+                'slug' => $service->slug,
                 'title' => __('messages.'.$service->slug) ?? '',
                 'icon' => asset($service->icon),
             ];
@@ -61,6 +62,7 @@ class HomeController extends Controller
             $translation = $service->translations->first();
             return [
                 'id' => $service->id,
+                'slug' => $service->slug,
                 'title' => __('messages.'.$service->slug) ?? '',
                 'icon' => asset($service->icon),
             ];

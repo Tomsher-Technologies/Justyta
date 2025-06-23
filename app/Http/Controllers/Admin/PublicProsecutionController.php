@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\DocumentType;
+use App\Models\PublicProsecution;
 use App\Models\Language;
 
-class DocumentTypeController extends Controller
+class PublicProsecutionController extends Controller
 {
     function __construct()
     {
@@ -21,7 +21,7 @@ class DocumentTypeController extends Controller
     public function index(Request $request)
     {
         $statusFilter = $request->input('status');
-        $query = DocumentType::with(['children' => function ($childQuery) use ($statusFilter) {
+        $query = PublicProsecution::with(['children' => function ($childQuery) use ($statusFilter) {
                 if ($statusFilter == 1) {
                     $childQuery->where('status', 1);
                 } elseif ($statusFilter == 2) {
@@ -50,20 +50,20 @@ class DocumentTypeController extends Controller
             });
         }
 
-        $documentTypes = $query->orderBy('sort_order')->paginate(10)->appends($request->all());
+        $publicProsecutions = $query->orderBy('sort_order')->paginate(10)->appends($request->all());
 
-        $allParentTypes = DocumentType::whereNull('parent_id')->orderBy('name')->get();
+        $allParentTypes = PublicProsecution::whereNull('parent_id')->orderBy('name')->get();
 
         $languages = Language::where('status', 1)->orderBy('id')->get();
 
-        return view('admin.document_types.index', compact('documentTypes', 'allParentTypes','languages'));
+        return view('admin.public_prosecutions.index', compact('publicProsecutions', 'allParentTypes','languages'));
     }
 
     public function store(Request $request)
     {
        
         $request->validate([
-            'parent_id' => 'nullable|exists:document_types,id',
+            'parent_id' => 'nullable|exists:public_prosecutions,id',
             'status' => 'required|boolean',
             'sort_order' => 'nullable|integer',
             'translations.en.name' => 'required|string|max:255'
@@ -72,7 +72,7 @@ class DocumentTypeController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        $type = DocumentType::create([
+        $type = PublicProsecution::create([
             'parent_id' => $request->parent_id,
             'status' => $request->status,
             'sort_order' => $request->sort_order,
@@ -91,7 +91,7 @@ class DocumentTypeController extends Controller
             }
         }
 
-        session()->flash('success', 'Document type created successfully.');
+        session()->flash('success', 'Public prosecution type created successfully.');
 
         return response()->json(['success' => true, 'data' => $type]);
     }
@@ -99,7 +99,7 @@ class DocumentTypeController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'parent_id' => 'nullable|exists:document_types,id',
+            'parent_id' => 'nullable|exists:public_prosecutions,id',
             'status' => 'required|boolean',
             'sort_order' => 'nullable|integer',
             'translations.en.name' => 'required|string|max:255'
@@ -108,41 +108,41 @@ class DocumentTypeController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        // Find the document type by ID
-        $documentType = DocumentType::find($id);
+        // Find the Public prosecution type by ID
+        $publicProsecution = PublicProsecution::find($id);
 
-        if (!$documentType) {
+        if (!$publicProsecution) {
             return response()->json([
-                'error' => 'Document Type not found.'
+                'error' => 'Public prosecution type not found.'
             ], 404);
         }
-        $documentType->parent_id = $request->input('parent_id');
-        $documentType->status = $request->input('status');
-        $documentType->sort_order = $request->input('sort_order', 0);
-        $documentType->save();
+        $publicProsecution->parent_id = $request->input('parent_id');
+        $publicProsecution->status = $request->input('status');
+        $publicProsecution->sort_order = $request->input('sort_order', 0);
+        $publicProsecution->save();
 
         foreach ($request->translations as $lang => $data) {
             if($lang === 'en'){
-                $documentType->name = $data['name'];
-                $documentType->save();
+                $publicProsecution->name = $data['name'];
+                $publicProsecution->save();
             }
-            $documentType->translations()->updateOrCreate(
+            $publicProsecution->translations()->updateOrCreate(
                 ['lang' => $lang],
                 ['name' => $data['name']]
             );
         }
 
-        session()->flash('success', 'Document type updated successfully.');
-        // return response()->json(['success' => true, 'data' => $documentType]);
+        session()->flash('success', 'Public prosecution type updated successfully.');
+        // return response()->json(['success' => true, 'data' => $publicProsecution]);
         return response()->json([
-            'message' => 'Document Type updated successfully',
-            'documentType' => $documentType
+            'message' => 'Public prosecution type updated successfully',
+            'publicProsecution' => $publicProsecution
         ]);
     }
 
     public function edit($id)
     {
-        $type = DocumentType::with('translations')->findOrFail($id);
+        $type = PublicProsecution::with('translations')->findOrFail($id);
 
         // Return both main type fields and translations
         return response()->json([
@@ -154,28 +154,28 @@ class DocumentTypeController extends Controller
         ]);
     }
 
-    public function destroy(DocumentType $documentType)
+    public function destroy(PublicProsecution $publicProsecution)
     {
-        $documentType->delete();
-        return back()->with('success', 'Document Type deleted.');
+        $publicProsecution->delete();
+        return back()->with('success', 'Public prosecution type deleted.');
     }
 
     public function updateStatus(Request $request)
     {
-        $documentType = DocumentType::findOrFail($request->id);
+        $publicProsecution = PublicProsecution::findOrFail($request->id);
         $newStatus = $request->status;
 
-        $documentType->status = $newStatus;
-        $documentType->save();
+        $publicProsecution->status = $newStatus;
+        $publicProsecution->save();
 
         // 1. If this is a parent and status changes, update all children
-        if ($documentType->parent_id === null) {
+        if ($publicProsecution->parent_id === null) {
             // Update children
-            DocumentType::where('parent_id', $documentType->id)
+            PublicProsecution::where('parent_id', $publicProsecution->id)
                 ->update(['status' => $newStatus]);
         } else {
             // 2. If child is activated but parent is inactive, activate parent
-            $parent = DocumentType::find($documentType->parent_id);
+            $parent = PublicProsecution::find($publicProsecution->parent_id);
 
             if ($newStatus == 1 && $parent && $parent->status == 0) {
                 $parent->status = 1;
@@ -184,7 +184,7 @@ class DocumentTypeController extends Controller
 
             // 3. If child is inactivated and all siblings are also inactive, inactivate parent
             if ($newStatus == 0 && $parent) {
-                $allSiblingsInactive = DocumentType::where('parent_id', $parent->id)
+                $allSiblingsInactive = PublicProsecution::where('parent_id', $parent->id)
                     ->where('status', 1)
                     ->exists() === false;
 

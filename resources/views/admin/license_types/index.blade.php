@@ -5,12 +5,12 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
-                    <h4 class="text-capitalize breadcrumb-title">Document Types</h4>
+                    <h4 class="text-capitalize breadcrumb-title">License Types</h4>
                     <div class="breadcrumb-action justify-content-center flex-wrap">
                         @can('add_dropdown_option')
                             <div class="action-btn">
-                                <button class="btn btn-primary btn-sm btn-add" id="addDocumentTypeBtn">
-                                    <i class="la la-plus"></i>Add Document Type
+                                <button class="btn btn-primary btn-sm btn-add" id="addLicenseTypeBtn">
+                                    <i class="la la-plus"></i>Add License Type
                                 </button>
                             </div>
                         @endcan
@@ -29,13 +29,13 @@
                                 <div class="col-md-3 input-group  mb-1">
                                     <input type="text" class="form-control ih-small ip-gray radius-xs b-light px-15"
                                         id="search" name="search" value="{{ request()->search }}"
-                                        placeholder="Type document type name..">
+                                        placeholder="Type license type name..">
                                 </div>
 
                                 <div class="col-md-3 input-group  mb-1">
                                     <select name="ptype_id"
                                         class="form-control ih-small ip-gray radius-xs b-light px-15 aiz-selectpicker">
-                                        <option value="">--Select Document Type--</option>
+                                        <option value="">--Select License Type--</option>
                                         @foreach ($allParentTypes as $type)
                                             <option value="{{ $type->id }}"
                                                 {{ request()->ptype_id == $type->id ? 'selected' : '' }}>
@@ -57,7 +57,7 @@
 
                                 <div class="col-md-3 mb-1 d-flex flex-wrap align-items-end">
                                     <button class="btn btn-primary btn-sm " type="submit">Filter</button>
-                                    <a href="{{ route('document-types.index') }}"
+                                    <a href="{{ route('license-types.index') }}"
                                         class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
                                 </div>
                             </form>
@@ -74,13 +74,13 @@
                                             <th class="text-center">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="documentTypesTable">
+                                    <tbody id="licenseTypesTable">
                                         @can('view_dropdown_option')
-                                            @if ($documentTypes->isNotEmpty())
-                                                @foreach ($documentTypes as $key => $type)
+                                            @if ($licenseTypes->isNotEmpty())
+                                                @foreach ($licenseTypes as $key => $type)
                                                     <tr data-id="{{ $type->id }}">
                                                         <td class="text-center text-primary">
-                                                            {{ $key + 1 + ($documentTypes->currentPage() - 1) * $documentTypes->perPage() }}
+                                                            {{ $key + 1 + ($licenseTypes->currentPage() - 1) * $licenseTypes->perPage() }}
                                                         </td>
                                                         <td class="text-primary">{{ $type->name }}</td>
                                                         <td class="text-primary">{{ $type->parent?->name ?? '-' }}</td>
@@ -106,7 +106,7 @@
                                                         <td class="text-center">
                                                             @can('edit_dropdown_option')
                                                                 <div class="table-actions">
-                                                                    <a class="edit-btn" data-id="{{ $type->id }}"  title="Edit Document Type">
+                                                                    <a class="edit-btn" data-id="{{ $type->id }}"  title="Edit License Type">
                                                                         <span data-feather="edit"></span></a>
                                                                 </div>
                                                             @endcan
@@ -171,7 +171,7 @@
 
                                 <div class="aiz-pagination mt-4">
                                     @can('view_dropdown_option')
-                                        {{ $documentTypes->appends(request()->input())->links('pagination::bootstrap-5') }}
+                                        {{ $licenseTypes->appends(request()->input())->links('pagination::bootstrap-5') }}
                                     @endcan
                                 </div>
                             </div>
@@ -183,15 +183,15 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="documentTypeModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" autocomplete="off">
+    <div class="modal fade" id="licenseTypeModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" autocomplete="off">
         <div class="modal-dialog modal-lg">
-            <form id="documentTypeForm">
+            <form id="licenseTypeForm">
                 @csrf
                 <input type="hidden" name="_method" value="POST">
                 <input type="hidden" name="id" id="typeId">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Add Document Type</h5>
+                        <h5 class="modal-title">Add License Type</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -210,7 +210,7 @@
                             <select name="parent_id" id="typeParent"
                                 class="form-control ih-small ip-gray radius-xs b-light px-15">
                                 <option value="">-- None --</option>
-                                @foreach ($documentTypes->whereNull('parent_id') as $parent)
+                                @foreach ($licenseTypes->whereNull('parent_id') as $parent)
                                     <option value="{{ $parent->id }}">{{ $parent->name }}</option>
                                 @endforeach
                             </select>
@@ -262,14 +262,14 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script>
         $(document).ready(function() {
-            let modal = new bootstrap.Modal(document.getElementById('documentTypeModal'));
-            const storeUrl = "{{ url('admin/document-types') }}";
-            const updateUrl = "{{ url('admin/document-types') }}/"; // Append ID dynamically
-            const editUrl = "{{ url('admin/document-types/edit') }}/";
+            let modal = new bootstrap.Modal(document.getElementById('licenseTypeModal'));
+            const storeUrl = "{{ url('admin/license-types') }}";
+            const updateUrl = "{{ url('admin/license-types') }}/"; // Append ID dynamically
+            const editUrl = "{{ url('admin/license-types/edit') }}/";
 
-            $('#addDocumentTypeBtn').click(function() {
-                $('.modal-title').text('Add Document Type');
-                $('#documentTypeForm')[0].reset();
+            $('#addLicenseTypeBtn').click(function() {
+                $('.modal-title').text('Add License Type');
+                $('#licenseTypeForm')[0].reset();
                 $('#typeId').val('');
                 $('input[name="_method"]').val('POST');
                 $('#formErrors').addClass('d-none');
@@ -277,13 +277,13 @@
             });
 
             $('.edit-btn').click(function() {
-                $('.modal-title').text('Edit Document Type');
+                $('.modal-title').text('Edit License Type');
                 $('#formErrors').addClass('d-none');
                 const id = $(this).data('id');
-                editDocumentType(id);
+                editLicenseType(id);
             });
 
-            function editDocumentType(id) {
+            function editLicenseType(id) {
                 $.get(editUrl + id, function (data) {
                     $('#typeId').val(data.id);
                     $('#typeParent').val(data.parent_id);
@@ -300,7 +300,7 @@
                         }
                     }
 
-                    $('#documentTypeModal').modal('show');
+                    $('#licenseTypeModal').modal('show');
                 });
             }
 
@@ -311,12 +311,12 @@
                 }
             });
 
-            $('#documentTypeForm').submit(function(e) {
+            $('#licenseTypeForm').submit(function(e) {
                 e.preventDefault();
                 let method = $('#typeId').val() ? 'PUT' : 'POST';
                 let id = $('#typeId').val();
                 let url = method === 'POST' ? storeUrl : updateUrl + id;
-                let formData = $('#documentTypeForm').serialize();
+                let formData = $('#licenseTypeForm').serialize();
 
                 $.ajax({
                     url: url,
@@ -341,7 +341,7 @@
             } else {
                 var status = 0;
             }
-            $.post('{{ route('document-types.status') }}', {
+            $.post('{{ route('license-types.status') }}', {
                 _token: '{{ csrf_token() }}',
                 id: el.value,
                 status: status
