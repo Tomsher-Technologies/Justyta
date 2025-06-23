@@ -36,7 +36,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'full_name'     => 'required|string|max:255',
             'phone'    => 'nullable|string|max:20',
-            'language' => 'nullable|string|in:en,ar,fr,fa,mnd,ru,zh', 
+            'language' => 'nullable|string|in:en,ar,fr,fa,ru,zh', 
         ],[
             'full_name.required' => __('messages.full_name_required'),
         ]);
