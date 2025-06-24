@@ -48,7 +48,18 @@ Route::middleware('set_api_locale')->group(function () {
 
         // Get Service Form Contents
         Route::get('/court-case-submission', [ServiceController::class, 'getCourtCaseFormData']);
-
+        Route::get('/criminal-complaint-submission', [ServiceController::class, 'getCriminalComplaintFormData']);
+        Route::get('/power-of-attorney', [ServiceController::class, 'getPowerOfAttorneyFormData']);
+        Route::get('/last-will', [ServiceController::class, 'getLastWillFormData']);
+        Route::get('/memo-writing', [ServiceController::class, 'getMemoWritingFormData']);
+        Route::get('/expert-reports', [ServiceController::class, 'getExpertReportsFormData']);
+        Route::get('/contracts-drafting', [ServiceController::class, 'getContractsDraftingFormData']);
+        Route::get('/sub-contract-types', [ServiceController::class, 'getSubContractTypes']);
+        Route::get('/escrow-accounts', [ServiceController::class, 'getEscrowAccountsFormData']);
+        Route::get('/debts-collection', [ServiceController::class, 'getDebtsCollectionFormData']);
+        Route::get('/company-setup', [ServiceController::class, 'getCompanySetupFormData']);
+        Route::get('/zones', [ServiceController::class, 'getZones']);
+        Route::get('/license-activities', [ServiceController::class, 'getLicenseActivities']);
 
         // Service Request Submission
 

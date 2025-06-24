@@ -110,13 +110,13 @@
                                                                 <div
                                                                     class="custom-control custom-switch switch-secondary switch-sm ">
                                                                     <input type="checkbox" class="custom-control-input"
-                                                                        id="switch-s1_{{ $key }}"
+                                                                        id="switch-s1_{{ $option->id }}"
                                                                         onchange="update_status(this)" value="{{ $option->id }}"
                                                                         <?php if ($option->status === 'active') {
                                                                             echo 'checked';
                                                                         } ?>>
                                                                     <label class="custom-control-label"
-                                                                        for="switch-s1_{{ $key }}"></label>
+                                                                        for="switch-s1_{{ $option->id }}"></label>
                                                                 </div>
                                                             </div>
                                                         @endcan
