@@ -60,6 +60,7 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/company-setup', [ServiceController::class, 'getCompanySetupFormData']);
         Route::get('/zones', [ServiceController::class, 'getZones']);
         Route::get('/license-activities', [ServiceController::class, 'getLicenseActivities']);
+        Route::get('/online-consultation', [ServiceController::class, 'getOnlineConsultationFormData']);
 
         // Service Request Submission
 

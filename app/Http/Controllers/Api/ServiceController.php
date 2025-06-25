@@ -11,6 +11,7 @@ use App\Models\Country;
 use App\Models\ContractType;
 use App\Models\LicenseType;
 use App\Models\FreeZone;
+use App\Models\ConsultationDuration;
 
 class ServiceController extends Controller
 {
@@ -432,8 +433,7 @@ class ServiceController extends Controller
         ]);
     }
     
-    public function getSubContractTypes(Request $request)
-    {
+    public function getSubContractTypes(Request $request){
         $lang = $request->header('lang') ?? env('APP_LOCALE', 'en');
 
         $parentId = $request->contract_id ?? NULL;
@@ -457,8 +457,7 @@ class ServiceController extends Controller
         ]);
     }
 
-    public function getZones(Request $request)
-    {
+    public function getZones(Request $request){
         $lang = $request->header('lang') ?? env('APP_LOCALE', 'en');
 
         $parentId = $request->emirate_id ?? NULL;
@@ -482,8 +481,7 @@ class ServiceController extends Controller
         ]);
     }
 
-    public function getLicenseActivities(Request $request)
-    {
+    public function getLicenseActivities(Request $request){
         $lang = $request->header('lang') ?? env('APP_LOCALE', 'en');
 
         $parentId = $request->license_type_id ?? NULL;
@@ -506,5 +504,55 @@ class ServiceController extends Controller
             'data' => $response,
         ]);
     }
+    
+    public function getOnlineConsultationFormData(Request $request){
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        
+        $dropdowns = Dropdown::with([
+                        'options' => function ($q) {
+                            $q->where('status', 'active')->orderBy('sort_order');
+                        },
+                        'options.translations' => function ($q) use ($lang) {
+                            $q->whereIn('language_code', [$lang, 'en']);
+                        }
+                    ])->whereIn('slug', ['case_type', 'case_stage', 'you_represent','languages'])->get()->keyBy('slug');
+       
+        // Transform each dropdown
+        $response = [];
+        $emirates = Emirate::where('status',1)->orderBy('id')->get();
+
+        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
+                return [
+                    'id' => $emirate->id,
+                    'value' => $emirate->getTranslation('name',$lang),
+                ];
+        });
+
+        foreach ($dropdowns as $slug => $dropdown) {
+            $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                return [
+                    'id' => $option->id,
+                    'value' => $option->getTranslation('name',$lang),
+                ];
+            });
+        }
+
+        $timeslots = ConsultationDuration::where('status',1)->where('type','normal')->orderBy('id')->get();
+
+        $response['timeslots'] = $timeslots->map(function ($timeslot) use($lang) {
+                return [
+                    'duration' => $timeslot->duration,
+                    'value' => $timeslot->getTranslation('name',$lang),
+                ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Success',
+            'data' => $response,
+        ]);
+
+    }
+
     
 }
