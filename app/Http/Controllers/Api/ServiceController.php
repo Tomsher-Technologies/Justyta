@@ -12,6 +12,9 @@ use App\Models\ContractType;
 use App\Models\LicenseType;
 use App\Models\FreeZone;
 use App\Models\ConsultationDuration;
+use App\Models\Page;
+use App\Models\CourtRequest;
+use App\Models\PublicProsecution;
 
 class ServiceController extends Controller
 {
@@ -551,8 +554,119 @@ class ServiceController extends Controller
             'message' => 'Success',
             'data' => $response,
         ]);
-
     }
 
+    public function getRequestSubmissionFormData(Request $request){
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        
+        $dropdowns = Dropdown::with([
+                        'options' => function ($q) {
+                            $q->where('status', 'active')->orderBy('sort_order');
+                        },
+                        'options.translations' => function ($q) use ($lang) {
+                            $q->whereIn('language_code', [$lang, 'en']);
+                        }
+                    ])->whereIn('slug', ['case_type'])->get()->keyBy('slug');
+       
+        // Transform each dropdown
+        $response = [];
+        $emirates = Emirate::where('status',1)->orderBy('id')->get();
+
+        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
+                return [
+                    'id' => $emirate->id,
+                    'value' => $emirate->getTranslation('name',$lang),
+                ];
+        });
+
+        foreach ($dropdowns as $slug => $dropdown) {
+            $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                return [
+                    'id' => $option->id,
+                    'value' => $option->getTranslation('name',$lang),
+                ];
+            });
+        }
+
+        $form_info = Page::with('translations')->where('slug','request_submission_forminfo')->first();
+
+        $response['form_info'] = $form_info->getTranslation('content',$lang);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Success',
+            'data' => $response,
+        ]);
+    }
+
+    public function getRequestTypes(Request $request){
+        $lang = $request->header('lang') ?? env('APP_LOCALE', 'en');
+
+        $litigation_place = $request->litigation_place ?? NULL;
+
+        if(trim(strtolower($litigation_place)) === 'court'){
+            $requestTypes = CourtRequest::with('translations')->where('status', 1)
+                            ->whereNull('parent_id')
+                            ->orderBy('sort_order')
+                            ->get();
+        }elseif(trim(strtolower($litigation_place)) === 'public_prosecution'){
+            $requestTypes = PublicProsecution::with('translations')->where('status', 1)
+                            ->whereNull('parent_id')
+                            ->orderBy('sort_order')
+                            ->get();
+        }
+
+        $response = [];
+        if(!empty($requestTypes)){
+            $response = $requestTypes->map(function ($type) use ($lang, $litigation_place) {    
+                return [
+                    'id' => $type->id,
+                    'litigation_place' => $litigation_place,
+                    'value' => $type->getTranslation('name', $lang),
+                ];
+            });
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Success',
+            'data' => $response,
+        ]);
+    }
     
+    public function getRequestTitles(Request $request){
+        $lang = $request->header('lang') ?? env('APP_LOCALE', 'en');
+
+        $litigation_place   = $request->litigation_place ?? NULL;
+        $request_type       = $request->request_type ?? NULL;
+
+        if(trim(strtolower($litigation_place)) === 'court'){
+            $requestTypes = CourtRequest::with('translations')->where('status', 1)
+                            ->where('parent_id', $request_type)
+                            ->orderBy('sort_order')
+                            ->get();
+        }elseif(trim(strtolower($litigation_place)) === 'public_prosecution'){
+            $requestTypes = PublicProsecution::with('translations')->where('status', 1)
+                            ->where('parent_id', $request_type)
+                            ->orderBy('sort_order')
+                            ->get();
+        }
+
+        $response = [];
+        if(!empty($requestTypes)){
+            $response = $requestTypes->map(function ($type) use ($lang, $litigation_place) {    
+                return [
+                    'id' => $type->id,
+                    'litigation_place' => $litigation_place,
+                    'value' => $type->getTranslation('name', $lang),
+                ];
+            });
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Success',
+            'data' => $response,
+        ]);
+    }
 }

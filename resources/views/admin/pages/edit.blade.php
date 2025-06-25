@@ -81,7 +81,7 @@
                                                     $page->slug === 'request_success' ||
                                                     $page->slug === 'translation_request_success' ||
                                                     $page->slug === 'immigration_success' ||
-                                                    $page->slug === 'report_problem')
+                                                    $page->slug === 'report_problem' || $page->slug === 'request_submission_forminfo')
                                                 <div class="form-group">
                                                     <label class="col-form-label color-dark fw-500">Content
                                                         ({{ $lang->name }})

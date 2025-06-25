@@ -61,7 +61,9 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/zones', [ServiceController::class, 'getZones']);
         Route::get('/license-activities', [ServiceController::class, 'getLicenseActivities']);
         Route::get('/online-consultation', [ServiceController::class, 'getOnlineConsultationFormData']);
-
+        Route::get('/request-submission', [ServiceController::class, 'getRequestSubmissionFormData']);
+        Route::get('/request-types', [ServiceController::class, 'getRequestTypes']);
+        Route::get('/request-titles', [ServiceController::class, 'getRequestTitles']);
         // Service Request Submission
 
     });
