@@ -51,6 +51,13 @@ return [
     'new_password_min'              => 'يجب أن تتكون كلمة المرور الجديدة من 6 أحرف على الأقل.',
     'new_password_confirmed'        => 'تأكيد كلمة المرور غير متطابق.',
     'account_deleted_successfully' => 'تم حذف حسابك بنجاح.',
+    'enter_message' => 'يرجى إدخال رسالتك',
+    'enter_subject' => 'يرجى إدخال الموضوع',
+    'contact_us_success' => 'شكرًا لتواصلك معنا. سيتصل بك فريقنا قريبًا.',
+    'family' => 'عائلة',
+    'individual' => 'فرد',
+    'english' => 'الإنجليزية',
+    'arabic' => 'العربية',
 
     '' => '',
     '' => '',

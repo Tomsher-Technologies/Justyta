@@ -15,6 +15,8 @@ use App\Models\ConsultationDuration;
 use App\Models\Page;
 use App\Models\CourtRequest;
 use App\Models\PublicProsecution;
+use App\Models\TranslationLanguage;
+use App\Models\DocumentType;
 
 class ServiceController extends Controller
 {
@@ -604,6 +606,7 @@ class ServiceController extends Controller
 
         $litigation_place = $request->litigation_place ?? NULL;
 
+        $requestTypes = [];
         if(trim(strtolower($litigation_place)) === 'court'){
             $requestTypes = CourtRequest::with('translations')->where('status', 1)
                             ->whereNull('parent_id')
@@ -640,6 +643,7 @@ class ServiceController extends Controller
         $litigation_place   = $request->litigation_place ?? NULL;
         $request_type       = $request->request_type ?? NULL;
 
+        $requestTypes = [];
         if(trim(strtolower($litigation_place)) === 'court'){
             $requestTypes = CourtRequest::with('translations')->where('status', 1)
                             ->where('parent_id', $request_type)
@@ -669,4 +673,135 @@ class ServiceController extends Controller
             'data' => $response,
         ]);
     }
+
+    public function getLegalTranslationFormData(Request $request){
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        
+        // Transform each dropdown
+        $response = [];
+        $transLanguages = TranslationLanguage::where('status',1)->orderBy('sort_order')->get();
+
+        $response['document_language'] = $transLanguages->map(function ($tlang) use($lang) {
+                return [
+                    'id' => $tlang->id,
+                    'value' => $tlang->getTranslation('name',$lang),
+                ];
+        });
+
+        $response['translation_language'] = [
+            [
+                'id' => 'english',
+                'value' => __('messages.english'),
+            ],
+            [
+                'id' => 'arabic',
+                'value' => __('messages.arabic'),
+            ]
+        ];
+
+        $documentTypes = DocumentType::with('translations')->where('status', 1)
+                            ->whereNull('parent_id')
+                            ->orderBy('sort_order')
+                            ->get();
+
+        $response['document_type'] = $documentTypes->map(function ($doc) use($lang) {
+                return [
+                    'id' => $doc->id,
+                    'value' => $doc->getTranslation('name',$lang),
+                ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Success',
+            'data' => $response,
+        ]);
+    }
+
+    public function getSubDocumentTypes(Request $request){
+        $lang = $request->header('lang') ?? env('APP_LOCALE', 'en');
+
+        $doc_type       = $request->document_type ?? NULL;
+
+        $docTypes = [];
+        if($doc_type){
+            $docTypes = DocumentType::with('translations')->where('status', 1)
+                            ->where('parent_id', $doc_type)
+                            ->orderBy('sort_order')
+                            ->get();
+        }
+
+        $response = [];
+        if(!empty($docTypes)){
+            $response = $docTypes->map(function ($type) use ($lang) {    
+                return [
+                    'id' => $type->id, 
+                    'document_type' => $type->parent_id,
+                    'value' => $type->getTranslation('name', $lang),
+                ];
+            });
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Success',
+            'data' => $response,
+        ]);
+    }
+    
+    public function getImmigrationRequestFormData(Request $request){
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        
+        $dropdowns = Dropdown::with([
+                        'options' => function ($q) {
+                            $q->where('status', 'active')->orderBy('sort_order');
+                        },
+                        'options.translations' => function ($q) use ($lang) {
+                            $q->whereIn('language_code', [$lang, 'en']);
+                        }
+                    ])->whereIn('slug', ['positions','residency_status'])->get()->keyBy('slug');
+       
+        // Transform each dropdown
+        $response = [];
+       
+        foreach ($dropdowns as $slug => $dropdown) {
+            $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                return [
+                    'id' => $option->id,
+                    'value' => $option->getTranslation('name',$lang),
+                ];
+            });
+        }
+
+        $countries = Country::where('status',1)->orderBy('id')->get();
+
+        $response['nationality'] = $countries->map(function ($country) use($lang) {
+                return [
+                    'id' => $country->id,
+                    'value' => $country->getTranslation('name',$lang),
+                ];
+        });
+
+        $response['preffered_country'] = $response['nationality'];
+        $response['application_type'] = [
+            [
+                'id' => 'individual',
+                'value' =>  __('messages.individual'),
+            ],
+            [
+                'id' => 'family',
+                'value' => __('messages.family'),
+            ]
+        ];
+
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Success',
+            'data' => $response,
+        ]);
+    }
+
+
+    
 }

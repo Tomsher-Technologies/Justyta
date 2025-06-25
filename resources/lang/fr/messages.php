@@ -51,5 +51,12 @@ return [
     'new_password_min'              => 'Le nouveau mot de passe doit comporter au moins 6 caractères.',
     'new_password_confirmed'        => 'La confirmation du mot de passe ne correspond pas.',
     'account_deleted_successfully' => 'Votre compte a été supprimé avec succès.',
+    'enter_message' => 'Veuillez saisir votre message',
+    'enter_subject' => 'Veuillez saisir le sujet',
+    'contact_us_success' => 'Merci de nous avoir contactés. Notre équipe vous contactera sous peu.',
+    'family' => 'Famille',
+    'individual' => 'Individuel',
+    'english' => 'Anglais',
+    'arabic' => 'Arabe',
 
 ];
