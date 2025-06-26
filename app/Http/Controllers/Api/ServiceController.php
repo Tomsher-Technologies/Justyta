@@ -24,6 +24,8 @@ use App\Models\RequestPowerOfAttorney;
 use App\Models\RequestMemoWriting;
 use App\Models\RequestEscrowAccount;
 use App\Models\RequestDebtCollection;
+use App\Models\RequestCompanySetup;
+use App\Models\RequestContractDrafting;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -1572,5 +1574,237 @@ class ServiceController extends Controller
             'data'      => $response,
         ]);
     }
+
+    public function requestCompanySetup(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'applicant_type'    => 'required',
+            'emirate_id'        => 'required',
+            'zone'              => 'required',
+            'license_type'      => 'required',
+            'license_activity'  => 'required',
+            'company_type'      => 'required',
+            'industry'          => 'required',
+            'company_name'      => 'required',
+            'mobile'            => 'required',
+            'email'             => 'required',
+            'documents'         => 'nullable|array',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+        ], [
+            'applicant_type.required'   => __('messages.applicant_type_required'),
+            'zone.required'             => __('messages.zone_required'),
+            'emirate_id.required'       => __('messages.emirate_required'),
+            'license_type.required'     => __('messages.license_type_required'),
+            'license_activity.required' => __('messages.license_activity_required'),
+            'company_type.required'     => __('messages.company_type_required'),
+            'industry.required'         => __('messages.industry_required'),
+            'company_name.required'     => __('messages.company_person_name_required'),
+            'mobile.required'           => __('messages.mobile_required'),
+            'email.required'            => __('messages.email_required'),
+            'documents.*.file'          => __('messages.document_file_invalid'),
+            'documents.*.mimes'         => __('messages.document_file_mimes'),
+            'documents.*.max'           => __('messages.document_file_max'),
+        ]);
+
+        if ($validator->fails()) {
+            $message = implode(' ', $validator->errors()->all());
+
+            return response()->json([
+                'status'    => false,
+                'message'   => $message,
+            ], 200);
+        }
+
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $service    = Service::where('slug', 'company-setup')->firstOrFail();
+
+        $referenceCode = ServiceRequest::generateReferenceCode($service);
+
+        $service_request = ServiceRequest::create([
+            'user_id'           => $user->id,
+            'service_id'        => $service->id,
+            'service_slug'      => 'company-setup',
+            'reference_code'    => $referenceCode,
+            'source'            => 'mob',
+            'submitted_at'      => date('Y-m-d H:i:s')
+        ]);
+
+        $companySetup = RequestCompanySetup::create([
+            'user_id'               => $user->id,
+            'service_request_id'    => $service_request->id,
+            'applicant_type'        => $request->input('applicant_type'),
+            'emirate_id'            => $request->input('emirate_id'),
+            'zone'                  => $request->input('zone'),
+            'license_type'          => $request->input('license_type'),
+            'license_activity'      => $request->input('license_activity'),
+            'company_type'          => $request->input('company_type'),
+            'industry'              => $request->input('industry'),
+            'company_name'          => $request->input('company_name'),
+            'mobile'                => $request->input('mobile'),
+            'email'                 => $request->input('email'),
+            'documents'             => []
+        ]);
+
+        $requestFolder = "uploads/company_setup/{$companySetup->id}/";
+
+        $fileFields = [
+            'documents'     => 'documents'
+        ];
+
+        $filePaths = [];
+
+        foreach ($fileFields as $inputName => $columnName) {
+            $filePaths[$columnName] = [];
+            if ($request->hasFile($inputName)) {
+                $files = $request->file($inputName);
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+                foreach ($files as $file) {
+                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder.$uniqueName;
+                    $fileContents   = file_get_contents($file);
+                    Storage::disk('public')->put($filename, $fileContents);
+                    $filePaths[$columnName][] = Storage::url($filename);
+                }
+            }
+        }
+
+        $companySetup->update($filePaths);
+
+        $pageData = getPageDynamicContent('request_success',$lang);
+        $response = [
+            'reference' => $service_request->reference_code,
+            'message'   => $pageData['content']
+        ];
+        return response()->json([
+            'status'    => true,
+            'message'   => __('messages.request_submit_success'),
+            'data'      => $response,
+        ]);
+    }
     
+    public function requestContractDrafting(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'applicant_type'    => 'required',
+            'contract_type'   => 'required',
+            'emirate_id'        => 'required',
+            'sub_contract_type'         => 'required',
+            'contract_language'     => 'required',
+            'company_name'     => 'required',
+            'industry'     => 'required',
+            'email'     => 'required',
+            'priority'     => 'required',
+            'documents'         => 'nullable|array',
+            'eid'               => 'required|array',
+            'trade_license'     => 'required|array',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+        ], [
+            'applicant_type.required'       => __('messages.applicant_type_required'),
+            'contract_type.required'        => __('messages.contract_type_required'),
+            'emirate_id.required'           => __('messages.emirate_required'),
+            'sub_contract_type.required'    => __('messages.sub_contract_type_required'),
+            'contract_language.required'    => __('messages.contract_language_required'),
+            'company_name.required'         => __('messages.company_person_name_required'),
+            'industry.required'             => __('messages.industry_required'),
+            'email.required'                => __('messages.email_required'),
+            'priority.required'             => __('messages.priority_required'),
+            'documents.*.file'              => __('messages.document_file_invalid'),
+            'documents.*.mimes'             => __('messages.document_file_mimes'),
+            'documents.*.max'               => __('messages.document_file_max'),
+            'eid.required'                  => __('messages.eid_required'),
+            'eid.*.file'                    => __('messages.eid_file_invalid'),
+            'eid.*.mimes'                   => __('messages.eid_file_mimes'),
+            'eid.*.max'                     => __('messages.eid_file_max'),
+            'trade_license.required'        => __('messages.trade_license_required'),
+            'trade_license.*.file'          => __('messages.trade_license_file_invalid'),
+            'trade_license.*.mimes'         => __('messages.trade_license_file_mimes'),
+            'trade_license.*.max'           => __('messages.trade_license_file_max'),
+        ]);
+
+        if ($validator->fails()) {
+            $message = implode(' ', $validator->errors()->all());
+
+            return response()->json([
+                'status'    => false,
+                'message'   => $message,
+            ], 200);
+        }
+
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $service    = Service::where('slug', 'contract-drafting')->firstOrFail();
+
+        $referenceCode = ServiceRequest::generateReferenceCode($service);
+
+        $service_request = ServiceRequest::create([
+            'user_id'           => $user->id,
+            'service_id'        => $service->id,
+            'service_slug'      => 'contract-drafting',
+            'reference_code'    => $referenceCode,
+            'source'            => 'mob',
+            'submitted_at'      => date('Y-m-d H:i:s')
+        ]);
+
+        $contractDrafting = RequestContractDrafting::create([
+            'user_id'               => $user->id,
+            'service_request_id'    => $service_request->id,
+            'applicant_type'        => $request->input('applicant_type'),
+            'contract_type'         => $request->input('contract_type'),
+            'emirate_id'            => $request->input('emirate_id'),
+            'sub_contract_type'     => $request->input('sub_contract_type'),
+            'contract_language'     => $request->input('contract_language'),
+            'company_name'          => $request->input('company_name'),
+            'industry'              => $request->input('industry'),
+            'email'                 => $request->input('email'),
+            'priority'              => $request->input('priority'),
+            'documents'             => [],
+            'eid'                   => [],
+            'trade_license'         => [],
+        ]);
+
+        $requestFolder = "uploads/contract_drafting/{$contractDrafting->id}/";
+
+        $fileFields = [
+            'documents'     => 'documents',
+            'eid'           => 'eid',
+            'trade_license' => 'trade_license',
+        ];
+
+        $filePaths = [];
+
+        foreach ($fileFields as $inputName => $columnName) {
+            $filePaths[$columnName] = [];
+            if ($request->hasFile($inputName)) {
+                $files = $request->file($inputName);
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+                foreach ($files as $file) {
+                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder.$uniqueName;
+                    $fileContents   = file_get_contents($file);
+                    Storage::disk('public')->put($filename, $fileContents);
+                    $filePaths[$columnName][] = Storage::url($filename);
+                }
+            }
+        }
+
+        $contractDrafting->update($filePaths);
+
+        $pageData = getPageDynamicContent('request_success',$lang);
+        $response = [
+            'reference' => $service_request->reference_code,
+            'message'   => $pageData['content']
+        ];
+        return response()->json([
+            'status'    => true,
+            'message'   => __('messages.request_submit_success'),
+            'data'      => $response,
+        ]);
+    }
 }
