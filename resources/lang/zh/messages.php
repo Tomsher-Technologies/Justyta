@@ -51,5 +51,12 @@ return [
     'new_password_min'              => '新密码至少需要 6 个字符。',
     'new_password_confirmed'        => '密码确认不匹配。',
     'account_deleted_successfully' => '您的账户已成功删除。',
+    'enter_message' => '请输入您的留言',
+    'enter_subject' => '请输入主题',
+    'contact_us_success' => '感谢您的联系，我们的团队将尽快与您取得联系。',
+    'family' => '家庭',
+    'individual' => '个人',
+    'english' => '英语',
+    'arabic' => '阿拉伯语',
 
 ];

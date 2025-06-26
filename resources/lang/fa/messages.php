@@ -51,5 +51,12 @@ return [
     'new_password_min'              => 'رمز عبور جدید باید حداقل ۶ کاراکتر باشد.',
     'new_password_confirmed'        => 'تأیید رمز عبور مطابقت ندارد.',
     'account_deleted_successfully' => 'حساب شما با موفقیت حذف شد.',
+    'enter_message' => 'لطفاً پیام خود را وارد کنید',
+    'enter_subject' => 'لطفاً موضوع را وارد کنید',
+    'contact_us_success' => 'با تشکر از تماس شما. تیم ما به زودی با شما تماس خواهد گرفت.',
+    'family' => 'خانواده',
+    'individual' => 'فرد',
+    'english' => 'انگلیسی',
+    'arabic' => 'عربی',
 
 ];
