@@ -64,8 +64,18 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/request-submission', [ServiceController::class, 'getRequestSubmissionFormData']);
         Route::get('/request-types', [ServiceController::class, 'getRequestTypes']);
         Route::get('/request-titles', [ServiceController::class, 'getRequestTitles']);
-        // Service Request Submission
+        Route::get('/legal-translation', [ServiceController::class, 'getLegalTranslationFormData']);
+        Route::get('/subdocument-types', [ServiceController::class, 'getSubDocumentTypes']);
+        Route::get('/immigration-request', [ServiceController::class, 'getImmigrationRequestFormData']);
 
+        // Service Request Submission
+        Route::post('/court-case-request', [ServiceController::class, 'requestCourtCase']);
+        Route::post('/criminal-complaint-request', [ServiceController::class, 'requestCriminalComplaints']);
+        Route::post('/last-will-request', [ServiceController::class, 'requestLastWill']);
+        Route::post('/power-of-attorney-request', [ServiceController::class, 'requestPowerOfAttorney']);
+        Route::post('/memo-writing-request', [ServiceController::class, 'requestMemoWriting']);
+        Route::post('/escrow-account-request', [ServiceController::class, 'requestEscrowAccount']);
+        Route::post('/debts-collection-request', [ServiceController::class, 'requestDebtsCollection']);
     });
 
     

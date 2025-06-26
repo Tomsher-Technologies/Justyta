@@ -3,7 +3,8 @@
 use App\Models\BusinessSetting;
 use App\Utility\CategoryUtility;
 use App\Models\EnquiryStatus;
-
+use App\Models\Service;
+use App\Models\Page;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Request;
@@ -64,4 +65,21 @@ function getUploadedImage(?string $path, string $default = 'assets/img/default_i
     }
 
     return asset($default);
+}
+
+function getServiceId($slug){
+    $service =  Service::where('slug', $slug)->pluck('id');
+
+    return $service[0] ?? NULL;
+}
+
+function getPageDynamicContent($slug,$lang = 'en'){
+    $data = Page::with('translations')->where('slug', $slug)->first();
+
+    $response =  [
+                    'title' => $data->getTranslation('title',$lang),
+                    'description' => $data->getTranslation('description',$lang),
+                    'content' => $data->getTranslation('content',$lang),
+                ];
+    return $response;
 }
