@@ -44,6 +44,7 @@ class ServiceRequest extends Model
 
         // Find last reference for this service
         $lastCode = self::where('service_id', $service->id)
+            ->whereNotNull('reference_code')
             ->orderBy('id', 'desc')
             ->value('reference_code');
 
