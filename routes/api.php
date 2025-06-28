@@ -78,6 +78,7 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/debts-collection-request', [ServiceController::class, 'requestDebtsCollection']);
         Route::post('/company-setup-request', [ServiceController::class, 'requestCompanySetup']);
         Route::post('/contract-drafting-request', [ServiceController::class, 'requestContractDrafting']);
+        Route::post('/expert-report-request', [ServiceController::class, 'requestExpertReport']);
     });
 
     

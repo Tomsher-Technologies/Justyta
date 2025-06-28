@@ -85,7 +85,7 @@ class ServiceController extends Controller
             'icon' => $iconPath,
             'sort_order' => $request->sort_order ?? 0,
             'status' => $request->status,
-            'payment_active' => $request->payment_active ?? 0, 
+            // 'payment_active' => $request->payment_active ?? 0, 
             'service_fee' => $request->service_fee ?? 0,
             'govt_fee' => $request->govt_fee ?? 0,
             'tax' => $request->tax_total ?? 0,

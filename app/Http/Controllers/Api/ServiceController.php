@@ -12,6 +12,7 @@ use App\Models\ContractType;
 use App\Models\LicenseType;
 use App\Models\FreeZone;
 use App\Models\ConsultationDuration;
+use App\Models\User;
 use App\Models\Page;
 use App\Models\CourtRequest;
 use App\Models\PublicProsecution;
@@ -26,9 +27,12 @@ use App\Models\RequestEscrowAccount;
 use App\Models\RequestDebtCollection;
 use App\Models\RequestCompanySetup;
 use App\Models\RequestContractDrafting;
+use App\Models\RequestExpertReport;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\ServiceRequestSubmitted;
+use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
 
 class ServiceController extends Controller
@@ -64,7 +68,7 @@ class ServiceController extends Controller
                 ];
             });
         }
-
+        $response['payment'] = [];
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -103,7 +107,7 @@ class ServiceController extends Controller
                 ];
             });
         }
-
+        $response['payment'] = [];
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -142,7 +146,7 @@ class ServiceController extends Controller
                 ];
             });
         }
-
+        $response['payment'] = [];
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -190,7 +194,7 @@ class ServiceController extends Controller
                     'value' => $country->getTranslation('name',$lang),
                 ];
         });
-
+        $response['payment'] = [];
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -229,7 +233,7 @@ class ServiceController extends Controller
                 ];
             });
         }
-
+        $response['payment'] = [];
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -269,6 +273,14 @@ class ServiceController extends Controller
             });
         }
 
+        $service    = Service::where('slug', 'expert-report')->firstOrFail();
+
+        $response['payment'] = [
+            'service_fee'       => $service->service_fee ?? 0,
+            'govt_fee'          => $service->govt_fee ?? 0,
+            'tax'               => $service->tax ?? 0,
+            'total_amount'      => $service->total_amount ?? 0
+        ];
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -316,6 +328,7 @@ class ServiceController extends Controller
                 ];
             });
         }
+        $response['payment'] = [];
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -356,6 +369,8 @@ class ServiceController extends Controller
                 ];
         });
 
+        $response['payment'] = [];
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -394,7 +409,7 @@ class ServiceController extends Controller
                 ];
             });
         }
-
+        $response['payment'] = [];
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -442,7 +457,7 @@ class ServiceController extends Controller
                 ];
             });
         }
-
+        $response['payment'] = [];
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -604,6 +619,15 @@ class ServiceController extends Controller
         $form_info = Page::with('translations')->where('slug','request_submission_forminfo')->first();
 
         $response['form_info'] = $form_info->getTranslation('content',$lang);
+
+        $service    = Service::where('slug', 'request-submission')->firstOrFail();
+
+        $response['payment'] = [
+            'service_fee'       => $service->service_fee ?? 0,
+            'govt_fee'          => $service->govt_fee ?? 0,
+            'tax'               => $service->tax ?? 0,
+            'total_amount'      => $service->total_amount ?? 0
+        ];
 
         return response()->json([
             'status'    => true,
@@ -800,7 +824,7 @@ class ServiceController extends Controller
                 'value' => __('messages.family'),
             ]
         ];
-
+        $response['payment'] = [];
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -916,6 +940,13 @@ class ServiceController extends Controller
         }
 
         $courtCase->update($filePaths);
+
+        // Notify the user
+        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        // Notify the admin (single or multiple)
+        $admins = User::where('user_type', 'admin')->get();
+        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1037,6 +1068,13 @@ class ServiceController extends Controller
 
         $criminalComplaint->update($filePaths);
 
+        // Notify the user
+        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        // Notify the admin (single or multiple)
+        $admins = User::where('user_type', 'admin')->get();
+        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
             'reference' => $service_request->reference_code,
@@ -1133,6 +1171,12 @@ class ServiceController extends Controller
         }
 
         $lastWill->update($filePaths);
+        // Notify the user
+        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        // Notify the admin (single or multiple)
+        $admins = User::where('user_type', 'admin')->get();
+        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1265,6 +1309,12 @@ class ServiceController extends Controller
         }
 
         $powerOA->update($filePaths);
+        // Notify the user
+        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        // Notify the admin (single or multiple)
+        $admins = User::where('user_type', 'admin')->get();
+        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1386,6 +1436,12 @@ class ServiceController extends Controller
         }
 
         $memoWriting->update($filePaths);
+        // Notify the user
+        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        // Notify the admin (single or multiple)
+        $admins = User::where('user_type', 'admin')->get();
+        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1452,7 +1508,15 @@ class ServiceController extends Controller
             'about_deal'            => $request->input('about_deal')
         ]);
 
+        // Notify the user
+        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        // Notify the admin (single or multiple)
+        $admins = User::where('user_type', 'admin')->get();
+        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+
         $pageData = getPageDynamicContent('request_success',$lang);
+
         $response = [
             'reference' => $service_request->reference_code,
             'message'   => $pageData['content']
@@ -1562,6 +1626,12 @@ class ServiceController extends Controller
         }
 
         $debtCollection->update($filePaths);
+        // Notify the user
+        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        // Notify the admin (single or multiple)
+        $admins = User::where('user_type', 'admin')->get();
+        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1672,6 +1742,12 @@ class ServiceController extends Controller
         }
 
         $companySetup->update($filePaths);
+        // Notify the user
+        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        // Notify the admin (single or multiple)
+        $admins = User::where('user_type', 'admin')->get();
+        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1795,8 +1871,133 @@ class ServiceController extends Controller
         }
 
         $contractDrafting->update($filePaths);
+        // Notify the user
+        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        // Notify the admin (single or multiple)
+        $admins = User::where('user_type', 'admin')->get();
+        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
+        $response = [
+            'reference' => $service_request->reference_code,
+            'message'   => $pageData['content']
+        ];
+        return response()->json([
+            'status'    => true,
+            'message'   => __('messages.request_submit_success'),
+            'data'      => $response,
+        ]);
+    }
+
+    public function requestExpertReport(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'applicant_type'            => 'required',
+            'applicant_place'           => 'required',
+            'emirate_id'                => 'required',
+            'expert_report_type'        => 'required',
+            'expert_report_language'    => 'required',
+            'documents'                 => 'required|array',
+            'eid'                       => 'required|array',
+            'trade_license'             => 'required|array',
+            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'eid.*'                     => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+        ], [
+            'applicant_type.required'           => __('messages.applicant_type_required'),
+            'applicant_place.required'          => __('messages.applicant_place_required'),
+            'emirate_id.required'               => __('messages.emirate_required'),
+            'expert_report_type.required'       => __('messages.expert_report_type_required'),
+            'expert_report_language.required'   => __('messages.expert_report_language_required'),
+            'documents.required'                => __('messages.document_required'),
+            'documents.*.file'                  => __('messages.document_file_invalid'),
+            'documents.*.mimes'                 => __('messages.document_file_mimes'),
+            'documents.*.max'                   => __('messages.document_file_max'),
+            'eid.required'                      => __('messages.eid_required'),
+            'eid.*.file'                        => __('messages.eid_file_invalid'),
+            'eid.*.mimes'                       => __('messages.eid_file_mimes'),
+            'eid.*.max'                         => __('messages.eid_file_max'),
+            'trade_license.required'            => __('messages.trade_license_required'),
+            'trade_license.*.file'              => __('messages.trade_license_file_invalid'),
+            'trade_license.*.mimes'             => __('messages.trade_license_file_mimes'),
+            'trade_license.*.max'               => __('messages.trade_license_file_max'),
+        ]);
+
+        if ($validator->fails()) {
+            $message = implode(' ', $validator->errors()->all());
+
+            return response()->json([
+                'status'    => false,
+                'message'   => $message,
+            ], 200);
+        }
+
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $service    = Service::where('slug', 'expert-report')->firstOrFail();
+
+        $service_request = ServiceRequest::create([
+            'user_id'           => $user->id,
+            'service_id'        => $service->id,
+            'service_slug'      => 'expert-report',
+            'reference_code'    => NULL,
+            'source'            => 'mob',
+            'submitted_at'      => date('Y-m-d H:i:s'),
+            'payment_status'    => 'pending'
+        ]);
+
+        $expertReport = RequestExpertReport::create([
+            'user_id'                   => $user->id,
+            'service_request_id'        => $service_request->id,
+            'applicant_type'            => $request->input('applicant_type'),
+            'applicant_place'           => $request->input('applicant_place'),
+            'emirate_id'                => $request->input('emirate_id'),
+            'expert_report_type'        => $request->input('expert_report_type'),
+            'expert_report_language'    => $request->input('expert_report_language'),
+            'about_case'                => $request->input('about_case'),
+            'documents'                 => [],
+            'eid'                       => [],
+            'trade_license'             => [],
+        ]);
+
+        $requestFolder = "uploads/expert_report/{$expertReport->id}/";
+
+        $fileFields = [
+            'documents'     => 'documents',
+            'eid'           => 'eid',
+            'trade_license' => 'trade_license',
+        ];
+
+        $filePaths = [];
+
+        foreach ($fileFields as $inputName => $columnName) {
+            $filePaths[$columnName] = [];
+            if ($request->hasFile($inputName)) {
+                $files = $request->file($inputName);
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+                foreach ($files as $file) {
+                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder.$uniqueName;
+                    $fileContents   = file_get_contents($file);
+                    Storage::disk('public')->put($filename, $fileContents);
+                    $filePaths[$columnName][] = Storage::url($filename);
+                }
+            }
+        }
+
+        $expertReport->update($filePaths);
+
+        // Notify the user
+        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        // Notify the admin (single or multiple)
+        $admins = User::where('user_type', 'admin')->get();
+        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+
+        $pageData = getPageDynamicContent('request_payment_success',$lang);
         $response = [
             'reference' => $service_request->reference_code,
             'message'   => $pageData['content']

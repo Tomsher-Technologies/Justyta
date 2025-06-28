@@ -78,8 +78,7 @@
                                             @if (
                                                 $page->slug === 'consultancy_payment_success' ||
                                                     $page->slug === 'consultancy_waiting_page' ||
-                                                    $page->slug === 'request_success' ||
-                                                    $page->slug === 'translation_request_success' ||
+                                                    $page->slug === 'request_success' || $page->slug === 'request_payment_success' || $page->slug === 'translation_request_success' ||
                                                     $page->slug === 'immigration_success' ||
                                                     $page->slug === 'report_problem' || $page->slug === 'request_submission_forminfo')
                                                 <div class="form-group">
