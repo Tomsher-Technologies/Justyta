@@ -51,7 +51,7 @@ class ServiceController extends Controller
         $consultationDurations = [];
 
         if ($service->slug === 'online-live-consultancy') {
-            $consultationDurations = ConsultationDuration::orderBy('type')->orderBy('duration')->get();
+            $consultationDurations = ConsultationDuration::where('status',1)->orderBy('type')->orderBy('duration')->get();
         }
 
         return view('admin.services.edit', compact('service', 'languages','consultationDurations'));
