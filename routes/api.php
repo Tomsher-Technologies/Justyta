@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ServiceController;
+use App\Http\Controllers\Api\JobPostController;
 
 Route::group(['prefix' => 'v1'], function () {
 Route::middleware('set_api_locale')->group(function () {
@@ -44,7 +45,10 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/contact-us', [HomeController::class, 'contactUs']);
 
         // Job Posts
-        Route::get('/job-posts', [JobPostController::class, 'index']);
+        Route::get('/job-posts', [JobPostController::class, 'index']); 
+        Route::get('/job-posts/{id}', [JobPostController::class, 'jobDetails']);
+        Route::get('/apply-job/{id}', [JobPostController::class, 'applyJobFormData']);
+        Route::post('/job-posts/apply', [JobPostController::class, 'applyJob']); 
 
         // Get Service Form Contents
         Route::get('/court-case-submission', [ServiceController::class, 'getCourtCaseFormData']);
@@ -78,6 +82,9 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/debts-collection-request', [ServiceController::class, 'requestDebtsCollection']);
         Route::post('/company-setup-request', [ServiceController::class, 'requestCompanySetup']);
         Route::post('/contract-drafting-request', [ServiceController::class, 'requestContractDrafting']);
+        Route::post('/expert-report-request', [ServiceController::class, 'requestExpertReport']);
+        Route::post('/immigration-request', [ServiceController::class, 'requestImmigration']);
+        Route::post('/request-submission', [ServiceController::class, 'requestRequestSubmission']);
     });
 
     

@@ -26,6 +26,19 @@ class JobPost extends Model
         return $this->translations->where('lang', $lang)->first();
     }
 
+    public function getTranslation($field = '', $lang = false)
+    {
+        $lang = $lang == false ? getActiveLanguage() : $lang;
+        $translations = $this->translations->where('lang', $lang)->first();
+    
+         // If not found OR name is empty, fallback to 'en'
+        if (!$translations || empty($translations->$field)) {
+            $translations = $this->translations->where('lang', 'en')->first();
+        }
+
+        return $translations != null ? $translations->$field : $this->$field;
+    }
+
     public function location()
     {
         return $this->belongsTo(Emirate::class,'emirate');
@@ -44,4 +57,10 @@ class JobPost extends Model
         $nextId = $lastId + 1;
         return 'JOB-' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
     }
+
+    public function applications()
+    {
+        return $this->hasMany(JobApplication::class);
+    }
+
 }
