@@ -23,4 +23,15 @@ class Service extends Model
     {
         return $this->hasMany(Service::class, 'parent_id');
     }
+
+    public function translation($locale = null)
+    {
+        $locale = $locale ?? app()->getLocale();
+        return $this->translations->where('lang', $locale)->first();
+    }
+
+    public function getTranslatedNameAttribute()
+    {
+        return $this->translation()?->title ?? $this->translations->first()?->title ?? 'Service';
+    }
 }

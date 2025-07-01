@@ -8,6 +8,8 @@ use App\Models\Service;
 use App\Models\Language;
 use App\Models\ServiceTranslation;
 use App\Models\ConsultationDuration;
+use App\Models\AnnualRetainerBaseFee;
+use App\Models\AnnualRetainerInstallment;
 use Illuminate\Support\Facades\Storage;
 
 class ServiceController extends Controller
@@ -48,13 +50,15 @@ class ServiceController extends Controller
     {
         $service = Service::with('translations')->findOrFail($id);
         $languages = Language::where('status', 1)->get();
-        $consultationDurations = [];
+        $consultationDurations = $fees = [];
 
         if ($service->slug === 'online-live-consultancy') {
             $consultationDurations = ConsultationDuration::where('status',1)->orderBy('type')->orderBy('duration')->get();
+        }elseif($service->slug === 'annual-retainer-agreement'){
+            $fees = AnnualRetainerBaseFee::with('installments')->orderBy('calls_per_month')->orderBy('visits_per_year')->get();
         }
 
-        return view('admin.services.edit', compact('service', 'languages','consultationDurations'));
+        return view('admin.services.edit', compact('service', 'languages','consultationDurations','fees'));
     }
 
     public function update(Request $request, $id)
@@ -85,7 +89,7 @@ class ServiceController extends Controller
             'icon' => $iconPath,
             'sort_order' => $request->sort_order ?? 0,
             'status' => $request->status,
-            'payment_active' => $request->payment_active ?? 0, 
+            // 'payment_active' => $request->payment_active ?? 0, 
             'service_fee' => $request->service_fee ?? 0,
             'govt_fee' => $request->govt_fee ?? 0,
             'tax' => $request->tax_total ?? 0,
@@ -105,6 +109,35 @@ class ServiceController extends Controller
                     'amount' => $amount
                 ]);
             }
+        }
+
+        if ($service->slug === 'annual-retainer-agreement' && $request->has('fees')) {
+            foreach ($request->fees as $id => $data) {
+                    $base = AnnualRetainerBaseFee::find($id);
+                    if (!$base) continue;
+
+                    $service = floatval($data['service_fee']);
+                    $govt = floatval($data['govt_fee']);
+                    $tax = ($service) * 0.05;
+                    $baseTotal = $service + $govt + $tax;
+
+                    $base->update([
+                        'service_fee' => $service,
+                        'govt_fee' => $govt,
+                        'tax' => $tax,
+                        'base_total' => $baseTotal,
+                    ]);
+
+                    foreach ($data['installments'] as $installmentId => $instData) {
+                        $percent = floatval($instData['extra_percent']);
+                        $final = $baseTotal + ($baseTotal * ($percent / 100));
+
+                        AnnualRetainerInstallment::where('id', $installmentId)->update([
+                            'extra_percent' => $percent,
+                            'final_total' => $final,
+                        ]);
+                    }
+                }
         }
         session()->flash('success', 'Service updated successfully.');
         return redirect()->route('services.index');
