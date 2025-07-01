@@ -55,10 +55,6 @@ class ServiceRequestSubmitted extends Notification
 
         return [
             'service_request_id' => $this->serviceRequest->id,
-            'params' => [
-                'service' => $this->serviceRequest->service->translated_name ?? 'Service',
-                'reference' => $this->serviceRequest->reference_code,
-            ],
             'message' => $this->forAdmin
                 ? "New $serviceName request submitted (Ref: {$this->serviceRequest->reference_code})"
                 : 'messages.service_request_submitted',
