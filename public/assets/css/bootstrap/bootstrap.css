@@ -1365,8 +1365,10 @@ pre code {
 
 .table .thead-dark th {
     color: #fff;
-    background-color: #343a40;
-    border-color: #454d55;
+    /* background-color: #343a40;
+    border-color: #454d55; */
+    background-color: #07683b;
+    border-color: #fff;
 }
 
 .table .thead-light th {

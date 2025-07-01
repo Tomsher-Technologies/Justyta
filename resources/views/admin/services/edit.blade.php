@@ -110,7 +110,7 @@
                                 </div>
                             </div>
 
-                             @if($service->slug != 'online-live-consultancy' && $service->slug != 'law-firm-services' && $service->slug != 'legal-translation')
+                             @if($service->slug != 'online-live-consultancy' && $service->slug != 'annual-retainer-agreement' && $service->slug != 'law-firm-services' && $service->slug != 'legal-translation')
                                 {{-- <div class="col-md-2 mb-3">
                                     <label class="col-form-label color-dark fw-500">Payment <span
                                             class="text-danger">*</span></label>
@@ -155,7 +155,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            @elseif($service->slug == 'online-live-consultancy')
+                            @elseif($service->slug === 'online-live-consultancy')
                                 <div class="col-md-12">
                                     <div class="col-md-12 mt-4">
                                         <h5 class="mb-4">Consultation Duration & Amounts</h5>
@@ -214,6 +214,58 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            @elseif ($service->slug === 'annual-retainer-agreement')
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-12 mt-4">
+                                            <h5 class="mb-4">Payment Details</h5>
+                                        </div>
+                                        <div class="col-md-12 sticky-table-container">
+                                            <table class="table table-bordered sticky-table">
+                                                <thead class="thead-dark">
+                                                    <tr>
+                                                        <th class="text-center">Calls/Month</th>
+                                                        <th class="text-center">Visits/Year</th>
+                                                        <th class="text-center">Service Fee</th>
+                                                        <th class="text-center">Govt Fee</th>
+                                                        <th class="text-center">Tax (5%)</th>
+                                                        <th class="text-center">Base Total</th>
+                                                        <th colspan="3" class="text-center">Installments (Extra %)</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th colspan="6"></th>
+                                                        <th class="text-center">1x</th>
+                                                        <th class="text-center">2x</th>
+                                                        <th class="text-center">4x</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody style="color:#000;">
+                                                    @foreach($fees as $fee)
+                                                        <tr>
+                                                            <td>
+                                                                 {{ $fee->calls_per_month }} {{ ($fee->calls_per_month == 1) ? 'Call' : 'Calls' }}
+                                                            </td>
+                                                            <td>
+                                                                 {{ $fee->visits_per_year }} {{ ($fee->visits_per_year == 0 || $fee->visits_per_year == 1) ? 'Visit' : 'Visits' }}
+                                                            </td>
+                                                            <td><input type="number" step="0.01" class="form-control field-color service-fee" name="fees[{{ $fee->id }}][service_fee]" value="{{ $fee->service_fee }}"></td>
+                                                            <td><input type="number" step="0.01" class="form-control field-color govt-fee" name="fees[{{ $fee->id }}][govt_fee]" value="{{ $fee->govt_fee }}"></td>
+                                                            <td><input type="number" class="form-control field-color tax" readonly value="{{ $fee->tax }}"></td>
+                                                            <td><input type="number" class="form-control field-color base-total" readonly value="{{ $fee->base_total }}"></td>
+                                                            @foreach($fee->installments as $inst)
+                                                                <td>
+                                                                    <input type="number" step="0.01" name="fees[{{ $fee->id }}][installments][{{ $inst->id }}][extra_percent]" class="form-control field-color extra-percent" value="{{ $inst->extra_percent }}">
+                                                                    <input type="number" readonly class="form-control field-color mt-1 final-total" value="{{ $inst->final_total }}">
+                                                                </td>
+                                                            @endforeach
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
                             @endif
 
                             <div class="col-md-12 text-right mt-4 form-group d-flex flex-wrap align-items-end">
@@ -233,6 +285,45 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css@4.1.7/css/flag-icons.min.css">
 
     <style>
+        .field-color{
+            border: 1px solid #dadada;
+        }
+        .field-color:disabled, .field-color[readonly]
+        {
+            background-color: #efeff0;
+        }
+        .sticky-table td {
+            padding: 0.35rem;
+            border: 1px solid #d6d6d8;
+        }
+        .sticky-table-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .sticky-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: #343a40; /* same as .thead-dark */
+            color: white;
+            border: 1px solid #dee2e6 !important;
+            box-shadow: inset 0 -1px 0 #dee2e6;
+        }
+
+        /* Ensure second row sticks below first row */
+        .sticky-table thead tr:nth-child(2) th {
+            top: 42px; /* adjust if your header row height is different */
+            z-index: 1;
+            border: 1px solid #dee2e6 !important;
+            box-shadow: inset 0 -1px 0 #dee2e6;
+        }
+
+        .sticky-table th,.sticky-table td {
+            vertical-align: middle !important;
+            text-align: center;
+        }
+
         .flag-icon {
             margin-right: 6px;
             vertical-align: middle;
@@ -302,36 +393,55 @@
         });
 
         function checkPayment(checkbox) {
-        const feeSection = document.getElementById('fee-section');
-        if (checkbox.checked) {
-            feeSection.style.display = 'flex';
-        } else {
-            feeSection.style.display = 'none';
+            const feeSection = document.getElementById('fee-section');
+            if (checkbox.checked) {
+                feeSection.style.display = 'flex';
+            } else {
+                feeSection.style.display = 'none';
 
-            // Optionally clear fee inputs
-            document.getElementById('service_fee').value = 0;
-            document.getElementById('govt_fee').value = 0;
-            document.getElementById('tax_total').value = 0;
-            document.getElementById('total_amount').value = 0;
+                // Optionally clear fee inputs
+                document.getElementById('service_fee').value = 0;
+                document.getElementById('govt_fee').value = 0;
+                document.getElementById('tax_total').value = 0;
+                document.getElementById('total_amount').value = 0;
+            }
         }
-    }
 
-    function calculateFees() {
-        const serviceFee = parseFloat(document.getElementById('service_fee').value) || 0;
-        const govtFee = parseFloat(document.getElementById('govt_fee').value) || 0;
+        function calculateFees() {
+            const serviceFee = parseFloat(document.getElementById('service_fee').value) || 0;
+            const govtFee = parseFloat(document.getElementById('govt_fee').value) || 0;
 
-        const tax = parseFloat((serviceFee * 0.05).toFixed(2));
-        const total = parseFloat((serviceFee + govtFee + tax).toFixed(2));
+            const tax = parseFloat((serviceFee * 0.05).toFixed(2));
+            const total = parseFloat((serviceFee + govtFee + tax).toFixed(2));
 
-        document.getElementById('tax_total').value = tax;
-        document.getElementById('total_amount').value = total;
-    }
-
-    // Initial calculation if values are pre-filled
-    document.addEventListener('DOMContentLoaded', function () {
-        if (document.getElementById('switch-s1').checked) {
-            calculateFees();
+            document.getElementById('tax_total').value = tax;
+            document.getElementById('total_amount').value = total;
         }
-    });
+
+        // Initial calculation if values are pre-filled
+        document.addEventListener('DOMContentLoaded', function () {
+            if (document.getElementById('switch-s1').checked) {
+                calculateFees();
+            }
+        });
+
+        document.querySelectorAll('.service-fee, .govt-fee, .extra-percent').forEach(input => {
+            input.addEventListener('input', function () {
+                const row = input.closest('tr');
+                const service = parseFloat(row.querySelector('.service-fee').value) || 0;
+                const govt = parseFloat(row.querySelector('.govt-fee').value) || 0;
+                const tax = (service) * 0.05;
+                const base = service + govt + tax;
+
+                row.querySelector('.tax').value = tax.toFixed(2);
+                row.querySelector('.base-total').value = base.toFixed(2);
+
+                row.querySelectorAll('.extra-percent').forEach(percentInput => {
+                    const percent = parseFloat(percentInput.value) || 0;
+                    const total = base + (base * (percent / 100));
+                    percentInput.nextElementSibling.value = total.toFixed(2);
+                });
+            });
+        });
     </script>
 @endsection
