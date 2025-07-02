@@ -12,6 +12,8 @@ use App\Models\ContractType;
 use App\Models\LicenseType;
 use App\Models\FreeZone;
 use App\Models\ConsultationDuration;
+use App\Models\Vendor;
+use App\Models\AnnualRetainerBaseFee;
 use App\Models\User;
 use App\Models\Page;
 use App\Models\CourtRequest;
@@ -30,6 +32,7 @@ use App\Models\RequestContractDrafting;
 use App\Models\RequestExpertReport;
 use App\Models\RequestImmigration;
 use App\Models\RequestRequestSubmission;
+use App\Models\RequestAnnualAgreement;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -826,6 +829,127 @@ class ServiceController extends Controller
         ]);
     }
 
+    public function getAnnualAgreementFormData(Request $request){
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        
+        $dropdowns  = Dropdown::with([
+                        'options' => function ($q) {
+                            $q->where('status', 'active')->orderBy('sort_order');
+                        },
+                        'options.translations' => function ($q) use ($lang) {
+                            $q->whereIn('language_code', [$lang, 'en']);
+                        }
+                    ])->whereIn('slug', ['industries','no_of_employees','case_type'])->get()->keyBy('slug');
+       
+        // Transform each dropdown
+        $response = [];
+       
+        foreach ($dropdowns as $slug => $dropdown) {
+            $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                return [
+                    'id'    => $option->id,
+                    'value' => $option->getTranslation('name',$lang),
+                ];
+            });
+        }
+
+        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+
+        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
+                return [
+                    'id'    => $emirate->id,
+                    'value' => $emirate->getTranslation('name',$lang),
+                ];
+        });
+
+        $licenseTypes = LicenseType::where('status',1)->whereNull('parent_id')->orderBy('sort_order')->get();
+
+        $response['license_type'] = $licenseTypes->map(function ($ctype) use($lang) {
+                return [
+                    'id'    => $ctype->id,
+                    'value' => $ctype->getTranslation('name',$lang),
+                ];
+        });
+
+        $response['calls']          = [1,2,3,4,5];
+        $response['visits']         = [0,1,2,3,4];
+        $response['installments']   = [1, 2, 4];
+
+        $lawFirms = Vendor::whereHas('subscriptions', function ($query) {
+                                $query->where('status', 'active')
+                                    ->whereDate('subscription_end', '>=', Carbon::today());
+                            })
+                            ->whereHas('user', function ($query) {
+                                $query->where('banned', 0);
+                            })
+                            ->with(['subscriptions', 'user'])
+                            ->orderBy('law_firm_name', 'ASC')
+                            ->get();
+
+        $response['law_firms'] = $lawFirms->map(function ($lawfirm) use($lang) {
+            return [
+                'id'    => $lawfirm->id,
+                'value' => $lawfirm->getTranslation('law_firm_name',$lang),
+            ];
+        });
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => $response,
+        ]);
+    }
+
+    public function getAnnualAgreementPrice(Request $request){
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        
+        $calls          = $request->query('calls');
+        $visits         = $request->query('visits');
+        $installments   = $request->query('installments');
+
+        if (!in_array($calls, [1,2,3,4,5]) || !in_array($visits, [0,1,2,3,4]) || !in_array($installments, [1,2,4])) {
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.invalid_combination'),
+            ], 200);
+        }
+
+        $base = AnnualRetainerBaseFee::where('calls_per_month', $calls)
+                                    ->where('visits_per_year', $visits)
+                                    ->first();
+
+        if (!$base) {
+             return response()->json([
+                'status'    => false,
+                'message'   => __('messages.combination_not_found'),
+            ], 200);
+        }
+
+        $installment = $base->installments()->where('installments', $installments)->first();
+
+        if (!$installment) {
+             return response()->json([
+                'status'    => false,
+                'message'   => __('messages.installment_not_found'),
+            ], 200);
+        }
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'calls_per_month'   => $calls,
+                            'visits_per_year'   => $visits,
+                            'installments'      => $installments,
+                            'service_fee'       => $base->service_fee,
+                            'govt_fee'          => $base->govt_fee,
+                            'tax'               => $base->tax,
+                            'base_total'        => $base->base_total,
+                            'extra_percent'     => $installment->extra_percent,
+                            'final_total'       => $installment->final_total,
+                        ]
+        ]);
+    }
     // Request submission
 
     public function requestCourtCase(Request $request){
@@ -2264,6 +2388,93 @@ class ServiceController extends Controller
         }
 
         $requestSubmission->update($filePaths);
+
+        // // Notify the user
+        // $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        // // Notify the admin (single or multiple)
+        // $admins = User::where('user_type', 'admin')->get();
+        // Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+
+        $pageData = getPageDynamicContent('request_payment_success',$lang);
+        $response = [
+            'reference' => $service_request->reference_code,
+            'message'   => $pageData['content']
+        ];
+        return response()->json([
+            'status'    => true,
+            'message'   => __('messages.request_submit_success'),
+            'data'      => $response,
+        ]);
+    }
+
+    public function requestAnnualAgreement(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'company_name'      => 'required',
+            'emirate_id'        => 'required',
+            'license_type'      => 'required',
+            'industry'          => 'required',
+            'no_of_employees'   => 'required',
+            'case_type'         => 'required',
+            'no_of_calls'       => 'required',
+            'no_of_visits'      => 'required',
+            'no_of_installment' => 'required',
+            'lawfirm'           => 'required',
+        ], [
+            'company_name.required'         => __('messages.company_name_required'),
+            'emirate_id.required'           => __('messages.emirate_required'),
+            'license_type.required'         => __('messages.license_type_required'),
+            'industry.required'             => __('messages.industry_required'),
+            'no_of_employees.required'      => __('messages.no_of_employees_required'),
+            'case_type.required'            => __('messages.case_type_required'),
+            'no_of_calls.required'          => __('messages.no_of_calls_required'),
+            'no_of_visits.required'         => __('messages.no_of_visits_required'),
+            'no_of_installment.required'    => __('messages.no_of_installment_required'),
+            'lawfirm.required'              => __('messages.lawfirm_required'),
+        ]);
+
+        if ($validator->fails()) {
+            $message = implode(' ', $validator->errors()->all());
+
+            return response()->json([
+                'status'    => false,
+                'message'   => $message,
+            ], 200);
+        }
+       
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $service    = Service::where('slug', 'annual-retainer-agreement')->firstOrFail();
+
+        // $referenceCode = ServiceRequest::generateReferenceCode($service);
+
+        $service_request = ServiceRequest::create([
+            'user_id'           => $user->id,
+            'service_id'        => $service->id,
+            'service_slug'      => 'annual-retainer-agreement',
+            'reference_code'    => NULL,
+            'source'            => 'mob',
+            'submitted_at'      => date('Y-m-d H:i:s'),
+            'payment_status'    => 'pending',
+        ]);
+        $casetype = explode(',',$request->input('case_type'));
+        
+        $annualAgreement = RequestAnnualAgreement::create([
+            'user_id'               => $user->id,
+            'service_request_id'    => $service_request->id,
+            'company_name'          => $request->input('company_name'),
+            'emirate_id'            => $request->input('emirate_id'),
+            'license_type'          => $request->input('license_type'),
+            'license_activity'      => $request->input('license_activity'),
+            'industry'              => $request->input('industry'),
+            'no_of_employees'       => $request->input('no_of_employees'),
+            'case_type'             => $casetype,
+            'no_of_calls'           => $request->input('no_of_calls'),
+            'no_of_visits'          => $request->input('no_of_visits'),
+            'no_of_installment'     => $request->input('no_of_installment'),
+            'lawfirm'               => $request->input('lawfirm'),
+        ]);
 
         // // Notify the user
         // $request->user()->notify(new ServiceRequestSubmitted($service_request));

@@ -71,6 +71,8 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/legal-translation', [ServiceController::class, 'getLegalTranslationFormData']);
         Route::get('/subdocument-types', [ServiceController::class, 'getSubDocumentTypes']);
         Route::get('/immigration-request', [ServiceController::class, 'getImmigrationRequestFormData']);
+        Route::get('/annual-agreement', [ServiceController::class, 'getAnnualAgreementFormData']);
+        Route::get('/annual-agreement-price', [ServiceController::class, 'getAnnualAgreementPrice']);
 
         // Service Request Submission
         Route::post('/court-case-request', [ServiceController::class, 'requestCourtCase']);
@@ -85,6 +87,7 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/expert-report-request', [ServiceController::class, 'requestExpertReport']);
         Route::post('/immigration-request', [ServiceController::class, 'requestImmigration']);
         Route::post('/request-submission', [ServiceController::class, 'requestRequestSubmission']);
+        Route::post('/annual-agreement-request', [ServiceController::class, 'requestAnnualAgreement']);
     });
 
     
