@@ -68,4 +68,9 @@ class Translator extends Model
         return $this->hasMany(DefaultTranslatorHistory::class);
     }
 
+    public function languageRates()
+    {
+        return $this->hasMany(TranslatorLanguageRate::class)->orderBy('id');
+    }
+
 }

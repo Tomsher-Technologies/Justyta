@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Dropdown;
 use App\Models\User;
 use App\Models\Translator;
+use App\Models\TranslationLanguage;
 use App\Models\DefaultTranslatorHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -30,12 +31,13 @@ class TranslatorController extends Controller
 
     public function index(Request $request)
     {
-        $query = Translator::with('user','languages.translations');
+        $query = Translator::with(['user','languageRates.fromLanguage', 'languageRates.toLanguage']);
 
         // Filter by membership plan
         if ($request->filled('language_id')) {
-            $query->whereHas('languages', function ($q) use ($request) {
-                $q->where('dropdown_option_id', $request->language_id);
+            $selectedLangId = $request->language_id;
+            $query->whereHas('languageRates', function ($q) use ($selectedLangId) {
+                $q->where('from_language_id', $selectedLangId);
             });
         }
 
@@ -65,26 +67,18 @@ class TranslatorController extends Controller
         $translators = $query->orderBy('id', 'DESC')->paginate(15); // or ->get() if you don’t want pagination
 
         // Optional: to populate dropdowns
-        $dropdowns = Dropdown::with(['options.translations' => function ($q) {
-            $q->where('language_code', 'en');
-        }])->whereIn('slug', ['languages'])->get()->keyBy('slug');
-        // echo '<pre>';
-        // print_r($dropdowns);
-        // die;
-        return view('admin.translators.index', compact('translators', 'dropdowns'));
+        $languages = TranslationLanguage::where('status', 1)->get();
+        return view('admin.translators.index', compact('translators', 'languages'));
     }
 
     public function create()
     {
-        $dropdowns = Dropdown::with(['options.translations' => function ($q) {
-                                    $q->where('language_code', 'en');
-                                }])->whereIn('slug', ['languages'])->get()->keyBy('slug');
-        return view('admin.translators.create', compact('dropdowns'));
+        $languages = TranslationLanguage::where('status', 1)->get();
+        return view('admin.translators.create', compact('languages'));
     }
 
     public function store(Request $request)
     {
-        
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' =>  [
@@ -109,15 +103,17 @@ class TranslatorController extends Controller
             'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'passport_expiry' => 'required|date',
             'type' => 'required',
-            'languages' => 'required|array',
+            // 'languages' => 'required|array',
+            'rates.*.from_language_id' => 'required|different:rates.*.to_language_id|exists:translation_languages,id',
+            'rates.*.to_language_id' => 'required|in:1,3', // only Arabic or English
+            'rates.*.hours_per_page' => 'required|numeric|min:0',
+            'rates.*.admin_amount' => 'required|numeric|min:0',
+            'rates.*.translator_amount' => 'required|numeric|min:0',
         ],[
             '*.required' => 'This field is required.'
         ]);
 
         if ($validator->fails()) {
-            // echo '<pre>';
-            // print_r($validator->errors()->all());
-            // die;
             return redirect()->route('translators.create')->withErrors($validator)->withInput();
         }
 
@@ -149,21 +145,25 @@ class TranslatorController extends Controller
             'passport_expiry'           => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : null,
             
         ]);
-        $user->translator()->save($translator);
-         // Sync dropdowns (pivot table)
-        $dropdowns = collect([
-            'languages' => $request->languages
-        ]);
+        $translator =  $user->translator()->save($translator);
 
-        foreach ($dropdowns as $type => $optionIds) {
-            if (!empty($optionIds)) {
-                $attachData = [];
-                foreach ($optionIds as $optionId) {
-                    $attachData[$optionId] = ['type' => $type];
-                }
-                $translator->dropdownOptions()->attach($attachData);
-            }
+        foreach ($request->rates as $rate) {
+            $translator->languageRates()->create($rate);
         }
+         // Sync dropdowns (pivot table)
+        // $dropdowns = collect([
+        //     'languages' => $request->languages
+        // ]);
+
+        // foreach ($dropdowns as $type => $optionIds) {
+        //     if (!empty($optionIds)) {
+        //         $attachData = [];
+        //         foreach ($optionIds as $optionId) {
+        //             $attachData[$optionId] = ['type' => $type];
+        //         }
+        //         $translator->dropdownOptions()->attach($attachData);
+        //     }
+        // }
 
 
         session()->flash('success','Translator created successfully.');
@@ -180,7 +180,9 @@ class TranslatorController extends Controller
                                     $q->where('language_code', 'en');
                                 }])->whereIn('slug', ['languages'])->get()->keyBy('slug');
 
-        return view('admin.translators.edit', compact('translator','dropdowns','languageIds'));
+        $languages = TranslationLanguage::where('status', 1)->get();
+
+        return view('admin.translators.edit', compact('translator','dropdowns','languageIds','languages'));
     }
 
     public function update(Request $request, $id)
@@ -213,7 +215,12 @@ class TranslatorController extends Controller
             'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'passport_expiry' => 'required|date',
             'type' => 'required',
-            'languages' => 'required|array',
+            // 'languages' => 'required|array',
+            'rates.*.from_language_id' => 'required|different:rates.*.to_language_id|exists:translation_languages,id',
+            'rates.*.to_language_id' => 'required|in:1,3',
+            'rates.*.hours_per_page' => 'required|numeric|min:0',
+            'rates.*.admin_amount' => 'required|numeric|min:0',
+            'rates.*.translator_amount' => 'required|numeric|min:0',
         ],[
             '*.required' => 'This field is required.'
         ]);
@@ -254,7 +261,14 @@ class TranslatorController extends Controller
 
         ]);
 
-        $user->translator()->save($translator);
+        $translator = $user->translator()->save($translator);
+
+        // Remove old rates and add new
+        $translator->languageRates()->delete();
+
+        foreach ($request->rates as $rate) {
+            $translator->languageRates()->create($rate);
+        }
 
          // Sync dropdowns (pivot table)
         $dropdowns = collect([
