@@ -18,6 +18,11 @@ class Translator extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function scopeActive($query)
+    {
+        return $query->whereHas('user', fn ($q) => $q->where('banned', 0));
+    }
+
      public function emirate()
     {
         return $this->belongsTo(Emirate::class,'emirate_id');

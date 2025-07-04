@@ -98,9 +98,8 @@
                 @endcan
 
                 @can('manage_translators')
-                    <li class="has-child {{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index']) }}">
-                        <a href="#"
-                            class="{{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index']) }}">
+                    <li class="has-child {{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index','default-translators.history','translators.default']) }}">
+                        <a href="#" class="{{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index','default-translators.history','translators.default']) }}">
                             {{-- <span data-feather="users" class="nav-icon"></span> --}}
                             <i class="las la-language nav-icon"></i>
                             <span class="menu-text">Translators</span>
@@ -120,7 +119,7 @@
                             </li>
                             @can('default_translator')
                                 <li>
-                                    <a class="{{ areActiveRoutes(['translators.default']) }}"
+                                    <a class="{{ areActiveRoutes(['translators.default','default-translators.history']) }}"
                                         href="{{ route('translators.default') }}">Set Default Translator</a>
                                 </li>
                             @endcan

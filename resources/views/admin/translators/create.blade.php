@@ -294,8 +294,8 @@
                                                         <th width="15%">From Language</th>
                                                         <th width="15%">To Language</th>
                                                         <th width="15%">Hours/Page</th>
-                                                        <th width="15%">Admin Amount</th>
-                                                        <th width="15%">Translator Amount</th>
+                                                        <th width="15%">Admin Amount/Page</th>
+                                                        <th width="15%">Translator Amount/Page</th>
                                                         <th width="15%">Total</th>
                                                         <th width="10%"><button type="button" class="btn btn-success btn-sm" onclick="addRateRow()">+ Add</button></th>
                                                     </tr>
@@ -342,6 +342,18 @@
                                                     @endforeach
                                                 </tbody>
                                             </table>
+
+                                            @if ($errors->has('rates'))
+                                                <div class="alert alert-danger">
+                                                    <ul>
+                                                        @foreach ($errors->get('rates.*') as $rateErrors)
+                                                            @foreach ($rateErrors as $error)
+                                                                <li>{{ $error }}</li>
+                                                            @endforeach
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -448,6 +460,7 @@
 
         let rateIndex = {{ count($rates) }};
 
+        addRateRow();
         function addRateRow() {
             const row = `
             <tr>

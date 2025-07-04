@@ -378,8 +378,8 @@
                                                         <th width="15%">From Language</th>
                                                         <th width="15%">To Language</th>
                                                         <th width="15%">Hours/Page</th>
-                                                        <th width="15%">Admin Amount</th>
-                                                        <th width="15%">Translator Amount</th>
+                                                        <th width="15%">Admin Amount/Page</th>
+                                                        <th width="15%">Translator Amount/Page</th>
                                                         <th width="15%">Total</th>
                                                         <th width="10%">
                                                             <button type="button" class="btn btn-success btn-sm" onclick="addRateRow()">+ Add</button>
@@ -501,7 +501,11 @@
         // setupFilePreview('card_of_lawInput', 'card_of_lawPreview');
         setupFilePreview('trade_licenseInput', 'trade_licensePreview');
 
-         let rateIndex = {{ count($oldRates) }};
+        let rateIndex = {{ count($oldRates) }};
+        
+        if(rateIndex == 0){
+            addRateRow();
+        }
 
         function addRateRow() {
             const row = document.createElement("tr");
