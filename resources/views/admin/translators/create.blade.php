@@ -126,23 +126,6 @@
                                             @enderror
                                         </div>
 
-                                        <div class="col-md-4 mb-3">
-                                            <label class="col-form-label color-dark fw-500 align-center">Languages <span
-                                                    class="text-danger">*</span></label>
-
-                                            <select name="languages[]" class="form-control select2 ih-small ip-gray radius-xs b-light px-15" id="select-tag2" multiple>
-                                                <option value="">Select Languages</option>
-                                                @foreach($dropdowns['languages']->options as $option)
-                                                    <option value="{{ $option->id }}"  {{ in_array($option->id, old('languages', [])) ? 'selected' : '' }}>
-                                                        {{ $option->translations->first()->name ?? 'Unnamed' }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            @error('languages')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
                                     </div>
                                 </div>
 
@@ -304,15 +287,74 @@
                                         <div class="col-md-12 mb-3 mt-2">
                                             <h5><u>Payment Details</u></h5>
                                         </div>
-                                        {{-- <div class="col-md-4 mb-3">
-                                            <label class="col-form-label color-dark fw-500 align-center">Online Consultation Commission (%) <span class="text-danger">*</span></label>
+                                        <div class="col-md-12">
+                                            <table class="table table-bordered" id="rateTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th width="15%">From Language</th>
+                                                        <th width="15%">To Language</th>
+                                                        <th width="15%">Hours/Page</th>
+                                                        <th width="15%">Admin Amount/Page</th>
+                                                        <th width="15%">Translator Amount/Page</th>
+                                                        <th width="15%">Total</th>
+                                                        <th width="10%"><button type="button" class="btn btn-success btn-sm" onclick="addRateRow()">+ Add</button></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php $rates = old('rates', $translator->languageRates ?? []); @endphp
+                                                    @foreach ($rates as $i => $rate)
+                                                        <tr>
+                                                            <td>
+                                                                <select name="rates[{{ $i }}][from_language_id]" class="form-control">
+                                                                    @foreach ($languages as $lang)
+                                                                        <option value="{{ $lang->id }}" {{ $rate['from_language_id'] == $lang->id ? 'selected' : '' }}>
+                                                                            {{ $lang->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <select name="rates[{{ $i }}][to_language_id]" class="form-control">
+                                                                    @foreach ($languages->whereIn('id', [1, 3]) as $lang)
+                                                                        <option value="{{ $lang->id }}" {{ $rate['to_language_id'] == $lang->id ? 'selected' : '' }}>
+                                                                            {{ $lang->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" step="0.1" name="rates[{{ $i }}][hours_per_page]" value="{{ $rate['hours_per_page'] ?? '' }}" class="form-control" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" step="0.01" name="rates[{{ $i }}][admin_amount]" value="{{ $rate['admin_amount'] ?? '' }}" class="form-control admin-amount" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="number" step="0.01" name="rates[{{ $i }}][translator_amount]" value="{{ $rate['translator_amount'] ?? '' }}" class="form-control translator-amount" />
+                                                            </td>
+                                                            <td>
+                                                                <input type="text" class="form-control total-amount" value="{{ number_format($rate['admin_amount'] + $rate['translator_amount'], 2) }}" readonly>
+                                                            </td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-danger btn-sm" onclick="$(this).closest('tr').remove()">×</button>
+                                                            </td>
+                                                    
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
 
-                                            <input type="number" step="0.01" name="consultation_commission" class="form-control ih-small ip-gray radius-xs b-light px-15 " value="{{ old('consultation_commission', 0) }}">
-                                            @error('consultation_commission')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div> --}}
-
+                                            @if ($errors->has('rates'))
+                                                <div class="alert alert-danger">
+                                                    <ul>
+                                                        @foreach ($errors->get('rates.*') as $rateErrors)
+                                                            @foreach ($rateErrors as $error)
+                                                                <li>{{ $error }}</li>
+                                                            @endforeach
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -330,8 +372,38 @@
     </div>
 @endsection
 
+@section('style')
+    <link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
+@endsection
+
 @section('script')
+    <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
     <script>
+
+        $('form').on('submit', function(e) {
+            let pairs = new Set();
+            let hasDuplicate = false;
+
+            $('#rateTable tbody tr').each(function () {
+                let from = $(this).find('[name*="[from_language_id]"]').val();
+                let to = $(this).find('[name*="[to_language_id]"]').val();
+                let key = from + '-' + to;
+
+                if (pairs.has(key)) {
+                    hasDuplicate = true;
+                    $(this).addClass('table-danger');
+                } else {
+                    pairs.add(key);
+                    $(this).removeClass('table-danger');
+                }
+            });
+
+            if (hasDuplicate) {
+                toastr.error("Duplicate language pair found. Each combination must be unique.");
+                e.preventDefault();
+            }
+        });
+
         function setupFilePreview(inputId, previewId) {
             const input = document.getElementById(inputId);
             const previewContainer = document.getElementById(previewId);
@@ -385,5 +457,58 @@
         setupFilePreview('passportInput', 'passportPreview');
         // setupFilePreview('card_of_lawInput', 'card_of_lawPreview');
         setupFilePreview('trade_licenseInput', 'trade_licensePreview');
+
+        let rateIndex = {{ count($rates) }};
+
+        addRateRow();
+        function addRateRow() {
+            const row = `
+            <tr>
+                <td>
+                    <select name="rates[${rateIndex}][from_language_id]" class="form-control" required>
+                        @foreach ($languages as $lang)
+                            <option value="{{ $lang->id }}">{{ $lang->name }}</option>
+                        @endforeach
+                    </select>
+                </td>
+                <td>
+                    <select name="rates[${rateIndex}][to_language_id]" class="form-control" required>
+                        @foreach ($languages->whereIn('id', [1, 3]) as $lang)
+                            <option value="{{ $lang->id }}">{{ $lang->name }}</option>
+                        @endforeach
+                    </select>
+                </td>
+                <td>
+                    <input type="number" step="0.1" name="rates[${rateIndex}][hours_per_page]" class="form-control" required />
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="rates[${rateIndex}][admin_amount]" class="form-control admin-amount" required />
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="rates[${rateIndex}][translator_amount]" class="form-control translator-amount" required />
+                </td>
+                <td>
+                    <input type="text" class="form-control total-amount" value="0.00" readonly />
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="$(this).closest('tr').remove(); updateTotals();">×</button>
+                </td>
+            </tr>`;
+            
+            $('#rateTable tbody').append(row);
+            rateIndex++;
+        }
+
+        function updateTotals() {
+            $('#rateTable tbody tr').each(function () {
+                let admin = parseFloat($(this).find('.admin-amount').val()) || 0;
+                let translator = parseFloat($(this).find('.translator-amount').val()) || 0;
+                $(this).find('.total-amount').val((admin + translator).toFixed(2));
+            });
+        }
+
+        $(document).on('input', '.admin-amount, .translator-amount', function () {
+            updateTotals();
+        });
     </script>
 @endsection

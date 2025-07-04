@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
-
+use Carbon\Carbon;
 
 
 class UserController extends Controller
@@ -131,4 +131,176 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function getGroupedUserNotifications(Request $request)
+    {
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $user       = $request->user();
+
+        $today      = Carbon::today();
+        $yesterday  = Carbon::yesterday();
+
+        $services   = \App\Models\Service::with('translations')->get();
+
+        $serviceMap = [];
+
+        foreach ($services as $service) {
+            foreach ($service->translations as $translation) {
+                $serviceMap[$service->slug][$translation->lang] = $translation->title;
+            }
+        }
+    
+        $allNotifications = $user->notifications();
+
+        // Today
+        $todayNotifications = (clone $allNotifications)
+            ->whereDate('created_at', $today)
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($notification) use($lang, $serviceMap) {
+                $data = $notification->data;
+                $slug = $data['service'] ?? null;
+
+                $serviceName =  $slug && isset($serviceMap[$slug]) ? ($serviceMap[$slug][$lang] ?? $serviceMap[$slug][env('APP_LOCALE','en')] ?? $slug) : '';
+
+                return [
+                    'id'        => $notification->id,
+                    'message'   => __($notification->data['message'], [
+                                        'service'   => $serviceName,
+                                        'reference' => $data['reference_code'],
+                                    ]),
+                    'time'      => $notification->created_at->format('h:i A'), // or 'h:i A' for AM/PM
+                ];
+            });
+        // Yesterday
+        $yesterdayNotifications = (clone $allNotifications)
+                            ->whereDate('created_at', $yesterday)
+                            ->orderByDesc('created_at')
+                            ->get()
+                            ->map(function ($notification) use($lang, $serviceMap) {
+                                $data = $notification->data;
+                                $slug = $data['service'] ?? null;
+
+                                $serviceName =  $slug && isset($serviceMap[$slug]) ? ($serviceMap[$slug][$lang] ?? $serviceMap[$slug][env('APP_LOCALE','en')] ?? $slug) : '';
+
+                                return [
+                                    'id'        => $notification->id,
+                                    'message'   => __($notification->data['message'], [
+                                                        'service'   => $serviceName,
+                                                        'reference' => $data['reference_code'],
+                                                    ]),
+                                    'time'      => $notification->created_at->format('h:i A'), // or 'h:i A' for AM/PM
+                                ];
+                            });
+
+        $paginatedPast = (clone $allNotifications)
+                        ->whereDate('created_at', '<', $yesterday)
+                        ->orderByDesc('created_at')
+                        ->paginate(1);
+
+        $pastNotifications = collect($paginatedPast->items())
+                ->map(function ($notification) use($lang, $serviceMap) {
+                    $data = $notification->data;
+                    $slug = $data['service'] ?? null;
+
+                    $serviceName =  $slug && isset($serviceMap[$slug]) ? ($serviceMap[$slug][$lang] ?? $serviceMap[$slug][env('APP_LOCALE','en')] ?? $slug) : '';
+
+                    return [
+                        'message'   => __($notification->data['message'], [
+                                            'service'   => $serviceName,
+                                            'reference' => $data['reference_code'],
+                                        ]),
+                        'time'      => $notification->created_at->format('h:i A'), // or 'h:i A' for AM/PM
+                    ];
+                });
+
+        // 🔹 Merge all current notification IDs
+        $allShownIds = collect($todayNotifications)
+                        ->merge($yesterdayNotifications)
+                        ->merge($paginatedPast->items())
+                        ->pluck('id');
+
+        // 🔹 Mark only these as read
+        $user->unreadNotifications()
+            ->whereIn('id', $allShownIds)
+            ->update(['read_at' => now()]);
+        
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                'today'         => $todayNotifications,
+                'yesterday'     => $yesterdayNotifications,
+                'past'          => $pastNotifications,
+                'current_page'  => $paginatedPast->currentPage(),
+                'last_page'     => $paginatedPast->lastPage(),
+                'per_page'      => $paginatedPast->perPage(),
+                'total'         => $paginatedPast->total(),
+            ],
+        ]);
+    }
+
+    public function clearAllNotifications(Request $request)
+    {
+        $user = $request->user();
+
+        // Delete all notifications
+        $user->notifications()->delete();
+
+        return response()->json([
+            'status'    => true,
+            'message'   => __('messages.notifications_cleared_successfully')
+        ]);
+    }
+
+    public function getUnreadNotificationCount(Request $request)
+    {
+        $user = $request->user();
+
+        $count = $user->unreadNotifications()->count();
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'success',
+            'data'      => $count,
+        ]);
+    }
+
+    public function changeLanguage(Request $request){
+        $user   = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'language' => 'required|string|in:en,ar,fr,fa,ru,zh', 
+        ],[
+            'language.required' => __('messages.language_required'),
+            'language.string' => __('messages.language_string'),
+            'language.in' => __('messages.language_in'),
+        ]);
+        if ($validator->fails()) {
+            $message = implode(' ', $validator->errors()->all());
+
+            return response()->json([
+                'status' => false,
+                'message' => $message,
+            ], 200);
+        }
+
+        $validated = [
+            'language' => $request->language ?? $user->language
+        ];
+
+        // Update fields
+        $user->update($validated);
+
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.language_updation_success'),
+            'data'    => [
+                'id'       => $user->id,
+                'name'     => $user->name,
+                'phone'    => $user->phone,
+                'language' => $user->language,
+                'email'    => $user->email,
+            ]
+        ]);
+    }
 }

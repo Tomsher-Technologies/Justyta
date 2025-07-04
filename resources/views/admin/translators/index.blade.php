@@ -35,9 +35,9 @@
                                         
                                         <select name="language_id" class="form-control select2 ih-small ip-gray radius-xs b-light px-15" id="select-tag2"  data-placeholder="Select Language" >
                                             <option value="">Select Language</option>
-                                            @foreach($dropdowns['languages']->options as $option)
+                                            @foreach($languages as $option)
                                                 <option value="{{ $option->id }}"  {{ request('language_id') == $option->id ? 'selected' : '' }}>
-                                                    {{ $option->translations->first()->name ?? 'Unnamed' }}
+                                                    {{ $option->name ?? 'Unnamed' }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -81,7 +81,7 @@
                                             <th class="text-center">Type</th>
                                             {{-- <th class="text-center">Email</th>
                                             <th class="text-center">Phone</th> --}}
-                                            <th class="text-center" width="25%">Languages</th>
+                                            <th>Languages</th>
                                             <th class="text-center">Total Translations</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Action</th>
@@ -126,14 +126,22 @@
                                                         </td>
                                                         {{-- <td class="text-center"> {{ $trans->email ?? 'N/A' }}</td>
                                                         <td class="text-center"> {{ $trans->phone ?? 'N/A' }}</td> --}}
-                                                        <td class="text-center">
-                                                            @forelse ($trans->languages as $lang)
-                                                                <span class="badge badge-round badge-secondary badge-lg mr-1 mb-1">
-                                                                    {{ $lang->getTranslatedName('en') }}
-                                                                </span>
-                                                            @empty
-                                                                <span class="text-muted">No Languages</span>
-                                                            @endforelse
+                                                        <td>
+                                                            @if($trans->languageRates->isEmpty())
+                                                                <em>No combinations set</em>
+                                                            @else
+                                                                <ul class="mb-0 pl-3" style="list-style: disc;">
+                                                                @foreach ($trans->languageRates as $rate)
+                                                                    <li>
+                                                                        {{ $rate->fromLanguage->name }} → {{ $rate->toLanguage->name }}
+                                                                        {{-- ({{ $rate->hours_per_page }} hrs,
+                                                                        AED {{ number_format($rate->admin_amount, 2) }} +
+                                                                        AED {{ number_format($rate->translator_amount, 2) }} =
+                                                                        AED {{ number_format($rate->admin_amount + $rate->translator_amount, 2) }}) --}}
+                                                                    </li>
+                                                                @endforeach
+                                                                </ul>
+                                                            @endif
                                                         </td>
                                                         {{-- <td>
                                                             <ul class="list-unstyled mb-0">

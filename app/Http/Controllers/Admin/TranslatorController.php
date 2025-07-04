@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Dropdown;
 use App\Models\User;
 use App\Models\Translator;
+use App\Models\TranslationLanguage;
 use App\Models\DefaultTranslatorHistory;
+use App\Models\DefaultTranslatorAssignment;
+use App\Models\DefaultTranslatorAssignmentHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -30,12 +33,13 @@ class TranslatorController extends Controller
 
     public function index(Request $request)
     {
-        $query = Translator::with('user','languages.translations');
+        $query = Translator::with(['user','languageRates.fromLanguage', 'languageRates.toLanguage']);
 
         // Filter by membership plan
         if ($request->filled('language_id')) {
-            $query->whereHas('languages', function ($q) use ($request) {
-                $q->where('dropdown_option_id', $request->language_id);
+            $selectedLangId = $request->language_id;
+            $query->whereHas('languageRates', function ($q) use ($selectedLangId) {
+                $q->where('from_language_id', $selectedLangId);
             });
         }
 
@@ -65,26 +69,18 @@ class TranslatorController extends Controller
         $translators = $query->orderBy('id', 'DESC')->paginate(15); // or ->get() if you don’t want pagination
 
         // Optional: to populate dropdowns
-        $dropdowns = Dropdown::with(['options.translations' => function ($q) {
-            $q->where('language_code', 'en');
-        }])->whereIn('slug', ['languages'])->get()->keyBy('slug');
-        // echo '<pre>';
-        // print_r($dropdowns);
-        // die;
-        return view('admin.translators.index', compact('translators', 'dropdowns'));
+        $languages = TranslationLanguage::where('status', 1)->get();
+        return view('admin.translators.index', compact('translators', 'languages'));
     }
 
     public function create()
     {
-        $dropdowns = Dropdown::with(['options.translations' => function ($q) {
-                                    $q->where('language_code', 'en');
-                                }])->whereIn('slug', ['languages'])->get()->keyBy('slug');
-        return view('admin.translators.create', compact('dropdowns'));
+        $languages = TranslationLanguage::where('status', 1)->get();
+        return view('admin.translators.create', compact('languages'));
     }
 
     public function store(Request $request)
     {
-        
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' =>  [
@@ -109,15 +105,13 @@ class TranslatorController extends Controller
             'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'passport_expiry' => 'required|date',
             'type' => 'required',
-            'languages' => 'required|array',
+            // 'languages' => 'required|array',
+            'rates.*' => 'required',
         ],[
             '*.required' => 'This field is required.'
         ]);
 
         if ($validator->fails()) {
-            // echo '<pre>';
-            // print_r($validator->errors()->all());
-            // die;
             return redirect()->route('translators.create')->withErrors($validator)->withInput();
         }
 
@@ -149,21 +143,28 @@ class TranslatorController extends Controller
             'passport_expiry'           => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : null,
             
         ]);
-        $user->translator()->save($translator);
-         // Sync dropdowns (pivot table)
-        $dropdowns = collect([
-            'languages' => $request->languages
-        ]);
+        $translator =  $user->translator()->save($translator);
 
-        foreach ($dropdowns as $type => $optionIds) {
-            if (!empty($optionIds)) {
-                $attachData = [];
-                foreach ($optionIds as $optionId) {
-                    $attachData[$optionId] = ['type' => $type];
-                }
-                $translator->dropdownOptions()->attach($attachData);
+        if($request->has('rates')){
+            foreach ($request->rates as $rate) {
+                $translator->languageRates()->create($rate);
             }
         }
+        
+         // Sync dropdowns (pivot table)
+        // $dropdowns = collect([
+        //     'languages' => $request->languages
+        // ]);
+
+        // foreach ($dropdowns as $type => $optionIds) {
+        //     if (!empty($optionIds)) {
+        //         $attachData = [];
+        //         foreach ($optionIds as $optionId) {
+        //             $attachData[$optionId] = ['type' => $type];
+        //         }
+        //         $translator->dropdownOptions()->attach($attachData);
+        //     }
+        // }
 
 
         session()->flash('success','Translator created successfully.');
@@ -180,7 +181,9 @@ class TranslatorController extends Controller
                                     $q->where('language_code', 'en');
                                 }])->whereIn('slug', ['languages'])->get()->keyBy('slug');
 
-        return view('admin.translators.edit', compact('translator','dropdowns','languageIds'));
+        $languages = TranslationLanguage::where('status', 1)->get();
+
+        return view('admin.translators.edit', compact('translator','dropdowns','languageIds','languages'));
     }
 
     public function update(Request $request, $id)
@@ -213,7 +216,8 @@ class TranslatorController extends Controller
             'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'passport_expiry' => 'required|date',
             'type' => 'required',
-            'languages' => 'required|array',
+            // 'languages' => 'required|array',
+            'rates.*' => 'required',
         ],[
             '*.required' => 'This field is required.'
         ]);
@@ -254,7 +258,16 @@ class TranslatorController extends Controller
 
         ]);
 
-        $user->translator()->save($translator);
+        $translator = $user->translator()->save($translator);
+
+        // Remove old rates and add new
+        $translator->languageRates()->delete();
+
+        if($request->has('rates')){
+            foreach ($request->rates as $rate) {
+                $translator->languageRates()->create($rate);
+            }
+        }
 
          // Sync dropdowns (pivot table)
         $dropdowns = collect([
@@ -293,15 +306,15 @@ class TranslatorController extends Controller
     }
 
 
-    public function showDefaultForm()
-    {
-        $translators = Translator::with('user')->whereHas('user', function ($q) {
-                $q->where('banned', 0);
-            })->orderBy('name', 'ASC')->get();
-        $histories = DefaultTranslatorHistory::with('translator')->orderBy('id','desc')->paginate(20);
+    // public function showDefaultForm()
+    // {
+    //     $translators = Translator::with('user')->whereHas('user', function ($q) {
+    //             $q->where('banned', 0);
+    //         })->orderBy('name', 'ASC')->get();
+    //     $histories = DefaultTranslatorHistory::with('translator')->orderBy('id','desc')->paginate(20);
 
-        return view('admin.translators.default', compact('translators', 'histories'));
-    }
+    //     return view('admin.translators.default', compact('translators', 'histories'));
+    // }
 
     public function setDefault(Request $request)
     {
@@ -341,4 +354,78 @@ class TranslatorController extends Controller
         session()->flash('success', 'Default translator updated.');
         return redirect()->route('translators.default');
     }
+
+    public function showDefaultForm()
+    {
+        $combinations = TranslationLanguage::all()->flatMap(function ($from) {
+            return TranslationLanguage::whereIn('id', [1, 3]) // to_lang = English/Arabic
+                ->where('id', '!=', $from->id)
+                ->get()
+                ->map(function ($to) use ($from) {
+                    return (object)[
+                        'from' => $from,
+                        'to' => $to,
+                        'eligible_translators' => Translator::active()->whereHas('languageRates', function ($q) use ($from, $to) {
+                            $q->where('from_language_id', $from->id)->where('to_language_id', $to->id);
+                        })->get(),
+                        'current_default' => DefaultTranslatorAssignment::where([
+                            ['from_language_id', $from->id],
+                            ['to_language_id', $to->id],
+                        ])->first()
+                    ];
+                });
+        });
+
+        return view('admin.translators.default', compact('combinations'));
+    }
+
+    public function assign(Request $request)
+    {
+        $validated = $request->validate([
+            'from_language_id' => 'required|exists:translation_languages,id',
+            'to_language_id' => 'required|exists:translation_languages,id|different:from_language_id',
+            'translator_id' => 'required|exists:translators,id',
+        ]);
+
+        $adminId = auth()->id();
+
+        // Store history
+        DefaultTranslatorAssignmentHistory::create([
+            'from_language_id' => $validated['from_language_id'],
+            'to_language_id' => $validated['to_language_id'],
+            'translator_id' => $validated['translator_id'],
+            'assigned_by' => $adminId,
+        ]);
+
+        // Upsert current default
+        DefaultTranslatorAssignment::updateOrCreate(
+            [
+                'from_language_id' => $validated['from_language_id'],
+                'to_language_id' => $validated['to_language_id'],
+            ],
+            [
+                'translator_id' => $validated['translator_id'],
+                'assigned_by' => $adminId,
+                'assigned_at' => now(),
+            ]
+        );
+
+        session()->flash('success', 'Default translator updated successfully.');
+        return redirect()->route('translators.default');
+    }
+
+    public function historyForPair($fromLangId, $toLangId)
+    {
+        $fromLang = TranslationLanguage::findOrFail($fromLangId);
+        $toLang = TranslationLanguage::findOrFail($toLangId);
+
+        $histories = DefaultTranslatorAssignmentHistory::with(['translator', 'assignedBy'])
+            ->where('from_language_id', $fromLangId)
+            ->where('to_language_id', $toLangId)
+            ->latest('assigned_at')
+            ->paginate(20);
+
+        return view('admin.translators.history-single', compact('fromLang', 'toLang', 'histories'));
+    }
+
 }

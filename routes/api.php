@@ -40,6 +40,7 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/edit-profile', [UserController::class, 'editProfile']);
         Route::post('/change-password', [UserController::class, 'changePassword']);
         Route::delete('/delete-account', [UserController::class, 'deleteAccount']);
+        Route::post('/change-language', [UserController::class, 'changeLanguage']);
 
         //Contact US
         Route::post('/contact-us', [HomeController::class, 'contactUs']);
@@ -71,6 +72,9 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/legal-translation', [ServiceController::class, 'getLegalTranslationFormData']);
         Route::get('/subdocument-types', [ServiceController::class, 'getSubDocumentTypes']);
         Route::get('/immigration-request', [ServiceController::class, 'getImmigrationRequestFormData']);
+        Route::get('/annual-agreement', [ServiceController::class, 'getAnnualAgreementFormData']);
+        Route::get('/annual-agreement-price', [ServiceController::class, 'getAnnualAgreementPrice']);
+        Route::get('/translation/payment-calculate', [ServiceController::class, 'calculateTranslationPrice']);
 
         // Service Request Submission
         Route::post('/court-case-request', [ServiceController::class, 'requestCourtCase']);
@@ -85,6 +89,15 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/expert-report-request', [ServiceController::class, 'requestExpertReport']);
         Route::post('/immigration-request', [ServiceController::class, 'requestImmigration']);
         Route::post('/request-submission', [ServiceController::class, 'requestRequestSubmission']);
+        Route::post('/annual-agreement-request', [ServiceController::class, 'requestAnnualAgreement']);
+        Route::post('/legal-translation-request', [ServiceController::class, 'requestLegalTranslation']);
+
+        //Notifications
+        Route::get('/notifications', [UserController::class, 'getGroupedUserNotifications']);
+        Route::delete('/notifications/clear', [UserController::class, 'clearAllNotifications']);
+        Route::get('/notifications/unread-count', [UserController::class, 'getUnreadNotificationCount']);
+
+
     });
 
     

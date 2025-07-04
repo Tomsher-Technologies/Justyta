@@ -118,8 +118,10 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     // Manage Translators
     Route::resource('translators', TranslatorController::class);
     Route::get('default', [TranslatorController::class, 'showDefaultForm'])->name('translators.default');
-    Route::post('set-default', [TranslatorController::class, 'setDefault'])->name('translators.set-default');
-
+    // Route::post('set-default', [TranslatorController::class, 'setDefault'])->name('translators.set-default');
+    Route::post('/assign', [TranslatorController::class, 'assign'])->name('translators.set-default');
+    Route::get('/default-translators/history/{from_language_id}/{to_language_id}', [TranslatorController::class, 'historyForPair'])
+    ->name('default-translators.history');
 
 
     // User Management
