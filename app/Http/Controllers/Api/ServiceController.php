@@ -2059,12 +2059,12 @@ class ServiceController extends Controller
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
         $user       = $request->user();
         $service    = Service::where('slug', 'expert-report')->firstOrFail();
-
+        $referenceCode = ServiceRequest::generateReferenceCode($service);
         $service_request = ServiceRequest::create([
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'expert-report',
-            'reference_code'    => NULL,
+            'reference_code'    => $referenceCode,
             'source'            => 'mob',
             'submitted_at'      => date('Y-m-d H:i:s'),
             'payment_status'    => 'pending'
@@ -2198,12 +2198,12 @@ class ServiceController extends Controller
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
         $user       = $request->user();
         $service    = Service::where('slug', 'immigration-requests')->firstOrFail();
-
+        $referenceCode = ServiceRequest::generateReferenceCode($service);
         $service_request = ServiceRequest::create([
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'immigration-requests',
-            'reference_code'    => NULL,
+            'reference_code'    => $referenceCode,
             'source'            => 'mob',
             'submitted_at'      => date('Y-m-d H:i:s'),
             'payment_status'    => 'pending'
@@ -2335,13 +2335,13 @@ class ServiceController extends Controller
         $user       = $request->user();
         $service    = Service::where('slug', 'request-submission')->firstOrFail();
 
-        // $referenceCode = ServiceRequest::generateReferenceCode($service);
+        $referenceCode = ServiceRequest::generateReferenceCode($service);
 
         $service_request = ServiceRequest::create([
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'request-submission',
-            'reference_code'    => NULL,
+            'reference_code'    => $referenceCode,
             'source'            => 'mob',
             'submitted_at'      => date('Y-m-d H:i:s'),
             'payment_status'    => 'pending'
@@ -2452,13 +2452,13 @@ class ServiceController extends Controller
         $user       = $request->user();
         $service    = Service::where('slug', 'annual-retainer-agreement')->firstOrFail();
 
-        // $referenceCode = ServiceRequest::generateReferenceCode($service);
+        $referenceCode = ServiceRequest::generateReferenceCode($service);
 
         $service_request = ServiceRequest::create([
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'annual-retainer-agreement',
-            'reference_code'    => NULL,
+            'reference_code'    => $referenceCode,
             'source'            => 'mob',
             'submitted_at'      => date('Y-m-d H:i:s'),
             'payment_status'    => 'pending',
@@ -2555,13 +2555,13 @@ class ServiceController extends Controller
         $user       = $request->user();
         $service    = Service::where('slug', 'legal-translation')->firstOrFail();
 
-        // $referenceCode = ServiceRequest::generateReferenceCode($service);
+        $referenceCode = ServiceRequest::generateReferenceCode($service);
 
         $service_request = ServiceRequest::create([
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'legal-translation',
-            'reference_code'    => null,
+            'reference_code'    => $referenceCode,
             'source'            => 'mob',
             'submitted_at'      => date('Y-m-d H:i:s'),
             'payment_status'    => 'pending',
