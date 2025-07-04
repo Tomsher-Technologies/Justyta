@@ -198,4 +198,12 @@ return [
     'language_string' => '语言必须为有效字符串。',
     'language_in' => '所选语言无效。有效值：en、ar、fr、fa、ru、zh。',
     'language_updation_success' => '帐户语言更新成功。',
+    'service_reference_number' => '参考编号 (SRN)：',
+    'booked_service' => '已预订的服务',
+    'pending' => '待处理',
+    'ongoing' => '进行中',
+    'completed' => '已完成' ,
+    'rejected' => '已拒绝',
+    'un_paid' => '未付款',
+    'paid' => '已付款',
 ];

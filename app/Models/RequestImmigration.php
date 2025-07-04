@@ -35,7 +35,7 @@ class RequestImmigration extends Model
         return $this->belongsTo(Country::class,'preferred_country');
     }
 
-    public function nationality()
+    public function nationalityOption()
     {
         return $this->belongsTo(Country::class,'nationality');
     }

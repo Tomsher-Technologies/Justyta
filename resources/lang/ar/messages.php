@@ -198,4 +198,12 @@ return [
     'language_string' => 'يجب أن تكون اللغة نصًا صالحًا.',
     'language_in' => 'اللغة المختارة غير صالحة. القيم المسموحة: en، ar، fr، fa، ru، zh.',
     'language_updation_success' => 'تم تحديث لغة الحساب بنجاح.',
+    'service_reference_number' => 'رقم المرجع (SRN): ',
+    'booked_service' => 'الخدمة المحجوزة',
+    'pending' => 'قيد الانتظار',
+    'ongoing' => 'قيد التنفيذ',
+    'completed' => 'مكتملة',
+    'rejected' => 'مرفوضة',
+    'un_paid' => 'غير مدفوعة',
+    'paid' => 'مدفوعة',
 ];

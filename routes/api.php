@@ -92,6 +92,10 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/annual-agreement-request', [ServiceController::class, 'requestAnnualAgreement']);
         Route::post('/legal-translation-request', [ServiceController::class, 'requestLegalTranslation']);
 
+        // Service History
+        Route::get('/service-history', [UserController::class, 'getServiceHistory']);
+        Route::get('/service-history-details', [UserController::class, 'getServiceHistoryDetails']);
+
         //Notifications
         Route::get('/notifications', [UserController::class, 'getGroupedUserNotifications']);
         Route::delete('/notifications/clear', [UserController::class, 'clearAllNotifications']);

@@ -34,4 +34,17 @@ class Service extends Model
     {
         return $this->translation()?->title ?? $this->translations->first()?->title ?? 'Service';
     }
+
+    public function getTranslation($field = '', $lang = false)
+    {
+        $lang = $lang == false ? getActiveLanguage() : $lang;
+        $translations = $this->translations->where('lang', $lang)->first();
+    
+         // If not found OR name is empty, fallback to 'en'
+        if (!$translations || empty($translations->$field)) {
+            $translations = $this->translations->where('lang', 'en')->first();
+        }
+
+        return $translations != null ? $translations->$field : $this->$field;
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\ServiceRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -303,4 +304,93 @@ class UserController extends Controller
             ]
         ]);
     }
+
+    public function getServiceHistory(Request $request){
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $serviceSlug = $request->get('service_slug'); 
+        $perPage = $request->get('limit', 10);
+
+        if($serviceSlug != ''){
+            $query = ServiceRequest::with('user', 'service');
+
+            if ($serviceSlug) {
+                $query->where('service_slug', $serviceSlug);
+            } 
+            $paginatedserviceRequests = $query->orderBy('id', 'desc')->paginate($perPage);
+
+            $serviceRequests = collect($paginatedserviceRequests->items())
+                    ->map(function ($serviceRequest) use($lang) {
+                        
+                        return [
+                            'id'    => $serviceRequest->id,
+                            'title' => __('messages.booked_service'),
+                            'content' => __('messages.service_reference_number') .$serviceRequest->reference_code,
+                            'time'  => $serviceRequest->submitted_at,
+                            'service' => $serviceRequest->service->getTranslation('title',$lang),                        
+                            'slug' => $serviceRequest->service->slug,
+                            'service_status' => __('messages.'.$serviceRequest->status) ?? null,
+                            'payment_status' => ($serviceRequest->payment_status != NULL) ? (($serviceRequest->payment_status == 'pending') ? __('messages.un_paid') : __('messages.paid')) : null,
+                        ];
+            });
+
+            return response()->json([
+                'status'        => true,
+                'message'       => 'success',
+                'data'          => $serviceRequests,
+                'current_page'  => $paginatedserviceRequests->currentPage(),
+                'last_page'     => $paginatedserviceRequests->lastPage(),
+                'per_page'      => $paginatedserviceRequests->perPage(),
+                'total'         => $paginatedserviceRequests->total(),
+            ],200);
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Please provide a service'
+            ]);
+        }
+    }
+
+    public function getServiceHistoryDetails(Request $request){
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en');
+        $id             = $request->id;
+        $serviceRequest = ServiceRequest::with('service')->findOrFail($id);
+
+        $relation = getServiceRelationName($serviceRequest->service_slug);
+
+        if (!$relation || !$serviceRequest->relationLoaded($relation)) {
+            $serviceRequest->load($relation);
+        }
+
+        $serviceDetails = $serviceRequest->$relation;
+
+        if (!$serviceDetails) {
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Service details not found'
+            ],200);
+        }
+
+        $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
+
+        $dataService = [
+            'id'                => $serviceRequest->id,
+            'service_slug'      => $serviceRequest->service_slug,
+            'service_name'      => $serviceRequest->service->getTranslation('title',$lang),
+            'reference_code'    => $serviceRequest->reference_code,
+            'status'            => $serviceRequest->status,
+            'payment_status'    => $serviceRequest->payment_status,
+            'payment_reference' => $serviceRequest->payment_reference,
+            'amount'            => $serviceRequest->amount,
+            'submitted_at'      => $serviceRequest->submitted_at,
+            'service_details' => $translatedData,
+        ];
+
+        return response()->json([
+                'status'        => true,
+                'message'       => 'success',
+                'data'          => $dataService,
+            ],200);
+    }
+
+   
 }

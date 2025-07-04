@@ -198,4 +198,12 @@ return [
     'language_string' => 'Язык должен быть корректной строкой.',
     'language_in' => 'Выбранный язык недействителен. Допустимые: en, ar, fr, fa, ru, zh.',
     'language_updation_success' => 'Язык аккаунта успешно обновлён.',
+    'service_reference_number' => 'Номер заявки (SRN): ',
+    'booked_service' => 'Забронированная услуга',
+    'pending' => 'В ожидании',
+    'ongoing' => 'В процессе',
+    'completed' => 'Завершено',
+    'rejected' => 'Отклонено',
+    'un_paid' => 'Неоплачено',
+    'paid' => 'Оплачено',
 ];

@@ -198,5 +198,13 @@ return [
     'language_string' => 'La langue doit être une chaîne valide.',
     'language_in' => 'La langue sélectionnée est invalide. Valeurs autorisées : en, ar, fr, fa, ru, zh.',
     'language_updation_success' => 'Langue du compte mise à jour avec succès.',
+    'service_reference_number' => 'Numéro de référence (SRN) : ',
+    'booked_service' => 'Service réservé',
+    'pending' => 'En attente',
+    'ongoing' => 'En cours',
+    'completed' => 'Terminé',
+    'rejected' => 'Rejeté',
+    'un_paid' => 'Non payé',
+    'paid' => 'Payé',
 
 ];
