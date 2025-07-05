@@ -6,8 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\ServiceRequest;
+use App\Models\Rating;
+use App\Models\ProblemReport;
+use App\Models\Dropdown;
+use App\Models\TrainingRequest;
+use App\Models\Emirate;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use App\Notifications\TrainingRequestSubmitted;
+use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
 
 
@@ -69,7 +78,7 @@ class UserController extends Controller
                 'language' => $user->language,
                 'email'    => $user->email,
             ]
-        ]);
+        ], 200);
     }
 
     public function changePassword(Request $request)
@@ -237,7 +246,7 @@ class UserController extends Controller
                 'per_page'      => $paginatedPast->perPage(),
                 'total'         => $paginatedPast->total(),
             ],
-        ]);
+        ], 200);
     }
 
     public function clearAllNotifications(Request $request)
@@ -250,7 +259,7 @@ class UserController extends Controller
         return response()->json([
             'status'    => true,
             'message'   => __('messages.notifications_cleared_successfully')
-        ]);
+        ], 200);
     }
 
     public function getUnreadNotificationCount(Request $request)
@@ -263,7 +272,7 @@ class UserController extends Controller
             'status'    => true,
             'message'   => 'success',
             'data'      => $count,
-        ]);
+        ], 200);
     }
 
     public function changeLanguage(Request $request){
@@ -302,7 +311,7 @@ class UserController extends Controller
                 'language' => $user->language,
                 'email'    => $user->email,
             ]
-        ]);
+        ], 200);
     }
 
     public function getServiceHistory(Request $request){
@@ -346,7 +355,7 @@ class UserController extends Controller
             return response()->json([
                 'status'    => false,
                 'message'   => 'Please provide a service'
-            ]);
+            ], 200);
         }
     }
 
@@ -392,5 +401,220 @@ class UserController extends Controller
             ],200);
     }
 
-   
+   public function reportProblem(Request $request)
+    {
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en');
+        $validator = Validator::make($request->all(), [
+            'email'     => 'required|email',
+            'subject'   => 'required|string',
+            'message'   => 'required|string|max:1000',
+            'image'     => 'nullable|image|max:1024',
+        ],[
+            'email.required'    => __('messages.email_required'),
+            'email.email'       => __('messages.valid_email'),
+            'subject.required'  => __('messages.enter_subject'),
+            'subject.string'    => __('messages.subject_string'),
+            'message.max'       => __('messages.message_max'),
+            'message.required'  => __('messages.enter_message'),
+            'message.string'    => __('messages.message_string'),
+            'image.image'       => __('messages.image_image'),
+            'image.max'         => __('messages.image_max'),
+        ]);
+
+        if ($validator->fails()) {
+            $message = implode(' ', $validator->errors()->all());
+
+            return response()->json([
+                'status'    => false,
+                'message'   => $message,
+            ], 200);
+        }
+
+        $user   = $request->user();
+
+        $data = [
+            'user_id'   => $user->id, 
+            'email'     => $request->email ?? $user->email, 
+            'subject'   => $request->subject ?? NULL, 
+            'message'   => $request->message ?? NULL,
+        ];
+        if ($request->hasfile('image')) {
+            $data['image'] = uploadImage('report_problem', $request->image, 'report_');
+        }
+
+        $report = ProblemReport::create($data);
+
+        return response()->json([
+            'status'    => true,
+            'message'   => __('messages.problem_report_success')
+        ], 200);
+    }
+
+    public function getReportProblemFormData(Request $request){
+
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $pageData   = getPageDynamicContent('report_problem',$lang);
+        $response   = [
+            'content'   => $pageData['content']
+        ];
+        return response()->json([
+            'status'    => true,
+            'message'   => 'success',
+            'data'      => $response,
+        ],200);
+    }
+
+    public function rateUs(Request $request)
+    {
+        $request->validate([
+            'rating'    => 'required|integer|min:1|max:5',
+            'comment'   => 'nullable|string|max:1000'
+        ], [
+            'rating.required'   => __('messages.rating_required'),
+            'rating.integer'    => __('messages.rating_number'),
+            'rating.min'        => __('messages.minimum_rating'),
+            'rating.max'        => __('messages.maximum_rating'),
+            'comment.string'    => __('messages.comment_string'),
+            'comment.max'       => __('messages.comment_max'),
+        ]);
+
+        $user   = $request->user();
+
+        // Check if user already rated
+        $existingRating = Rating::where('user_id', $user->id)->first();
+
+        if ($existingRating) {
+            return response()->json([
+                'status'    => false,
+                'message' => __('messages.rating_already_done')
+            ], 200);
+        }
+        
+        $rating = Rating::create([
+            'user_id' => $user->id,
+            'rating' => $request->rating,
+            'comment' => $request->comment,
+        ]);
+
+        return response()->json([
+            'status'    => true,
+            'message'   => __('messages.thank_you_feedback')
+        ], 200);
+    }
+
+    public function getTrainingFormData(Request $request){
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        
+        $dropdowns  = Dropdown::with([
+                        'options' => function ($q) {
+                            $q->where('status', 'active')->orderBy('sort_order');
+                        },
+                        'options.translations' => function ($q) use ($lang) {
+                            $q->whereIn('language_code', [$lang, 'en']);
+                        }
+                    ])->whereIn('slug', ['positions','residency_status'])->get()->keyBy('slug');
+
+        $response   = [];
+        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+
+        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
+                return [
+                    'id'    => $emirate->id,
+                    'value' => $emirate->getTranslation('name',$lang),
+                ];
+        });
+
+        foreach ($dropdowns as $slug => $dropdown) {
+            $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                return [
+                    'id'    => $option->id,
+                    'value' => $option->getTranslation('name',$lang),
+                ];
+            });
+        }
+        
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => $response,
+        ], 200);
+    }
+
+    public function requestTraining(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'emirate_id'        => 'required',
+            'position'          => 'required',
+            'start_date'        => 'required',
+            'residency_status'  => 'required',
+            'documents'         => 'nullable|array',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+        ], [
+            'emirate_id.required'       => __('messages.emirate_required'),
+            'position.required'         => __('messages.position_required'),
+            'start_date.required'       => __('messages.start_date_required'),
+            'residency_status.required' => __('messages.residency_status_required'),
+            'documents.*.file'          => __('messages.document_file_invalid'),
+            'documents.*.mimes'         => __('messages.document_file_mimes'),
+            'documents.*.max'           => __('messages.document_file_max'),
+        ]);
+
+        if ($validator->fails()) {
+            $message = implode(' ', $validator->errors()->all());
+
+            return response()->json([
+                'status'    => false,
+                'message'   => $message,
+            ], 200);
+        }
+
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+
+        $trainingRequest = TrainingRequest::create([
+            'user_id'           => $user->id,
+            'emirate_id'        => $request->input('emirate_id'),
+            'position'          => $request->input('position'),
+            'start_date'        => $request->input('start_date'),
+            'residency_status'  => $request->input('residency_status'),
+            'documents'         => [],
+        ]);
+
+        $requestFolder = "training_request/{$trainingRequest->id}/";
+
+        $fileFields = [
+            'documents'     => 'documents',
+        ];
+
+        $filePaths = [];
+
+        foreach ($fileFields as $inputName => $columnName) {
+            $filePaths[$columnName] = [];
+            if ($request->hasFile($inputName)) {
+                $files = $request->file($inputName);
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+                foreach ($files as $file) {
+                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder.$uniqueName;
+                    $fileContents   = file_get_contents($file);
+                    Storage::disk('public')->put($filename, $fileContents);
+                    $filePaths[$columnName][] = Storage::url($filename);
+                }
+            }
+        }
+
+        $trainingRequest->update($filePaths);
+
+        $request->user()->notify(new TrainingRequestSubmitted($trainingRequest));
+
+        $admins = User::where('user_type', 'admin')->get();
+        Notification::send($admins, new TrainingRequestSubmitted($trainingRequest, true));
+
+        return response()->json([
+            'status'    => true,
+            'message'   => __('messages.training_request_submit_success'),
+        ], 200);
+    }
 }

@@ -8,6 +8,9 @@ use App\Models\Page;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Client;
 
 if (!function_exists('getBaseURL')) {
     function getBaseURL()
@@ -319,4 +322,89 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
         default:
             return $model->toArray(); // fallback
     }
+}
+
+function getAccessToken()
+{
+    $client = new Client([
+        'base_uri' => config('services.ngenius.base_url'),
+        'headers' => [
+            'Authorization' => 'Basic ' . config('services.ngenius.api_key'),
+            'Accept' => 'application/vnd.ni-identity.v1+json',
+        ],
+    ]);
+
+    try {
+        $response = $client->request('POST', '/identity/auth/access-token');
+       
+        $data = json_decode($response->getBody(), true);
+        return $data['access_token'] ?? null;
+
+    } catch (\Exception $e) {
+        \Log::error('N-Genius token request failed', [
+            'error' => $e->getMessage(),
+        ]);
+        return null;
+    }
+}
+
+function createOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+{
+    
+    $accessToken = getAccessToken();
+    if (!$accessToken) return null;
+
+    $baseUrl = config('services.ngenius.base_url');
+    $outletRef = config('services.ngenius.outlet_ref');
+
+    $payload = [
+        'action' => 'SALE',
+        'amount' => [
+            'currencyCode' => $currency,
+            'value' => intval($amount * 100), // AED 10.00 => 1000
+        ],
+        'merchantOrderReference' => $orderReference,
+        'redirectUrl' => route('payment.callback'),
+        'cancelUrl' => route('payment.cancel'),
+        'emailAddress' => $customer['email']
+    ];
+
+    //  'merchantDetails' => [
+    //         'email' => $customer['email'],
+    //         'name' => $customer['name'],
+    //         'mobile' => $customer['phone'],
+    //     ],
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $accessToken,
+        'Accept' => 'application/vnd.ni-payment.v2+json',
+        'Content-Type' => 'application/vnd.ni-payment.v2+json',
+    ])->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", $payload);
+
+    if (!$response->successful()) {
+        Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
+        return null;
+    }
+    // $details = json_decode($response->getBody(), true);
+
+    return $response->json(); // returns _id, reference, _links etc.
+}
+
+function checkOrderStatus(string $orderId)
+{
+    $accessToken = getAccessToken();
+    if (!$accessToken) return null;
+
+    $baseUrl = config('services.ngenius.base_url');
+    $outletRef = config('services.ngenius.outlet_ref');
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $accessToken,
+    ])->get("{$baseUrl}/transactions/outlets/{$outletRef}/orders/{$orderId}");
+
+    if (!$response->successful()) {
+        Log::error('N-Genius: Status check failed', ['order_id' => $orderId, 'response' => $response->body()]);
+        return null;
+    }
+
+    return $response->json(); // contains state, _embedded.payment[0].paymentReference
 }

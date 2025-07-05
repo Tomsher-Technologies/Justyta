@@ -53,7 +53,7 @@ class JobPostController extends Controller
             'last_page'     => $jobPosts->lastPage(),
             'limit'         => $jobPosts->perPage(),
             'total'         => $jobPosts->total(),
-        ]);
+        ], 200);
     }
 
     public function jobDetails($id, Request $request)
@@ -146,7 +146,7 @@ class JobPostController extends Controller
                 'status'    => true,
                 'message'   => 'Success',
                 'data'      => $response
-            ]);
+            ], 200);
         }
     }
 
@@ -221,6 +221,6 @@ class JobPostController extends Controller
         return response()->json([
             'status'    => true,
             'message'   => __('messages.job_apply_success')
-        ]);
+        ], 200);
     }
 }

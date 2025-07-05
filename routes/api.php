@@ -41,6 +41,10 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/change-password', [UserController::class, 'changePassword']);
         Route::delete('/delete-account', [UserController::class, 'deleteAccount']);
         Route::post('/change-language', [UserController::class, 'changeLanguage']);
+        Route::post('/report-problem', [UserController::class, 'reportProblem']);
+        Route::get('/report-problem-content', [UserController::class, 'getReportProblemFormData']);
+        Route::post('/rate-us', [UserController::class, 'rateUs']);
+
 
         //Contact US
         Route::post('/contact-us', [HomeController::class, 'contactUs']);
@@ -92,6 +96,13 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/annual-agreement-request', [ServiceController::class, 'requestAnnualAgreement']);
         Route::post('/legal-translation-request', [ServiceController::class, 'requestLegalTranslation']);
 
+        // Payment Gateway
+        Route::post('/payment-test', [ServiceController::class, 'paymentTest']);
+        Route::post('/confirm-payment', [ServiceController::class, 'confirmPayment']);
+        Route::get('/payment-callback', [ServiceController::class, 'test'])->name('payment.callback');
+        Route::get('/payment-cancel', [ServiceController::class, 'test'])->name('payment.cancel');
+
+
         // Service History
         Route::get('/service-history', [UserController::class, 'getServiceHistory']);
         Route::get('/service-history-details', [UserController::class, 'getServiceHistoryDetails']);
@@ -100,6 +111,12 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/notifications', [UserController::class, 'getGroupedUserNotifications']);
         Route::delete('/notifications/clear', [UserController::class, 'clearAllNotifications']);
         Route::get('/notifications/unread-count', [UserController::class, 'getUnreadNotificationCount']);
+
+        //Training 
+        Route::get('/training-data', [UserController::class, 'getTrainingFormData']);
+        Route::post('/training-request', [UserController::class, 'requestTraining']);
+
+        
 
 
     });
