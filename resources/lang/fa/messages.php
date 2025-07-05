@@ -198,5 +198,13 @@ return [
     'language_string' => 'زبان باید رشته‌ای معتبر باشد.',
     'language_in' => 'زبان انتخاب شده نامعتبر است. مقادیر مجاز: en, ar, fr, fa, ru, zh.',
     'language_updation_success' => 'زبان حساب با موفقیت به‌روزرسانی شد.',
+    'service_reference_number' => 'شماره مرجع (SRN): ',
+    'booked_service' => 'خدمت رزرو شده',
+    'pending' => 'در انتظار',
+    'ongoing' => 'در حال انجام',
+    'completed' => 'تکمیل شده',
+    'rejected' => 'رد شده',
+    'un_paid' => 'پرداخت نشده',
+    'paid' => 'پرداخت شده',
 
 ];

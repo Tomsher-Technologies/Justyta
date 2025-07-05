@@ -46,7 +46,7 @@ class RequestAnnualAgreement extends Model
         return $this->belongsTo(DropdownOption::class, 'no_of_employees');
     }
 
-    public function industry()
+    public function industryOption()
     {
         return $this->belongsTo(DropdownOption::class, 'industry');
     }
@@ -54,5 +54,20 @@ class RequestAnnualAgreement extends Model
     public function lawFirm()
     {
         return $this->belongsTo(Vendor::class, 'lawfirm');
+    }
+
+    public function caseTypes()
+    {
+        return DropdownOption::whereIn('id', $this->case_type ?? []);
+    }
+
+    public function getCaseTypeNamesAttribute()
+    {
+        $lang = app()->getLocale(); // Or pass your preferred language
+        return DropdownOption::whereIn('id', $this->case_type ?? [])
+            ->get()
+            ->map(function ($item) use ($lang) {
+                return $item->getTranslation('name', $lang);
+            });
     }
 }

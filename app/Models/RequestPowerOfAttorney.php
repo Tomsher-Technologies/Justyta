@@ -45,7 +45,7 @@ class RequestPowerOfAttorney extends Model
         return $this->belongsTo(DropdownOption::class, 'poa_type');
     }
 
-    public function relationship()
+    public function relationshipOption()
     {
         return $this->belongsTo(DropdownOption::class, 'relationship');
     }

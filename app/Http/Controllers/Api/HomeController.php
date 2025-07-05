@@ -149,7 +149,7 @@ class HomeController extends Controller
             'last_page' => $news->lastPage(),
             'limit' => $news->perPage(),
             'total' => $news->total(),
-        ]);
+        ], 200);
     }
 
     public function newsDetails(Request $request)
@@ -187,7 +187,7 @@ class HomeController extends Controller
                 'og_title' => $translation->og_title ?? '',
                 'og_description' => $translation->og_description ?? '',
             ]
-        ]);
+        ], 200);
     }
 
     public function contactUs(Request $request){

@@ -82,7 +82,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getCriminalComplaintFormData(Request $request){
@@ -121,7 +121,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getPowerOfAttorneyFormData(Request $request){
@@ -160,7 +160,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getLastWillFormData(Request $request){
@@ -208,7 +208,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getMemoWritingFormData(Request $request){
@@ -247,7 +247,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getExpertReportsFormData(Request $request){
@@ -294,7 +294,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getContractsDraftingFormData(Request $request){
@@ -342,7 +342,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getEscrowAccountsFormData(Request $request){
@@ -384,7 +384,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
     
     public function getDebtsCollectionFormData(Request $request){
@@ -423,7 +423,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getCompanySetupFormData(Request $request){
@@ -471,7 +471,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
     
     public function getSubContractTypes(Request $request){
@@ -494,7 +494,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getZones(Request $request){
@@ -518,7 +518,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getLicenseActivities(Request $request){
@@ -542,7 +542,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
     
     public function getOnlineConsultationFormData(Request $request){
@@ -590,7 +590,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getRequestSubmissionFormData(Request $request){
@@ -642,7 +642,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getRequestTypes(Request $request){
@@ -676,7 +676,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
     
     public function getRequestTitles(Request $request){
@@ -712,7 +712,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getLegalTranslationFormData(Request $request){
@@ -756,7 +756,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getSubDocumentTypes(Request $request){
@@ -787,7 +787,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
     
     public function getImmigrationRequestFormData(Request $request){
@@ -831,7 +831,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getAnnualAgreementFormData(Request $request){
@@ -902,7 +902,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function getAnnualAgreementPrice(Request $request){
@@ -953,7 +953,7 @@ class ServiceController extends Controller
                             'extra_percent'     => $installment->extra_percent,
                             'final_total'       => $installment->final_total,
                         ]
-        ]);
+        ], 200);
     }
     // Request submission
 
@@ -1080,7 +1080,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function requestCriminalComplaints(Request $request){
@@ -1207,7 +1207,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function requestLastWill(Request $request){
@@ -1310,7 +1310,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function requestPowerOfAttorney(Request $request){
@@ -1448,7 +1448,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function requestMemoWriting(Request $request){
@@ -1575,7 +1575,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
     
     public function requestEscrowAccount(Request $request){
@@ -1648,7 +1648,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function requestDebtsCollection(Request $request){
@@ -1765,7 +1765,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function requestCompanySetup(Request $request){
@@ -1881,7 +1881,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
     
     public function requestContractDrafting(Request $request){
@@ -2010,7 +2010,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function requestExpertReport(Request $request){
@@ -2129,7 +2129,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function requestImmigration(Request $request){
@@ -2275,7 +2275,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function requestRequestSubmission(Request $request){
@@ -2410,7 +2410,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function requestAnnualAgreement(Request $request){
@@ -2497,7 +2497,7 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
     public function requestLegalTranslation(Request $request){
@@ -2648,10 +2648,10 @@ class ServiceController extends Controller
             'status'    => true,
             'message'   => __('messages.request_submit_success'),
             'data'      => $response,
-        ]);
+        ], 200);
     }
 
-     public function calculateTranslationPrice(Request $request)
+    public function calculateTranslationPrice(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'from_language_id' => 'required|integer|exists:translation_languages,id',
@@ -2721,5 +2721,91 @@ class ServiceController extends Controller
                             'hours_per_page'    => $rate->hours_per_page 
                         ]
         ],200);
+    }
+
+    public function paymentTest(){
+        $amount = 200;
+        $orderReference = '11--CCS-00001';
+        $currency = env('APP_CURRENCY','AED');
+        $customer = [
+            'email' => 'jisha.tomsher@gmail.com',
+            'name'  => 'Jisha P',
+            'phone' => '971568650838'
+        ];
+
+        $order = createOrder($customer, $amount, $currency, $orderReference);
+        if (!$order || !isset($order['reference'])) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Order creation failed'
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'success',
+            'data' => [
+                'order_id' => $order['reference'], // Required by mobile SDK
+                'merchant_reference' => $order['merchantOrderReference'] ?? null,
+                'amount' => $order['amount']['value'] / 100, // AED format
+                'currency' => $order['amount']['currencyCode'],
+                // 'payment_url' => $order['_links']['payment']['href'] ?? null, // Optional
+            ]
+        ]);
+    }
+
+    public function confirmPayment(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|string'
+        ]);
+
+        $orderId = $request->order_id;
+        $order = checkOrderStatus($orderId);
+
+        if (!$order || ($order['state'] ?? null) !== 'CAPTURED') {
+            return response()->json(['status' => false, 'message' => 'Payment not successful'], 200);
+        }
+
+        echo '<pre>';
+        print_r($order);
+        die;
+        $paymentData = $order['_embedded']['payment'][0] ?? [];
+        $amount = ($order['amount']['value'] ?? 0) / 100;
+
+        // DB::beginTransaction();
+        // try {
+        //     $serviceRequest = ServiceRequest::create([
+        //         'user_id' => auth()->id(),
+        //         'service_id' => 1, // set accordingly
+        //         'service_slug' => 'example-service',
+        //         'reference_code' => Str::upper(Str::random(10)),
+        //         'status' => 'pending',
+        //         'payment_status' => 'paid',
+        //         'payment_reference' => $paymentData['paymentReference'] ?? null,
+        //         'amount' => $amount,
+        //         'paid_at' => now(),
+        //         'submitted_at' => now(),
+        //         'source' => 'mobile',
+        //     ]);
+
+        //     DB::commit();
+
+        //     return response()->json([
+        //         'success' => true,
+        //         'message' => 'Payment confirmed',
+        //         'data' => $serviceRequest
+        //     ]);
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     \Log::error('Service request creation failed', ['error' => $e->getMessage()]);
+        //     return response()->json(['success' => false, 'message' => 'Something went wrong'], 500);
+        // }
+    }
+
+    public function test(Request $request){
+
+        print_r($request->all());
+
     }
 }
