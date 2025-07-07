@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container-fluid">
-        <div class="row ">
+        {{-- <div class="row ">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
                     <h4 class="text-capitalize breadcrumb-title">Ecommerce Dashboard</h4>
@@ -1240,7 +1240,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
         <!-- ends: .row -->
     </div>
 @endsection
