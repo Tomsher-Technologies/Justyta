@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\CourtRequestController;
 use App\Http\Controllers\Admin\PublicProsecutionController;
 use App\Http\Controllers\Admin\LicenseTypeController;
 use App\Http\Controllers\Admin\CountryController;
+use App\Http\Controllers\Admin\ServiceRequestController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -118,14 +119,18 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     // Manage Translators
     Route::resource('translators', TranslatorController::class);
     Route::get('default', [TranslatorController::class, 'showDefaultForm'])->name('translators.default');
-    Route::post('set-default', [TranslatorController::class, 'setDefault'])->name('translators.set-default');
+    Route::post('/assign', [TranslatorController::class, 'assign'])->name('translators.set-default');
+    Route::get('/default-translators/history/{from_language_id}/{to_language_id}', [TranslatorController::class, 'historyForPair'])
+    ->name('default-translators.history');
 
 
+    // Service Requests Management
+    Route::get('/service-requests', [ServiceRequestController::class, 'index'])->name('service-requests.index');
+    Route::get('/service-request-details/{id}', [ServiceRequestController::class, 'show'])->name('service-request-details');
+    Route::post('/service-requests/request-status', [ServiceRequestController::class, 'updateRequestStatus'])->name('update-service-request-status');
+    Route::post('/service-requests/payment-status', [ServiceRequestController::class, 'updatePaymentStatus'])->name('update-service-payment-status');
 
-    // User Management
-    // Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
-    // Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
-    // Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+
 });
 
 

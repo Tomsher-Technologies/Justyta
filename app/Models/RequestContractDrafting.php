@@ -48,7 +48,7 @@ class RequestContractDrafting extends Model
         return $this->belongsTo(DropdownOption::class, 'contract_language');
     }
 
-    public function industry()
+    public function industryOption()
     {
         return $this->belongsTo(DropdownOption::class, 'industry');
     }

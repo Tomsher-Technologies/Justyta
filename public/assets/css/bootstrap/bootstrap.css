@@ -2642,25 +2642,25 @@ fieldset:disabled a.btn {
 }
 
 .btn-outline-secondary {
-    color: #ff69a5;
-    border-color: #ff69a5;
+    color: #07683b;
+    border-color: #07683b;
 }
 
 .btn-outline-secondary:hover {
     color: #212529;
-    background-color: #ff69a5;
-    border-color: #ff69a5;
+    background-color: #07683b;
+    border-color: #07683b;
 }
 
 .btn-outline-secondary:focus,
 .btn-outline-secondary.focus {
-    -webkit-box-shadow: 0 0 0 0.2rem rgba(255, 105, 165, 0.5);
-    box-shadow: 0 0 0 0.2rem rgba(255, 105, 165, 0.5);
+    -webkit-box-shadow: 0 0 0 0.2rem rgba(3, 136, 29, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba(3, 136, 29, 0.5);
 }
 
 .btn-outline-secondary.disabled,
 .btn-outline-secondary:disabled {
-    color: #ff69a5;
+    color: #07683b;
     background-color: transparent;
 }
 
@@ -2668,17 +2668,17 @@ fieldset:disabled a.btn {
 .btn-outline-secondary:not(:disabled):not(.disabled).active,
 .show > .btn-outline-secondary.dropdown-toggle {
     color: #212529;
-    background-color: #ff69a5;
-    border-color: #ff69a5;
+    background-color: #07683b;
+    border-color: #07683b;
 }
 
 .btn-outline-secondary:not(:disabled):not(.disabled):active:focus,
 .btn-outline-secondary:not(:disabled):not(.disabled).active:focus,
 .show > .btn-outline-secondary.dropdown-toggle:focus {
     -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125),
-        0 0 0 0.2rem rgba(255, 105, 165, 0.5);
+        0 0 0 0.2rem rgba(3, 136, 29, 0.5);
     box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125),
-        0 0 0 0.2rem rgba(255, 105, 165, 0.5);
+        0 0 0 0.2rem rgba(3, 136, 29, 0.5);
 }
 
 .btn-outline-success {
@@ -5057,7 +5057,7 @@ a.badge-secondary.focus {
 
 .badge-success {
     color: #fff;
-    background-color: #20c997;
+    background-color: #038f09;
 }
 
 a.badge-success:hover,
@@ -5093,7 +5093,7 @@ a.badge-info.focus {
 
 .badge-warning {
     color: #212529;
-    background-color: #fa8b0c;
+    background-color: #ffa33a;
 }
 
 a.badge-warning:hover,
@@ -5111,7 +5111,7 @@ a.badge-warning.focus {
 
 .badge-danger {
     color: #fff;
-    background-color: #ff4d4f;
+    background-color: #e3171a;
 }
 
 a.badge-danger:hover,
@@ -5128,14 +5128,14 @@ a.badge-danger.focus {
 }
 
 .badge-light {
-    color: #212529;
-    background-color: #9299b8;
+    color: #000;
+    background-color: #cdcfda;
 }
 
 a.badge-light:hover,
 a.badge-light:focus {
     color: #212529;
-    background-color: #737ca4;
+    background-color: #cdcfda;
 }
 
 a.badge-light:focus,

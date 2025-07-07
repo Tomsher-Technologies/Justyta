@@ -35,12 +35,12 @@ class RequestLastWill extends Model
 
     public function emirate()
     {
-        return $this->belongsTo(Emirate::class);
+        return $this->belongsTo(Emirate::class,'emirate_id');
     }
 
-    public function nationality()
+    public function nationalityOption()
     {
-        return $this->belongsTo(Country::class);
+        return $this->belongsTo(Country::class,'nationality');
     }
 
     public function youRepresent()
@@ -48,7 +48,7 @@ class RequestLastWill extends Model
         return $this->belongsTo(DropdownOption::class, 'you_represent');
     }
 
-    public function religion()
+    public function religionOption()
     {
         return $this->belongsTo(DropdownOption::class, 'religion');
     }

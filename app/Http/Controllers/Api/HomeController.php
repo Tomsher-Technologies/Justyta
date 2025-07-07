@@ -19,12 +19,12 @@ class HomeController extends Controller
 
         $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English
         $services = Service::with(['translations' => function ($query) use ($lang) {
-                $query->where('lang', $lang);
-            }])
-            ->whereNull('parent_id')
-            ->where('status', 1)
-            ->orderBy('sort_order', 'ASC')
-            ->get();
+                        $query->where('lang', $lang);
+                    }])
+                    ->whereNull('parent_id')
+                    ->where('status', 1)
+                    ->orderBy('sort_order', 'ASC')
+                    ->get();
 
         // Optionally transform the result to extract only translated fields
         $data['services'] = $services->map(function ($service) {
@@ -149,7 +149,7 @@ class HomeController extends Controller
             'last_page' => $news->lastPage(),
             'limit' => $news->perPage(),
             'total' => $news->total(),
-        ]);
+        ], 200);
     }
 
     public function newsDetails(Request $request)
@@ -187,7 +187,7 @@ class HomeController extends Controller
                 'og_title' => $translation->og_title ?? '',
                 'og_description' => $translation->og_description ?? '',
             ]
-        ]);
+        ], 200);
     }
 
     public function contactUs(Request $request){

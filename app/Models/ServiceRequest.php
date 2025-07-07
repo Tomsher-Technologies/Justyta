@@ -50,4 +50,74 @@ class ServiceRequest extends Model
 
         return $prefix . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
     }
+
+    public function requestSubmission()
+    {
+        return $this->hasOne(RequestRequestSubmission::class, 'service_request_id');
+    }
+
+    public function legalTranslation()
+    {
+        return $this->hasOne(RequestLegalTranslation::class, 'service_request_id');
+    }
+    public function annualAgreement()
+    {
+        return $this->hasOne(RequestAnnualAgreement::class, 'service_request_id');
+    }
+
+    public function immigrationRequest()
+    {
+        return $this->hasOne(RequestImmigration::class, 'service_request_id');
+    }
+
+    public function courtCase()
+    {
+        return $this->hasOne(RequestCourtCase::class, 'service_request_id');
+    }
+
+    public function criminalComplaint()
+    {
+        return $this->hasOne(RequestCriminalComplaint::class, 'service_request_id');
+    }
+
+    public function powerOfAttorney()
+    {
+        return $this->hasOne(RequestPowerOfAttorney::class, 'service_request_id');
+    }
+
+    public function lastWill()
+    {
+        return $this->hasOne(RequestLastWill::class, 'service_request_id');
+    }
+
+    public function memoWriting()
+    {
+        return $this->hasOne(RequestMemoWriting::class, 'service_request_id');
+    }
+
+    public function expertReport()
+    {
+        return $this->hasOne(RequestExpertReport::class, 'service_request_id');
+    }
+
+    public function contractDrafting()
+    {
+        return $this->hasOne(RequestContractDrafting::class, 'service_request_id');
+    }
+
+    public function companySetup()
+    {
+        return $this->hasOne(RequestCompanySetup::class, 'service_request_id');
+    }
+
+    public function escrowAccount()
+    {
+        return $this->hasOne(RequestEscrowAccount::class, 'service_request_id');
+    }
+
+    public function debtCollection()
+    {
+        return $this->hasOne(RequestDebtCollection::class, 'service_request_id');
+    }
+
 }

@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'ngenius' => [
+        'base_url' => env('NGENIUS_BASE_URL'),
+        'api_key' => env('NGENIUS_API_KEY'),
+        'outlet_ref' => env('NGENIUS_OUTLET_REF'),
+    ],
+
+
 ];

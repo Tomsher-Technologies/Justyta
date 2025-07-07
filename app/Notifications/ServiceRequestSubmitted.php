@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ServiceRequestSubmitted extends Notification
+class ServiceRequestSubmitted extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -54,7 +54,8 @@ class ServiceRequestSubmitted extends Notification
         $serviceName = $this->serviceRequest->service->name ?? 'Service';
 
         return [
-            'service_request_id' => $this->serviceRequest->id,
+            'service' => $this->serviceRequest->service->slug,
+            'reference_code' => $this->serviceRequest->reference_code,
             'message' => $this->forAdmin
                 ? "New $serviceName request submitted (Ref: {$this->serviceRequest->reference_code})"
                 : 'messages.service_request_submitted',

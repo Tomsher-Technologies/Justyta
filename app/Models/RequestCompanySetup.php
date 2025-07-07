@@ -31,7 +31,7 @@ class RequestCompanySetup extends Model
         return $this->belongsTo(Emirate::class);
     }
 
-    public function zone()
+    public function zoneOption()
     {
         return $this->belongsTo(FreeZone::class, 'zone');
     }
@@ -51,7 +51,7 @@ class RequestCompanySetup extends Model
         return $this->belongsTo(DropdownOption::class, 'company_type');
     }
 
-    public function industry()
+    public function industryOption()
     {
         return $this->belongsTo(DropdownOption::class, 'industry');
     }

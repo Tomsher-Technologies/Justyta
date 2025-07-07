@@ -227,12 +227,12 @@ class AuthController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => __('messages.password_reset_success'),
-            ]);
+            ], 200);
         }else{
             return response()->json([
                 'status' => false,
                 'message' => __('messages.user_not_found'),
-            ]);
+            ], 200);
         }
     }
 
