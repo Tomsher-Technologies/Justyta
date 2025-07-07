@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\models\Language;
-use App\models\Faq;
+use App\Models\Language;
+use App\Models\Faq;
 
 use Illuminate\Http\Request;
 
