@@ -11,6 +11,7 @@ use App\Models\ProblemReport;
 use App\Models\Dropdown;
 use App\Models\TrainingRequest;
 use App\Models\Emirate;
+use App\Models\Service;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -177,6 +178,7 @@ class UserController extends Controller
                     'message'   => __($notification->data['message'], [
                                         'service'   => $serviceName,
                                         'reference' => $data['reference_code'],
+                                        'status' => __('messages.'.$data['status'])
                                     ]),
                     'time'      => $notification->created_at->format('h:i A'), // or 'h:i A' for AM/PM
                 ];
@@ -323,7 +325,17 @@ class UserController extends Controller
             $query = ServiceRequest::with('user', 'service');
 
             if ($serviceSlug) {
-                $query->where('service_slug', $serviceSlug);
+                if($serviceSlug === 'law-firm-services'){
+                    $slugs = Service::whereHas('parent', function ($query) {
+                        $query->where('slug', 'law-firm-services');
+                    })->pluck('slug');
+
+                    $query->whereIn('service_slug', $slugs);
+                }elseif($serviceSlug === 'online-live-consultancy'){
+
+                }else{
+                    $query->where('service_slug', $serviceSlug);
+                }    
             } 
             $paginatedserviceRequests = $query->orderBy('id', 'desc')->paginate($perPage);
 

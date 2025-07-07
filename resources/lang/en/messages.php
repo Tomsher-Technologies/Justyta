@@ -227,6 +227,7 @@ return [
     'training_request_submit_success' => 'Training request submitted successfully.',
     'training_request_submitted' => 'Your training request has been submitted successfully.',
     'new_training_request' => 'New training request submitted.',
+    'service_request_status_change' => 'Your :service service request (Ref: :reference) status has been updated to: :status',
     '' => '',
     '' => '',
     '' => '',

@@ -113,31 +113,31 @@ class ServiceController extends Controller
 
         if ($service->slug === 'annual-retainer-agreement' && $request->has('fees')) {
             foreach ($request->fees as $id => $data) {
-                    $base = AnnualRetainerBaseFee::find($id);
-                    if (!$base) continue;
+                $base = AnnualRetainerBaseFee::find($id);
+                if (!$base) continue;
 
-                    $service = floatval($data['service_fee']);
-                    $govt = floatval($data['govt_fee']);
-                    $tax = ($service) * 0.05;
-                    $baseTotal = $service + $govt + $tax;
+                $service = floatval($data['service_fee']);
+                $govt = floatval($data['govt_fee']);
+                $tax = ($service) * 0.05;
+                $baseTotal = $service + $govt + $tax;
 
-                    $base->update([
-                        'service_fee' => $service,
-                        'govt_fee' => $govt,
-                        'tax' => $tax,
-                        'base_total' => $baseTotal,
+                $base->update([
+                    'service_fee' => $service,
+                    'govt_fee' => $govt,
+                    'tax' => $tax,
+                    'base_total' => $baseTotal,
+                ]);
+
+                foreach ($data['installments'] as $installmentId => $instData) {
+                    $percent = floatval($instData['extra_percent']);
+                    $final = $baseTotal + ($baseTotal * ($percent / 100));
+
+                    AnnualRetainerInstallment::where('id', $installmentId)->update([
+                        'extra_percent' => $percent,
+                        'final_total' => $final,
                     ]);
-
-                    foreach ($data['installments'] as $installmentId => $instData) {
-                        $percent = floatval($instData['extra_percent']);
-                        $final = $baseTotal + ($baseTotal * ($percent / 100));
-
-                        AnnualRetainerInstallment::where('id', $installmentId)->update([
-                            'extra_percent' => $percent,
-                            'final_total' => $final,
-                        ]);
-                    }
                 }
+            }
         }
         session()->flash('success', 'Service updated successfully.');
         return redirect()->route('services.index');

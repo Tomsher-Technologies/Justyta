@@ -127,6 +127,22 @@
                     </li>
                 @endcan
 
+                @can('manage_service_requests')
+                    <li class="menu-title m-top-10">
+                        <span>Reports</span> 
+                    </li>
+
+                    <li class="">
+                        <a href="{{ route('service-requests.index') }}"
+                            class="{{ areActiveRoutes(['service-requests.index']) }}">
+                            <span data-feather="list" class="nav-icon"></span>
+                            <span class="menu-text">Service Requests</span>
+                        </a>
+
+                    </li>
+                @endcan
+               
+
                 @canany(['manage_plan', 'manage_dropdown_option'])
                     <li class="menu-title m-top-10">
                         <span>Settings</span> 
