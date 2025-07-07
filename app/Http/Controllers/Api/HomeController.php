@@ -19,12 +19,12 @@ class HomeController extends Controller
 
         $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English
         $services = Service::with(['translations' => function ($query) use ($lang) {
-                $query->where('lang', $lang);
-            }])
-            ->whereNull('parent_id')
-            ->where('status', 1)
-            ->orderBy('sort_order', 'ASC')
-            ->get();
+                        $query->where('lang', $lang);
+                    }])
+                    ->whereNull('parent_id')
+                    ->where('status', 1)
+                    ->orderBy('sort_order', 'ASC')
+                    ->get();
 
         // Optionally transform the result to extract only translated fields
         $data['services'] = $services->map(function ($service) {

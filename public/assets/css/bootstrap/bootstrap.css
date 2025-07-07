@@ -5057,7 +5057,7 @@ a.badge-secondary.focus {
 
 .badge-success {
     color: #fff;
-    background-color: #20c997;
+    background-color: #038f09;
 }
 
 a.badge-success:hover,
@@ -5093,7 +5093,7 @@ a.badge-info.focus {
 
 .badge-warning {
     color: #212529;
-    background-color: #fa8b0c;
+    background-color: #ffa33a;
 }
 
 a.badge-warning:hover,
@@ -5111,7 +5111,7 @@ a.badge-warning.focus {
 
 .badge-danger {
     color: #fff;
-    background-color: #ff4d4f;
+    background-color: #e3171a;
 }
 
 a.badge-danger:hover,
@@ -5128,14 +5128,14 @@ a.badge-danger.focus {
 }
 
 .badge-light {
-    color: #212529;
-    background-color: #9299b8;
+    color: #000;
+    background-color: #cdcfda;
 }
 
 a.badge-light:hover,
 a.badge-light:focus {
     color: #212529;
-    background-color: #737ca4;
+    background-color: #cdcfda;
 }
 
 a.badge-light:focus,
