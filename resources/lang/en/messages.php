@@ -40,7 +40,7 @@ return [
     'contract-drafting' => 'Contract Drafting',
     'company-setup' => 'Company Setup',
     'escrow-accounts' => 'Escrow Accounts',
-    'depts-collection' => 'Depts Collection',
+    'debts-collection' => 'Depts Collection',
     'logout_success' => 'Successfully logged out',
     'user_not_found' => 'User not found',
     'unauthorized' => 'Unauthorized access. Please login.',

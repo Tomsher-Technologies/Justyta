@@ -129,6 +129,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::get('/service-request-details/{id}', [ServiceRequestController::class, 'show'])->name('service-request-details');
     Route::post('/service-requests/request-status', [ServiceRequestController::class, 'updateRequestStatus'])->name('update-service-request-status');
     Route::post('/service-requests/payment-status', [ServiceRequestController::class, 'updatePaymentStatus'])->name('update-service-payment-status');
+    Route::get('/service-requests/export', [ServiceRequestController::class, 'export'])->name('service-requests.export');
 
 
 });

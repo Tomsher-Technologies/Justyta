@@ -40,7 +40,7 @@ return [
     'contract-drafting' => 'تنظیم قرارداد',
     'company-setup' => 'ثبت شرکت',
     'escrow-accounts' => 'حساب‌های امانی',
-    'depts-collection' => 'جمع‌آوری بدهی‌ها',
+    'debts-collection' => 'جمع‌آوری بدهی‌ها',
     'logout_success' => 'با موفقیت خارج شدید',
     'user_not_found' => 'کاربر پیدا نشد',
     'profile_updation_success'      => 'پروفایل با موفقیت به‌روزرسانی شد.',

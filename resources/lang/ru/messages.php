@@ -40,7 +40,7 @@ return [
     'contract-drafting' => 'Составление договора',
     'company-setup' => 'Регистрация компании',
     'escrow-accounts' => 'Эскроу-счета',
-    'depts-collection' => 'Взыскание долгов',
+    'debts-collection' => 'Взыскание долгов',
     'logout_success' => 'Вы успешно вышли из системы',
     'user_not_found' => 'Пользователь не найден',
     'profile_updation_success'      => 'Профиль успешно обновлен.',

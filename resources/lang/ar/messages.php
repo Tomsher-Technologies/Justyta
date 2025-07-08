@@ -40,7 +40,7 @@ return [
     'contract-drafting' => 'صياغة العقود',
     'company-setup' => 'تأسيس شركة',
     'escrow-accounts' => 'حسابات الضمان',
-    'depts-collection' => 'تحصيل الديون',
+    'debts-collection' => 'تحصيل الديون',
     'logout_success' => 'تم تسجيل الخروج بنجاح',
     'user_not_found' => 'المستخدم غير موجود',
     'profile_updation_success'      => 'تم تحديث الملف الشخصي بنجاح.',

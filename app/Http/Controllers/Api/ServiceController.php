@@ -1695,14 +1695,14 @@ class ServiceController extends Controller
 
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
         $user       = $request->user();
-        $service    = Service::where('slug', 'depts-collection')->firstOrFail();
+        $service    = Service::where('slug', 'debts-collection')->firstOrFail();
 
         $referenceCode = ServiceRequest::generateReferenceCode($service);
 
         $service_request = ServiceRequest::create([
             'user_id'           => $user->id,
             'service_id'        => $service->id,
-            'service_slug'      => 'depts-collection',
+            'service_slug'      => 'debts-collection',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
             'submitted_at'      => date('Y-m-d H:i:s')

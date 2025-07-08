@@ -40,7 +40,7 @@ return [
     'contract-drafting' => 'Rédaction de contrats',
     'company-setup' => 'Création d\'entreprise',
     'escrow-accounts' => 'Comptes séquestres',
-    'depts-collection' => 'Recouvrement de créances',
+    'debts-collection' => 'Recouvrement de créances',
     'logout_success' => 'Déconnexion réussie',
     'user_not_found' => 'Utilisateur introuvable',
     'profile_updation_success'      => 'Profil mis à jour avec succès.',

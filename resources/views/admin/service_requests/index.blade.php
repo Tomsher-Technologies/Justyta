@@ -31,10 +31,20 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-3 input-group  mb-1">
+                                    <div class="col-md-4 input-group  mb-1">
+                                        <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker" name="daterange" placeholder="From Date - To Date" value="{{ request('daterange') }}">
+                                    </div>
+
+                                    <div class="col-md-4 input-group  mb-1">
+                                        <input type="text" name="keyword" value="{{ request('keyword') }}"
+                                            class="form-control ih-small ip-gray radius-xs b-deep px-15"
+                                            placeholder="Search with Reference Code">
+                                    </div>
+
+                                    <div class="col-md-3 input-group mt-2  mb-1">
                                         <select name="status"
                                             class="form-control ih-small ip-gray radius-xs b-deep px-15">
-                                            <option value="">Select Status</option>
+                                            <option value="">Select Request Status</option>
                                             <option value="pending" {{ request()->status == 'pending' ? 'selected' : '' }}>Pending
                                             </option>
                                             <option value="ongoing" {{ request()->status == 'ongoing' ? 'selected' : '' }}>Ongoing
@@ -46,14 +56,16 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-4 input-group  mb-1">
-                                        <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker" name="daterange" placeholder="From Date - To Date" value="{{ request('daterange') }}">
-                                    </div>
-
-                                    <div class="col-md-4 input-group  mb-1 mt-2">
-                                        <input type="text" name="keyword" value="{{ request('keyword') }}"
-                                            class="form-control ih-small ip-gray radius-xs b-deep px-15"
-                                            placeholder="Reference Code">
+                                    <div class="col-md-3 input-group mt-2  mb-1">
+                                        <select name="payment_status"
+                                            class="form-control ih-small ip-gray radius-xs b-deep px-15">
+                                            <option value="">Select Payment Status</option>
+                                            <option value="pending" {{ request()->payment_status == 'pending' ? 'selected' : '' }}>Unpaid
+                                            </option>
+                                            <option value="success" {{ request()->payment_status == 'success' ? 'selected' : '' }}>Paid
+                                            </option>
+                                           
+                                        </select>
                                     </div>
 
                                     <div class="col-md-3 mb-1 mt-2 d-flex flex-wrap align-items-end">
@@ -62,7 +74,10 @@
                                             class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
 
                                         @if(request('service_id'))
-                                            <button class="btn btn-warning btn-sm ml-2" type="submit">Export </button>
+                                            <a href="{{ route('service-requests.export', ['service_id' => request('service_id')] + request()->all()) }}"
+                                                class="btn btn-warning btn-sm ml-2">
+                                                Export
+                                            </a>
                                         @endif
                                     </div>
                                 </div>
@@ -76,8 +91,8 @@
                                             <th class="text-center">Reference Code</th>
                                             <th class="text-left" width="20%">Service</th>
                                             <th class="text-center">User</th>
-                                            {{-- <th class="text-center">Payment Status</th> --}}
-                                            <th class="text-center">Status</th>
+                                            <th class="text-center">Payment Status</th>
+                                            <th class="text-center">Request Status</th>
                                             <th class="text-center">Request Date</th>
                                             <th class="text-center">Actions</th>
                                         </tr>
@@ -104,7 +119,17 @@
                                                 <td class="text-center">
                                                     {{ $serviceReq->user?->name ?? '—' }}
                                                 </td>
-                                                {{-- <td class="text-center">{{ $serviceReq->payment_status }}</td> --}}
+                                                <td class="text-center">
+                                                    @php
+                                                        $paymentStatus = '-';
+                                                        if(in_array($serviceReq->payment_status, ['pending','failed'])){
+                                                            $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span>';
+                                                        }elseif($serviceReq->payment_status === 'success'){
+                                                            $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span>';
+                                                        }
+                                                    @endphp     
+                                                    {!! $paymentStatus !!}
+                                                </td>
                                                 <td class="text-center">
                                                     <span class="badge badge-pill {{ $statusClass[$serviceReq->status] ?? 'badge-secondary' }}">
                                                         {{ ucfirst($serviceReq->status) }}

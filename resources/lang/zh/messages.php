@@ -40,7 +40,7 @@ return [
     'contract-drafting' => '合同起草',
     'company-setup' => '公司注册',
     'escrow-accounts' => '第三方托管账户',
-    'depts-collection' => '债务催收',
+    'debts-collection' => '债务催收',
     'logout_success' => '成功登出',
     'user_not_found' => '未找到用户',
     'profile_updation_success'      => '个人资料更新成功。',
