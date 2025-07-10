@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,8 +8,9 @@
         <meta name="robots" content="noindex, nofollow">
         <title>{{ $title ?? env('APP_NAME') }}</title>
 
-        <script src="{{ asset('assets/js/tailwind-index.global.js') }}"></script>
-        <link rel="stylesheet" href="{{ asset('assets/css/tailwind-flowbite.min.css') }}">
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <link href="https://unpkg.com/flowbite@latest/dist/flowbite.min.css" rel="stylesheet" />
+
         <link rel="stylesheet" href="{{ asset('assets/css/web/custom.css') }}">
         @yield('style')
     </head>
@@ -21,7 +23,7 @@
         @include('web.include.footer')
     
     </body>
-    <script src="{{ asset('assets/js/tailwind-flowbite.min.js') }}"></script>
+    <script src="https://unpkg.com/flowbite@latest/dist/flowbite.min.js"></script>
 
     @yield('script')
 </html>
