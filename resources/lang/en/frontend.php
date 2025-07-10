@@ -1,0 +1,35 @@
+<?php
+
+return [
+    'home' => 'Home',
+    'about_us' => 'About Us',
+    'services' => 'Services',
+    'news' => 'News',
+    'contact' => 'Contact',
+    'sign_in' => 'Sign In',
+    'sign_up' => 'Sign Up',
+    'dont_have_an_account' => "Don't have an account?",
+    'email' => 'Email',
+    'enter_email' => 'Enter email address',
+    'password' => 'Password',
+    'enter_password' => 'Enter password',
+    'forgot_password' => 'Forgot Password?',
+    'have_an_account' => 'Already have account?',
+    'full_name' => 'Full Name',
+    'enter_full_name' => 'Enter full name',
+    'phone' => 'Phone',
+    'enter_phone_number' => 'Enter phone number',
+    'min_characters' => 'Minimum of 8 characters',
+    'atleast_case' => 'At least one uppercase and one lowercase letter',
+    'atleast_digit_special' => 'At least one digit and one special character',
+    'confirm_password' => 'Confirm Password',
+    'agree_terms' => 'I Agree To The Terms & Conditions',
+    'enter_confirm_password' => 'Enter confirm password',
+
+    
+    '' => '',
+    '' => '',
+    '' => '',
+    '' => '',
+    '' => '',
+];

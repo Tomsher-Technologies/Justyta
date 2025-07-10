@@ -3,8 +3,8 @@
         <div class="navbar-left">
             <a href="" class="sidebar-toggle">
                 <img class="svg" src="{{ asset('assets/img/svg/bars.svg') }}" alt="img"></a>
-            <a class="navbar-brand" href="#"><img class="dark" src="{{ asset('assets/img/logo_text.png') }}" alt="svg"><img
-                    class="light" src="{{ asset('assets/img/logo_text.png') }}" alt="img"></a>
+            <a class="navbar-brand" href="#"><img class="dark" src="{{ asset('assets/img/logo-text.svg') }}" alt="svg"><img
+                    class="light" src="{{ asset('assets/img/logo-text.svg') }}" alt="img"></a>
             
             <div class="top-menu">
 

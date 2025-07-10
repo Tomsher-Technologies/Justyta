@@ -14,7 +14,7 @@ return [
     'full_name_required' => 'Full name is required.',
     'email_already_exist' => 'Email already in use.',
     'phone_required' => 'Phone number is required.',
-    'password_length' => 'Password must be at least 6 characters.',
+    'password_length' => 'Password must be at least :min characters.',
     'success_register' => 'Your account has been created successfully. ',
     'email_not_found' => 'This email is not registered.',
     'otp_send' => 'An OTP has been sent to your email address.',
@@ -208,7 +208,6 @@ return [
     'rejected' => 'Rejected',
     'un_paid' => 'Unpaid',
     'paid' => 'Paid',
-
     'subject_string' => 'The subject must be a valid text.',
     'message_max' => 'Subject may not be greater than :max characters.',
     'message_string' => 'The message must be a valid text.',
@@ -227,7 +226,9 @@ return [
     'training_request_submit_success' => 'Training request submitted successfully.',
     'training_request_submitted' => 'Your training request has been submitted successfully.',
     'service_request_status_change' => 'Your :service service request (Ref: :reference) status has been updated to: :status',
-    '' => '',
+
+    'password_regex' => 'Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one digit, and one special character.',
+    'phone_regex' => 'Please enter a valid phone number.',
     '' => '',
     '' => '',
     '' => '',
