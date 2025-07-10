@@ -2,12 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Frontend\HomeController;
 
 require __DIR__.'/admin.php';
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'home'])->name('home');
 
 Route::get('/lang/{locale}', function ($locale) {
     session(['locale' => $locale]);

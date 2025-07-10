@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\PublicProsecutionController;
 use App\Http\Controllers\Admin\LicenseTypeController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\ServiceRequestController;
+use App\Http\Controllers\Admin\NotificationController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -34,6 +35,11 @@ Route::prefix('admin')->group(function () {
 
 Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::post('/notifications/bulk-delete', [NotificationController::class, 'bulkDelete'])->name('notifications.bulkDelete');
 
     // Manage staffs
     Route::resource('staffs', StaffController::class);

@@ -31,7 +31,7 @@ class TrainingRequestSubmitted extends Notification
         return [
             'service' => null,
             'reference_code' => null,
-            'message' => $this->forAdmin ? 'messages.new_training_request' : 'messages.training_request_submitted',
+            'message' => $this->forAdmin ? 'New training request received.' : 'messages.training_request_submitted',
         ];
     }
 }

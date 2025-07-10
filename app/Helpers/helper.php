@@ -630,3 +630,12 @@ function checkOrderStatus(string $orderId)
 
     return $response->json(); // contains state, _embedded.payment[0].paymentReference
 }
+
+function getUnreadNotifications()
+{
+    if (!Auth::check()) {
+        return collect(); // return empty collection if not logged in
+    }
+
+    return Auth::user()->unreadNotifications;
+}
