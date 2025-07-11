@@ -1,4 +1,4 @@
-@extends('layouts.web_default', ['title' => 'Login In'])
+@extends('layouts.web_login', ['title' => 'Login In'])
 
 @section('content')
     <section class="bg-[#FFF7F0] px-[100px] py-[80px] pt-0">
@@ -33,7 +33,7 @@
                                 placeholder="{{ __('frontend.enter_full_name') }}"  value="{{ old('full_name') }}"/>
                         </div>
                         @error('full_name')
-                            <span class="text-red-500">{{ $message }}</span>
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -58,7 +58,7 @@
                                 placeholder="{{ __('frontend.enter_email') }}"   value="{{ old('email') }}"/>
                         </div>
                         @error('email')
-                            <span class="text-red-500">{{ $message }}</span>
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -79,7 +79,7 @@
                                 placeholder="{{ __('frontend.enter_phone_number') }}"   value="{{ old('phone') }}"/>
                         </div>
                         @error('phone')
-                            <span class="text-red-500">{{ $message }}</span>
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -134,7 +134,7 @@
                         </ul>
 
                         @error('password')
-                            <span class="text-red-500">{{ $message }}</span>
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -183,7 +183,7 @@
                             </div>
                         </div>
                         @error('password_confirmation')
-                            <span class="text-red-500">{{ $message }}</span>
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -193,12 +193,12 @@
                                 class="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300"
                                 required />
                         </div>
-                        <label for="terms" class="ms-2 text-sm font-normal text-gray-900">
+                        <label for="terms" class="cursor-pointer ms-2 text-sm font-normal text-gray-900">
                             {{ __('frontend.agree_terms') }}
                         </label>
                     </div>
 
-                    <button type="submit" class="w-full uppercase px-4 py-3 text-white rounded-lg bg-[#04502E]">
+                    <button type="submit" class="cursor-pointer w-full uppercase px-4 py-3 text-white rounded-lg bg-[#04502E]">
                         {{ __('frontend.sign_up') }}
                     </button>
                 </form>

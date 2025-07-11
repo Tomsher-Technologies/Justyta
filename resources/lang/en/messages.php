@@ -229,7 +229,7 @@ return [
 
     'password_regex' => 'Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one digit, and one special character.',
     'phone_regex' => 'Please enter a valid phone number.',
-    '' => '',
+    'password_confirmation_mismatch' => 'The password confirmation does not match.',
     '' => '',
     '' => '',
     '' => '',

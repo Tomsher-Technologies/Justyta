@@ -1,4 +1,4 @@
-@extends('layouts.web_default', ['title' => 'Login In'])
+@extends('layouts.web_login', ['title' => 'Login In'])
 
 @section('content')
     <section class="bg-[#FFF7F0] px-[100px] py-[80px] pt-0">
@@ -36,7 +36,7 @@
                             
                         </div>
                         @error('email')
-                            <span class="text-red-500">{{ $message }}</span>
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -86,17 +86,17 @@
                             </div>
                         </div>
                         @error('password')
-                            <span class="text-red-500">{{ $message }}</span>
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    <button type="submit" class="w-full px-4 py-3 uppercase text-white rounded-lg bg-[#04502E]">
+                    <button type="submit" class="cursor-pointer w-full px-4 py-3 uppercase text-white rounded-lg bg-[#04502E]">
                         {{ __('frontend.sign_in') }}
                     </button>
                 </form>
 
                 <div class="text-sm text-right">
-                    <a href="#" class="font-medium text-[#555555]">{{ __('frontend.forgot_password') }}</a>
+                    <a href="{{ route('frontend.forgot-password') }}" class="font-medium text-[#555555]">{{ __('frontend.forgot_password') }}</a>
                 </div>
             </div>
         </div>

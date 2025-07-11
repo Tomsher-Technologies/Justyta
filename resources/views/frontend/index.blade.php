@@ -1,4 +1,4 @@
-@extends('layouts.web_default', ['title' => 'Home'])
+@extends('layouts.web_login', ['title' => 'Home'])
 
 @section('content')    
 

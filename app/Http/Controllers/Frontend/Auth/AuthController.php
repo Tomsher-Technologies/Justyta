@@ -97,6 +97,7 @@ class AuthController extends Controller
             'password.required'     => __('messages.password_required'),
             'password.min'          => __('messages.password_length'),
             'password.regex'        => __('messages.password_regex'),
+            'password.confirmed'    => __('messages.password_confirmation_mismatch'),
         ]);
 
         if ($validator->fails()) {
@@ -124,6 +125,129 @@ class AuthController extends Controller
         Auth::guard('frontend')->login($user); 
 
         return redirect()->route('user.dashboard'); // adjust route
+    }
+
+    public function showForgotPasswordForm()
+    {
+        return view('frontend.auth.forgot_password');
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $email = $request->has('email') ? $request->email : '';
+        if($email){
+            $user = User::where('email', $request->email)->first();
+            if (!$user) {
+                return back()->withErrors(['email' => __('messages.email_not_found')])->withInput();
+            }else{
+                $otp = rand(1000, 9999);
+                $user->otp = $otp;
+                $user->otp_expires_at = Carbon::now()->addMinutes(10);
+                $user->save();
+                $user->notify(new ForgotPassword($user));
+
+                session(['reset_email' => $email]);
+
+                return redirect()->route('otp.enter')->with('success', __('messages.otp_send'));
+            }
+        }else{
+            return back()->withErrors(['email' => __('messages.email_required')])->withInput();
+        }
+    }
+
+    public function showOtpForm()
+    {
+        return view('frontend.auth.enter_otp');
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $code = $request->has('otp') ? $request->otp : '';
+        $email = session('reset_email') ?? '';
+        if($code){
+            $user = User::where('email', $email)->where('otp', $code)->first();
+            if (!$user) {
+                return redirect()->back()->with('error', __('messages.invalid_code'));
+            }else{
+                if (Carbon::parse($user->otp_expires_at)->isPast()) {
+                    return redirect()->back()->with('error', __('messages.otp_expired'));
+                }
+
+                $user->otp = null;
+                $user->otp_expires_at = null;
+                $user->save();
+
+                return redirect()->route('new-password')->with('success', __('messages.otp_verified_successfully'));
+            }
+        }else{
+            return redirect()->back()->with('error', __('messages.otp_required'));
+        }
+    }
+
+    public function resendOtp(Request $request){
+
+        $email = session('reset_email') ?? '';
+
+        if($email){
+            
+            $user = User::where('email', $email)->first();
+        
+            if (!$user) {
+                return redirect()->route('frontend.forgot-password');
+            }else{
+                $otp = rand(1000, 9999);
+                $user->otp = $otp;
+                $user->otp_expires_at = Carbon::now()->addMinutes(10);
+                $user->save();
+                $user->notify(new ForgotPassword($user));
+
+                return redirect()->route('otp.enter')->with('success', __('messages.otp_send'));
+            }
+        }else{
+            return redirect()->route('frontend.forgot-password');
+        }
+    }
+
+    public function newPasswordForm()
+    {
+        return view('frontend.auth.new_password');
+    }
+
+    public function submitNewPassword(Request $request)
+    {
+        $request->validate([
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&^])[A-Za-z\d@$!%*#?&^]{8,}$/'
+            ],
+        ], [
+            'password.required'     => __('messages.password_required'),
+            'password.min'          => __('messages.password_length'),
+            'password.regex'        => __('messages.password_regex'),
+            'password.confirmed'    => __('messages.password_confirmation_mismatch'),
+        ]);
+
+        $email = session('reset_email');
+
+        if (!$email) {
+            return redirect()->route('frontend.login')->with('error', __('frontend.session_expired'));
+        }
+
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return redirect()->route('frontend.login')->with('error', __('messages.email_not_found'));
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        session()->forget('reset_email');
+
+        return redirect()->route('frontend.login')->with('success', __('frontend.password_updated_successfully'));
     }
 }
 

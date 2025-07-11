@@ -16,6 +16,15 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('frontend.logout'
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('frontend.register');
 Route::post('/register', [AuthController::class, 'register'])->name('frontend.register.submit');
 
+Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('frontend.forgot-password');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('frontend.reset-password');
+Route::get('/enter-otp', [AuthController::class, 'showOtpForm'])->name('otp.enter');
+Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('otp.verify');
+Route::get('/resend-otp', [AuthController::class, 'resendOtp'])->name('otp.resend');
+Route::get('/new-password', [AuthController::class, 'newPasswordForm'])->name('new-password');
+Route::post('/set-new-password', [AuthController::class, 'submitNewPassword'])->name('password.set.submit');
+
+
 // Protected Dashboards
 Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:lawyer'])->group(function () {
     Route::get('/dashboard', function () {
@@ -36,30 +45,16 @@ Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType
 });
 
 Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'])->group(function () {
-    Route::get('/dashboard', function () {
-        return 'User Dashboard';
-    })->name('user.dashboard');
+    Route::get('/dashboard', [HomeController::class, 'userDashboard'])->name('user.dashboard');
 });
 
 
 
-// Route::get('/lang/{locale}', function ($locale) {
-//     session(['locale' => $locale]);
-//     app()->setLocale($locale);
-//     return response()->json([
-//         'status' => 'success',
-//         'message' => "Locale changed to $locale"
-//     ]);
-// });
 
 Route::get('/lang/{lang}', function ($lang) {
     if (in_array($lang, ['en', 'ar', 'fr', 'fa', 'ru', 'zh'])) {
         session(['locale' => $lang]);
         app()->setLocale($lang);
-        // return response()->json([
-        //     'status' => 'success',
-        //     'message' => "Locale changed to $lang"
-        // ]);
     }
     return redirect()->back();
 })->name('lang.switch');
