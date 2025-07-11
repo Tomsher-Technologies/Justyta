@@ -1,21 +1,23 @@
     <header class="px-[100px] mt-[20px]">
         <div class="grid grid-cols-3 items-start flex justify-between">
-            <img src="{{ asset('assets/images/logo.png') }}" alt="Logo">
+            <a href="{{ route('home') }}">
+                <img src="{{ asset('assets/images/logo.png') }}" alt="Logo">
+            </a>
             <ul class="flex items-center gap-8 font-cinzel font-bold text-[16px]">
                 <li>
-                    <a href="#" class="text-[#07683B]">{{ __('frontend.home') }}</a>
+                    <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.home') }}</a>
                 </li>
                 <li>
-                    <a href="#" class="text-[#07683B]">{{ __('frontend.about_us') }}</a>
+                    <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.about_us') }}</a>
                 </li>
                 <li>
-                    <a href="#" class="text-[#07683B]">{{ __('frontend.services') }}</a>
+                    <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.services') }}</a>
                 </li>
                 <li>
-                    <a href="#" class="text-[#07683B]">{{ __('frontend.news') }}</a>
+                    <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.news') }}</a>
                 </li>
                 <li>
-                    <a href="#" class="text-[#07683B]">{{ __('frontend.contact') }}</a>
+                    <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.contact') }}</a>
                 </li>
             </ul>
             <div class="grid grid-cols-2 gap-5 justify-end">
