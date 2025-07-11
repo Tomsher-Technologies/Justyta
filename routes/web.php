@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\Auth\AuthController;
+use App\Http\Controllers\Frontend\ServiceRequestController;
 
 require __DIR__.'/admin.php';
 
@@ -46,6 +47,13 @@ Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType
 
 Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'userDashboard'])->name('user.dashboard');
+
+    Route::get('/services', [HomeController::class, 'services'])->name('user.services');
+    
+    Route::get('/service-request/{slug}', [ServiceRequestController::class, 'showForm'])->name('service.request.form');
+    Route::post('/service-request/{slug}', [ServiceRequestController::class, 'submitForm'])->name('service.request.submit');
+
+
 });
 
 

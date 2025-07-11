@@ -11,8 +11,14 @@
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <link href="https://unpkg.com/flowbite@latest/dist/flowbite.min.css" rel="stylesheet" />
 
+        
+
+        {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+
         <link rel="stylesheet" href="{{ asset('assets/css/web/custom.css') }}">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+        
         @yield('style')
     </head>
 
@@ -23,39 +29,41 @@
 
         @include('frontend.include.footer')
     
+ 
+        <script src="https://unpkg.com/flowbite@latest/dist/flowbite.min.js"></script>
+        <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+        <script>
+            toastr.options = {
+                "closeButton": true, // Adds the close (×) button
+                "progressBar": true, // Shows the loading/progress bar
+                "timeOut": "5000", // Auto-close after 5 seconds
+                "extendedTimeOut": "1000", // Extra time when hovered
+                "positionClass": "toast-top-right", // Position (you can change this)
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+            @if (session('success'))
+                toastr.success("{{ session('success') }}");
+            @endif
+
+            @if (session('error'))
+                toastr.error("{{ session('error') }}");
+            @endif
+
+            @if (session('info'))
+                toastr.info("{{ session('info') }}");
+            @endif
+
+            @if (session('warning'))
+                toastr.warning("{{ session('warning') }}");
+            @endif
+        </script>
+
+        @yield('script')
+
     </body>
-    <script src="https://unpkg.com/flowbite@latest/dist/flowbite.min.js"></script>
-    <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-    <script>
-        toastr.options = {
-            "closeButton": true, // Adds the close (×) button
-            "progressBar": true, // Shows the loading/progress bar
-            "timeOut": "5000", // Auto-close after 5 seconds
-            "extendedTimeOut": "1000", // Extra time when hovered
-            "positionClass": "toast-top-right", // Position (you can change this)
-            "showDuration": "300",
-            "hideDuration": "1000",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        };
-        @if (session('success'))
-            toastr.success("{{ session('success') }}");
-        @endif
-
-        @if (session('error'))
-            toastr.error("{{ session('error') }}");
-        @endif
-
-        @if (session('info'))
-            toastr.info("{{ session('info') }}");
-        @endif
-
-        @if (session('warning'))
-            toastr.warning("{{ session('warning') }}");
-        @endif
-    </script>
-
-    @yield('script')
 </html>

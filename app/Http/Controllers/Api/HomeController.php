@@ -32,8 +32,8 @@ class HomeController extends Controller
             return [
                 'id' => $service->id,
                 'slug' => $service->slug,
-                'title' => __('messages.'.$service->slug) ?? '',
-                'icon' => asset($service->icon),
+                'title' => $translation->title ?? '',
+                'icon' => asset(getUploadedImage($service->icon)),
             ];
         });
       
@@ -63,8 +63,8 @@ class HomeController extends Controller
             return [
                 'id' => $service->id,
                 'slug' => $service->slug,
-                'title' => __('messages.'.$service->slug) ?? '',
-                'icon' => asset($service->icon),
+                'title' => $translation->title ?? '',
+                'icon' => asset(getUploadedImage($service->icon)),
             ];
         });
       
@@ -96,11 +96,11 @@ class HomeController extends Controller
                     // dd(DB::getQueryLog());
 
         $servs = $services->map(function ($service) {
-                    $translation = $service->translations;
+                    $translation = $service->translations->first();
                     return [
                         'id' => $service->id,
-                        'title' => __('messages.'.$service->slug) ?? '',
-                        'icon' => asset($service->icon),
+                        'title' => $translation->title ?? '',
+                        'icon' => asset(getUploadedImage($service->icon)),
                     ];
                 });
         return response()->json([
