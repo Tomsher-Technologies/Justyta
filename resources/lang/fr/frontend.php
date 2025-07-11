@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'home' => 'Accueil',
+    'about_us' => 'À propos de nous',
+    'services' => 'Services',
+    'news' => 'Actualités',
+    'contact' => 'Contact',
+    'sign_in' => 'Se connecter',
+    'sign_up' => 'S’inscrire',
+    'dont_have_an_account' => "Vous n'avez pas de compte ?",
+    'email' => 'E-mail',
+    'enter_email' => 'Entrez votre adresse e-mail',
+    'password' => 'Mot de passe',
+    'enter_password' => 'Entrez le mot de passe',
+    'forgot_password' => 'Mot de passe oublié ?',
+    'have_an_account' => 'Vous avez déjà un compte ?',
+    'full_name' => 'Nom complet',
+    'enter_full_name' => 'Entrez le nom complet',
+    'phone' => 'Téléphone',
+    'enter_phone_number' => 'Entrez le numéro de téléphone',
+    'min_characters' => 'Minimum de 8 caractères',
+    'atleast_case' => 'Au moins une majuscule et une minuscule',
+    'atleast_digit_special' => 'Au moins un chiffre et un caractère spécial',
+    'confirm_password' => 'Confirmer le mot de passe',
+    'agree_terms' => "J'accepte les termes et conditions",
+    'enter_confirm_password' => 'Entrez la confirmation du mot de passe',
+];

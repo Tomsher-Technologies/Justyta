@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'home' => 'خانه',
+    'about_us' => 'درباره ما',
+    'services' => 'خدمات',
+    'news' => 'اخبار',
+    'contact' => 'تماس با ما',
+    'sign_in' => 'ورود',
+    'sign_up' => 'ثبت‌نام',
+    'dont_have_an_account' => 'حساب کاربری ندارید؟',
+    'email' => 'ایمیل',
+    'enter_email' => 'ایمیل خود را وارد کنید',
+    'password' => 'رمز عبور',
+    'enter_password' => 'رمز عبور را وارد کنید',
+    'forgot_password' => 'رمز عبور را فراموش کرده‌اید؟',
+    'have_an_account' => 'قبلاً حساب دارید؟',
+    'full_name' => 'نام کامل',
+    'enter_full_name' => 'نام کامل را وارد کنید',
+    'phone' => 'تلفن',
+    'enter_phone_number' => 'شماره تلفن را وارد کنید',
+    'min_characters' => 'حداقل ۸ کاراکتر',
+    'atleast_case' => 'حداقل یک حرف بزرگ و یک حرف کوچک',
+    'atleast_digit_special' => 'حداقل یک عدد و یک کاراکتر ویژه',
+    'confirm_password' => 'تأیید رمز عبور',
+    'agree_terms' => 'شرایط و ضوابط را می‌پذیرم',
+    'enter_confirm_password' => 'رمز عبور تأیید را وارد کنید',
+];
