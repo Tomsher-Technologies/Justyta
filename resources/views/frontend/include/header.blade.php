@@ -1,5 +1,5 @@
     <header class="px-[100px] mt-[20px]">
-        <div class="grid grid-cols-3 items-start">
+        <div class="grid grid-cols-3 items-start flex justify-between">
             <img src="{{ asset('assets/images/logo.png') }}" alt="Logo">
             <ul class="flex items-center gap-8 font-cinzel font-bold text-[16px]">
                 <li>
