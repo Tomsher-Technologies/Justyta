@@ -1265,6 +1265,7 @@ class ServiceController extends Controller
             'religion'              => $request->input('religion'),
             'you_represent'         => $request->input('you_represent'),
             'about_case'            => $request->input('about_case'),
+            'full_name'             => $request->input('full_name'),
             'eid'                   => [],
         ]);
 
