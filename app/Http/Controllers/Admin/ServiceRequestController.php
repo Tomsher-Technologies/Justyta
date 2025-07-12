@@ -42,6 +42,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\ServiceRequestStatusChanged;
 use Illuminate\Support\Facades\Notification;
+use App\Exports\ServiceRequestExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 
 class ServiceRequestController extends Controller
@@ -60,7 +62,7 @@ class ServiceRequestController extends Controller
     {
         $request->session()->put('service_request_last_url', url()->full());
 
-        $services = Service::whereNotIn('slug', ['online-live-consultancy','legal-translation'])
+        $services = Service::whereNotIn('slug', ['online-live-consultancy','legal-translation','law-firm-services'])
                             ->where('status',1)->orderBy('name')->get();
         $query = ServiceRequest::with('service')->whereNotIn('service_slug',['legal-translation']); 
 
@@ -83,10 +85,20 @@ class ServiceRequestController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Filter by payment status
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->payment_status);
+        }
+
         // Filter by date range
         if ($request->filled('daterange')) {
-            [$fromDate, $toDate] = explode(' to ', $request->daterange);
-            $query->whereBetween('submitted_at', [$fromDate,$toDate]);
+            $dates = explode(' to ', $request->daterange);
+            if (count($dates) === 2) {
+                $query->whereBetween('submitted_at', [
+                    Carbon::parse($dates[0])->startOfDay(),
+                    Carbon::parse($dates[1])->endOfDay()
+                ]);
+            }
         }
 
         // Keyword search on reference_code
@@ -157,7 +169,6 @@ class ServiceRequestController extends Controller
         return response()->json(['status' => true,'message' => 'Service request status updated successfully.']);
     }
 
-
     public function updatePaymentStatus(Request $request)
     {
         $request->validate([
@@ -175,4 +186,59 @@ class ServiceRequestController extends Controller
         return response()->json(['status' => true,'message' => 'Service request payment status updated successfully.']);
     }
 
+    public function export(Request $request)
+    {
+        $serviceSlug = $request->service_id;
+
+        $service = Service::where('slug', $serviceSlug)->firstOrFail();
+
+        $modelMap = serviceModelFieldsMap();
+
+        if (!isset($modelMap[$serviceSlug])) {
+            return back()->with('error', 'Export not supported for this service.');
+        }
+
+        $modelInfo = $modelMap[$serviceSlug];
+        $subModel = $modelInfo['model'];
+        $fields = $modelInfo['fields'];
+
+        // Eager load the related sub-model
+        $query = ServiceRequest::with('user', 'service') // 'details' is dynamic
+            ->where('service_slug', $serviceSlug);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->payment_status);
+        }
+
+        if ($request->filled('keyword')) {
+            $query->where('reference_code', 'like', '%' . $request->keyword . '%');
+        }
+
+        if ($request->filled('daterange')) {
+            $dates = explode(' to ', $request->daterange);
+            if (count($dates) === 2) {
+                $query->whereBetween('submitted_at', [
+                    Carbon::parse($dates[0])->startOfDay(),
+                    Carbon::parse($dates[1])->endOfDay()
+                ]);
+            }
+        }
+    
+        $records = $query->get();
+
+        // Dynamically attach the sub-model data into `details`
+        foreach ($records as $record) {
+            $details = $subModel::where('service_request_id', $record->id)->first();
+            $record->details = $details;
+        }
+        $serviceName = $service->name ?? '';
+
+        $filename = $serviceSlug . '_export_' . now()->format('Y_m_d_h_i_s') . '.xlsx';
+
+        return Excel::download(new ServiceRequestExport($records, $serviceName, $serviceSlug, $fields), $filename);
+    }
 }

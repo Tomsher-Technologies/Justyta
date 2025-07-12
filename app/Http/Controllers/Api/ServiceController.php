@@ -1218,6 +1218,7 @@ class ServiceController extends Controller
             'emirate_id'        => 'required',
             'religion'          => 'required',
             'you_represent'     => 'required',
+            'full_name'         => 'required',
             'eid'               => 'required|array',
             'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
         ], [
@@ -1225,6 +1226,7 @@ class ServiceController extends Controller
             'nationality.required'      => __('messages.nationality_required'),
             'emirate_id.required'       => __('messages.emirate_required'),
             'religion.required'         => __('messages.religion_required'),
+            'full_name.required'        => __('messages.full_name_required'),
             'you_represent.required'    => __('messages.you_represent_required'),
             'eid.required'              => __('messages.eid_required'),
             'eid.*.file'                => __('messages.eid_file_invalid'),
@@ -1265,6 +1267,7 @@ class ServiceController extends Controller
             'religion'              => $request->input('religion'),
             'you_represent'         => $request->input('you_represent'),
             'about_case'            => $request->input('about_case'),
+            'full_name'             => $request->input('full_name'),
             'eid'                   => [],
         ]);
 
@@ -1695,14 +1698,14 @@ class ServiceController extends Controller
 
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
         $user       = $request->user();
-        $service    = Service::where('slug', 'depts-collection')->firstOrFail();
+        $service    = Service::where('slug', 'debts-collection')->firstOrFail();
 
         $referenceCode = ServiceRequest::generateReferenceCode($service);
 
         $service_request = ServiceRequest::create([
             'user_id'           => $user->id,
             'service_id'        => $service->id,
-            'service_slug'      => 'depts-collection',
+            'service_slug'      => 'debts-collection',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
             'submitted_at'      => date('Y-m-d H:i:s')

@@ -24,12 +24,14 @@ class LoginController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
+
             $user = Auth::user();
             $redirectTo = match ($user->user_type) {
                 'admin' => route('admin.dashboard'),
                 'staff' => route('admin.dashboard'),
                 default => '/user/dashboard',
             };
+                     
             return redirect()->intended($redirectTo);
         }
 

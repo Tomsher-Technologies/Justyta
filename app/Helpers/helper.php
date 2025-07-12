@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Auth;
 
 if (!function_exists('getBaseURL')) {
     function getBaseURL()
@@ -103,7 +104,7 @@ function getServiceRelationName($slug)
         'contract-drafting'         => 'contractDrafting',
         'company-setup'             => 'companySetup',
         'escrow-accounts'           => 'escrowAccount',
-        'depts-collection'          => 'debtCollection',
+        'debts-collection'          => 'debtCollection',
     ];
 
     return $map[$slug] ?? null;
@@ -122,6 +123,228 @@ function formatFilePathsWithFullUrl(array $files): array
 
         return null;
     }, $files)));
+}
+
+function serviceModelFieldsMap(){
+    $data = [
+        'request-submission' => [
+            'model' => \App\Models\RequestRequestSubmission::class,
+            'fields' => [
+                'applicant_type'    => 'Applicant Type',
+                'litigation_type'   => 'Litigation Type',
+                'litigation_place'  => 'Litigation Place',
+                'emirate_id'        => 'Emirate',
+                'case_type'         => 'Case Type',
+                'request_type'      => 'Request Type',
+                'request_title'     => 'Request Title', 
+                'case_number'       => 'Case Number',
+                'memo'              => 'Memo',
+                'documents'         => 'Documents',
+                'eid'               => 'Emirates ID',
+                'trade_license'     => 'Trade License',
+            ],
+        ],
+        'annual-retainer-agreement' => [
+            'model' => \App\Models\RequestAnnualAgreement::class,
+            'fields' => [
+                'company_name'      => 'Company Name',
+                'emirate_id'        => 'Emirate',
+                'license_type'      => 'License Type',
+                'license_activity'  => 'License Activity',
+                'industry'          => 'Industry',
+                'no_of_employees'   => 'No of Employees',
+                'case_type'         => 'Case Type',
+                'no_of_calls'       => 'No of Calls',
+                'no_of_visits'      => 'No of Visits',
+                'no_of_installment' => 'No of Installments',
+                'lawfirm'           => 'Lawfirm',
+            ],
+        ],
+        'company-setup' => [
+            'model' => \App\Models\RequestCompanySetup::class,
+            'fields' => [
+                'applicant_type'    => 'Applicant Type',
+                'emirate_id'        => 'Emirate',
+                'zone'              => 'Zone',
+                'license_type'      => 'Licence Type',
+                'license_activity'  => 'Licence Activity',
+                'company_type'      => 'Company Type',
+                'industry'          => 'Industry',
+                'company_name'      => 'Company Name',
+                'mobile'            => 'Mobile',
+                'email'             => 'Email',
+                'documents'         => 'Documents',
+            ],
+        ],
+        'contract-drafting' => [
+            'model' => \App\Models\RequestContractDrafting::class,
+            'fields' => [
+                'applicant_type'    => 'Applicant Type',
+                'contract_type'     => 'Contract Type',
+                'emirate_id'        => 'Emirate',
+                'sub_contract_type' => 'Subcontract Type',
+                'contract_language' => 'Contract Language',
+                'company_name'      => 'Company Name',
+                'industry'          => 'Industry',
+                'email'             => 'Email',
+                'priority'          => 'Priority',
+                'documents'         => 'Documents',
+                'eid'               => 'Emirates ID',
+                'trade_license'     => 'Trade License',
+            ],
+        ],
+        'court-case-submission' => [
+            'model' => \App\Models\RequestCourtCase::class,
+            'fields' => [
+                'applicant_type'    => 'Applicant Type',
+                'litigation_type'   => 'Litigation Type',
+                'emirate_id'        => 'Emirate',
+                'case_type'         => 'Case Type',
+                'you_represent'     => 'You Represent',
+                'about_case'        => 'About Case',
+                'memo'              => 'Memo',
+                'documents'         => 'Documents',
+                'eid'               => 'Emirates ID',
+                'trade_license'     => 'Trade License',
+            ],
+        ],
+        'criminal-complaint' => [
+            'model' => \App\Models\RequestCriminalComplaint::class,
+            'fields' => [
+                'applicant_type'    => 'Applicant Type',
+                'litigation_type'   => 'Litigation Type',
+                'emirate_id'        => 'Emirate',
+                'case_type'         => 'Case Type',
+                'you_represent'     => 'You Represent',
+                'about_case'        => 'About Case',
+                'memo'              => 'Memo',
+                'documents'         => 'Documents',
+                'eid'               => 'Emirates ID',
+                'trade_license'     => 'Trade License',
+            ],
+        ],
+        'debts-collection' => [
+            'model' => \App\Models\RequestDebtCollection::class,
+            'fields' => [
+                'applicant_type'    => 'Applicant Type',
+                'emirate_id'        => 'Emirate',
+                'debt_type'         => 'Debt Type',
+                'debt_amount'       => 'Debt Amount',
+                'debt_category'     => 'Debt Category',
+                'documents'         => 'Documents',
+                'eid'               => 'Emirates ID',
+                'trade_license'     => 'Trade License',
+            ],
+        ],
+        'escrow-accounts' => [
+            'model' => \App\Models\RequestEscrowAccount::class,
+            'fields' => [
+                'applicant_type'    => 'Applicant Type',
+                'company_name'      => 'Company Name',
+                'company_activity'  => 'Company Activity',
+                'company_origin'    => 'Company Origin',
+                'amount'            => 'Amount',
+                'about_deal'        => 'About Deal'
+            ],
+        ],
+        'expert-report' => [
+            'model' => \App\Models\RequestExpertReport::class,
+            'fields' => [
+                'applicant_type'            => 'Applicant Type',
+                'applicant_place'           => 'Applicant Place',
+                'emirate_id'                => 'Emirate',
+                'expert_report_type'        => 'Expert Report Type',
+                'expert_report_language'    => 'Expert Report Language',
+                'about_case'                => 'About Case',
+                'documents'                 => 'Documents',
+                'eid'                       => 'Emirates ID',
+                'trade_license'             => 'Trade License',
+            ],
+        ],
+        'immigration-requests' => [
+            'model' => \App\Models\RequestImmigration::class,
+            'fields' => [
+                'preferred_country'     => 'Preferred Country',
+                'position'              => 'Position',
+                'age'                   => 'Age',
+                'nationality'           => 'Nationality',
+                'years_of_experience'   => 'Years Of Experience',
+                'address'               => 'Address',
+                'residency_status'      => 'Residency Status',
+                'current_salary'        => 'Current Salary',
+                'application_type'      => 'Application Type',
+                'cv'                    => 'CV',
+                'certificates'          => 'Certificates',
+                'passport'              => 'Passport',
+                'photo'                 => 'Photo',
+                'account_statement'     => 'Account Statement',
+            ],
+        ],
+        'last-will-and-testament' => [
+            'model' => \App\Models\RequestLastWill::class,
+            'fields' => [
+                'testament_place'   => 'Testament Place',
+                'nationality'       => 'Nationality',
+                'emirate_id'        => 'Emirate',
+                'religion'          => 'Religion',
+                'you_represent'     => 'You Represent',
+                'about_case'        => 'About Case',
+                'eid'               => 'Emirates ID'
+            ],
+        ],
+        'legal-translation' => [
+            'model' => \App\Models\RequestLegalTranslation::class,
+            'fields' => [
+                'priority_level'        => 'Priority Level',
+                'document_language'     => 'Document Language',
+                'translation_language'  => 'Translation Language',
+                'document_type'         => 'Document Type',
+                'document_sub_type'     => 'Document Subtype',
+                'receive_by'            => 'Receive By',
+                'no_of_pages'           => 'No Of Pages',
+                'memo'                  => 'Memo',
+                'documents'             => 'Documents',
+                'eid'                   => 'Emirates ID',
+                'trade_license'         => 'Trade License',
+            ],
+        ],
+        'memo-writing' => [
+            'model' => \App\Models\RequestMemoWriting::class,
+            'fields' => [
+                'applicant_type'        => 'Applicant Type',
+                'litigation_type'       => 'Litigation Type',
+                'emirate_id'            => 'Emirate',
+                'case_type'             => 'Case Type',
+                'you_represent'         => 'You Represent',
+                'full_name'             => 'Full Name',
+                'about_case'            => 'About Case',
+                'documents'             => 'Documents',
+                'eid'                   => 'Emirates ID',
+                'trade_license'         => 'Trade License',
+            ],
+        ],
+        'power-of-attorney' => [
+            'model' => \App\Models\RequestPowerOfAttorney::class,
+            'fields' => [
+                'applicant_type'        => 'Applicant Type', 
+                'appointer_name'        => 'Appointer Name', 
+                'id_number'             => 'ID Number', 
+                'appointer_mobile'      => 'Appointer Mobile', 
+                'emirate_id'            => 'Emirate',
+                'poa_type'              => 'Power Of Attorney Type',
+                'name_of_authorized'    => 'Name Of Authorized', 
+                'authorized_mobile'     => 'Authorized Mobile', 
+                'id_number_authorized'  => 'ID Number Of Authorized',
+                'authorized_address'    => 'Authorized Address', 
+                'relationship'          => 'Relationship',
+                'appointer_id'          => 'Appointer ID',
+                'authorized_id'         => 'Authorized ID',
+                'authorized_passport'   => 'Authorized Passport'
+            ],
+        ],
+    ];
+
+    return $data;
 }
 
 function getServiceHistoryTranslatedFields($slug, $model, $lang)
@@ -253,7 +476,6 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
                 'full_name'             => $model->full_name,
                 'about_case'            => $model->about_case,
-                'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
                 'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
@@ -308,7 +530,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'amount'                => $model->amount,
                 'about_deal'            => $model->about_deal
             ];
-        case 'depts-collection':
+        case 'debts-collection':
             return [
                 'applicant_type'        => $model->applicant_type,
                 'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
@@ -407,4 +629,13 @@ function checkOrderStatus(string $orderId)
     }
 
     return $response->json(); // contains state, _embedded.payment[0].paymentReference
+}
+
+function getUnreadNotifications()
+{
+    if (!Auth::check()) {
+        return collect(); // return empty collection if not logged in
+    }
+
+    return Auth::user()->unreadNotifications;
 }

@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\PublicProsecutionController;
 use App\Http\Controllers\Admin\LicenseTypeController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\ServiceRequestController;
+use App\Http\Controllers\Admin\NotificationController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -34,6 +35,11 @@ Route::prefix('admin')->group(function () {
 
 Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::post('/notifications/bulk-delete', [NotificationController::class, 'bulkDelete'])->name('notifications.bulkDelete');
 
     // Manage staffs
     Route::resource('staffs', StaffController::class);
@@ -129,6 +135,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::get('/service-request-details/{id}', [ServiceRequestController::class, 'show'])->name('service-request-details');
     Route::post('/service-requests/request-status', [ServiceRequestController::class, 'updateRequestStatus'])->name('update-service-request-status');
     Route::post('/service-requests/payment-status', [ServiceRequestController::class, 'updatePaymentStatus'])->name('update-service-payment-status');
+    Route::get('/service-requests/export', [ServiceRequestController::class, 'export'])->name('service-requests.export');
 
 
 });

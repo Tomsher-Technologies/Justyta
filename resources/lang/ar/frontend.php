@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'home' => 'الرئيسية',
+    'about_us' => 'من نحن',
+    'services' => 'الخدمات',
+    'news' => 'الأخبار',
+    'contact' => 'اتصل بنا',
+    'sign_in' => 'تسجيل الدخول',
+    'sign_up' => 'إنشاء حساب',
+    'dont_have_an_account' => 'ليس لديك حساب؟',
+    'email' => 'البريد الإلكتروني',
+    'enter_email' => 'أدخل البريد الإلكتروني',
+    'password' => 'كلمة المرور',
+    'enter_password' => 'أدخل كلمة المرور',
+    'forgot_password' => 'هل نسيت كلمة المرور؟',
+    'have_an_account' => 'هل لديك حساب بالفعل؟',
+    'full_name' => 'الاسم الكامل',
+    'enter_full_name' => 'أدخل الاسم الكامل',
+    'phone' => 'رقم الهاتف',
+    'enter_phone_number' => 'أدخل رقم الهاتف',
+    'min_characters' => 'الحد الأدنى 8 أحرف',
+    'atleast_case' => 'حرف كبير واحد وحرف صغير واحد على الأقل',
+    'atleast_digit_special' => 'رقم واحد وحرف خاص واحد على الأقل',
+    'confirm_password' => 'تأكيد كلمة المرور',
+    'agree_terms' => 'أوافق على الشروط والأحكام',
+    'enter_confirm_password' => 'أدخل تأكيد كلمة المرور',
+];

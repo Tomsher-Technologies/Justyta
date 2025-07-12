@@ -26,6 +26,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'ensureFrontendRequestsAreStateful' => EnsureFrontendRequestsAreStateful::class, 
             'locale' => \App\Http\Middleware\SetLocale::class,
             'set_api_locale' => \App\Http\Middleware\SetApiLocale::class,
+            'checkFrontendUserType' => \App\Http\Middleware\CheckFrontendUserType::class,
+        ]);
+        $middleware->web([
+            \App\Http\Middleware\SetLocale::class,
         ]);
     })
    

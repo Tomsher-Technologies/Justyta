@@ -5746,7 +5746,7 @@ ul {
         align-items: flex-start !important;
     }
 }
-.navbar-right__menu .nav-notification .nav-item-toggle:before {
+.navbar-right__menu .nav-notification .has-unread:before {
     background: #fa8b0c;
 }
 .navbar-right__menu .dropdown-wrapper {

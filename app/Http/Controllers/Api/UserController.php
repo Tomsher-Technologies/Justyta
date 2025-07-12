@@ -200,7 +200,7 @@ class UserController extends Controller
                                                         'service'   => $serviceName,
                                                         'reference' => $data['reference_code'],
                                                     ]),
-                                    'time'      => $notification->created_at->format('h:i A'), // or 'h:i A' for AM/PM
+                                    'time'      => $notification->created_at->format('d,M Y h:i A'), // or 'h:i A' for AM/PM
                                 ];
                             });
 
@@ -221,7 +221,7 @@ class UserController extends Controller
                                             'service'   => $serviceName,
                                             'reference' => $data['reference_code'],
                                         ]),
-                        'time'      => $notification->created_at->format('h:i A'), // or 'h:i A' for AM/PM
+                        'time'      => $notification->created_at->format('d,M Y h:i A'), // or 'h:i A' for AM/PM
                     ];
                 });
 

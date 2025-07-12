@@ -80,7 +80,7 @@
                                                     $page->slug === 'consultancy_waiting_page' ||
                                                     $page->slug === 'request_success' || $page->slug === 'request_payment_success' || $page->slug === 'translation_request_success' ||
                                                     $page->slug === 'immigration_success' ||
-                                                    $page->slug === 'report_problem' || $page->slug === 'request_submission_forminfo')
+                                                    $page->slug === 'report_problem' || $page->slug === 'request_submission_forminfo' || $page->slug === 'new_password_reset')
                                                 <div class="form-group">
                                                     <label class="col-form-label color-dark fw-500">Content
                                                         ({{ $lang->name }})

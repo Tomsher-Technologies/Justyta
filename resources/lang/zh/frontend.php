@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'home' => '首页',
+    'about_us' => '关于我们',
+    'services' => '服务',
+    'news' => '新闻',
+    'contact' => '联系我们',
+    'sign_in' => '登录',
+    'sign_up' => '注册',
+    'dont_have_an_account' => '还没有账户？',
+    'email' => '邮箱',
+    'enter_email' => '请输入邮箱地址',
+    'password' => '密码',
+    'enter_password' => '请输入密码',
+    'forgot_password' => '忘记密码？',
+    'have_an_account' => '已有账户？',
+    'full_name' => '全名',
+    'enter_full_name' => '请输入全名',
+    'phone' => '电话',
+    'enter_phone_number' => '请输入电话号码',
+    'min_characters' => '至少8个字符',
+    'atleast_case' => '至少一个大写和一个小写字母',
+    'atleast_digit_special' => '至少一个数字和一个特殊字符',
+    'confirm_password' => '确认密码',
+    'agree_terms' => '我同意条款和条件',
+    'enter_confirm_password' => '请输入确认密码',
+];
