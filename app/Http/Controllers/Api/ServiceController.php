@@ -1218,6 +1218,7 @@ class ServiceController extends Controller
             'emirate_id'        => 'required',
             'religion'          => 'required',
             'you_represent'     => 'required',
+            'full_name'         => 'required',
             'eid'               => 'required|array',
             'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
         ], [
@@ -1225,6 +1226,7 @@ class ServiceController extends Controller
             'nationality.required'      => __('messages.nationality_required'),
             'emirate_id.required'       => __('messages.emirate_required'),
             'religion.required'         => __('messages.religion_required'),
+            'full_name.required'        => __('messages.full_name_required'),
             'you_represent.required'    => __('messages.you_represent_required'),
             'eid.required'              => __('messages.eid_required'),
             'eid.*.file'                => __('messages.eid_file_invalid'),
