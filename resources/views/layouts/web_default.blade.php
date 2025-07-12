@@ -14,7 +14,41 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/web/custom.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('assets/css/select2.min.css') }}">
+    <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
+    
+    <style>
+        /* Target the Select2 control box */
+        .select2-container--default .select2-selection--single {
+            background-color: #F9F9F9 !important;
+            border: 1px solid #D1D5DB !important; /* border-gray-300 */
+            border-radius: 10px !important;
+            padding: 0.875rem 1rem !important;     /* matches p-3.5 */
+            height: auto !important;
+            min-height: 48px !important;           /* consistent with Tailwind input height */
+            display: flex !important;
+            align-items: center !important;
+        }
 
+        /* Remove the default arrow spacing */
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100% !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            right: 1rem !important;
+        }
+
+        /* Style the selected text */
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #1F2937 !important; /* text-gray-900 */
+            font-size: 0.875rem !important; /* text-sm */
+            line-height: 1.5 !important;
+            padding: 0 !important;
+        }       
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #000;
+        }
+    </style>
     @yield('style')
 </head>
 
@@ -37,10 +71,17 @@
     @include('frontend.include.footer')
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-    <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="{{ asset('assets/js/select2.full.min.js') }}"></script>
 
     <script>
+
+        $('.select2').select2({
+            width: '100%',
+            placeholder: "{{ __('frontend.choose_option') }}"
+        });
+
         toastr.options = {
             "closeButton": true, // Adds the close (×) button
             "progressBar": true, // Shows the loading/progress bar
