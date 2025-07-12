@@ -12,7 +12,7 @@ class RequestLastWill extends Model
     protected $table = 'request_last_will';
 
     protected $fillable = [
-        'service_request_id', 'user_id', 'testament_place', 'emirate_id', 'you_represent', 'nationality', 'religion', 'about_case', 'eid'
+        'service_request_id', 'user_id','full_name', 'testament_place', 'emirate_id', 'you_represent', 'nationality', 'religion', 'about_case', 'eid'
     ];
 
     protected $casts = [
