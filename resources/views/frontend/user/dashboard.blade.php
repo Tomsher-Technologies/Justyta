@@ -16,8 +16,10 @@
                 $translation = $serv->translations->first();
             @endphp
             <div class="bg-white p-8 rounded-lg text-center">
-                <img src="{{ asset(getUploadedImage($serv->icon)) }}" alt="{{ $translation?->title }}" class="mb-4 w-20 h-20 mx-auto object-contain" />
-                <h3 class="mb-6 text-lg font-semibold">{{ $translation?->title }}</h3>
+                <a href="{{ route('service.request.form',['slug' => $serv->slug]) }}">
+                    <img src="{{ asset(getUploadedImage($serv->icon)) }}" alt="{{ $translation?->title }}" class="mb-4 w-20 h-20 mx-auto object-contain" />
+                    <h3 class="mb-6 text-lg font-semibold">{{ $translation?->title }}</h3>
+                </a>
             </div>
         @empty
             
