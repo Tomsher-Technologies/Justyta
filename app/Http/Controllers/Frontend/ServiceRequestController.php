@@ -266,7 +266,7 @@ class ServiceRequestController extends Controller
 
                 $service    = Service::where('slug', 'expert-report')->firstOrFail();
 
-                $response['payment'] = [
+                $dropdownData['payment'] = [
                     'service_fee'       => $service->service_fee ?? 0,
                     'govt_fee'          => $service->govt_fee ?? 0,
                     'tax'               => $service->tax ?? 0,

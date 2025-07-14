@@ -148,6 +148,8 @@
                     </div>
 
                     <div>
+                        <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]">{{ __('frontend.AED') }} {{ $dropdownData['payment']['total_amount'] ?? 0 }}</span></div>
+
                         <button type="submit" class="text-white bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md w-full px-8 py-4 text-center transition-colors duration-200 uppercase cursor-pointer">
                             {{ __('frontend.submit') }}
                         </button>
