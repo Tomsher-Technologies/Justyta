@@ -1655,7 +1655,8 @@ class ServiceController extends Controller
     }
 
     public function requestDebtsCollection(Request $request){
-
+print_r($request->all());
+        die;
         $validator = Validator::make($request->all(), [
             'applicant_type'    => 'required',
             'emirate_id'        => 'required',
@@ -1686,6 +1687,8 @@ class ServiceController extends Controller
             'trade_license.*.mimes'     => __('messages.trade_license_file_mimes'),
             'trade_license.*.max'       => __('messages.trade_license_file_max'),
         ]);
+
+        
 
         if ($validator->fails()) {
             $message = implode(' ', $validator->errors()->all());
