@@ -26,6 +26,10 @@ Route::get('/new-password', [AuthController::class, 'newPasswordForm'])->name('n
 Route::post('/set-new-password', [AuthController::class, 'submitNewPassword'])->name('password.set.submit');
 
 
+Route::get('success-payment', [ServiceRequestController::class, 'paymentSuccess'])->name('successPayment');
+Route::get('cancel-payment', [ServiceRequestController::class, 'paymentCancel'])->name('cancelPayment');
+Route::post('network-webhook', [ServiceRequestController::class, 'networkWebhook'])->name('network-webhook');
+
 // Protected Dashboards
 Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:lawyer'])->group(function () {
     Route::get('/dashboard', function () {
@@ -57,9 +61,18 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::post('/escrow-account-request', [ServiceRequestController::class, 'requestEscrowAccount'])->name('service.escrow-account-request');
     Route::post('/debts-collection-request', [ServiceRequestController::class, 'requestDebtsCollection'])->name('service.debts-collection-request');
     Route::post('/memo-writing-request', [ServiceRequestController::class, 'requestMemoWriting'])->name('service.memo-writing-request');
+    Route::post('/power-of-attorney-request', [ServiceRequestController::class, 'requestPowerOfAttorney'])->name('service.power-of-attorney-request');   
+    Route::post('/contract-drafting-request', [ServiceRequestController::class, 'requestContractDrafting'])->name('service.contract-drafting-request');    
+    Route::post('/company-setup-request', [ServiceRequestController::class, 'requestCompanySetup'])->name('service.company-setup-request');    
+    Route::post('/expert-report-request', [ServiceRequestController::class, 'requestExpertReport'])->name('service.expert-report-request');    
+
     
 
+
     Route::get('/request-success/{reqid}', [ServiceRequestController::class, 'requestSuccess'])->name('user.request-success');
+    Route::get('/get-sub-contract-types/{id}', [ServiceRequestController::class, 'getSubContractTypes'])->name('user.sub.contract.types');
+    Route::get('/get-license-activities/{id}', [ServiceRequestController::class, 'getLicenseActivities'])->name('user.license.activities');
+    Route::get('/get-zones/{id}', [ServiceRequestController::class, 'getZones'])->name('user.zones');
 });
 
 

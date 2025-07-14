@@ -34,6 +34,16 @@ if (!function_exists('areActiveRoutes')) {
     }
 }
 
+//highlights the selected navigation on frontend
+if (!function_exists('areActiveWebRoutes')) {
+    function areActiveWebRoutes(array $routes, $output = "side-active")
+    {
+        foreach ($routes as $route) {
+            if (Route::currentRouteName() == $route) return $output;
+        }
+    }
+}
+
 function getActiveLanguage()
 {
     if (Session::exists('locale')) {
@@ -638,4 +648,65 @@ function getUnreadNotifications()
     }
 
     return Auth::user()->unreadNotifications;
+}
+
+// function ngenius_create_payment($amount, $orderId)
+// {
+//     $token = getAccessToken();
+
+//     $baseUrl = config('services.ngenius.base_url');
+//     $outletRef = config('services.ngenius.outlet_ref');
+   
+//     $response = Http::withToken($token)
+//         ->withHeaders(['Content-Type' => 'application/vnd.ni-payment.v2+json'])
+//         ->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", [
+//             "action" => "PURCHASE",
+//             "amount" => [
+//                 "currencyCode" => "AED",
+//                 "value" => $amount * 100 // in fils
+//             ],
+//             "merchantAttributes" => [
+//                 "redirectUrl" => route('user.ngenius.callback', ['order_id' => $orderId])
+//             ]
+//         ]);
+
+//     return $response->json();
+// }
+
+function createWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+{
+    
+    $accessToken = getAccessToken();
+    if (!$accessToken) return null;
+
+    $baseUrl = config('services.ngenius.base_url');
+    $outletRef = config('services.ngenius.outlet_ref');
+
+    $payload = [
+        'action' => 'SALE',
+        'amount' => [
+            'currencyCode' => $currency,
+            'value' => intval($amount * 100), // AED 10.00 => 1000
+        ],
+        'merchantOrderReference' => $orderReference,
+        'merchantAttributes' => [
+            'redirectUrl' => route('successPayment'),
+            'cancelUrl'   => route('cancelPayment'),
+        ],
+        'emailAddress' => $customer['email']
+    ];
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $accessToken,
+        'Accept' => 'application/vnd.ni-payment.v2+json',
+        'Content-Type' => 'application/vnd.ni-payment.v2+json',
+    ])->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", $payload);
+
+    if (!$response->successful()) {
+        Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
+        return null;
+    }
+    // $details = json_decode($response->getBody(), true);
+
+    return $response->json(); // returns _id, reference, _links etc.
 }
