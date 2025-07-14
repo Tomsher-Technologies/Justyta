@@ -1655,8 +1655,7 @@ class ServiceController extends Controller
     }
 
     public function requestDebtsCollection(Request $request){
-print_r($request->all());
-        die;
+
         $validator = Validator::make($request->all(), [
             'applicant_type'    => 'required',
             'emirate_id'        => 'required',
@@ -1698,6 +1697,9 @@ print_r($request->all());
                 'message'   => $message,
             ], 200);
         }
+
+        print_r($request->all());
+        die;
 
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
         $user       = $request->user();
