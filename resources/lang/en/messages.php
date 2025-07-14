@@ -120,7 +120,7 @@ return [
     'mobile_required' => 'Mobile No. is required.',
     'email_required' => 'Email is required.',
     'contract_type_required' => 'Contract type is required.',
-    'sub_contract_type_required' => 'Sub contract type is required.',
+    'sub_contract_type_required' => 'Subcontract type is required.',
     'contract_language_required' => 'Contract language is required.',
     'priority_required' => 'Priority level is required.',
     'applicant_place_required' => 'Applicant place is required.',
