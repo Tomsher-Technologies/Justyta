@@ -407,9 +407,36 @@ class ServiceRequestController extends Controller
                 break;
 
             case 'immigration-requests':
+                $dropdowns  = Dropdown::with([
+                                'options' => function ($q) {
+                                    $q->where('status', 'active')->orderBy('sort_order');
+                                },
+                                'options.translations' => function ($q) use ($lang) {
+                                    $q->whereIn('language_code', [$lang, 'en']);
+                                }
+                            ])->whereIn('slug', ['positions','residency_status','immigration_type'])->get()->keyBy('slug');
                 
-                break;
+                foreach ($dropdowns as $slug => $dropdown) {
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                        return [
+                            'id'    => $option->id,
+                            'value' => $option->getTranslation('name',$lang),
+                        ];
+                    });
+                }
 
+                $dropdownData['emirates'] = $emirates;
+
+                $countries = Country::where('status',1)->orderBy('id')->get();
+
+                $dropdownData['nationality'] = $countries->map(function ($country) use($lang) {
+                        return [
+                            'id'    => $country->id,
+                            'value' => $country->getTranslation('name',$lang),
+                        ];
+                });
+
+                return view('frontend.user.service-requests.debts_collection', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
         }
 
@@ -1487,7 +1514,153 @@ class ServiceRequestController extends Controller
         // return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
     }
 
-   public function paymentSuccess(Request $request) //network international
+    public function requestImmigration(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'preferred_country'     => 'required',
+            'position'              => 'required',
+            'age'                   => 'required',
+            'nationality'           => 'required',
+            'years_of_experience'   => 'required',
+            'address'               => 'required',
+            'residency_status'      => 'required',
+            'current_salary'        => 'required',
+            'application_type'      => 'required',
+            'cv'                    => 'required|array',
+            'certificates'          => 'required|array',
+            'passport'              => 'required|array',
+            'photo'                 => 'required|array',
+            'account_statement'     => 'required|array',
+            'cv.*'                  => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'certificates.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'account_statement.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'passport.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'photo.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+        ], [
+            'preferred_country.required'    => __('messages.preferred_country_required'),
+            'position.required'             => __('messages.position_required'),
+            'age.required'                  => __('messages.age_required'),
+            'nationality.required'          => __('messages.nationality_required'),
+            'years_of_experience.required'  => __('messages.years_of_experience_required'),
+            'address.required'              => __('messages.address_required'),
+            'residency_status.required'     => __('messages.residency_status_required'),
+            'current_salary.required'       => __('messages.current_salary_required'),
+            'application_type.required'     => __('messages.application_type_required'),
+            'cv.required'                   => __('messages.cv_required'),
+            'certificates.required'         => __('messages.certificates_required'),
+            'account_statement.required'    => __('messages.account_statement_required'),
+            'passport.required'             => __('messages.passport_required'),
+            'photo.required'                => __('messages.photo_required'),
+            'cv.*.file'                     => __('messages.cv_invalid'),
+            'cv.*.mimes'                    => __('messages.cv_mimes'),
+            'cv.*.max'                      => __('messages.cv_max'),
+            'certificates.*.file'           => __('messages.certificates_invalid'),
+            'certificates.*.mimes'          => __('messages.certificates_mimes'),
+            'certificates.*.max'            => __('messages.certificates_max'),
+            'account_statement.*.file'      => __('messages.account_statement_invalid'),
+            'account_statement.*.mimes'     => __('messages.account_statement_mimes'),
+            'account_statement.*.max'       => __('messages.account_statement_max'),
+            'passport.*.file'               => __('messages.passport_invalid'),
+            'passport.*.mimes'              => __('messages.passport_mimes'),
+            'passport.*.max'                => __('messages.passport_max'),
+            'photo.*.file'                  => __('messages.photo_invalid'),
+            'photo.*.mimes'                 => __('messages.photo_mimes'),
+            'photo.*.max'                   => __('messages.photo_max'),
+        ]);
+
+        if ($validator->fails()) {
+            $message = implode(' ', $validator->errors()->all());
+
+            return response()->json([
+                'status'    => false,
+                'message'   => $message,
+            ], 200);
+        }
+
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $service    = Service::where('slug', 'immigration-requests')->firstOrFail();
+        $referenceCode = ServiceRequest::generateReferenceCode($service);
+        $service_request = ServiceRequest::create([
+            'user_id'           => $user->id,
+            'service_id'        => $service->id,
+            'service_slug'      => 'immigration-requests',
+            'reference_code'    => $referenceCode,
+            'source'            => 'mob',
+            'submitted_at'      => date('Y-m-d H:i:s'),
+            'payment_status'    => 'pending'
+        ]);
+
+        $immigration = RequestImmigration::create([
+            'service_request_id'    => $service_request->id, 
+            'user_id'               => $user->id, 
+            'preferred_country'     => $request->input('preferred_country'),
+            'position'              => $request->input('position'),
+            'age'                   => $request->input('age'),
+            'nationality'           => $request->input('nationality'),
+            'years_of_experience'   => $request->input('years_of_experience'),
+            'address'               => $request->input('address'),
+            'residency_status'      => $request->input('residency_status'),
+            'current_salary'        => $request->input('current_salary'),
+            'application_type'      => $request->input('application_type'),
+            'cv'                    => [],
+            'certificates'          => [],
+            'passport'              => [],
+            'photo'                 => [],
+            'account_statement'     => [],
+        ]);
+
+        $requestFolder = "uploads/immigration/{$immigration->id}/";
+
+        $fileFields = [
+            'cv'                => 'cv',
+            'certificates'      => 'certificates',
+            'passport'          => 'passport',
+            'photo'             => 'photo',
+            'account_statement' => 'account_statement'
+        ];
+
+        $filePaths = [];
+
+        foreach ($fileFields as $inputName => $columnName) {
+            $filePaths[$columnName] = [];
+            if ($request->hasFile($inputName)) {
+                $files = $request->file($inputName);
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+                foreach ($files as $file) {
+                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder.$uniqueName;
+                    $fileContents   = file_get_contents($file);
+                    Storage::disk('public')->put($filename, $fileContents);
+                    $filePaths[$columnName][] = Storage::url($filename);
+                }
+            }
+        }
+
+        $immigration->update($filePaths);
+
+        // // Notify the user
+        // $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        // // Notify the admin (single or multiple)
+        // $admins = User::where('user_type', 'admin')->get();
+        // Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+
+        $pageData = getPageDynamicContent('request_payment_success',$lang);
+        $response = [
+            'reference' => $service_request->reference_code,
+            'message'   => $pageData['content']
+        ];
+        return response()->json([
+            'status'    => true,
+            'message'   => __('messages.request_submit_success'),
+            'data'      => $response,
+        ], 200);
+    }
+
+    public function paymentSuccess(Request $request) //network international
     {
         // Log payment reference for debugging
         $paymentReference = $request->query('ref') ?? session('paymentReference');

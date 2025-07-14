@@ -683,7 +683,7 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
     $outletRef = config('services.ngenius.outlet_ref');
 
     $payload = [
-        'action' => 'SALE',
+        'action' => 'PURCHASE',
         'amount' => [
             'currencyCode' => $currency,
             'value' => intval($amount * 100), // AED 10.00 => 1000
@@ -691,9 +691,10 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
         'merchantOrderReference' => $orderReference,
         'merchantAttributes' => [
             'redirectUrl' => route('successPayment'),
-            'cancelUrl'   => route('cancelPayment'),
+            'cancelUrl'   => route('cancelPayment')
         ],
-        'emailAddress' => $customer['email']
+        'emailAddress' => $customer['email'],
+        
     ];
 
     $response = Http::withHeaders([
@@ -708,5 +709,8 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
     }
     // $details = json_decode($response->getBody(), true);
 
+    // echo '<pre>';
+    // print_r($details);
+    // die;
     return $response->json(); // returns _id, reference, _links etc.
 }
