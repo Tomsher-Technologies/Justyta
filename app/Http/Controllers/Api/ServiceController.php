@@ -1698,9 +1698,7 @@ class ServiceController extends Controller
             ], 200);
         }
 
-        print_r($request->all());
-        die;
-
+       
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
         $user       = $request->user();
         $service    = Service::where('slug', 'debts-collection')->firstOrFail();
