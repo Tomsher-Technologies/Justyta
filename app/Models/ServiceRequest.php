@@ -13,7 +13,7 @@ class ServiceRequest extends Model
     protected $table = 'service_requests';
 
     protected $fillable = [
-        'user_id', 'service_id', 'service_slug', 'reference_code', 'status', 'payment_status', 'payment_reference', 'paid_at', 'submitted_at', 'source'
+        'user_id', 'service_id', 'service_slug', 'reference_code', 'status', 'payment_status', 'payment_reference', 'service_fee', 'govt_fee', 'tax', 'amount', 'paid_at', 'payment_response', 'submitted_at', 'source'
     ];
 
     protected $casts = [

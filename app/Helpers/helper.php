@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 if (!function_exists('getBaseURL')) {
     function getBaseURL()
@@ -690,6 +691,7 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
         ],
         'merchantOrderReference' => $orderReference,
         'merchantAttributes' => [
+            'merchantOrderReference' => $orderReference,
             'redirectUrl' => route('successPayment'),
             'cancelUrl'   => route('cancelPayment')
         ],
@@ -713,4 +715,13 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
     // print_r($details);
     // die;
     return $response->json(); // returns _id, reference, _links etc.
+}
+
+function deleteRequestFolder(string $serviceSlug, int $requestId): void
+{
+    $folderPath = "uploads/{$serviceSlug}/{$requestId}";
+
+    if (Storage::disk('public')->exists($folderPath)) {
+        Storage::disk('public')->deleteDirectory($folderPath);
+    }
 }

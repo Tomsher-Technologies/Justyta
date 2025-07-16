@@ -9,19 +9,7 @@ class RequestLegalTranslation extends Model
     protected $table = 'request_legal_translations';
 
     protected $fillable = [
-        'service_request_id',
-        'user_id',
-        'priority_level',
-        'document_language',
-        'translation_language',
-        'document_type',
-        'document_sub_type',
-        'receive_by',
-        'no_of_pages',
-        'memo',
-        'documents',
-        'additional_documents',
-        'trade_license',
+        'service_request_id', 'user_id', 'assigned_translator_id', 'priority_level', 'document_language', 'translation_language', 'document_type', 'document_sub_type', 'receive_by', 'no_of_pages', 'memo', 'documents', 'additional_documents', 'trade_license', 'hours_per_page', 'admin_amount', 'translator_amount', 'total_amount'
     ];
 
     protected $casts = [
@@ -61,5 +49,15 @@ class RequestLegalTranslation extends Model
     public function documentSubType()
     {
         return $this->belongsTo(DocumentType::class, 'document_sub_type');
+    }
+
+    public function assignedTranslator()
+    {
+        return $this->belongsTo(User::class, 'assigned_translator_id');
+    }
+
+    public function assignmentHistories()
+    {
+        return $this->hasMany(TranslationAssignment::class, 'request_id');
     }
 }
