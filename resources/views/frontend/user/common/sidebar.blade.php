@@ -4,7 +4,7 @@
         <img src="{{ asset('assets/images/logo1.png') }}" alt="Justyta Logo" class="w-24 mx-auto mb-6" />
         <ul class="space-y-8 text-sm mt-10">
             <li class="flex items-center gap-2">
-                <a href="{{ route('user.dashboard') }}" class="contents {{ areActiveWebRoutes(['user.dashboard','service.request.form','user.request-success']) }}">
+                <a href="{{ route('user.dashboard') }}" class="contents {{ areActiveWebRoutes(['user.dashboard','service.request.form','user.request-success','user.payment-request-success']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="31" viewBox="0 0 30 31" fill="none">
                         <g clip-path="url(#clip0_332_7803)">
                             <path

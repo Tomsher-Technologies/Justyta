@@ -826,7 +826,14 @@ class ServiceController extends Controller
         $response['preffered_country'] = $response['nationality'];
         $response['application_type'] = $response['immigration_type'];
         unset($response['immigration_type']);
-        $response['payment'] = [];
+        $service    = Service::where('slug', 'immigration-requests')->firstOrFail();
+
+        $response['payment'] = [
+            'service_fee'       => $service->service_fee ?? 0,
+            'govt_fee'          => $service->govt_fee ?? 0,
+            'tax'               => $service->tax ?? 0,
+            'total_amount'      => $service->total_amount ?? 0
+        ];
         return response()->json([
             'status'    => true,
             'message'   => 'Success',

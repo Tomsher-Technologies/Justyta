@@ -37,16 +37,173 @@ use App\Models\RequestLegalTranslation;
 use App\Models\DefaultTranslatorAssignment;
 use App\Models\TranslatorLanguageRate;
 use App\Models\RequestLastWill;
+use App\Models\TranslationAssignmentHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\ServiceRequestSubmitted;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Client;
 use Carbon\Carbon;
 
 class ServiceRequestController extends Controller
 {
+
+    public function getAnnualAgreementPrice(Request $request){
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        
+        $calls          = $request->query('calls');
+        $visits         = $request->query('visits');
+        $installments   = $request->query('installments');
+
+        if (!in_array($calls, [1,2,3,4,5]) || !in_array($visits, [0,1,2,3,4]) || !in_array($installments, [1,2,4])) {
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.invalid_combination'),
+            ], 200);
+        }
+
+        $base = AnnualRetainerBaseFee::where('calls_per_month', $calls)
+                                    ->where('visits_per_year', $visits)
+                                    ->first();
+
+        if (!$base) {
+             return response()->json([
+                'status'    => false,
+                'message'   => __('messages.combination_not_found'),
+            ], 200);
+        }
+
+        $installment = $base->installments()->where('installments', $installments)->first();
+
+        if (!$installment) {
+             return response()->json([
+                'status'    => false,
+                'message'   => __('messages.installment_not_found'),
+            ], 200);
+        }
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'calls_per_month'   => $calls,
+                            'visits_per_year'   => $visits,
+                            'installments'      => $installments,
+                            'service_fee'       => $base->service_fee,
+                            'govt_fee'          => $base->govt_fee,
+                            'tax'               => $base->tax,
+                            'base_total'        => $base->base_total,
+                            'extra_percent'     => $installment->extra_percent,
+                            'final_total'       => $installment->final_total,
+                        ]
+        ], 200);
+    }
+    
+    public function getRequestTypes(Request $request){
+        $lang               = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $litigation_place   = $request->litigation_place ?? NULL;
+        $requestTypes       = [];
+        if(trim(strtolower($litigation_place)) === 'court'){
+            $requestTypes = CourtRequest::with('translations')->where('status', 1)
+                            ->whereNull('parent_id')
+                            ->orderBy('sort_order')
+                            ->get();
+        }elseif(trim(strtolower($litigation_place)) === 'public_prosecution'){
+            $requestTypes = PublicProsecution::with('translations')->where('status', 1)
+                            ->whereNull('parent_id')
+                            ->orderBy('sort_order')
+                            ->get();
+        }
+
+        $response = [];
+        if(!empty($requestTypes)){
+            $response = $requestTypes->map(function ($type) use ($lang, $litigation_place) {    
+                return [
+                    'id'                => $type->id,
+                    'litigation_place'  => $litigation_place,
+                    'value'             => $type->getTranslation('name', $lang),
+                ];
+            });
+        }
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => $response,
+        ], 200);
+    }
+    
+    public function getRequestTitles(Request $request){
+        $lang               = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $litigation_place   = $request->litigation_place ?? NULL;
+        $request_type       = $request->request_type ?? NULL;
+
+        $requestTypes       = [];
+        if(trim(strtolower($litigation_place)) === 'court'){
+            $requestTypes = CourtRequest::with('translations')->where('status', 1)
+                            ->where('parent_id', $request_type)
+                            ->orderBy('sort_order')
+                            ->get();
+        }elseif(trim(strtolower($litigation_place)) === 'public_prosecution'){
+            $requestTypes = PublicProsecution::with('translations')->where('status', 1)
+                            ->where('parent_id', $request_type)
+                            ->orderBy('sort_order')
+                            ->get();
+        }
+
+        $response = [];
+        if(!empty($requestTypes)){
+            $response = $requestTypes->map(function ($type) use ($lang, $litigation_place) {    
+                return [
+                    'id'                => $type->id,
+                    'litigation_place'  => $litigation_place,
+                    'value'             => $type->getTranslation('name', $lang),
+                ];
+            });
+        }
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => $response,
+        ], 200);
+    }
+
+     public function getSubDocumentTypes(Request $request){
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+
+        $doc_type   = $request->document_type ?? NULL;
+
+        $docTypes   = [];
+        if($doc_type){
+            $docTypes = DocumentType::with('translations')->where('status', 1)
+                            ->where('parent_id', $doc_type)
+                            ->orderBy('sort_order')
+                            ->get();
+        }
+
+        $response = [];
+        if(!empty($docTypes)){
+            $response = $docTypes->map(function ($type) use ($lang) {    
+                return [
+                    'id'            => $type->id, 
+                    'document_type' => $type->parent_id,
+                    'value'         => $type->getTranslation('name', $lang),
+                ];
+            });
+        }
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => $response,
+        ], 200);
+    }
+
     public function getSubContractTypes($id)
     {
         $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
@@ -65,6 +222,55 @@ class ServiceRequestController extends Controller
         });
 
         return response()->json($response);
+    }
+
+     public function calculateTranslationPrice(Request $request)
+    {
+        $from   = $request->from_language_id;
+        $to     = $request->to_language_id;
+        $pages  = $request->no_of_pages;
+
+        // Step 1: Get default translator
+        $assignment = DefaultTranslatorAssignment::where([
+            'from_language_id' => $from,
+            'to_language_id'   => $to,
+        ])->first();
+
+        if (!$assignment) {
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.translation_not_available'),
+            ], 200);
+        }
+
+        // Step 2: Get rate from translator_language_rates
+        $rate = TranslatorLanguageRate::where([
+            'translator_id'     => $assignment->translator_id,
+            'from_language_id'  => $from,
+            'to_language_id'    => $to,
+        ])->first();
+
+        if (!$rate) {
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.translation_not_available'),
+            ], 200);
+        }
+
+        // Step 3: Calculate
+        $totalAmount = $rate->total_amount * $pages;
+        $totalHours  = $rate->hours_per_page * $pages;
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'total_amount'      => $totalAmount,
+                            'total_hours'       => $totalHours,
+                            'amount_per_page'   => $rate->total_amount,
+                            'hours_per_page'    => $rate->hours_per_page 
+                        ]
+        ],200);
     }
 
     public function getLicenseActivities($id)
@@ -395,21 +601,174 @@ class ServiceRequestController extends Controller
                 break;
 
             case 'request-submission':
+                $dropdowns  = Dropdown::with([
+                                'options' => function ($q) {
+                                    $q->where('status', 'active')->orderBy('sort_order');
+                                },
+                                'options.translations' => function ($q) use ($lang) {
+                                    $q->whereIn('language_code', [$lang, 'en']);
+                                }
+                            ])->whereIn('slug', ['case_type'])->get()->keyBy('slug');
                 
-                break;
+                foreach ($dropdowns as $slug => $dropdown) {
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                        return [
+                            'id'    => $option->id,
+                            'value' => $option->getTranslation('name',$lang),
+                        ];
+                    });
+                }
+
+                $dropdownData['emirates'] = $emirates;
+
+                $form_info = Page::with('translations')->where('slug','request_submission_forminfo')->first();
+
+                $dropdownData['form_info'] = $form_info->getTranslation('content',$lang);
+
+                $service    = Service::where('slug', 'request-submission')->firstOrFail();
+
+                $dropdownData['payment'] = [
+                    'service_fee'       => $service->service_fee ?? 0,
+                    'govt_fee'          => $service->govt_fee ?? 0,
+                    'tax'               => $service->tax ?? 0,
+                    'total_amount'      => $service->total_amount ?? 0
+                ];
+
+                return view('frontend.user.service-requests.request_submission', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
             case 'legal-translation':
-                
-                break;
+                $transLanguages = TranslationLanguage::where('status',1)->orderBy('sort_order')->get();
+
+                $dropdownData['document_language'] = $transLanguages->map(function ($tlang) use($lang) {
+                        return [
+                            'id'    => $tlang->id,
+                            'value' => $tlang->getTranslation('name',$lang),
+                        ];
+                });
+
+                // Filter only 'en' and 'ar' for translation_language
+                $translationLanguages = $transLanguages->filter(function ($lang) {
+                    return in_array($lang->lang_code, ['en', 'ar']);
+                });
+
+                $dropdownData['translation_language'] = $translationLanguages->map(function ($tlang) use ($lang) {
+                        return [
+                            'id'    => $tlang->id,
+                            'value' => $tlang->getTranslation('name', $lang),
+                        ];
+                })->values();
+
+                $documentTypes = DocumentType::with('translations')->where('status', 1)
+                                    ->whereNull('parent_id')
+                                    ->orderBy('sort_order')
+                                    ->get();
+
+                $dropdownData['document_type'] = $documentTypes->map(function ($doc) use($lang) {
+                        return [
+                            'id'    => $doc->id,
+                            'value' => $doc->getTranslation('name',$lang),
+                        ];
+                });
+
+                return view('frontend.user.service-requests.legal_translation', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
             case 'annual-retainer-agreement':
+                $dropdowns  = Dropdown::with([
+                                'options' => function ($q) {
+                                    $q->where('status', 'active')->orderBy('sort_order');
+                                },
+                                'options.translations' => function ($q) use ($lang) {
+                                    $q->whereIn('language_code', [$lang, 'en']);
+                                }
+                            ])->whereIn('slug', ['industries','no_of_employees','case_type'])->get()->keyBy('slug');
                 
-                break;
+                foreach ($dropdowns as $slug => $dropdown) {
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                        return [
+                            'id'    => $option->id,
+                            'value' => $option->getTranslation('name',$lang),
+                        ];
+                    });
+                }
+
+                $dropdownData['emirates'] = $emirates;
+
+                $licenseTypes = LicenseType::where('status',1)->whereNull('parent_id')->orderBy('sort_order')->get();
+
+                $dropdownData['license_type'] = $licenseTypes->map(function ($ctype) use($lang) {
+                        return [
+                            'id'    => $ctype->id,
+                            'value' => $ctype->getTranslation('name',$lang),
+                        ];
+                });
+
+                $dropdownData['calls']          = [1,2,3,4,5];
+                $dropdownData['visits']         = [0,1,2,3,4];
+                $dropdownData['installments']   = [1, 2, 4];
+
+                $lawFirms = Vendor::whereHas('subscriptions', function ($query) {
+                                        $query->where('status', 'active')
+                                            ->whereDate('subscription_end', '>=', Carbon::today());
+                                    })
+                                    ->whereHas('user', function ($query) {
+                                        $query->where('banned', 0);
+                                    })
+                                    ->with(['subscriptions', 'user'])
+                                    ->orderBy('law_firm_name', 'ASC')
+                                    ->get();
+
+                $dropdownData['law_firms'] = $lawFirms->map(function ($lawfirm) use($lang) {
+                    return [
+                        'id'    => $lawfirm->id,
+                        'value' => $lawfirm->getTranslation('law_firm_name',$lang),
+                    ];
+                });
+                $form_info = Page::with('translations')->where('slug','company_retainership')->first();
+
+                $dropdownData['form_info'] = $form_info->getTranslation('content',$lang);
+
+                return view('frontend.user.service-requests.annual_agreement', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
             case 'immigration-requests':
+                $dropdowns  = Dropdown::with([
+                                'options' => function ($q) {
+                                    $q->where('status', 'active')->orderBy('sort_order');
+                                },
+                                'options.translations' => function ($q) use ($lang) {
+                                    $q->whereIn('language_code', [$lang, 'en']);
+                                }
+                            ])->whereIn('slug', ['positions','residency_status','immigration_type'])->get()->keyBy('slug');
                 
-                break;
+                foreach ($dropdowns as $slug => $dropdown) {
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                        return [
+                            'id'    => $option->id,
+                            'value' => $option->getTranslation('name',$lang),
+                        ];
+                    });
+                }
 
+                $dropdownData['emirates'] = $emirates;
+
+                $countries = Country::where('status',1)->orderBy('id')->get();
+
+                $dropdownData['nationality'] = $countries->map(function ($country) use($lang) {
+                        return [
+                            'id'    => $country->id,
+                            'value' => $country->getTranslation('name',$lang),
+                        ];
+                });
+
+                $service    = Service::where('slug', 'immigration-requests')->firstOrFail();
+
+                $dropdownData['payment'] = [
+                    'service_fee'       => $service->service_fee ?? 0,
+                    'govt_fee'          => $service->govt_fee ?? 0,
+                    'tax'               => $service->tax ?? 0,
+                    'total_amount'      => $service->total_amount ?? 0
+                ];
+
+                return view('frontend.user.service-requests.immigration', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
         }
 
@@ -1023,6 +1382,25 @@ class ServiceRequestController extends Controller
         return view('frontend.user.service-requests.request_success', ['data' => $response, 'lang' => $lang]);
     }
 
+    public function requestPaymentSuccess(Request $request, $reqid){
+
+        $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
+
+        $pageData = getPageDynamicContent('request_payment_success',$lang);
+
+        $requestId = $reqid ? base64_decode($reqid) : '';
+
+        $service = ServiceRequest::find($requestId);
+
+        $response = [
+            'reference' => $service->reference_code ?? '',
+            'message'   => $pageData['content']
+        ];
+        
+        return view('frontend.user.service-requests.request_success', ['data' => $response, 'lang' => $lang]);
+    }
+
+
     public function requestPowerOfAttorney(Request $request){
         $validator = Validator::make($request->all(), [
             'applicant_type'        => 'required',
@@ -1460,22 +1838,585 @@ class ServiceRequestController extends Controller
         $expertReport->update($filePaths);
         $total_amount = $service->total_amount ?? 0;
         
-        $customer = [
-            'email' => $user->email,
-            'name'  => $user->name,
-            'phone' => $user->phone
-        ];
+        if($total_amount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone
+            ];
 
-        $orderReference = $service_request->id .'--'.$service_request->reference_code;
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
-        $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY','AED'), $orderReference);
+            $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY','AED'), $orderReference);
 
-        if (isset($payment['_links']['payment']['href'])) {
-            $service_request->update(['payment_reference' => $payment['reference'] ?? null]);
-            return redirect()->away($payment['_links']['payment']['href']);
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $service->total_amount,
+                    'service_fee' => $service->service_fee,
+                    'govt_fee' => $service->govt_fee,
+                    'tax' => $service->tax,
+                ]);
+                return redirect()->away($payment['_links']['payment']['href']);
+            }
+
+            return redirect()->back()->with('error', 'Failed to initiate payment');
+        }else{
+            // Notify the user
+            $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+            // Notify the admin (single or multiple)
+            $admins = User::where('user_type', 'admin')->get();
+            Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+
+            return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        }
+    }
+
+    public function requestImmigration(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'preferred_country'     => 'required',
+            'position'              => 'required',
+            'age'                   => 'required',
+            'nationality'           => 'required',
+            'years_of_experience'   => 'required',
+            'address'               => 'required',
+            'residency_status'      => 'required',
+            'current_salary'        => 'required',
+            'application_type'      => 'required',
+            'cv'                    => 'required|array',
+            'certificates'          => 'required|array',
+            'passport'              => 'required|array',
+            'photo'                 => 'required|array',
+            'account_statement'     => 'required|array',
+            'cv.*'                  => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'certificates.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'account_statement.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'passport.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'photo.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+        ], [
+            'preferred_country.required'    => __('messages.preferred_country_required'),
+            'position.required'             => __('messages.position_required'),
+            'age.required'                  => __('messages.age_required'),
+            'nationality.required'          => __('messages.nationality_required'),
+            'years_of_experience.required'  => __('messages.years_of_experience_required'),
+            'address.required'              => __('messages.address_required'),
+            'residency_status.required'     => __('messages.residency_status_required'),
+            'current_salary.required'       => __('messages.current_salary_required'),
+            'application_type.required'     => __('messages.application_type_required'),
+            'cv.required'                   => __('messages.cv_required'),
+            'certificates.required'         => __('messages.certificates_required'),
+            'account_statement.required'    => __('messages.account_statement_required'),
+            'passport.required'             => __('messages.passport_required'),
+            'photo.required'                => __('messages.photo_required'),
+            'cv.*.file'                     => __('messages.cv_invalid'),
+            'cv.*.mimes'                    => __('messages.cv_mimes'),
+            'cv.*.max'                      => __('messages.cv_max'),
+            'certificates.*.file'           => __('messages.certificates_invalid'),
+            'certificates.*.mimes'          => __('messages.certificates_mimes'),
+            'certificates.*.max'            => __('messages.certificates_max'),
+            'account_statement.*.file'      => __('messages.account_statement_invalid'),
+            'account_statement.*.mimes'     => __('messages.account_statement_mimes'),
+            'account_statement.*.max'       => __('messages.account_statement_max'),
+            'passport.*.file'               => __('messages.passport_invalid'),
+            'passport.*.mimes'              => __('messages.passport_mimes'),
+            'passport.*.max'                => __('messages.passport_max'),
+            'photo.*.file'                  => __('messages.photo_invalid'),
+            'photo.*.mimes'                 => __('messages.photo_mimes'),
+            'photo.*.max'                   => __('messages.photo_max'),
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        return redirect()->back()->with('error', 'Failed to initiate payment');
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $user       = Auth::guard('frontend')->user();
+
+        $service    = Service::where('slug', 'immigration-requests')->firstOrFail();
+        $referenceCode = ServiceRequest::generateReferenceCode($service);
+        $service_request = ServiceRequest::create([
+            'user_id'           => $user->id,
+            'service_id'        => $service->id,
+            'service_slug'      => 'immigration-requests',
+            'reference_code'    => $referenceCode,
+            'source'            => 'web',
+            'submitted_at'      => date('Y-m-d H:i:s'),
+            'payment_status'    => 'pending'
+        ]);
+
+        $immigration = RequestImmigration::create([
+            'service_request_id'    => $service_request->id, 
+            'user_id'               => $user->id, 
+            'preferred_country'     => $request->input('preferred_country') ?? NULL,
+            'position'              => $request->input('position') ?? NULL,
+            'age'                   => $request->input('age') ?? NULL,
+            'nationality'           => $request->input('nationality') ?? NULL,
+            'years_of_experience'   => $request->input('years_of_experience') ?? NULL,
+            'address'               => $request->input('address') ?? NULL,
+            'residency_status'      => $request->input('residency_status') ?? NULL,
+            'current_salary'        => $request->input('current_salary') ?? NULL,
+            'application_type'      => $request->input('application_type') ?? NULL,
+            'cv'                    => [],
+            'certificates'          => [],
+            'passport'              => [],
+            'photo'                 => [],
+            'account_statement'     => [],
+        ]);
+
+        $requestFolder = "uploads/immigration/{$immigration->id}/";
+
+        $fileFields = [
+            'cv'                => 'cv',
+            'certificates'      => 'certificates',
+            'passport'          => 'passport',
+            'photo'             => 'photo',
+            'account_statement' => 'account_statement'
+        ];
+
+        $filePaths = [];
+
+        foreach ($fileFields as $inputName => $columnName) {
+            $filePaths[$columnName] = [];
+            if ($request->hasFile($inputName)) {
+                $files = $request->file($inputName);
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+                foreach ($files as $file) {
+                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder.$uniqueName;
+                    $fileContents   = file_get_contents($file);
+                    Storage::disk('public')->put($filename, $fileContents);
+                    $filePaths[$columnName][] = Storage::url($filename);
+                }
+            }
+        }
+
+        $immigration->update($filePaths);
+
+        $total_amount = $service->total_amount ?? 0;
+        
+        if($total_amount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone
+            ];
+
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+
+            $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY','AED'), $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $service->total_amount,
+                    'service_fee' => $service->service_fee,
+                    'govt_fee' => $service->govt_fee,
+                    'tax' => $service->tax,
+                ]);
+                return redirect()->away($payment['_links']['payment']['href']);
+            }
+
+            return redirect()->back()->with('error', 'Failed to initiate payment');
+        }else{
+            // Notify the user
+            $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+            // Notify the admin (single or multiple)
+            $admins = User::where('user_type', 'admin')->get();
+            Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+
+            return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        }
+    }
+
+    public function requestRequestSubmission(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'applicant_type'    => 'required',
+            'litigation_type'   => 'required',
+            'litigation_place'  => 'required',
+            'emirate_id'        => 'required',
+            'case_type'         => 'required',
+            'request_type'     => 'required',
+            'request_title'     => 'required',
+            'case_number'     => 'required',
+            'memo'              => 'nullable|array',
+            'documents'         => 'nullable|array',
+            'eid'               => 'required|array',
+            'trade_license'     => 'required|array',
+            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+        ], [
+            'applicant_type.required'   => __('messages.applicant_type_required'),
+            'litigation_type.required'  => __('messages.litigation_type_required'),
+            'litigation_place.required' => __('messages.litigation_place_required'),
+            'emirate_id.required'       => __('messages.emirate_required'),
+            'case_type.required'        => __('messages.case_type_required'),
+            'request_type.required'     => __('messages.request_type_required'),
+            'request_title.required'    => __('messages.request_title_required'),
+            'case_number.required'      => __('messages.case_number_required'),
+            'memo.*.file'               => __('messages.memo_file_invalid'),
+            'memo.*.mimes'              => __('messages.memo_file_mimes'),
+            'memo.*.max'                => __('messages.memo_file_max'),
+            'documents.*.file'          => __('messages.document_file_invalid'),
+            'documents.*.mimes'         => __('messages.document_file_mimes'),
+            'documents.*.max'           => __('messages.document_file_max'),
+            'eid.required'              => __('messages.eid_required'),
+            'eid.*.file'                => __('messages.eid_file_invalid'),
+            'eid.*.mimes'               => __('messages.eid_file_mimes'),
+            'eid.*.max'                 => __('messages.eid_file_max'),
+            'trade_license.required'    => __('messages.trade_license_required'),
+            'trade_license.*.file'      => __('messages.trade_license_file_invalid'),
+            'trade_license.*.mimes'     => __('messages.trade_license_file_mimes'),
+            'trade_license.*.max'       => __('messages.trade_license_file_max'),
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $user       = Auth::guard('frontend')->user();
+
+        $service    = Service::where('slug', 'request-submission')->firstOrFail();
+
+        $referenceCode = ServiceRequest::generateReferenceCode($service);
+
+        $service_request = ServiceRequest::create([
+            'user_id'           => $user->id,
+            'service_id'        => $service->id,
+            'service_slug'      => 'request-submission',
+            'reference_code'    => $referenceCode,
+            'source'            => 'web',
+            'submitted_at'      => date('Y-m-d H:i:s'),
+            'payment_status'    => 'pending'
+        ]);
+
+        $requestSubmission = RequestRequestSubmission::create([
+            'user_id'               => $user->id,
+            'service_request_id'    => $service_request->id,
+            'applicant_type'        => $request->input('applicant_type'),
+            'litigation_type'       => $request->input('litigation_type'),
+            'litigation_place'      => $request->input('litigation_place'),
+            'emirate_id'            => $request->input('emirate_id'),
+            'case_type'             => $request->input('case_type'),
+            'request_type'          => $request->input('request_type'),
+            'request_title'         => $request->input('request_title'),
+            'case_number'           => $request->input('case_number'),
+            'memo'                  => [],
+            'documents'             => [],
+            'eid'                   => [],
+            'trade_license'         => [],
+        ]);
+
+        $requestFolder = "uploads/request_submission/{$requestSubmission->id}/";
+
+        $fileFields = [
+            'memo'          => 'memo',
+            'documents'     => 'documents',
+            'eid'           => 'eid',
+            'trade_license' => 'trade_license',
+        ];
+
+        $filePaths = [];
+
+        foreach ($fileFields as $inputName => $columnName) {
+            $filePaths[$columnName] = [];
+            if ($request->hasFile($inputName)) {
+                $files = $request->file($inputName);
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+                foreach ($files as $file) {
+                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder.$uniqueName;
+                    $fileContents   = file_get_contents($file);
+                    Storage::disk('public')->put($filename, $fileContents);
+                    $filePaths[$columnName][] = Storage::url($filename);
+                }
+            }
+        }
+
+        $requestSubmission->update($filePaths);
+
+        $total_amount = $service->total_amount ?? 0;
+        
+        if($total_amount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone
+            ];
+
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+
+            $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY','AED'), $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $service->total_amount,
+                    'service_fee' => $service->service_fee,
+                    'govt_fee' => $service->govt_fee,
+                    'tax' => $service->tax,
+                ]);
+                return redirect()->away($payment['_links']['payment']['href']);
+            }
+
+            return redirect()->back()->with('error', 'Failed to initiate payment');
+        }else{
+            // Notify the user
+            $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+            // Notify the admin (single or multiple)
+            $admins = User::where('user_type', 'admin')->get();
+            Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+
+            return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        }
+    }
+
+    public function requestLegalTranslation(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'priority_level'            => 'required',
+            'document_language'         => 'required',
+            'translation_language'      => 'required',
+            'document_type'             => 'required',
+            'document_sub_type'         => 'required',
+            'receive_by'                => 'required',
+            'no_of_pages'               => 'required',
+            'memo'                      => 'nullable|array',
+            'documents'                 => 'required|array',
+            'additional_documents'      => 'nullable|array',
+            'trade_license'             => 'nullable|array',
+            'memo.*'                    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:2048',
+            'additional_documents.*'    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:2048',
+            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+        ], [
+            'priority_level.required'       => __('messages.priority_level_required'),
+            'document_language.required'    => __('messages.document_language_required'),
+            'translation_language.required' => __('messages.translation_language_required'),
+            'document_type.required'        => __('messages.document_type_required'),
+            'document_sub_type.required'    => __('messages.document_sub_type_required'),
+            'receive_by.required'           => __('messages.receive_by_required'),
+            'no_of_pages.required'          => __('messages.no_of_pages_required'),
+            'memo.*.file'                   => __('messages.memo_file_invalid'),
+            'memo.*.mimes'                  => __('messages.memo_file_mimes'),
+            'memo.*.max'                    => __('messages.memo_file_max'),
+            'documents.*.file'              => __('messages.document_file_invalid'),
+            'documents.*.mimes'             => __('messages.document_file_mimes'),
+            'documents.*.max'               => __('messages.document_file_max'),
+            'documents.required'            => __('messages.document_required'),
+            'additional_documents.*.file'   => __('messages.additional_documents_invalid'),
+            'additional_documents.*.mimes'  => __('messages.additional_documents_mimes'),
+            'additional_documents.*.max'    => __('messages.additional_documents_max'),
+            // 'trade_license.required'    => __('messages.trade_license_required'),
+            'trade_license.*.file'          => __('messages.trade_license_file_invalid'),
+            'trade_license.*.mimes'         => __('messages.trade_license_file_mimes'),
+            'trade_license.*.max'           => __('messages.trade_license_file_max'),
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $user       = Auth::guard('frontend')->user();
+
+        $service    = Service::where('slug', 'legal-translation')->firstOrFail();
+
+        $referenceCode = ServiceRequest::generateReferenceCode($service);
+
+        $service_request = ServiceRequest::create([
+            'user_id'           => $user->id,
+            'service_id'        => $service->id,
+            'service_slug'      => 'legal-translation',
+            'reference_code'    => $referenceCode,
+            'source'            => 'web',
+            'submitted_at'      => date('Y-m-d H:i:s'),
+            'payment_status'    => 'pending',
+        ]);
+
+        $legalTranslation = RequestLegalTranslation::create([
+            'user_id'               => $user->id,
+            'service_request_id'    => $service_request->id,
+            'priority_level'        => $request->input('priority_level') ?? NULL,
+            'document_language'     => $request->input('document_language') ?? NULL,
+            'translation_language'  => $request->input('translation_language') ?? NULL,
+            'document_type'         => $request->input('document_type') ?? NULL,
+            'document_sub_type'     => $request->input('document_sub_type') ?? NULL,
+            'receive_by'            => $request->input('receive_by') ?? NULL,
+            'no_of_pages'           => $request->input('no_of_pages') ?? NULL,
+            'memo'                  => [],
+            'documents'             => [],
+            'additional_documents'  => [],
+            'trade_license'         => [],
+        ]);
+
+        $requestFolder = "uploads/legal_translation/{$legalTranslation->id}/";
+
+        $fileFields = [
+            'memo'                  => 'memo',
+            'documents'             => 'documents',
+            'additional_documents'  => 'additional_documents',
+            'trade_license'         => 'trade_license',
+        ];
+
+        $filePaths = [];
+
+        foreach ($fileFields as $inputName => $columnName) {
+            $filePaths[$columnName] = [];
+            if ($request->hasFile($inputName)) {
+                $files = $request->file($inputName);
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+                foreach ($files as $file) {
+                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder.$uniqueName;
+                    $fileContents   = file_get_contents($file);
+                    Storage::disk('public')->put($filename, $fileContents);
+                    $filePaths[$columnName][] = Storage::url($filename);
+                }
+            }
+        }
+
+        $legalTranslation->update($filePaths);
+
+        $from           = $request->input('document_language');
+        $to             = $request->input('translation_language');
+        $pages          = $request->input('no_of_pages') ?? 0;
+        $totalAmount    = 0;
+
+        $assignment = DefaultTranslatorAssignment::where([
+                                    'from_language_id' => $from,
+                                    'to_language_id'   => $to,
+                                ])->first();
+
+        if ($assignment) {
+            $rate = TranslatorLanguageRate::where([
+                                            'translator_id'     => $assignment->translator_id,
+                                            'from_language_id'  => $from,
+                                            'to_language_id'    => $to,
+                                        ])->first();
+
+            if ($rate) {
+                $totalAmount = $rate->total_amount * $pages;
+            }
+        }
+
+        if($totalAmount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone
+            ];
+
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+
+            $payment = createWebOrder($customer, $totalAmount, env('APP_CURRENCY','AED'), $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $totalAmount,
+                    'service_fee' => $totalAmount,
+                    'govt_fee' => 0,
+                    'tax' => 0,
+                ]);
+                return redirect()->away($payment['_links']['payment']['href']);
+            }
+
+            return redirect()->back()->with('error', 'Failed to initiate payment');
+        }else{
+            // Notify the user
+            $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+            // Notify the admin (single or multiple)
+            $admins = User::where('user_type', 'admin')->get();
+            Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+
+            return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        }
+    }
+
+    public function requestAnnualAgreement(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'company_name'      => 'required',
+            'emirate_id'        => 'required',
+            'license_type'      => 'required',
+            'license_activity'  => 'required',
+            'industry'          => 'required',
+            'no_of_employees'   => 'required',
+            'case_type'         => 'required',
+            'no_of_calls'       => 'required',
+            'no_of_visits'      => 'required',
+            'no_of_installment' => 'required',
+            'lawfirm'           => 'required',
+        ], [
+            'company_name.required'         => __('messages.company_name_required'),
+            'emirate_id.required'           => __('messages.emirate_required'),
+            'license_type.required'         => __('messages.license_type_required'),
+            'license_activity.required'     => __('messages.license_activity_required'),
+            'industry.required'             => __('messages.industry_required'),
+            'no_of_employees.required'      => __('messages.no_of_employees_required'),
+            'case_type.required'            => __('messages.case_type_required'),
+            'no_of_calls.required'          => __('messages.no_of_calls_required'),
+            'no_of_visits.required'         => __('messages.no_of_visits_required'),
+            'no_of_installment.required'    => __('messages.no_of_installment_required'),
+            'lawfirm.required'              => __('messages.lawfirm_required'),
+        ]);
+
+        if ($validator->fails()) {
+            $message = implode(' ', $validator->errors()->all());
+
+            return response()->json([
+                'status'    => false,
+                'message'   => $message,
+            ], 200);
+        }
+       
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $service    = Service::where('slug', 'annual-retainer-agreement')->firstOrFail();
+
+        $referenceCode = ServiceRequest::generateReferenceCode($service);
+
+        $service_request = ServiceRequest::create([
+            'user_id'           => $user->id,
+            'service_id'        => $service->id,
+            'service_slug'      => 'annual-retainer-agreement',
+            'reference_code'    => $referenceCode,
+            'source'            => 'mob',
+            'submitted_at'      => date('Y-m-d H:i:s'),
+            'payment_status'    => 'pending',
+        ]);
+        $casetype = explode(',',$request->input('case_type'));
+        
+        $annualAgreement = RequestAnnualAgreement::create([
+            'user_id'               => $user->id,
+            'service_request_id'    => $service_request->id,
+            'company_name'          => $request->input('company_name'),
+            'emirate_id'            => $request->input('emirate_id'),
+            'license_type'          => $request->input('license_type'),
+            'license_activity'      => $request->input('license_activity'),
+            'industry'              => $request->input('industry'),
+            'no_of_employees'       => $request->input('no_of_employees'),
+            'case_type'             => $casetype,
+            'no_of_calls'           => $request->input('no_of_calls'),
+            'no_of_visits'          => $request->input('no_of_visits'),
+            'no_of_installment'     => $request->input('no_of_installment'),
+            'lawfirm'               => $request->input('lawfirm'),
+        ]);
 
         // // Notify the user
         // $request->user()->notify(new ServiceRequestSubmitted($service_request));
@@ -1484,81 +2425,139 @@ class ServiceRequestController extends Controller
         // $admins = User::where('user_type', 'admin')->get();
         // Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
 
-        // return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        $pageData = getPageDynamicContent('request_payment_success',$lang);
+        $response = [
+            'reference' => $service_request->reference_code,
+            'message'   => $pageData['content']
+        ];
+        return response()->json([
+            'status'    => true,
+            'message'   => __('messages.request_submit_success'),
+            'data'      => $response,
+        ], 200);
     }
 
-   public function paymentSuccess(Request $request) //network international
+    public function paymentSuccess(Request $request) //network international
     {
-        // Log payment reference for debugging
-        $paymentReference = $request->query('ref') ?? session('paymentReference');
-        \Log::info('Payment reference received: ' . $paymentReference);
-
-        $order_status = $order_code = $tracking_id = "";
-
-        $accessToken =  getAccessToken();
-
-        // Get the order details from the payment gateway using the payment reference
-        $ch = curl_init();
-        $baseUrl = config('services.ngenius.base_url');
-        $outlet = config('services.ngenius.outlet_ref');; // Your outlet reference
-        if (!$outlet) {
-            \Log::error('Outlet reference is missing in .env');
-            echo 'FAiled';
-            die;
-        }
-        $url = $baseUrl.'/transactions/outlets/' . $outlet . '/orders/' . $paymentReference;
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            "Authorization: Bearer " . $accessToken,
-            "Content-Type: application/vnd.ni-payment.v2+json",
-            "Accept: application/vnd.ni-payment.v2+json"
-        ));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        if (!$result) {
-            $error = curl_error($ch);
-            \Log::error('CURL error when fetching payment details: ' . $error);
-            return redirect(env('NETWORK_PAYMENT_CANCEL').'?status=failed&code=');
-        }
-
-        // Decode the response
-        $paymentDetails = json_decode($result);
-
-
-        echo '<pre>';
-        print_r($paymentDetails);
-        die;
-        $serviceRequest = ServiceRequest::findOrFail($order_id);
+        $paymentReference = $request->query('ref') ?? NULL;
         $token = getAccessToken();
 
         $baseUrl = config('services.ngenius.base_url');
         $outletRef = config('services.ngenius.outlet_ref');
 
-        $response = Http::withToken($token)->get("{$baseUrl}/transactions/outlets/" . $outletRef . "/orders/{$serviceRequest->payment_reference}");
+        $response = Http::withToken($token)->get("{$baseUrl}/transactions/outlets/" . $outletRef . "/orders/{$paymentReference}");
         $data = $response->json();
+        // Decode the response
+        // $paymentDetails = json_decode($result);
 
-       
+        $orderRef = $data['merchantOrderReference'] ?? NULL;
+        $serviceData = explode('--', $orderRef);
 
-        $status = $data['_embedded']['payment'][0]['paymentOutcome']['status'] ?? null;
+        $serviceRequestId = $serviceData[0];
+        $serviceRequestCode = $serviceData[1];
+        
+        $status = $data['_embedded']['payment'][0]['state'] ?? null;
+        $serviceRequest = ServiceRequest::findOrFail($serviceRequestId);
 
-        if ($status === 'SUCCESS') {
+        if ($status === 'PURCHASED' || $status === 'CAPTURED') {
             $serviceRequest->update([
                 'payment_status' => 'success',
                 'payment_response' => $data,
+                'paid_at' => date('Y-m-d h:i:s')
             ]);
-            return redirect()->route('user.request-success', ['reqid' => base64_encode($serviceRequest->id)])
-                            ->with('success', 'Payment successful!');
-        }
 
-        return redirect()->route('home')->with('error', 'Payment failed or cancelled.');
+            if($serviceRequest->service_slug === 'legal-translation'){
+                $legalTranslation = requestLegalTranslation::where('service_request_id', $serviceRequest->id)->first();
+
+                $from = $legalTranslation->document_language;
+                $to = $legalTranslation->translation_language;
+                $pages = $legalTranslation->no_of_pages;
+
+                $assignment = DefaultTranslatorAssignment::where([
+                                    'from_language_id' => $from,
+                                    'to_language_id'   => $to,
+                                ])->first();
+
+                if ($assignment) {
+                    $rate = TranslatorLanguageRate::where([
+                                                    'translator_id'     => $assignment->translator_id,
+                                                    'from_language_id'  => $from,
+                                                    'to_language_id'    => $to,
+                                                ])->first();
+
+                    if ($rate) {
+                        $totalAmount = $rate->total_amount * $pages;
+
+                        $legalTranslation->update([
+                            'assigned_translator_id'    => $assignment->translator_id,
+                            'hours_per_page'            => $rate->hours_per_page, 
+                            'admin_amount'              => $rate->admin_amount, 
+                            'translator_amount'         => $rate->translator_amount,  
+                            'total_amount'              => $totalAmount, 
+                        ]);
+
+                        // Store assignment history
+                        TranslationAssignmentHistory::create([
+                            'request_id'         => $legalTranslation->id,
+                            'translator_id'      => $assignment->translator_id,
+                            'assigned_by'        => NULL,
+                            'hours_per_page'     => $rate->hours_per_page,
+                            'admin_amount'       => $rate->admin_amount,
+                            'translator_amount'  => $rate->translator_amount,
+                            'total_amount'       => $totalAmount,
+                        ]);
+                    }
+                }
+            }
+            return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
+        }else{
+            $serviceRequest->update([
+                'payment_status' => 'failed',
+                'payment_response' => $data,
+            ]);
+            return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
+        }
+        
+        return redirect()->route('user.dashboard')->with('error', 'Payment failed or cancelled.');
     }
 
     public function paymentCancel(Request $request){
-        echo '<pre>';
-        print_r($request->all());
+        $ref = $request->get('ref'); // e.g., cfd4e40e-b287-4137-b819-0fa04dd17b76
+
+        $serviceRequest = ServiceRequest::where('payment_reference', $ref)->first();
+
+        if ($serviceRequest) {
+            $serviceSlug = $serviceRequest->service_slug;
+            $requestId   = $serviceRequest->id;
+
+            $serviceModelMap = [
+                'legal-translation' => \App\Models\RequestLegalTranslation::class,
+                'expert-report'     => \App\Models\RequestExpertReport::class,
+                'request-submission' => \App\Models\RequestRequestSubmission::class,
+                'annual-retainer-agreement' => \App\Models\RequestAnnualAgreement::class,
+                'immigration-requests' => \App\Models\RequestImmigration::class
+            ];
+            $filePath = [
+                'legal-translation' => 'legal_translation',
+                'expert-report'     => 'expert_report',
+                'request-submission' => 'request_submission',
+                'annual-retainer-agreement' => 'annual_retainer_agreement',
+                'immigration-requests' => 'immigration'
+            ];
+
+            if (isset($serviceModelMap[$serviceSlug])) {
+                $modelClass = $serviceModelMap[$serviceSlug];
+                $serviceReq = $modelClass::where('service_request_id', $serviceRequest->id)->first();
+                $serviceReqId = $serviceReq->id;
+
+                $serviceReq->delete();
+                // Delete uploaded folder
+                deleteRequestFolder($filePath[$serviceSlug], $serviceReqId);
+            }
+            $serviceRequest->delete();
+        }
+
+        return redirect()->route('user.dashboard')->with('error', __('frontend.request_cancelled'));
 
     }
 }

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 if (!function_exists('getBaseURL')) {
     function getBaseURL()
@@ -683,17 +684,19 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
     $outletRef = config('services.ngenius.outlet_ref');
 
     $payload = [
-        'action' => 'SALE',
+        'action' => 'PURCHASE',
         'amount' => [
             'currencyCode' => $currency,
             'value' => intval($amount * 100), // AED 10.00 => 1000
         ],
         'merchantOrderReference' => $orderReference,
         'merchantAttributes' => [
+            'merchantOrderReference' => $orderReference,
             'redirectUrl' => route('successPayment'),
-            'cancelUrl'   => route('cancelPayment'),
+            'cancelUrl'   => route('cancelPayment')
         ],
-        'emailAddress' => $customer['email']
+        'emailAddress' => $customer['email'],
+        
     ];
 
     $response = Http::withHeaders([
@@ -708,5 +711,17 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
     }
     // $details = json_decode($response->getBody(), true);
 
+    // echo '<pre>';
+    // print_r($details);
+    // die;
     return $response->json(); // returns _id, reference, _links etc.
+}
+
+function deleteRequestFolder(string $serviceSlug, int $requestId): void
+{
+    $folderPath = "uploads/{$serviceSlug}/{$requestId}";
+
+    if (Storage::disk('public')->exists($folderPath)) {
+        Storage::disk('public')->deleteDirectory($folderPath);
+    }
 }
