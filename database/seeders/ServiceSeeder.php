@@ -26,7 +26,7 @@ class ServiceSeeder extends Seeder
             ['id' => 13, 'name' => 'Contract Drafting', 'slug' => 'contract-drafting', 'parent_id' => 3, 'icon' => '/storage/services/image_1747807929_7331.png', 'sort_order' => 7],
             ['id' => 14, 'name' => 'Company Setup', 'slug' => 'company-setup', 'parent_id' => 3, 'icon' => '/storage/services/image_1747807942_1433.png', 'sort_order' => 8],
             ['id' => 15, 'name' => 'Escrow Accounts', 'slug' => 'escrow-accounts', 'parent_id' => 3, 'icon' => '/storage/services/image_1747807957_5501.png', 'sort_order' => 9],
-            ['id' => 16, 'name' => 'Depts Collection', 'slug' => 'depts-collection', 'parent_id' => 3, 'icon' => '/storage/services/image_1747807968_8421.png', 'sort_order' => 10],
+            ['id' => 16, 'name' => 'Debts Collection', 'slug' => 'debts-collection', 'parent_id' => 3, 'icon' => '/storage/services/image_1747807968_8421.png', 'sort_order' => 10],
         ];
 
         foreach ($services as &$service) {
