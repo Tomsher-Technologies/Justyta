@@ -4,15 +4,10 @@ import 'flowbite';
 
 // Bootstrap or custom setup
 import './bootstrap';
-
-
-
-// Optional: use globally if needed in Blade
-window.Alpine = Alpine
+import toastr from 'toastr'
+import 'toastr/build/toastr.min.css'
 window.toastr = toastr
 
-// Init Alpine
-Alpine.start()
 
 // Toastr default options (can be customized further)
 toastr.options = {
