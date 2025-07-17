@@ -80,7 +80,7 @@
 
                     <div>
                         <label for="authorized_mobile" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.authorized_mobile') }}<span class="text-red-500">*</span></label>
-                        <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.enter') }}" name="authorized_mobile" value="{{ old('authorized_mobile') }}">
+                        <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.enter') }}" name="authorized_mobile" id="authorized_mobile" value="{{ old('authorized_mobile') }}">
                         @error('authorized_mobile')
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
@@ -105,7 +105,7 @@
 
                     <div>
                         <label for="appointer_mobile" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.appointer_mobile') }}<span class="text-red-500">*</span></label>
-                        <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.enter') }}" name="appointer_mobile" value="{{ old('appointer_mobile') }}">
+                        <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.enter') }}" name="appointer_mobile" id="appointer_mobile" value="{{ old('appointer_mobile') }}">
                         @error('appointer_mobile')
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
@@ -243,6 +243,12 @@
         });
 
         $(document).ready(function () {
+
+            $('#authorized_mobile, #appointer_mobile').on('input', function () {
+                this.value = this.value.replace(/[^0-9+]/g, '');
+            });
+
+            
             $.validator.addMethod("fileSize", function (value, element, param) {
                 if (!element.files || element.files.length === 0) {
                     return true;

@@ -174,6 +174,7 @@ class JobPostController extends Controller
             'full_name.required'    => __('messages.full_name_required'),
             'email.required'        => __('messages.email_required'),
             'phone.required'        => __('messages.phone_required'),
+            'position.required'     => __('messages.position_required'),
             'resume.required'       => __('messages.resume_required'),
             'resume.*.file'         => __('messages.resume_invalid'),
             'resume.*.mimes'        => __('messages.resume_mimes'),

@@ -5,6 +5,7 @@ use App\Utility\CategoryUtility;
 use App\Models\EnquiryStatus;
 use App\Models\Service;
 use App\Models\Page;
+use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Request;
@@ -724,4 +725,17 @@ function deleteRequestFolder(string $serviceSlug, int $requestId): void
     if (Storage::disk('public')->exists($folderPath)) {
         Storage::disk('public')->deleteDirectory($folderPath);
     }
+}
+
+function getUsersWithPermissions(array $permissions, string $guard = 'web')
+{
+    $users =  User::where(function ($query) use ($permissions, $guard) {
+                        $query->whereHas('permissions', function ($q) use ($permissions, $guard) {
+                            $q->whereIn('name', $permissions)->where('guard_name', $guard);
+                        })->orWhereHas('roles.permissions', function ($q) use ($permissions, $guard) {
+                            $q->whereIn('name', $permissions)->where('guard_name', $guard);
+                        });
+                    })->get();
+
+    return $users;
 }

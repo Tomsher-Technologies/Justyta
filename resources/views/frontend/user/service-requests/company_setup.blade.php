@@ -94,7 +94,7 @@
 
                     <div>
                         <label for="mobile" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.mobile') }}<span class="text-red-500">*</span></label>
-                        <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.enter') }}" name="mobile" value="{{ old('mobile') }}">
+                        <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.enter') }}" name="mobile"  id="mobile" value="{{ old('mobile') }}">
                         @error('mobile')
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
@@ -232,6 +232,11 @@
         });
 
         $(document).ready(function () {
+
+            $('#mobile').on('input', function () {
+                this.value = this.value.replace(/[^0-9+]/g, '');
+            });
+
             $.validator.addMethod("fileSize", function (value, element, param) {
                 if (!element.files || element.files.length === 0) {
                     return true;
@@ -254,7 +259,7 @@
                     contract_language: { required: true },
                     company_name: { required: true },
                     industry: { required: true },
-                    email: { required: true },
+                    email: { required: true,email: true },
                     priority: { required: true },
                     "documents[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
@@ -279,7 +284,10 @@
                     contract_language: "{{ __('messages.contract_language_required') }}",
                     company_name: "{{ __('messages.company_person_name_required') }}",
                     industry: "{{ __('messages.industry_required') }}",
-                    email: "{{ __('messages.email_required') }}",
+                    email: {
+                        required: "{{ __('messages.email_required') }}",
+                        email: "{{ __('messages.valid_email') }}"
+                    },
                     priority: "{{ __('messages.priority_required') }}",
 
                     "documents[]": {
