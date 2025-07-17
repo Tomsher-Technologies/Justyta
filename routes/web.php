@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\Auth\AuthController;
 use App\Http\Controllers\Frontend\ServiceRequestController;
+use App\Http\Controllers\Frontend\UserController;
 
 require __DIR__.'/admin.php';
 
@@ -54,6 +55,7 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
 
     Route::get('/services', [HomeController::class, 'services'])->name('user.services');
     
+    // Service Requests
     Route::get('/service-request/{slug}', [ServiceRequestController::class, 'showForm'])->name('service.request.form');
     Route::post('/court-case-request', [ServiceRequestController::class, 'requestCourtCase'])->name('service.court-case-request');
     Route::post('/criminal-complaint-request', [ServiceRequestController::class, 'requestCriminalComplaint'])->name('service.criminal-complaint-request');
@@ -70,23 +72,35 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::post('/legal-translation-request', [ServiceRequestController::class, 'requestLegalTranslation'])->name('service.legal-translation-request'); 
     Route::post('/annual-agreement-request', [ServiceRequestController::class, 'requestAnnualAgreement'])->name('service.annual-agreement-request');  
 
-
+    // Get sub dropdowns and general links related to service requests
     Route::post('/get-request-types', [ServiceRequestController::class, 'getRequestTypes'])->name('get.request.types');
     Route::post('/get-request-titles', [ServiceRequestController::class, 'getRequestTitles'])->name('get.request.titles');
     Route::post('/get-sub-document-types', [ServiceRequestController::class, 'getSubDocumentTypes'])->name('get.sub.document.types');
     Route::post('/calculate-translation-price', [ServiceRequestController::class, 'calculateTranslationPrice'])->name('user.calculate-translation-price');
     Route::get('/ajax/annual-agreement-price', [ServiceRequestController::class, 'getAnnualAgreementPrice'])->name('ajax.getAnnualAgreementPrice');
-
-
-    Route::get('/payment-callback/{order_id}', [ServiceRequestController::class, 'paymentSuccess'])->name('user.web-payment.callback');
-    Route::get('/payment-cancel', [ServiceRequestController::class, 'paymentCancel'])->name('user.web-payment.cancel');
-
-
     Route::get('/request-success/{reqid}', [ServiceRequestController::class, 'requestSuccess'])->name('user.request-success');
     Route::get('/payment-request-success/{reqid}', [ServiceRequestController::class, 'requestPaymentSuccess'])->name('user.payment-request-success');
     Route::get('/get-sub-contract-types/{id}', [ServiceRequestController::class, 'getSubContractTypes'])->name('user.sub.contract.types');
     Route::get('/get-license-activities/{id}', [ServiceRequestController::class, 'getLicenseActivities'])->name('user.license.activities');
     Route::get('/get-zones/{id}', [ServiceRequestController::class, 'getZones'])->name('user.zones');
+
+    // Payment call back
+    Route::get('/payment-callback/{order_id}', [ServiceRequestController::class, 'paymentSuccess'])->name('user.web-payment.callback');
+    Route::get('/payment-cancel', [ServiceRequestController::class, 'paymentCancel'])->name('user.web-payment.cancel');
+
+    Route::get('/report-a-problem', [UserController::class, 'reportProblem'])->name('user-report-problem');
+    Route::post('/report-problem', [UserController::class, 'submitReportProblem'])->name('user.report.problem.submit');
+    Route::get('/rate-us', [UserController::class, 'rateUs'])->name('user-rate-us');
+    Route::post('/rating', [UserController::class, 'rateUsSave'])->name('user.rating.submit');
+
+    Route::get('/training-request', [UserController::class, 'getTrainingFormData'])->name('user-training-request');
+    Route::post('/training-request-save', [UserController::class, 'requestTraining'])->name('user-training-training-submit');
+
+    // Manage Jobs
+    Route::get('/law-firm-jobs', [UserController::class, 'jobPosts'])->name('user-lawfirm-jobs');
+    Route::get('/law-firm-jobs/details/{id}', [UserController::class, 'jobPostDetails'])->name('user.job.details');
+    Route::get('/law-firm-jobs/apply/{id}', [UserController::class, 'jobPostApply'])->name('user.job.details.apply');
+    Route::post('/law-firm-apply-job', [UserController::class, 'applyJob'])->name('user.job.apply');
 });
 
 

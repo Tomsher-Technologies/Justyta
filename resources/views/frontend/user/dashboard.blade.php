@@ -25,7 +25,19 @@
             
         @endforelse
        
-       
+        <div class="bg-white p-8 rounded-lg text-center">
+            <a href="{{ route('user-training-request') }}">
+                <img src="{{ asset('assets/images/training_request.png') }}" alt="{{ __('frontend.law_training_request') }}" class="mb-4 w-20 h-20 mx-auto object-contain" />
+                <h3 class="mb-6 text-lg font-semibold">{{ __('frontend.law_training_request') }}</h3>
+            </a>
+        </div>
+
+        <div class="bg-white p-8 rounded-lg text-center">
+            <a href="{{ route('user-lawfirm-jobs') }}">
+                <img src="{{ asset('assets/images/jobs.png') }}" alt="{{ __('frontend.law_firm_jobs') }}" class="mb-4 w-20 h-20 mx-auto object-contain" />
+                <h3 class="mb-6 text-lg font-semibold">{{ __('frontend.law_firm_jobs') }}</h3>
+            </a>
+        </div>
         
     </div>
 @endsection

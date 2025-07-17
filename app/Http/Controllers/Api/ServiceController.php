@@ -1074,9 +1074,8 @@ class ServiceController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1201,9 +1200,8 @@ class ServiceController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1307,9 +1305,8 @@ class ServiceController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1445,9 +1442,8 @@ class ServiceController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1572,9 +1568,8 @@ class ServiceController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1644,9 +1639,8 @@ class ServiceController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
 
@@ -1765,9 +1759,8 @@ class ServiceController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1881,9 +1874,8 @@ class ServiceController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -2010,9 +2002,8 @@ class ServiceController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -2125,13 +2116,6 @@ class ServiceController extends Controller
         }
 
         $expertReport->update($filePaths);
-
-        // // Notify the user
-        // $request->user()->notify(new ServiceRequestSubmitted($service_request));
-
-        // // Notify the admin (single or multiple)
-        // $admins = User::where('user_type', 'admin')->get();
-        // Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_payment_success',$lang);
         $response = [
@@ -2272,13 +2256,6 @@ class ServiceController extends Controller
 
         $immigration->update($filePaths);
 
-        // // Notify the user
-        // $request->user()->notify(new ServiceRequestSubmitted($service_request));
-
-        // // Notify the admin (single or multiple)
-        // $admins = User::where('user_type', 'admin')->get();
-        // Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
-
         $pageData = getPageDynamicContent('request_payment_success',$lang);
         $response = [
             'reference' => $service_request->reference_code,
@@ -2407,13 +2384,6 @@ class ServiceController extends Controller
 
         $requestSubmission->update($filePaths);
 
-        // // Notify the user
-        // $request->user()->notify(new ServiceRequestSubmitted($service_request));
-
-        // // Notify the admin (single or multiple)
-        // $admins = User::where('user_type', 'admin')->get();
-        // Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
-
         $pageData = getPageDynamicContent('request_payment_success',$lang);
         $response = [
             'reference' => $service_request->reference_code,
@@ -2493,13 +2463,6 @@ class ServiceController extends Controller
             'no_of_installment'     => $request->input('no_of_installment'),
             'lawfirm'               => $request->input('lawfirm'),
         ]);
-
-        // // Notify the user
-        // $request->user()->notify(new ServiceRequestSubmitted($service_request));
-
-        // // Notify the admin (single or multiple)
-        // $admins = User::where('user_type', 'admin')->get();
-        // Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_payment_success',$lang);
         $response = [

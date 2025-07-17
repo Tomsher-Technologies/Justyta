@@ -14,6 +14,7 @@ use App\Models\FreeZone;
 use App\Models\ConsultationDuration;
 use App\Models\Vendor;
 use App\Models\AnnualRetainerBaseFee;
+use App\Models\AnnualAgreementInstallment;
 use App\Models\User;
 use App\Models\Page;
 use App\Models\CourtRequest;
@@ -879,9 +880,8 @@ class ServiceRequestController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
     }
@@ -991,9 +991,8 @@ class ServiceRequestController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
     }
@@ -1083,9 +1082,8 @@ class ServiceRequestController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
     }
@@ -1141,9 +1139,8 @@ class ServiceRequestController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
     }
@@ -1244,9 +1241,8 @@ class ServiceRequestController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
     }
@@ -1357,9 +1353,8 @@ class ServiceRequestController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
     }
@@ -1518,9 +1513,8 @@ class ServiceRequestController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
     }
@@ -1633,9 +1627,8 @@ class ServiceRequestController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
     }
@@ -1735,9 +1728,8 @@ class ServiceRequestController extends Controller
         // Notify the user
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
     }
@@ -1865,9 +1857,8 @@ class ServiceRequestController extends Controller
             // Notify the user
             $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-            // Notify the admin (single or multiple)
-            $admins = User::where('user_type', 'admin')->get();
-            Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+            $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+            Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
             return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
         }
@@ -2025,9 +2016,8 @@ class ServiceRequestController extends Controller
             // Notify the user
             $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-            // Notify the admin (single or multiple)
-            $admins = User::where('user_type', 'admin')->get();
-            Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+            $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+            Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
             return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
         }
@@ -2174,9 +2164,8 @@ class ServiceRequestController extends Controller
             // Notify the user
             $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-            // Notify the admin (single or multiple)
-            $admins = User::where('user_type', 'admin')->get();
-            Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+            $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+            Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
             return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
         }
@@ -2340,9 +2329,8 @@ class ServiceRequestController extends Controller
             // Notify the user
             $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-            // Notify the admin (single or multiple)
-            $admins = User::where('user_type', 'admin')->get();
-            Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+            $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+            Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
             return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
         }
@@ -2377,16 +2365,12 @@ class ServiceRequestController extends Controller
         ]);
 
         if ($validator->fails()) {
-            $message = implode(' ', $validator->errors()->all());
-
-            return response()->json([
-                'status'    => false,
-                'message'   => $message,
-            ], 200);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
-       
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
-        $user       = $request->user();
+
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $user       = Auth::guard('frontend')->user();
+
         $service    = Service::where('slug', 'annual-retainer-agreement')->firstOrFail();
 
         $referenceCode = ServiceRequest::generateReferenceCode($service);
@@ -2396,45 +2380,90 @@ class ServiceRequestController extends Controller
             'service_id'        => $service->id,
             'service_slug'      => 'annual-retainer-agreement',
             'reference_code'    => $referenceCode,
-            'source'            => 'mob',
+            'source'            => 'web',
             'submitted_at'      => date('Y-m-d H:i:s'),
             'payment_status'    => 'pending',
         ]);
-        $casetype = explode(',',$request->input('case_type'));
+        $casetype = $request->input('case_type');
+
+        $amountToBePaidNow = 0;
+
+        $calls          = $request->input('no_of_calls');
+        $visits         = $request->input('no_of_visits');
+        $installments   = $request->input('no_of_installment') ?? 1;
+
+        $base = AnnualRetainerBaseFee::where('calls_per_month', $calls)
+                                    ->where('visits_per_year', $visits)
+                                    ->first();
         
+
+        if($base){
+            $installment = $base->installments()->where('installments', $installments)->first();
+        }
+
+        $finalTotal          = $installment?->final_total ?? 0;
+        $amountToBePaidNow   = $installments > 0 ? $finalTotal / $installments : $finalTotal;
+
         $annualAgreement = RequestAnnualAgreement::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'company_name'          => $request->input('company_name'),
-            'emirate_id'            => $request->input('emirate_id'),
-            'license_type'          => $request->input('license_type'),
-            'license_activity'      => $request->input('license_activity'),
-            'industry'              => $request->input('industry'),
-            'no_of_employees'       => $request->input('no_of_employees'),
+            'company_name'          => $request->input('company_name') ?? NULL,
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'license_type'          => $request->input('license_type') ?? NULL,
+            'license_activity'      => $request->input('license_activity') ?? NULL,
+            'industry'              => $request->input('industry') ?? NULL,
+            'no_of_employees'       => $request->input('no_of_employees') ?? NULL,
             'case_type'             => $casetype,
-            'no_of_calls'           => $request->input('no_of_calls'),
-            'no_of_visits'          => $request->input('no_of_visits'),
-            'no_of_installment'     => $request->input('no_of_installment'),
-            'lawfirm'               => $request->input('lawfirm'),
+            'no_of_calls'           => $request->input('no_of_calls') ?? NULL,
+            'no_of_visits'          => $request->input('no_of_visits') ?? NULL,
+            'no_of_installment'     => $request->input('no_of_installment') ?? NULL,
+            'lawfirm'               => $request->input('lawfirm') ?? NULL,
+            'final_total'           => $finalTotal
         ]);
 
-        // // Notify the user
-        // $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        if($amountToBePaidNow != 0){
 
-        // // Notify the admin (single or multiple)
-        // $admins = User::where('user_type', 'admin')->get();
-        // Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+            for ($i = 1; $i <= $installments; $i++) {
+                AnnualAgreementInstallment::create([
+                    'service_request_id' => $service_request->id,
+                    'installment_no'     => $i,
+                    'amount'             => round($finalTotal / $installments, 2),
+                    'status'             => 'pending',
+                    'due_date'           => now()->addMonths($i - 1),
+                ]);
+            }
 
-        $pageData = getPageDynamicContent('request_payment_success',$lang);
-        $response = [
-            'reference' => $service_request->reference_code,
-            'message'   => $pageData['content']
-        ];
-        return response()->json([
-            'status'    => true,
-            'message'   => __('messages.request_submit_success'),
-            'data'      => $response,
-        ], 200);
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone
+            ];
+
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+
+            $payment = createWebOrder($customer, $amountToBePaidNow, env('APP_CURRENCY','AED'), $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $finalTotal,
+                    'service_fee' => $finalTotal,
+                    'govt_fee' => 0,
+                    'tax' => 0,
+                ]);
+                return redirect()->away($payment['_links']['payment']['href']);
+            }
+
+            return redirect()->back()->with('error', 'Failed to initiate payment');
+        }else{
+            // Notify the user
+            $request->user()->notify(new ServiceRequestSubmitted($service_request));
+
+            $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+            Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
+
+            return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        }
     }
 
     public function paymentSuccess(Request $request) //network international
@@ -2457,6 +2486,9 @@ class ServiceRequestController extends Controller
         $serviceRequestCode = $serviceData[1];
         
         $status = $data['_embedded']['payment'][0]['state'] ?? null;
+        $paid_amount = $data['_embedded']['payment'][0]['amount']['value'] ?? 0;
+
+        $paidAmount = ($paid_amount != 0) ? $paid_amount/100 : 0;
         $serviceRequest = ServiceRequest::findOrFail($serviceRequestId);
 
         if ($status === 'PURCHASED' || $status === 'CAPTURED') {
@@ -2509,6 +2541,17 @@ class ServiceRequestController extends Controller
                     }
                 }
             }
+
+            if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+                $annualRequest = RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
+                $annualRequest->amount_paid = $paidAmount;
+                $annualRequest->save();
+
+                $installment = AnnualAgreementInstallment::where('service_request_id', $serviceRequest->id)
+                                    ->where('installment_no', 1)->first();
+                $installment->status = 'paid';
+                $installment->save();              
+            }
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         }else{
             $serviceRequest->update([
@@ -2560,4 +2603,6 @@ class ServiceRequestController extends Controller
         return redirect()->route('user.dashboard')->with('error', __('frontend.request_cancelled'));
 
     }
+
+    
 }
