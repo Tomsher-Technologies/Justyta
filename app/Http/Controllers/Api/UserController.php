@@ -418,7 +418,7 @@ class UserController extends Controller
         $lang           = $request->header('lang') ?? env('APP_LOCALE','en');
         $validator = Validator::make($request->all(), [
             'email'     => 'required|email',
-            'subject'   => 'required|string',
+            'subject'   => 'required|string|max:100',
             'message'   => 'required|string|max:1000',
             'image'     => 'nullable|image|max:1024',
         ],[
@@ -426,6 +426,7 @@ class UserController extends Controller
             'email.email'       => __('messages.valid_email'),
             'subject.required'  => __('messages.enter_subject'),
             'subject.string'    => __('messages.subject_string'),
+            'subject.max'       => __('messages.subject_max'),
             'message.max'       => __('messages.message_max'),
             'message.required'  => __('messages.enter_message'),
             'message.string'    => __('messages.message_string'),
@@ -621,8 +622,8 @@ class UserController extends Controller
 
         $request->user()->notify(new TrainingRequestSubmitted($trainingRequest));
 
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new TrainingRequestSubmitted($trainingRequest, true));
+        $usersToNotify = getUsersWithPermissions(['view_training_requests','export_training_requests']);
+        Notification::send($usersToNotify, new TrainingRequestSubmitted($trainingRequest, true));
 
         return response()->json([
             'status'    => true,

@@ -198,9 +198,6 @@
 @endsection
 
 @section('script')
-    <!-- Load jQuery Validate -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/additional-methods.min.js"></script>
 
     <script>
         document.querySelectorAll('.file-input').forEach(input => {
@@ -354,7 +351,6 @@
                 const visits = $('#no_of_visits').val();
                 const installments = $('#no_of_installment').val();
 
-                // Clear result if any value is empty
                 if (!calls || !visits || !installments) {
                     $('#annual_price_result').html('');
                     return;
@@ -363,16 +359,38 @@
                 $.ajax({
                     url: '{{ route("ajax.getAnnualAgreementPrice") }}',
                     type: 'GET',
-                    data: {
-                        calls,
-                        visits,
-                        installments
-                    },
+                    data: { calls, visits, installments },
                     success: function (res) {
                         if (res.status) {
                             const data = res.data;
+                            let installmentHtml = '';
+                            const installmentCount = parseInt(data.installments);
+                            const perInstallmentAmount = (data.final_total / installmentCount).toFixed(2);
+                            
+                            for (let i = 1; i <= installmentCount; i++) {
+                                if(i != 1){
+                                    installmentHtml += `
+                                    <div class="flex justify-between text-sm mb-2">
+                                        <span>{{ __('frontend.installment') }} ${i}</span>
+                                        <span>{{ __('frontend.AED') }} ${perInstallmentAmount}</span>
+                                    </div> `;
+                                }else{
+                                    installmentHtml += `
+                                    <div class="flex justify-between text-md mb-2">
+                                        <span>{{ __('frontend.pay_now') }}</span>
+                                        <span>{{ __('frontend.AED') }} ${perInstallmentAmount}</span>
+                                    </div> `;
+                                }
+                                
+                            }
+
                             $('#annual_price_result').html(`
-                                {{ __('frontend.AED') }} ${data.final_total}
+                                <div class="bg-gray-50 p-4 border rounded-md shadow">
+                                    <p class="text-md  mb-3">{{ __('frontend.total_payable') }}: <span class="text-blue-600">{{ __('frontend.AED') }} ${parseFloat(data.final_total).toFixed(2)}</span></p>
+                                    <div>
+                                        ${installmentHtml}
+                                    </div>
+                                </div>
                             `);
                         } else {
                             $('#annual_price_result').html(`<p class="text-red-600">${res.message}</p>`);
@@ -384,10 +402,7 @@
                 });
             }
 
-            // Trigger on load (if values are selected by default)
-            fetchAnnualAgreementPrice();
-
-            // Trigger on dropdown change
+            // Bind to dropdown changes
             $('#no_of_calls, #no_of_visits, #no_of_installment').on('change', fetchAnnualAgreementPrice);
         });
     </script>

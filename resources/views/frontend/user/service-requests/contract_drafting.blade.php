@@ -200,9 +200,6 @@
 @endsection
 
 @section('script')
-    <!-- Load jQuery Validate -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/additional-methods.min.js"></script>
 
     <script>
         document.querySelectorAll('.file-input').forEach(input => {
@@ -273,7 +270,7 @@
                     contract_language: { required: true },
                     company_name: { required: true },
                     industry: { required: true },
-                    email: { required: true },
+                    email: { required: true,email: true },
                     priority: { required: true },
                     "documents[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
@@ -298,7 +295,10 @@
                     contract_language: "{{ __('messages.contract_language_required') }}",
                     company_name: "{{ __('messages.company_person_name_required') }}",
                     industry: "{{ __('messages.industry_required') }}",
-                    email: "{{ __('messages.email_required') }}",
+                    email: {
+                        required: "{{ __('messages.email_required') }}",
+                        email: "{{ __('messages.valid_email') }}"
+                    },
                     priority: "{{ __('messages.priority_required') }}",
 
                     "documents[]": {

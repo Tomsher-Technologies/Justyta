@@ -132,14 +132,58 @@
                         <span>Reports</span> 
                     </li>
 
-                    <li class="">
-                        <a href="{{ route('service-requests.index') }}"
-                            class="{{ areActiveRoutes(['service-requests.index']) }}">
-                            <span data-feather="list" class="nav-icon"></span>
-                            <span class="menu-text">Service Requests</span>
-                        </a>
+                    @can('manage_service_requests')
+                        <li class="">
+                            <a href="{{ route('service-requests.index') }}"
+                                class="{{ areActiveRoutes(['service-requests.index']) }}">
+                                <span data-feather="list" class="nav-icon"></span>
+                                <span class="menu-text">Service Requests</span>
+                            </a>
+                        </li>
+                    @endcan
 
+                    @can('manage_training_requests')
+                        <li class="">
+                            <a href="{{ route('service-requests.index') }}"
+                                class="{{ areActiveRoutes(['service-requests.index']) }}">
+                                <span data-feather="list" class="nav-icon"></span>
+                                <span class="menu-text">Training Requests</span>
+                            </a>
+                        </li>
+                    @endcan
+                @endcan
+
+                @can('manage_user_feedbacks')
+                    <li class="menu-title m-top-10">
+                        <span>User Feedbacks</span> 
                     </li>
+                    @can('user_contacts')
+                        <li class="">
+                            <a href="{{ route('service-requests.index') }}"
+                                class="{{ areActiveRoutes(['service-requests.index']) }}">
+                                <span data-feather="list" class="nav-icon"></span>
+                                <span class="menu-text">Contacts</span>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('user_ratings')
+                        <li class="">
+                            <a href="{{ route('service-requests.index') }}"
+                                class="{{ areActiveRoutes(['service-requests.index']) }}">
+                                <span data-feather="list" class="nav-icon"></span>
+                                <span class="menu-text">User Ratings</span>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('reported_problems')
+                        <li class="">
+                            <a href="{{ route('service-requests.index') }}"
+                                class="{{ areActiveRoutes(['service-requests.index']) }}">
+                                <span data-feather="list" class="nav-icon"></span>
+                                <span class="menu-text">Reported Problems</span>
+                            </a>
+                        </li>
+                    @endcan
                 @endcan
                
 

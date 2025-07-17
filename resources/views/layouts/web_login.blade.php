@@ -27,8 +27,8 @@
 
     {{-- Toastr Flash Messages --}}
     <script>
-        import('toastr').then(toastr => {
-            toastr.default.options = {
+        document.addEventListener("DOMContentLoaded", function() {
+            toastr.options = {
                 closeButton: true,
                 progressBar: true,
                 timeOut: "5000",
@@ -41,19 +41,19 @@
             };
 
             @if (session('success'))
-                toastr.default.success("{{ session('success') }}");
+                toastr.success("{{ session('success') }}");
             @endif
 
             @if (session('error'))
-                toastr.default.error("{{ session('error') }}");
+                toastr.error("{{ session('error') }}");
             @endif
 
             @if (session('info'))
-                toastr.default.info("{{ session('info') }}");
+                toastr.info("{{ session('info') }}");
             @endif
 
             @if (session('warning'))
-                toastr.default.warning("{{ session('warning') }}");
+                toastr.warning("{{ session('warning') }}");
             @endif
         });
     </script>
