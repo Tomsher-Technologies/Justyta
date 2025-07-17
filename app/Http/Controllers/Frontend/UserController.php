@@ -13,6 +13,8 @@ use App\Models\JobApplication;
 use App\Models\Vendor;
 use App\Models\TrainingRequest;
 use App\Models\ProblemReport;
+use App\Mail\JobApplicationReceived;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -20,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Notifications\ProblemReported;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\TrainingRequestSubmitted;
+use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
 
 class UserController extends Controller
@@ -380,13 +383,14 @@ class UserController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
+        $redirectionUrl = Session::has('job_details_last_url') ? Session::get('job_details_last_url') : route('user-lawfirm-jobs');
 
         $alreadyApplied = JobApplication::where('job_post_id', $job->id)
                                         ->where('user_id', $user->id)
                                         ->exists();
 
         if ($alreadyApplied) {
-            return redirect()->back()->with('error', __('messages.already_applied'));
+            return redirect($redirectionUrl)->with('error', __('messages.already_applied'));
         }
 
         $resumeUrl = '';
@@ -407,6 +411,12 @@ class UserController extends Controller
         $application->resume_path   = 'storage/'.$resumeUrl;
         $application->save();
 
-        return redirect()->back()->with('success', __('messages.job_apply_success'));
+        $jobOwner = $job->post_owner; // assumes relationship `user()` in JobPost model
+
+        if ($jobOwner && $jobOwner->email) {
+            Mail::to($jobOwner->email)->send(new JobApplicationReceived($job, $application));
+        }
+
+        return redirect($redirectionUrl)->with('success', __('messages.job_apply_success'));
     }
 }

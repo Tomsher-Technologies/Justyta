@@ -219,6 +219,12 @@ class JobPostController extends Controller
         $application->resume_path   = 'storage/'.$resumeUrl;
         $application->save();
 
+        $jobOwner = $job->post_owner; // assumes relationship `user()` in JobPost model
+
+        if ($jobOwner && $jobOwner->email) {
+            Mail::to($jobOwner->email)->send(new JobApplicationReceived($job, $application));
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => __('messages.job_apply_success')
