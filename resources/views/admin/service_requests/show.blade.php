@@ -99,12 +99,64 @@
                                         @if($dataService['payment_status'] != NULL)
                                             <div class="col-md-6 mb-2"><strong>Amount:</strong> AED {{ number_format($dataService['amount'], 2) }}</div>
                                             <div class="col-md-6 mb-2"><strong>Payment Status:</strong> 
-                                                <span class="badge {{ ($dataService['payment_status'] == 'pending') ? 'badge-danger' : 'badge-success'}}">
-                                                    {{ ($dataService['payment_status'] == 'pending') ? 'Unpaid' : 'Paid' }}
+                                                <span class="badge {{ ($dataService['payment_status'] == 'pending') ? 'badge-danger' : (($dataService['payment_status'] == 'partial') ? 'badge-warning' : 'badge-success')}}">
+                                                    {{ ($dataService['payment_status'] == 'pending') ? 'Unpaid' : (($dataService['payment_status'] == 'partial') ? 'Partially Paid' : 'Paid') }}
                                                 </span>
                                             </div>
                                         @endif
+
+                                        @if($dataService['installments']->isNotEmpty())
+                                            <div class="col-md-12 mt-4">
+                                                <h5 class="text-md font-semibold mb-3">{{ __('Installment Details') }}</h5>
+                                                <div class="overflow-x-auto">
+                                                    <table class="min-w-full bg-white border border-gray-200 rounded shadow">
+                                                        <thead class="bg-gray-100 text-gray-700 text-sm">
+                                                            <tr>
+                                                                <th class="px-4 py-2 border">{{ __('Installment No') }}</th>
+                                                                <th class="px-4 py-2 border">{{ __('Amount') }}</th>
+                                                                <th class="px-4 py-2 border">{{ __('Current Status') }}</th>
+                                                                <th class="px-4 py-2 border">{{ __('Change Status') }}</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach($dataService['installments'] as $installment)
+                                                                <tr>
+                                                                    <td class="px-4 py-2 border text-center">{{ $installment['installment_no'] }}</td>
+                                                                    <td class="px-4 py-2 border text-center">AED {{ number_format($installment['amount'], 2) }}</td>
+                                                                    <td class="px-4 py-2 border text-center">
+                                                                        @php
+                                                                            $statusColor = match($installment['status']) {
+                                                                                'paid' => 'badge-success',
+                                                                                'pending' => 'badge-warning',
+                                                                                'failed' => 'badge-danger',
+                                                                                default => 'bg-gray-100 text-gray-700'
+                                                                            };
+                                                                        @endphp
+                                                                        <span class="badge px-3 py-1 rounded-full text-sm font-medium {{ $statusColor }}">
+                                                                            {{ ucfirst($installment['status']) }}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td class="px-4 py-2 border text-center">
+                                                                        <select class="border rounded px-2 py-1 text-sm change-status"
+                                                                                data-id="{{ $installment['id'] }}"
+                                                                                data-current="{{ $installment['status'] }}">
+                                                                            <option value="pending" {{ $installment['status'] == 'pending' ? 'selected' : '' }}>Pending</option>
+                                                                            <option value="paid" {{ $installment['status'] == 'paid' ? 'selected' : '' }}>Paid</option>
+                                                        
+                                                                        </select>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        @endif
+
                                     </div>
+
+                                  
+
                                 </div>
                                 <div class="col-sm-4">
                                     <div class="card shadow-sm border-light col-sm-12 ml-2">
@@ -195,6 +247,45 @@
         $(document).ready(function() {
             $.ajaxSetup({
                 headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+            });
+
+             $('.change-status').on('change', function() {
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You are about to update the status.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, update it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const installmentId = this.dataset.id;
+                        const currentStatus = this.dataset.current;
+                        const newStatus = this.value;
+                        
+                        if (newStatus === currentStatus) return;
+                        $.ajax({  
+                            url: "{{ route('update.installment.status') }}", // your update route
+                            type: 'POST',
+                            data: {id: installmentId, status: newStatus },
+                            success: function(response) {
+                                Swal.fire('Updated!', "Status updated successfully.", 'success');
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 3000);
+                            },
+                            error: function() {
+                                Swal.fire('Error!', 'Failed to update status.', 'error');
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 3000);
+                            }
+                        });
+                    }
+                });
             });
 
             $('#statusSelect').on('change', function() {

@@ -392,7 +392,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'no_of_pages'           => $model->no_of_pages,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
-                'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
+                'additional_documents'  => formatFilePathsWithFullUrl($model->additional_documents ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
             ];
         case 'annual-retainer-agreement' :
@@ -474,6 +474,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'testament_place'       => $model->testament_place,
                 'nationality'           => $model->nationalityOption?->getTranslation('name',$lang) ?? NULL,
                 'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
+                'full_name'             => $model->full_name,
                 'religion'              => $model->religionOption?->getTranslation('name',$lang) ?? NULL,
                 'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
                 'about_case'            => $model->about_case,
@@ -488,7 +489,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
                 'full_name'             => $model->full_name,
                 'about_case'            => $model->about_case,
-                'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
+                'documents'             => formatFilePathsWithFullUrl($model->document ?? []),
                 'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
             ];
@@ -507,8 +508,8 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
         case 'contract-drafting':
             return [
                 'applicant_type'        => $model->applicant_type,
-                'contract_type'         => $model->contractType?->getTranslation('name',$lang) ?? NULL,
                 'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
+                'contract_type'         => $model->contractType?->getTranslation('name',$lang) ?? NULL,
                 'sub_contract_type'     => $model->subContractType?->getTranslation('name',$lang) ?? NULL,
                 'contract_language'     => $model->contractLanguage?->getTranslation('name',$lang) ?? NULL,
                 'company_name'          => $model->company_name,
@@ -739,3 +740,12 @@ function getUsersWithPermissions(array $permissions, string $guard = 'web')
 
     return $users;
 }
+
+function getUnreadNotificationCount()
+    {
+        $user = Auth::guard('frontend')->user();
+
+        $count = $user->unreadNotifications()->count();
+
+        return $count;
+    }

@@ -81,7 +81,7 @@
             placeholder: "{{ __('frontend.choose_option') }}"
         });
 
-       document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function() {
             toastr.options = {
                 closeButton: true,
                 progressBar: true,
@@ -109,6 +109,43 @@
             @if (session('warning'))
                 toastr.warning("{{ session('warning') }}");
             @endif
+        });
+
+        $(document).ready(function () {
+            $('#search-navbar').on('input', function () {
+                let query = $(this).val();
+                if (query.length < 2) {
+                    $('#search-suggestions').hide();
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('user.search.services') }}",
+                    method: 'GET',
+                    data: { q: query },
+                    success: function (response) {
+                        let suggestions = $('#search-suggestions');
+                        suggestions.empty();
+
+                        if (response.length > 0) {
+                            response.forEach(service => {
+                                suggestions.append(`<a href="/user/service-request/${service.slug}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">${service.title}</a>`);
+                            });
+                            suggestions.show();
+                        } else {
+                            suggestions.append(`<div class="px-4 py-2 text-sm text-gray-500">{{ __('frontend.no_result_found') }}</div>`);
+                            suggestions.show();
+                        }
+                    }
+                });
+            });
+
+            // Optional: hide suggestions when clicking outside
+            $(document).click(function (e) {
+                if (!$(e.target).closest('#search-navbar, #search-suggestions').length) {
+                    $('#search-suggestions').hide();
+                }
+            });
         });
     </script>
 

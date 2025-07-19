@@ -10,15 +10,19 @@ use App\Models\Dropdown;
 use App\Models\Emirate;
 use App\Models\JobPost;
 use App\Models\JobApplication;
+use App\Models\Service;
 use App\Models\Vendor;
+use App\Models\AnnualAgreementInstallment;
 use App\Models\TrainingRequest;
 use App\Models\ProblemReport;
+use App\Models\ServiceRequest;
 use App\Mail\JobApplicationReceived;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Notifications\ProblemReported;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\TrainingRequestSubmitted;
@@ -418,5 +422,389 @@ class UserController extends Controller
         }
 
         return redirect($redirectionUrl)->with('success', __('messages.job_apply_success'));
+    }
+
+    public function serviceHistory(Request $request)
+    {
+        $page       = 'history';
+        $pageTitle = __('frontend.service_history');
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $tab        = $serviceSlug = $request->query('tab', 'online-live-consultancy'); // default tab
+        $perPage    = 9;
+
+        $request->session()->put('service_last_url', url()->full());
+
+        $query = ServiceRequest::with('user', 'service')->where('user_id', auth()->id());
+
+        if ($serviceSlug) {
+            if($serviceSlug === 'law-firm-services'){
+                $slugs = Service::whereHas('parent', function ($query) {
+                    $query->where('slug', 'law-firm-services');
+                })->pluck('slug');
+
+                $query->whereIn('service_slug', $slugs);
+            }else{
+                $query->where('service_slug', $serviceSlug);
+            }    
+        } 
+
+        $serviceRequests = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
+
+        $services = Service::with(['translations' => function ($newquery) use ($lang) {
+                        $newquery->where('lang', $lang);
+                    }])
+                    ->whereNull('parent_id')
+                    // ->where('status', 1)
+                    ->orderBy('sort_order', 'ASC')
+                    ->get();
+
+        // Optionally transform the result to extract only translated fields
+        $mainServices = $services->map(function ($service) {
+            $translation = $service->translations->first();
+            return [
+                'id' => $service->id,
+                'slug' => $service->slug,
+                'title' => $translation->title ?? '',
+                'icon' => asset(getUploadedImage($service->icon)),
+            ];
+        });
+
+        return view('frontend.user.service-history', compact('serviceRequests','mainServices', 'tab','lang','page','pageTitle'));
+    }
+
+    public function servicePending(Request $request)
+    {
+        $page = 'pending';
+        $pageTitle = __('frontend.pending_service');
+        $lang   = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $tab = $serviceSlug = $request->query('tab', 'request-submission'); // default tab
+        $perPage = 9;
+        $request->session()->put('service_last_url', url()->full());
+
+        $query = ServiceRequest::with('user', 'service')
+                        ->where('status', 'pending')
+                        ->where('user_id', auth()->id());
+
+        if ($serviceSlug) {
+            if($serviceSlug === 'law-firm-services'){
+                $slugs = Service::whereHas('parent', function ($query) {
+                    $query->where('slug', 'law-firm-services');
+                })->pluck('slug');
+
+                $query->whereIn('service_slug', $slugs);
+            }else{
+                $query->where('service_slug', $serviceSlug);
+            }    
+        } 
+
+        $serviceRequests = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
+
+        $services = Service::with(['translations' => function ($newquery) use ($lang) {
+                        $newquery->where('lang', $lang);
+                    }])
+                    ->whereNull('parent_id')
+                    // ->where('status', 1)
+                    ->orderBy('sort_order', 'ASC')
+                    ->get();
+
+        // Optionally transform the result to extract only translated fields
+        $mainServices = $services->map(function ($service) {
+            $translation = $service->translations->first();
+            return [
+                'id' => $service->id,
+                'slug' => $service->slug,
+                'title' => $translation->title ?? '',
+                'icon' => asset(getUploadedImage($service->icon)),
+            ];
+        });
+
+        return view('frontend.user.service-history', compact('serviceRequests','mainServices', 'tab','lang','page','pageTitle'));
+    }
+
+    public function servicePayment(Request $request)
+    {
+        $page = 'payment';
+        $pageTitle = __('frontend.payment_history');
+        $lang   = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $tab = $serviceSlug = $request->query('tab', 'online-live-consultancy'); // default tab
+        $perPage = 9;
+        $request->session()->put('service_last_url', url()->full());
+
+        $query = ServiceRequest::with('user', 'service')
+                        ->whereNotNull('payment_status')
+                        ->where('user_id', auth()->id());
+
+        if ($serviceSlug) {
+            if($serviceSlug === 'law-firm-services'){
+                $slugs = Service::whereHas('parent', function ($query) {
+                    $query->where('slug', 'law-firm-services');
+                })->pluck('slug');
+
+                $query->whereIn('service_slug', $slugs);
+            }else{
+                $query->where('service_slug', $serviceSlug);
+            }    
+        } 
+
+        $serviceRequests = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
+
+        $services = Service::with(['translations' => function ($newquery) use ($lang) {
+                        $newquery->where('lang', $lang);
+                    }])
+                    ->whereNull('parent_id')
+                    // ->where('status', 1)
+                    ->orderBy('sort_order', 'ASC')
+                    ->get();
+
+        // Optionally transform the result to extract only translated fields
+        $mainServices = $services->map(function ($service) {
+            $translation = $service->translations->first();
+            return [
+                'id' => $service->id,
+                'slug' => $service->slug,
+                'title' => $translation->title ?? '',
+                'icon' => asset(getUploadedImage($service->icon)),
+            ];
+        });
+
+        return view('frontend.user.service-history', compact('serviceRequests','mainServices', 'tab','lang','page','pageTitle'));
+    }
+
+    public function getServiceHistoryDetails(Request $request, $id){
+        $lang           = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $id             = base64_decode($id);
+        $serviceRequest = ServiceRequest::with('service')->findOrFail($id);
+
+        $relation = getServiceRelationName($serviceRequest->service_slug);
+
+        if (!$relation || !$serviceRequest->relationLoaded($relation)) {
+            $serviceRequest->load($relation);
+        }
+
+        $serviceDetails = $serviceRequest->$relation;
+
+        if (!$serviceDetails) {
+            return redirect()->back()->with('error', __('frontend.no_details_found'));
+        }
+
+        $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
+
+        $installments = [];
+        
+        $dataService = [
+            'id'                => $serviceRequest->id,
+            'service_slug'      => $serviceRequest->service_slug,
+            'service_name'      => $serviceRequest->service->getTranslation('title',$lang),
+            'reference_code'    => $serviceRequest->reference_code,
+            'status'            => $serviceRequest->status,
+            'payment_status'    => $serviceRequest->payment_status,
+            'payment_reference' => $serviceRequest->payment_reference,
+            'amount'            => $serviceRequest->amount,
+            'submitted_at'      => $serviceRequest->submitted_at,
+            'service_details'   => $translatedData,
+        ];
+
+        if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+            $installmentAnnual = AnnualAgreementInstallment::where('service_request_id',$serviceRequest->id)->get();
+
+            $installments = $installmentAnnual->map(function ($inst) {
+                return [
+                    'id' => $inst->id,
+                    'installment_no' => $inst->installment_no,
+                    'amount' => $inst->amount ?? 0,
+                    'status' => $inst->status,
+                ];
+            });
+            $dataService['installments'] = $installments;
+        }
+
+        // echo '<pre>';
+        // print_r($dataService);
+        // die;
+
+        return view('frontend.user.service_history_details', compact('dataService','lang' ));
+    }
+
+    public function account(){
+        $user   = Auth::guard('frontend')->user();
+        return view('frontend.user.account', compact('user'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::guard('frontend')->user();
+
+        $validator = Validator::make($request->all(), [
+            'full_name'     => 'required|string|max:255',
+            'phone'    => 'nullable|string|max:20',
+            'language' => 'nullable|string|in:en,ar,fr,fa,ru,zh', 
+        ],[
+            'full_name.required' => __('messages.full_name_required'),
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $user->name = $request->full_name ?? $user->name;
+        $user->phone = $request->phone;
+        $user->address = $request->address;
+        $user->language = $request->language;
+        $user->save();
+
+        session(['locale' => $user->language]);
+
+        return redirect()->back()->with('success', __('frontend.profile_updated'));
+    }
+
+    public function deleteAccount(Request $request)
+    {
+        $user = Auth::guard('frontend')->user();
+
+        // Revoke tokens for Sanctum
+        if (method_exists($user, 'tokens')) {
+            $user->tokens()->delete();
+        }
+
+        // Soft delete
+        $user->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.account_deleted_successfully')
+        ]);
+    }
+
+    public function changePassword(){
+        return view('frontend.user.change-password');
+    }
+
+    public function updateNewPassword(Request $request)
+    {
+        $user = Auth::guard('frontend')->user();
+
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required',
+            'new_password' => [
+                'required',
+                'string',
+                'min:6',
+                'confirmed'           // must match new_password_confirmation
+            ],
+        ],[
+            'current_password.required'    => __('messages.current_password_required'),
+            'new_password.required'        => __('messages.new_password_required'),
+            'new_password.min'             => __('messages.new_password_min'),
+            'new_password.confirmed'       => __('messages.new_password_confirmed'),
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => __('messages.current_password_incorrect')])->withInput();
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return back()->with('success', __('messages.password_changed_successfully'));
+    }
+
+    public function notifications(Request $request)
+    {
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $services   = \App\Models\Service::with('translations')->get();
+
+        $serviceMap = [];
+
+        foreach ($services as $service) {
+            foreach ($service->translations as $translation) {
+                $serviceMap[$service->slug][$translation->lang] = $translation->title;
+            }
+        }
+
+        $allShownIds = [];
+        $allNotifications =  Auth::guard('frontend')->user()->notifications();
+
+        $paginatedNot = (clone $allNotifications)
+                        ->orderByDesc('created_at')
+                        ->paginate(10);
+
+        $notifications = collect($paginatedNot->items())
+                ->map(function ($notification) use($lang, $serviceMap) {
+                    $data = $notification->data;
+                    $slug = $data['service'] ?? null;
+
+                    $serviceName =  $slug && isset($serviceMap[$slug]) ? ($serviceMap[$slug][$lang] ?? $serviceMap[$slug][env('APP_LOCALE','en')] ?? $slug) : '';
+                    
+                    return [
+                        'id'   => $notification->id,
+                        'message'   => __($notification->data['message'], [
+                                            'service'   => $serviceName,
+                                            'reference' => $data['reference_code'],
+                                        ]),
+                        'time'      => $notification->created_at->format('d M, Y h:i A'), // or 'h:i A' for AM/PM
+                    ];
+                });
+
+        $allShownIds = collect($paginatedNot->items())
+                        ->pluck('id');
+        Auth::guard('frontend')->user()->unreadNotifications()
+            ->whereIn('id', $allShownIds)
+            ->update(['read_at' => now()]);
+
+        return view('frontend.user.notifications', compact('notifications','paginatedNot'));
+    }
+
+    public function clearAllNotifications()
+    {
+        Auth::guard('frontend')->user()->notifications()->delete();
+        return response()->json(['success' => true, 'message' =>  __('messages.notifications_cleared_successfully')]);
+    }
+
+    public function deleteSelectedNotifications(Request $request)
+    {
+        $ids = $request->notification_ids ?? [];
+       
+        if (!empty($ids)) {
+            Auth::guard('frontend')->user()->notifications()->whereIn('id', $ids)->delete();
+        }
+        return response()->json(['success' => true, 'message' =>  __('messages.selected_notifications_cleared_successfully')]);
+    }
+
+    public function searchService(Request $request)
+    {
+        $query = $request->get('q');
+
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $keyword    = $request->get('q');
+;
+        $services = Service::where('status', 1)
+                    ->whereNotIn('slug',['law-firm-services'])
+                    ->whereHas('translations', function ($query) use ($keyword) {
+                        $query->where(function ($q) use ($keyword) {
+                            $q->where('title', 'LIKE', "%$keyword%")
+                            ->orWhere('description', 'LIKE', "%$keyword%");
+                        });
+                    })
+                    ->with(['translations' => function ($query) use ($lang) {
+                        $query->where('lang', $lang);
+                    }])
+                    ->orderBy('sort_order', 'ASC')
+                    ->get();
+                   
+        $servs = $services->map(function ($service) {
+                    $translation = $service->translations->first();
+                    return [
+                        'id' => $service->id,
+                        'slug' => $service->slug,
+                        'title' => $translation->title ?? '',
+                        'icon' => asset(getUploadedImage($service->icon)),
+                    ];
+                });
+    
+        return response()->json($servs);
     }
 }

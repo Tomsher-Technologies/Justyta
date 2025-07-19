@@ -11,6 +11,7 @@ use App\Models\Country;
 use App\Models\ContractType;
 use App\Models\LicenseType;
 use App\Models\FreeZone;
+use App\Models\AnnualAgreementInstallment;
 use App\Models\ConsultationDuration;
 use App\Models\Vendor;
 use App\Models\AnnualRetainerBaseFee;
@@ -141,6 +142,19 @@ class ServiceRequestController extends Controller
             'service_details' => $translatedData,
         ];
 
+        if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+            $installmentAnnual = AnnualAgreementInstallment::where('service_request_id',$serviceRequest->id)->get();
+
+            $installments = $installmentAnnual->map(function ($inst) {
+                return [
+                    'id' => $inst->id,
+                    'installment_no' => $inst->installment_no,
+                    'amount' => $inst->amount ?? 0,
+                    'status' => $inst->status,
+                ];
+            });
+            $dataService['installments'] = $installments;
+        }
         // echo '<pre>';
         // print_r($dataService);
         // die;
@@ -240,5 +254,36 @@ class ServiceRequestController extends Controller
         $filename = $serviceSlug . '_export_' . now()->format('Y_m_d_h_i_s') . '.xlsx';
 
         return Excel::download(new ServiceRequestExport($records, $serviceName, $serviceSlug, $fields), $filename);
+    }
+
+    public function updateInstallmentStatus(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:annual_agreement_installments,id',
+            'status' => 'required|in:paid,pending,failed',
+        ]);
+
+        $installment = AnnualAgreementInstallment::findOrFail($request->id);
+        $installment->status = $request->status;
+        $installment->updated_at = now();
+        $installment->save();
+
+        $serviceRequest = $installment->serviceRequest;
+
+        if ($serviceRequest) {
+            // Check if all installments are paid
+            $allPaid = $serviceRequest->installments()->where('status', '!=', 'paid')->count() === 0;
+
+            if ($allPaid) {
+                $serviceRequest->payment_status = 'success';
+                $serviceRequest->paid_at = now();
+                $serviceRequest->save();
+            }else{
+                $serviceRequest->payment_status = 'partial';
+                $serviceRequest->paid_at = now();
+                $serviceRequest->save();
+            }
+        }
+        return response()->json(['success' => true]);
     }
 }

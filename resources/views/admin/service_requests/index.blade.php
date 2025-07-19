@@ -64,7 +64,8 @@
                                             </option>
                                             <option value="success" {{ request()->payment_status == 'success' ? 'selected' : '' }}>Paid
                                             </option>
-                                           
+                                            <option value="partial" {{ request()->payment_status == 'partial' ? 'selected' : '' }}>Partially Paid
+                                            </option>
                                         </select>
                                     </div>
 
@@ -126,6 +127,8 @@
                                                             $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span>';
                                                         }elseif($serviceReq->payment_status === 'success'){
                                                             $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span>';
+                                                        }elseif($serviceReq->payment_status === 'partial'){
+                                                            $paymentStatus = '<span class="badge badge-pill badge-warning">Partially Paid</span>';
                                                         }
                                                     @endphp     
                                                     {!! $paymentStatus !!}

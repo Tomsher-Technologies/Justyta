@@ -88,11 +88,13 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/payment-callback/{order_id}', [ServiceRequestController::class, 'paymentSuccess'])->name('user.web-payment.callback');
     Route::get('/payment-cancel', [ServiceRequestController::class, 'paymentCancel'])->name('user.web-payment.cancel');
 
+    // User Feedbacks
     Route::get('/report-a-problem', [UserController::class, 'reportProblem'])->name('user-report-problem');
     Route::post('/report-problem', [UserController::class, 'submitReportProblem'])->name('user.report.problem.submit');
     Route::get('/rate-us', [UserController::class, 'rateUs'])->name('user-rate-us');
     Route::post('/rating', [UserController::class, 'rateUsSave'])->name('user.rating.submit');
 
+    // Manage Training Request
     Route::get('/training-request', [UserController::class, 'getTrainingFormData'])->name('user-training-request');
     Route::post('/training-request-save', [UserController::class, 'requestTraining'])->name('user-training-training-submit');
 
@@ -101,6 +103,27 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/law-firm-jobs/details/{id}', [UserController::class, 'jobPostDetails'])->name('user.job.details');
     Route::get('/law-firm-jobs/apply/{id}', [UserController::class, 'jobPostApply'])->name('user.job.details.apply');
     Route::post('/law-firm-apply-job', [UserController::class, 'applyJob'])->name('user.job.apply');
+
+    // Service History 
+    Route::get('/service-history', [UserController::class, 'serviceHistory'])->name('user.service.history');
+    Route::get('/pending-services', [UserController::class, 'servicePending'])->name('user.service.pending');
+    Route::get('/payment-services', [UserController::class, 'servicePayment'])->name('user.service.payment');
+
+    Route::get('/service-history-details/{id}', [UserController::class, 'getServiceHistoryDetails'])->name('user.service.history.details');
+    Route::get('/service-pending-details/{id}', [UserController::class, 'getServiceHistoryDetails'])->name('user.service.pending.details');
+    Route::get('/service-payment-details/{id}', [UserController::class, 'getServiceHistoryDetails'])->name('user.service.payment.details');
+
+    Route::get('/my-account', [UserController::class, 'account'])->name('user.my-account');
+    Route::post('/user-profile', [UserController::class, 'updateProfile'])->name('user.update.profile');
+    Route::delete('/account/delete', [UserController::class, 'deleteAccount'])->name('user.delete.account');
+    Route::get('/change-password', [UserController::class, 'changePassword'])->name('user.change-password');
+    Route::post('/update-password', [UserController::class, 'updateNewPassword'])->name('user.update-new-password');
+    Route::get('/notifications', [UserController::class, 'notifications'])->name('user.notifications.index');
+    Route::post('/notifications/clear', [UserController::class, 'clearAllNotifications'])->name('user.notifications.clear');
+    Route::post('/notifications/delete-selected', [UserController::class, 'deleteSelectedNotifications'])->name('user.notifications.delete.selected');
+
+    Route::get('/search-services', [UserController::class, 'searchService'])->name('user.search.services');
+
 });
 
 
