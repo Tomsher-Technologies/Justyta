@@ -113,7 +113,7 @@
 @endsection
 
 @section('style')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css@4.1.7/css/flag-icons.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/flag-icons.min.css') }}">
 
     <style>
         .flag-icon {

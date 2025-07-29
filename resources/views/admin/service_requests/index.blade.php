@@ -75,10 +75,12 @@
                                             class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
 
                                         @if(request('service_id'))
-                                            <a href="{{ route('service-requests.export', ['service_id' => request('service_id')] + request()->all()) }}"
-                                                class="btn btn-warning btn-sm ml-2">
-                                                Export
-                                            </a>
+                                            @can('export_service_requests')
+                                                <a href="{{ route('service-requests.export', ['service_id' => request('service_id')] + request()->all()) }}"
+                                                    class="btn btn-warning btn-sm ml-2">
+                                                    Export
+                                                </a>
+                                            @endcan
                                         @endif
                                     </div>
                                 </div>

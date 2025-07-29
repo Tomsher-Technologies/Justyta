@@ -55,8 +55,8 @@ class ServiceRequestController extends Controller
        
         $this->middleware('permission:manage_service_requests',  ['only' => ['index','destroy']]);
         $this->middleware('permission:view_service_requests',  ['only' => ['index','show']]);
-        $this->middleware('permission:change_request_status',  ['only' => ['updateStatus']]);
-        $this->middleware('permission:export_service_requests',  ['only' => ['index','show']]);
+        $this->middleware('permission:change_request_status',  ['only' => ['updateRequestStatus']]);
+        $this->middleware('permission:export_service_requests',  ['only' => ['export']]);
     }
 
     public function index (Request $request)

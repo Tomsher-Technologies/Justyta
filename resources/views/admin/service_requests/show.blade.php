@@ -105,7 +105,7 @@
                                             </div>
                                         @endif
 
-                                        @if($dataService['installments']->isNotEmpty())
+                                        @if(isset($dataService['installments']) && $dataService['installments']->isNotEmpty())
                                             <div class="col-md-12 mt-4">
                                                 <h5 class="text-md font-semibold mb-3">{{ __('Installment Details') }}</h5>
                                                 <div class="overflow-x-auto">
@@ -228,13 +228,13 @@
 
 @section('style')
     <!-- Lightbox2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/css/lightbox.min.css" rel="stylesheet">
+    <link href="{{ asset('assets/css/lightbox.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
 @endsection
 
 @section('script')
     <!-- Lightbox2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/js/lightbox.min.js"></script>
+    <script src="{{ asset('assets/js/lightbox.min.js') }}"></script>
     <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
 
     <script type="text/javascript">

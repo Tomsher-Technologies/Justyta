@@ -259,7 +259,7 @@
 @endsection
 
 @section('script')
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="{{ asset('assets/js/bootstrap/popper.js') }}"></script>
     <script>
         $(document).ready(function() {
             let modal = new bootstrap.Modal(document.getElementById('licenseTypeModal'));
