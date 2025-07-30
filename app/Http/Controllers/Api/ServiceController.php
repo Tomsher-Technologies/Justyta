@@ -2710,6 +2710,8 @@ class ServiceController extends Controller
         ];
 
         $order = createOrder($customer, $amount, $currency, $orderReference);
+        echo json_encode($order);
+        die;
         if (!$order || !isset($order['reference'])) {
             return response()->json([
                 'status' => false,

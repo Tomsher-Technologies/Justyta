@@ -1,16 +1,24 @@
 <nav class="grid grid-cols-2 gap-5 grid-cols-[2fr_1fr] items-center justify-between mb-5">
+  
+
     <div class="relative hidden lg:block w-full">
         <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
-            <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                fill="none" viewBox="0 0 20 20">
+            <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
             </svg>
         </div>
         <input type="text" id="search-navbar"
             class="block p-3 w-full ps-12 text-sm text-gray-900 border border-[#FFE9B1] rounded-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Search here..." />
+            placeholder="Search services..." autocomplete="off" />
+
+        <!-- Suggestions container -->
+        <div id="search-suggestions"
+            class="absolute z-10 w-full bg-white border border-gray-200 rounded-b-lg shadow-md max-h-60 overflow-y-auto hidden">
+            <!-- Results will be inserted here -->
+        </div>
     </div>
+
     <div class="flex items-center justify-end gap-4">
         <button type="button"
             class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
@@ -21,7 +29,7 @@
             </svg>
             <div
                 class="absolute inline-flex items-center justify-center w-6 h-6 text-xs text-white bg-red-500 border-2 border-[#E6DFCC] rounded-full -top-2 -end-2 shadow-xl">
-                20
+                {{ getUnreadNotificationCount() }}
             </div>
         </button>
         <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown"
@@ -60,7 +68,7 @@
                     </clipPath>
                 </defs>
             </svg>
-            <span class="hidden sm:block">Zoid Al-Rashid</span>
+            <span class="hidden sm:block">{{ Auth::guard('frontend')->user()->name ?? NULL }}</span>
             <svg class="w-2.5 h-2.5 ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 10 6">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -69,12 +77,12 @@
         </button>
         <div id="userDropdown"
             class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow p-6 w-64 !translate-x-[238px] !translate-y-[50px]">
-            <a href="#" class="flex items-center justify-between w-full border-b">
+            <a href="{{ route('user.my-account') }}" class="flex items-center justify-between w-full border-b">
                 <div class="pb-4">
                     <h3 class="text-[#353434] text-lg mb-0 leading-none">
-                        Ziad Hamdy m
+                        {{ Auth::guard('frontend')->user()->name ?? NULL }}
                     </h3>
-                    <small class="text-[#353434] text-xs">zizo.hamdy016@gmail.com</small>
+                    <small class="text-[#353434] text-xs">{{ Auth::guard('frontend')->user()->email ?? NULL }}</small>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" width="19" height="20" viewBox="0 0 19 20"
                     fill="none">
@@ -105,11 +113,11 @@
                                 stroke-linejoin="round" />
                         </svg>
 
-                        <span>Notifications</span>
+                        <span>{{ __('frontend.notifications') }}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center gap-2 py-2">
+                    <a href="{{ route('user.service.pending') }}" class="flex items-center gap-2 py-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 27 29"
                             fill="none">
                             <path
@@ -121,29 +129,29 @@
                                 stroke="#1C1C1C" stroke-width="1.5" stroke-linecap="round"
                                 stroke-linejoin="round" />
                         </svg>
-                        <span>Pending Service</span>
+                        <span>{{ __('frontend.pending_service') }}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center gap-2 py-2">
+                    <a href="{{ route('user.service.history') }}" class="flex items-center gap-2 py-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 30 30"
                             fill="none">
                             <path fill-rule="evenodd" clip-rule="evenodd"
                                 d="M4.59657 4.43823C10.3009 -1.29894 19.5751 -1.23838 25.314 4.54268C31.0559 10.3253 31.116 19.6697 25.4102 25.4145C19.7044 31.1592 10.4272 31.1002 4.68525 25.3176C3.06997 23.6979 1.84953 21.7231 1.1198 19.5484C0.390066 17.3736 0.170909 15.0581 0.479541 12.7836C0.520004 12.4851 0.676553 12.215 0.914748 12.0328C1.15294 11.8505 1.45328 11.771 1.74967 11.8118C2.04607 11.8525 2.31425 12.0102 2.49522 12.2501C2.6762 12.49 2.75513 12.7924 2.71467 13.0909C2.45265 15.0184 2.63813 16.9808 3.25652 18.8239C3.87491 20.667 4.90936 22.3406 6.27856 23.713C11.1562 28.6237 19.0069 28.6524 23.8169 23.8099C28.6254 18.9658 28.5968 11.0594 23.7207 6.14727C18.8461 1.23965 10.9998 1.20786 6.18987 6.04434L7.3142 6.04888C7.46225 6.04958 7.6087 6.07963 7.74521 6.13733C7.88172 6.19503 8.00561 6.27924 8.10981 6.38516C8.214 6.49107 8.29646 6.61662 8.35248 6.75463C8.40849 6.89264 8.43697 7.04041 8.43628 7.1895C8.43559 7.33859 8.40574 7.48609 8.34845 7.62357C8.29116 7.76105 8.20754 7.88581 8.10237 7.99074C7.9972 8.09568 7.87253 8.17872 7.73549 8.23513C7.59845 8.29155 7.45172 8.32022 7.30368 8.31953L3.47675 8.30136C3.17959 8.29977 2.89506 8.18007 2.68507 7.96831C2.47508 7.75655 2.35661 7.46985 2.35543 7.17058L2.33589 3.31956C2.3351 3.17047 2.36348 3.02268 2.4194 2.88463C2.47532 2.74658 2.5577 2.62098 2.66182 2.51499C2.76595 2.40901 2.88978 2.32471 3.02626 2.26692C3.16273 2.20913 3.30917 2.17898 3.45721 2.17818C3.60525 2.17739 3.752 2.20597 3.88908 2.26229C4.02616 2.31861 4.15088 2.40157 4.25612 2.50643C4.36136 2.61129 4.44506 2.736 4.50244 2.87344C4.55983 3.01088 4.58977 3.15836 4.59056 3.30745L4.59657 4.43823ZM14.9981 7.73824C15.2971 7.73824 15.5839 7.85786 15.7953 8.07077C16.0067 8.28368 16.1255 8.57246 16.1255 8.87357V14.4594L19.5541 17.9107C19.6618 18.0154 19.7477 18.1407 19.8069 18.2791C19.866 18.4176 19.8972 18.5666 19.8986 18.7173C19.8999 18.8681 19.8715 19.0176 19.8149 19.1571C19.7582 19.2967 19.6746 19.4235 19.5688 19.5302C19.463 19.6368 19.3372 19.7212 19.1986 19.7783C19.0601 19.8355 18.9117 19.8643 18.762 19.863C18.6123 19.8618 18.4644 19.8305 18.3268 19.7711C18.1892 19.7117 18.0648 19.6252 17.9608 19.5168L13.8723 15.3994V8.87508C13.8723 8.57397 13.9911 8.2852 14.2025 8.07228C14.4139 7.85937 14.7006 7.73976 14.9996 7.73976"
                                 fill="#1C1C1C" />
                         </svg>
-                        <span>Service History</span>
+                        <span>{{ __('frontend.service_history') }}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center gap-2 py-2">
+                    <a href="{{ route('user.service.payment') }}" class="flex items-center gap-2 py-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 31 23"
                             fill="none">
                             <path
                                 d="M20.6579 14.3533C20.412 14.3533 20.1762 14.451 20.0023 14.6249C19.8284 14.7987 19.7307 15.0346 19.7307 15.2805C19.7307 15.5264 19.8284 15.7622 20.0023 15.9361C20.1762 16.1099 20.412 16.2076 20.6579 16.2076H24.9847C25.2306 16.2076 25.4664 16.1099 25.6403 15.9361C25.8142 15.7622 25.9119 15.5264 25.9119 15.2805C25.9119 15.0346 25.8142 14.7987 25.6403 14.6249C25.4664 14.451 25.2306 14.3533 24.9847 14.3533H20.6579ZM0.574219 4.77256C0.574219 3.54306 1.06264 2.36391 1.93202 1.49452C2.80141 0.625136 3.98056 0.136719 5.21006 0.136719H25.6028C26.8323 0.136719 28.0114 0.625136 28.8808 1.49452C29.7502 2.36391 30.2386 3.54306 30.2386 4.77256V17.7529C30.2386 18.9824 29.7502 20.1616 28.8808 21.0309C28.0114 21.9003 26.8323 22.3887 25.6028 22.3887H5.21129C3.98179 22.3887 2.80265 21.9003 1.93326 21.0309C1.06387 20.1616 0.575455 18.9824 0.575455 17.7529L0.574219 4.77256ZM5.21006 1.99105C4.47236 1.99105 3.76487 2.2841 3.24324 2.80574C2.7216 3.32737 2.42855 4.03486 2.42855 4.77256V5.69973H28.3843V4.77256C28.3843 4.03486 28.0913 3.32737 27.5696 2.80574C27.048 2.2841 26.3405 1.99105 25.6028 1.99105H5.21006ZM2.42855 17.7529C2.42855 18.4906 2.7216 19.1981 3.24324 19.7197C3.76487 20.2414 4.47236 20.5344 5.21006 20.5344H25.6028C26.3405 20.5344 27.048 20.2414 27.5696 19.7197C28.0913 19.1981 28.3843 18.4906 28.3843 17.7529V7.55406H2.42979L2.42855 17.7529Z"
                                 fill="#1C1C1C" />
                         </svg>
-                        <span>Payment History</span>
+                        <span>{{ __('frontend.payment_history') }}</span>
                     </a>
                 </li>
                 <li>
@@ -158,8 +166,8 @@
                     </a>
                 </li>
                 <li class="mt-10">
-                    <a href="#" class="flex items-center justify-between gap-2 py-2">
-                        <span>Log Out</span>
+                    <a href="{{ route('frontend.logout') }}" class="flex items-center justify-between gap-2 py-2">
+                        <span>{{ __('frontend.sign_out') }}</span>
 
                         <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21"
                             fill="none">

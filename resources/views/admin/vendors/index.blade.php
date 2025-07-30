@@ -228,7 +228,7 @@
 @endsection
 
 @section('script_first')
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="{{ asset('assets/js/bootstrap/popper.js') }}"></script>
 @endsection
 
 @section('script')

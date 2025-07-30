@@ -64,7 +64,8 @@
                                             </option>
                                             <option value="success" {{ request()->payment_status == 'success' ? 'selected' : '' }}>Paid
                                             </option>
-                                           
+                                            <option value="partial" {{ request()->payment_status == 'partial' ? 'selected' : '' }}>Partially Paid
+                                            </option>
                                         </select>
                                     </div>
 
@@ -74,10 +75,12 @@
                                             class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
 
                                         @if(request('service_id'))
-                                            <a href="{{ route('service-requests.export', ['service_id' => request('service_id')] + request()->all()) }}"
-                                                class="btn btn-warning btn-sm ml-2">
-                                                Export
-                                            </a>
+                                            @can('export_service_requests')
+                                                <a href="{{ route('service-requests.export', ['service_id' => request('service_id')] + request()->all()) }}"
+                                                    class="btn btn-warning btn-sm ml-2">
+                                                    Export
+                                                </a>
+                                            @endcan
                                         @endif
                                     </div>
                                 </div>
@@ -118,6 +121,17 @@
 
                                                 <td class="text-center">
                                                     {{ $serviceReq->user?->name ?? '—' }}
+
+                                                    <i class="fas fa-info-circle text-primary ml-2 popover-toggle" tabindex="0" data-toggle="popover" data-placement="bottom" data-html="true" data-trigger="manual"
+                                                    title='<div class="popover-title">User Info</div>'
+                                                    data-content='
+                                                            <div class="custom-popover">
+                                                                <div class="popover-item"><i class="fas fa-user"></i> {{ $serviceReq->user?->name }}</div>
+                                                                <div class="popover-item"><i class="fas fa-envelope"></i> {{ $serviceReq->user?->email }}</div>
+                                                                <div class="popover-item"><i class="fas fa-phone"></i> {{ $serviceReq->user?->phone }}</div>
+                                                            </div>
+                                                        '></i>
+
                                                 </td>
                                                 <td class="text-center">
                                                     @php
@@ -126,6 +140,8 @@
                                                             $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span>';
                                                         }elseif($serviceReq->payment_status === 'success'){
                                                             $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span>';
+                                                        }elseif($serviceReq->payment_status === 'partial'){
+                                                            $paymentStatus = '<span class="badge badge-pill badge-warning">Partially Paid</span>';
                                                         }
                                                     @endphp     
                                                     {!! $paymentStatus !!}
@@ -170,10 +186,85 @@
     </div>
 @endsection
 
+@section('style')
+    <style>
 
+        
+        .popover-header {
+            background-color: var(--secondary);
+            /*#e2d8bf*/
+            font-size: 13px;
+        }
+
+        .popover {
+            background-color: #ffffff;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            min-width: 200px;
+        }
+
+        .custom-popover {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .popover-title {
+            font-weight: 700;
+            /* margin-bottom: 8px; */
+            color: var(--primary);
+            /* border-bottom: 1px solid #e9ecef;
+             padding-bottom: 4px; */
+        }
+
+        .custom-popover .popover-item i {
+            color: var(--primary);
+            margin-right: 8px;
+        }
+    </style>
+@endsection
+
+@section('script_first')
+    <script src="{{ asset('assets/js/bootstrap/popper.js') }}"></script>
+@endsection
 
 @section('script')
     <script type="text/javascript">
-        
+      
+
+        $(function() {
+            
+            $('.popover-toggle').popover();
+
+            // Show on hover/focus
+            $('.popover-toggle').on('mouseenter focus', function() {
+                $('.popover-toggle').not(this).popover('hide'); // hide others
+                $(this).popover('show');
+            });
+
+            // Hide on mouseleave or blur only if not hovering popover
+            $('.popover-toggle').on('mouseleave blur', function() {
+                let _this = this;
+                setTimeout(function() {
+                    if (!$('.popover:hover').length) {
+                        $(_this).popover('hide');
+                    }
+                }, 200);
+            });
+
+            // Keep popover open on hover
+            $(document).on('mouseenter', '.popover', function() {
+                clearTimeout(window._popoverTimeout);
+            });
+
+            $(document).on('mouseleave', '.popover', function() {
+                $('[data-toggle="popover"]').popover('hide');
+            });
+
+            // Re-render Feather if used
+            $(document).on('shown.bs.popover', function() {
+                if (window.feather) feather.replace();
+            });
+        });
     </script>
 @endsection
