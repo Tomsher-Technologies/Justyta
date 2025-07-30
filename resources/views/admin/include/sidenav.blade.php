@@ -161,7 +161,7 @@
                         <li class="">
                             <a href="{{ route('user-contacts.feedback') }}"
                                 class="{{ areActiveRoutes(['user-contacts.feedback']) }}">
-                                <span data-feather="list" class="nav-icon"></span>
+                                <span data-feather="mail" class="nav-icon"></span>
                                 <span class="menu-text">Contacts</span>
                             </a>
                         </li>
@@ -170,7 +170,7 @@
                         <li class="">
                             <a href="{{ route('user-ratings.feedback') }}"
                                 class="{{ areActiveRoutes(['user-ratings.feedback']) }}">
-                                <span data-feather="list" class="nav-icon"></span>
+                                <span data-feather="star" class="nav-icon"></span>
                                 <span class="menu-text">User Ratings</span>
                             </a>
                         </li>
@@ -179,7 +179,7 @@
                         <li class="">
                             <a href="{{ route('user-reported-problems.feedback') }}"
                                 class="{{ areActiveRoutes(['user-reported-problems.feedback']) }}">
-                                <span data-feather="list" class="nav-icon"></span>
+                                <span data-feather="alert-triangle" class="nav-icon"></span>
                                 <span class="menu-text">Reported Problems</span>
                             </a>
                         </li>

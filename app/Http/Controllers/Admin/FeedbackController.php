@@ -6,8 +6,13 @@ use App\Models\TrainingRequest;
 use App\Models\Dropdown;
 use App\Models\Contacts;
 use App\Models\Emirate;
+use App\Models\Rating;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Exports\ContactsExport;
+use App\Exports\RatingsExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 class FeedbackController extends Controller
 {
@@ -28,18 +33,37 @@ class FeedbackController extends Controller
 
     }
 
-    public function userRatings(){
-        
-    }
+    public function userRatings(Request $request){
+        $query = Rating::orderBy('id','desc');
 
-    public function userContacts(){
-        $query = Contact::orderBy('id','desc');
-        
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        if ($request->filled('daterange')) {
+            $dates = explode(' to ', $request->daterange);
+            if (count($dates) === 2) {
+                $query->whereBetween('created_at', [
+                    Carbon::parse($dates[0])->startOfDay(),
+                    Carbon::parse($dates[1])->endOfDay()
+                ]);
+            }
         }
 
-        $contacts = $query->paginate(15);
+        $ratings = $query->paginate(10);
+        return view('admin.user_feedbacks.ratings', compact('ratings'));
+    }
+
+    public function userContacts(Request $request){
+        $query = Contacts::orderBy('id','desc');
+
+        if ($request->filled('daterange')) {
+            $dates = explode(' to ', $request->daterange);
+            if (count($dates) === 2) {
+                $query->whereBetween('created_at', [
+                    Carbon::parse($dates[0])->startOfDay(),
+                    Carbon::parse($dates[1])->endOfDay()
+                ]);
+            }
+        }
+
+        $contacts = $query->paginate(10);
         return view('admin.user_feedbacks.contacts', compact('contacts'));
     }
 
@@ -53,6 +77,10 @@ class FeedbackController extends Controller
 
         if ($request->filled('emirate_id')) {
             $query->where('emirate_id', $request->emirate_id);
+        }
+
+        if ($request->filled('residency_status')) {
+            $query->where('residency_status', $request->residency_status);
         }
 
         if ($request->filled('position')) {
@@ -97,6 +125,18 @@ class FeedbackController extends Controller
 
     public function exportTrainingRequests(){
 
+    }
+
+    public function exportUserContacts(Request $request)
+    {
+        $filename = 'Contacts_export_' . now()->format('Y_m_d_h_i_s') . '.xlsx';
+        return Excel::download(new ContactsExport($request), $filename);
+    }
+
+    public function exportUserRatings(Request $request)
+    {
+        $filename = 'ratings_export_' . now()->format('Y_m_d_h_i_s') . '.xlsx';
+        return Excel::download(new RatingsExport($request), $filename);
     }
 
 }

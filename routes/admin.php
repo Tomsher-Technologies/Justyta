@@ -142,7 +142,9 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     // User Feedbacks
     Route::get('/reported-problems', [FeedbackController::class, 'reportedProblems'])->name('user-reported-problems.feedback');
     Route::get('/user-ratings', [FeedbackController::class, 'userRatings'])->name('user-ratings.feedback');
+    Route::get('/user-ratings/export', [FeedbackController::class, 'exportUserRatings'])->name('user-ratings.export');
     Route::get('/user-contacts', [FeedbackController::class, 'userContacts'])->name('user-contacts.feedback');
+    Route::get('/user-contacts/export', [FeedbackController::class, 'exportUserContacts'])->name('user-contacts.export');
 
     Route::get('/training-requests', [FeedbackController::class, 'trainingRequests'])->name('training-requests.index');
 });

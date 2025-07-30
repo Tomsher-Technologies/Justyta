@@ -20,7 +20,7 @@
                             <form method="GET" action="{{ route('training-requests.index') }}" autocomplete="off">
                                 <div class="row mb-2">
 
-                                    <div class="col-md-4 input-group  mb-1">
+                                    <div class="col-md-3 input-group  mt-2 mb-1">
                                         <select name="emirate_id" class="select2 form-control ih-small ip-gray radius-xs b-deep px-15"  data-placeholder="Select Emirate" >
                                             <option value="">--Select Emirate--</option>
                                              @foreach($response['emirates'] as $res)
@@ -30,17 +30,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-
-                                    <div class="col-md-4 input-group  mb-1">
-                                        <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker" name="daterange" placeholder="From Date - To Date" value="{{ request('daterange') }}">
-                                    </div>
-
-                                    <div class="col-md-4 input-group  mb-1">
-                                        <input type="text" name="keyword" value="{{ request('keyword') }}"
-                                            class="form-control ih-small ip-gray radius-xs b-deep px-15"
-                                            placeholder="Search with Reference Code">
-                                    </div>
-
+                        
                                     <div class="col-md-3 input-group mt-2  mb-1">
                                         <select name="position" class="select2 form-control ih-small ip-gray radius-xs b-deep px-15"  data-placeholder="Select Position" >
                                             <option value="">--Select Position--</option>
@@ -177,7 +167,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="8" class="text-center">No service requests found.</td>
+                                                <td colspan="8" class="text-center">No training requests found.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -224,7 +214,7 @@
             /* margin-bottom: 8px; */
             color: var(--primary);
             /* border-bottom: 1px solid #e9ecef;
-                                                                                                padding-bottom: 4px; */
+             padding-bottom: 4px; */
         }
 
         .custom-popover .popover-item i {
