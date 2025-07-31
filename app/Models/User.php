@@ -29,6 +29,7 @@ class User extends Authenticatable
         'banned',
         'user_type',
         'language',
+        'address',
         'image','otp_expires_at','otp'
     ];
 

@@ -99,9 +99,8 @@ Route::middleware('set_api_locale')->group(function () {
         // Payment Gateway
         Route::post('/payment-test', [ServiceController::class, 'paymentTest']);
         Route::post('/confirm-payment', [ServiceController::class, 'confirmPayment']);
-        Route::get('/payment-callback', [ServiceController::class, 'test'])->name('payment.callback');
-        Route::get('/payment-cancel', [ServiceController::class, 'test'])->name('payment.cancel');
-
+        Route::get('/payment-callback', [ServiceController::class, 'paymentSuccess'])->name('payment.callback');
+        Route::get('/payment-cancel', [ServiceController::class, 'paymentCancel'])->name('payment.cancel');
 
         // Service History
         Route::get('/service-history', [UserController::class, 'getServiceHistory']);

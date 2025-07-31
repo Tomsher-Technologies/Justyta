@@ -878,7 +878,7 @@ class ServiceRequestController extends Controller
         $courtCase->update($filePaths);
 
         // Notify the user
-        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -989,7 +989,7 @@ class ServiceRequestController extends Controller
         $criminalComplaint->update($filePaths);
 
         // Notify the user
-        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -1080,7 +1080,7 @@ class ServiceRequestController extends Controller
 
         $lastWill->update($filePaths);
         // Notify the user
-        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -1137,7 +1137,7 @@ class ServiceRequestController extends Controller
         ]);
 
         // Notify the user
-        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -1239,7 +1239,7 @@ class ServiceRequestController extends Controller
 
         $debtCollection->update($filePaths);
         // Notify the user
-        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -1351,7 +1351,7 @@ class ServiceRequestController extends Controller
 
         $memoWriting->update($filePaths);
         // Notify the user
-        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -1511,7 +1511,7 @@ class ServiceRequestController extends Controller
 
         $powerOA->update($filePaths);
         // Notify the user
-        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -1625,7 +1625,7 @@ class ServiceRequestController extends Controller
 
         $contractDrafting->update($filePaths);
         // Notify the user
-        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -1726,7 +1726,7 @@ class ServiceRequestController extends Controller
 
         $companySetup->update($filePaths);
         // Notify the user
-        $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -1855,7 +1855,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
             // Notify the user
-            $request->user()->notify(new ServiceRequestSubmitted($service_request));
+            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
             $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
             Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -2014,7 +2014,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
             // Notify the user
-            $request->user()->notify(new ServiceRequestSubmitted($service_request));
+            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
             $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
             Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -2162,7 +2162,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
             // Notify the user
-            $request->user()->notify(new ServiceRequestSubmitted($service_request));
+            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
             $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
             Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -2327,7 +2327,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
             // Notify the user
-            $request->user()->notify(new ServiceRequestSubmitted($service_request));
+            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
             $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
             Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -2457,7 +2457,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
             // Notify the user
-            $request->user()->notify(new ServiceRequestSubmitted($service_request));
+            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
             $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
             Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
@@ -2492,11 +2492,29 @@ class ServiceRequestController extends Controller
         $serviceRequest = ServiceRequest::findOrFail($serviceRequestId);
 
         if ($status === 'PURCHASED' || $status === 'CAPTURED') {
-            $serviceRequest->update([
-                'payment_status' => 'success',
-                'payment_response' => $data,
-                'paid_at' => date('Y-m-d h:i:s')
-            ]);
+            if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+                $annualRequest = RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
+                if($annualRequest->no_of_installment != 1){
+                    $serviceRequest->update([
+                        'payment_status' => 'partial',
+                        'payment_response' => $data,
+                        'paid_at' => date('Y-m-d h:i:s')
+                    ]);
+                }else{
+                    $serviceRequest->update([
+                        'payment_status' => 'success',
+                        'payment_response' => $data,
+                        'paid_at' => date('Y-m-d h:i:s')
+                    ]);
+                }
+
+            }else{
+                $serviceRequest->update([
+                    'payment_status' => 'success',
+                    'payment_response' => $data,
+                    'paid_at' => date('Y-m-d h:i:s')
+                ]);
+            }
 
             if($serviceRequest->service_slug === 'legal-translation'){
                 $legalTranslation = requestLegalTranslation::where('service_request_id', $serviceRequest->id)->first();
@@ -2560,6 +2578,12 @@ class ServiceRequestController extends Controller
             ]);
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         }
+
+        // Notify the user
+        Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
         
         return redirect()->route('user.dashboard')->with('error', 'Payment failed or cancelled.');
     }

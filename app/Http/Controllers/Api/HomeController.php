@@ -82,6 +82,7 @@ class HomeController extends Controller
         $keyword = $request->get('keyword');
         // DB::enableQueryLog();
         $services = Service::where('status', 1)
+                    ->whereNotIn('slug',['law-firm-services'])
                     ->whereHas('translations', function ($query) use ($keyword) {
                         $query->where(function ($q) use ($keyword) {
                             $q->where('title', 'LIKE', "%$keyword%")
@@ -99,6 +100,7 @@ class HomeController extends Controller
                     $translation = $service->translations->first();
                     return [
                         'id' => $service->id,
+                        'slug' => $service->slug,
                         'title' => $translation->title ?? '',
                         'icon' => asset(getUploadedImage($service->icon)),
                     ];

@@ -64,7 +64,7 @@
                                                             {{ $key + 1 + ($news->currentPage() - 1) * $news->perPage() }}
                                                         </td>
                                                         <td>{{ $nw->translate('en')->title ?? '-' }}</td>
-                                                        <td class="text-center"><img src="{{ asset($nw->image) }}"
+                                                        <td class="text-center"><img src="{{ asset(getUploadedImage($nw->image)) }}"
                                                                 width="150"></td>
                                                         <td class="text-center">
                                                             {{ $nw->news_date ? \Carbon\Carbon::parse($nw->news_date)->format('d M Y') : '-' }}

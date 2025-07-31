@@ -120,4 +120,9 @@ class ServiceRequest extends Model
         return $this->hasOne(RequestDebtCollection::class, 'service_request_id');
     }
 
+    public function installments()
+    {
+        return $this->hasMany(AnnualAgreementInstallment::class);
+    }
+
 }

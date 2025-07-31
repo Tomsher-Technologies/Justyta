@@ -10,6 +10,7 @@ use App\Models\Rating;
 use App\Models\ProblemReport;
 use App\Models\Dropdown;
 use App\Models\TrainingRequest;
+use App\Models\AnnualAgreementInstallment;
 use App\Models\Emirate;
 use App\Models\Service;
 use Illuminate\Support\Facades\Storage;
@@ -207,7 +208,7 @@ class UserController extends Controller
         $paginatedPast = (clone $allNotifications)
                         ->whereDate('created_at', '<', $yesterday)
                         ->orderByDesc('created_at')
-                        ->paginate(1);
+                        ->paginate(10);
 
         $pastNotifications = collect($paginatedPast->items())
                 ->map(function ($notification) use($lang, $serviceMap) {
@@ -221,17 +222,15 @@ class UserController extends Controller
                                             'service'   => $serviceName,
                                             'reference' => $data['reference_code'],
                                         ]),
-                        'time'      => $notification->created_at->format('d,M Y h:i A'), // or 'h:i A' for AM/PM
+                        'time'      => $notification->created_at->format('d M, Y h:i A'), // or 'h:i A' for AM/PM
                     ];
                 });
 
-        // 🔹 Merge all current notification IDs
         $allShownIds = collect($todayNotifications)
                         ->merge($yesterdayNotifications)
                         ->merge($paginatedPast->items())
                         ->pluck('id');
 
-        // 🔹 Mark only these as read
         $user->unreadNotifications()
             ->whereIn('id', $allShownIds)
             ->update(['read_at' => now()]);
@@ -387,7 +386,7 @@ class UserController extends Controller
         if (!$serviceDetails) {
             return response()->json([
                 'status'    => false,
-                'message'   => 'Service details not found'
+                'message'   =>  __('frontend.no_details_found')
             ],200);
         }
 
@@ -405,6 +404,20 @@ class UserController extends Controller
             'submitted_at'      => $serviceRequest->submitted_at,
             'service_details' => $translatedData,
         ];
+
+        if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+            $installmentAnnual = AnnualAgreementInstallment::where('service_request_id',$serviceRequest->id)->get();
+
+            $installments = $installmentAnnual->map(function ($inst) {
+                return [
+                    'id' => $inst->id,
+                    'installment_no' => $inst->installment_no,
+                    'amount' => $inst->amount ?? 0,
+                    'status' => $inst->status,
+                ];
+            });
+            $dataService['installments'] = $installments;
+        }
 
         return response()->json([
                 'status'        => true,

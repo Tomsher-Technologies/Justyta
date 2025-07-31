@@ -392,7 +392,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'no_of_pages'           => $model->no_of_pages,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
-                'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
+                'additional_documents'  => formatFilePathsWithFullUrl($model->additional_documents ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
             ];
         case 'annual-retainer-agreement' :
@@ -474,6 +474,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'testament_place'       => $model->testament_place,
                 'nationality'           => $model->nationalityOption?->getTranslation('name',$lang) ?? NULL,
                 'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
+                'full_name'             => $model->full_name,
                 'religion'              => $model->religionOption?->getTranslation('name',$lang) ?? NULL,
                 'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
                 'about_case'            => $model->about_case,
@@ -488,7 +489,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
                 'full_name'             => $model->full_name,
                 'about_case'            => $model->about_case,
-                'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
+                'documents'             => formatFilePathsWithFullUrl($model->document ?? []),
                 'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
             ];
@@ -507,8 +508,8 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
         case 'contract-drafting':
             return [
                 'applicant_type'        => $model->applicant_type,
-                'contract_type'         => $model->contractType?->getTranslation('name',$lang) ?? NULL,
                 'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
+                'contract_type'         => $model->contractType?->getTranslation('name',$lang) ?? NULL,
                 'sub_contract_type'     => $model->subContractType?->getTranslation('name',$lang) ?? NULL,
                 'contract_language'     => $model->contractLanguage?->getTranslation('name',$lang) ?? NULL,
                 'company_name'          => $model->company_name,
@@ -652,28 +653,43 @@ function getUnreadNotifications()
     return Auth::user()->unreadNotifications;
 }
 
-// function ngenius_create_payment($amount, $orderId)
-// {
-//     $token = getAccessToken();
+function createMobOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+{
+    
+    $accessToken = getAccessToken();
+    if (!$accessToken) return null;
 
-//     $baseUrl = config('services.ngenius.base_url');
-//     $outletRef = config('services.ngenius.outlet_ref');
-   
-//     $response = Http::withToken($token)
-//         ->withHeaders(['Content-Type' => 'application/vnd.ni-payment.v2+json'])
-//         ->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", [
-//             "action" => "PURCHASE",
-//             "amount" => [
-//                 "currencyCode" => "AED",
-//                 "value" => $amount * 100 // in fils
-//             ],
-//             "merchantAttributes" => [
-//                 "redirectUrl" => route('user.ngenius.callback', ['order_id' => $orderId])
-//             ]
-//         ]);
+    $baseUrl = config('services.ngenius.base_url');
+    $outletRef = config('services.ngenius.outlet_ref');
 
-//     return $response->json();
-// }
+    $payload = [
+        'action' => 'PURCHASE',
+        'amount' => [
+            'currencyCode' => $currency,
+            'value' => intval($amount * 100), // AED 10.00 => 1000
+        ],
+        'merchantOrderReference' => $orderReference,
+        'merchantAttributes' => [
+            'merchantOrderReference' => $orderReference,
+            'redirectUrl' => route('payment.callback'),
+            'cancelUrl'   => route('payment.cancel')
+        ],
+        'emailAddress' => $customer['email'],
+        
+    ];
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $accessToken,
+        'Accept' => 'application/vnd.ni-payment.v2+json',
+        'Content-Type' => 'application/vnd.ni-payment.v2+json',
+    ])->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", $payload);
+
+    if (!$response->successful()) {
+        Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
+        return null;
+    }
+    return $response->json(); // returns _id, reference, _links etc.
+}
 
 function createWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
 {
@@ -710,11 +726,6 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
         Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
         return null;
     }
-    // $details = json_decode($response->getBody(), true);
-
-    // echo '<pre>';
-    // print_r($details);
-    // die;
     return $response->json(); // returns _id, reference, _links etc.
 }
 
@@ -739,3 +750,12 @@ function getUsersWithPermissions(array $permissions, string $guard = 'web')
 
     return $users;
 }
+
+function getUnreadNotificationCount()
+    {
+        $user = Auth::guard('frontend')->user();
+
+        $count = $user->unreadNotifications()->count();
+
+        return $count;
+    }

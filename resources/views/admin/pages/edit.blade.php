@@ -78,7 +78,7 @@
                                             @if (
                                                 $page->slug === 'consultancy_payment_success' ||
                                                     $page->slug === 'consultancy_waiting_page' ||
-                                                    $page->slug === 'request_success' || $page->slug === 'request_payment_success' || $page->slug === 'translation_request_success' ||
+                                                    $page->slug === 'request_success' || $page->slug === 'request_payment_success' || $page->slug === 'request_payment_failed' || $page->slug === 'translation_request_success' ||
                                                     $page->slug === 'immigration_success' ||
                                                     $page->slug === 'report_problem' || $page->slug === 'request_submission_forminfo' || $page->slug === 'new_password_reset' || $page->slug === 'company_retainership' || $page->slug === 'rate_us_form_info')
                                                 <div class="form-group">
@@ -113,7 +113,7 @@
 @endsection
 
 @section('style')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css@4.1.7/css/flag-icons.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/flag-icons.min.css') }}">
 
     <style>
         .flag-icon {

@@ -47,6 +47,8 @@ class AuthController extends Controller
         }
 
         Auth::guard('frontend')->login($user);
+        session(['locale' => $user->language]);
+        // App::setLocale($user->language);
 
         return match ($user->user_type) {
             'lawyer' => redirect()->route('lawyer.dashboard'),
@@ -83,7 +85,7 @@ class AuthController extends Controller
             'password' => [
                 'required',
                 'string',
-                'min:8',
+                'min:6',
                 'confirmed',
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&^])[A-Za-z\d@$!%*#?&^]{8,}$/'
             ],

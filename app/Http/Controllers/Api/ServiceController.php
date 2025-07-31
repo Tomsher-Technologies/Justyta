@@ -37,11 +37,15 @@ use App\Models\RequestLegalTranslation;
 use App\Models\DefaultTranslatorAssignment;
 use App\Models\TranslatorLanguageRate;
 use App\Models\RequestLastWill;
+use App\Models\AnnualAgreementInstallment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\ServiceRequestSubmitted;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Client;
 use Carbon\Carbon;
 
 class ServiceController extends Controller
@@ -2256,16 +2260,49 @@ class ServiceController extends Controller
 
         $immigration->update($filePaths);
 
-        $pageData = getPageDynamicContent('request_payment_success',$lang);
-        $response = [
-            'reference' => $service_request->reference_code,
-            'message'   => $pageData['content']
-        ];
-        return response()->json([
-            'status'    => true,
-            'message'   => __('messages.request_submit_success'),
-            'data'      => $response,
-        ], 200);
+        $total_amount = $service->total_amount ?? 0;
+
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
+        if($total_amount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone
+            ];
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+
+            $payment = createMobOrder($customer, $total_amount, $currency, $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $service->total_amount,
+                    'service_fee' => $service->service_fee,
+                    'govt_fee' => $service->govt_fee,
+                    'tax' => $service->tax,
+                ]);
+
+                return response()->json([
+                    'status'    => true,
+                    'message'   => __('messages.request_submit_success'),
+                    'data'      => json_encode($payment),
+                ], 200);
+
+            }else{
+                return response()->json([
+                    'status'    => false,
+                    'message'   => __('messages.request_submit_failed'),
+                    'data'      => json_encode($payment),
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.request_submit_failed'),
+                'data'      => json_encode($payment),
+            ], 200);
+        }
     }
 
     public function requestRequestSubmission(Request $request){
@@ -2384,16 +2421,49 @@ class ServiceController extends Controller
 
         $requestSubmission->update($filePaths);
 
-        $pageData = getPageDynamicContent('request_payment_success',$lang);
-        $response = [
-            'reference' => $service_request->reference_code,
-            'message'   => $pageData['content']
-        ];
-        return response()->json([
-            'status'    => true,
-            'message'   => __('messages.request_submit_success'),
-            'data'      => $response,
-        ], 200);
+        $total_amount = $service->total_amount ?? 0;
+
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
+        if($total_amount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone
+            ];
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+
+            $payment = createMobOrder($customer, $total_amount, $currency, $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $service->total_amount,
+                    'service_fee' => $service->service_fee,
+                    'govt_fee' => $service->govt_fee,
+                    'tax' => $service->tax,
+                ]);
+
+                return response()->json([
+                    'status'    => true,
+                    'message'   => __('messages.request_submit_success'),
+                    'data'      => json_encode($payment),
+                ], 200);
+
+            }else{
+                return response()->json([
+                    'status'    => false,
+                    'message'   => __('messages.request_submit_failed'),
+                    'data'      => json_encode($payment),
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.request_submit_failed'),
+                'data'      => json_encode($payment),
+            ], 200);
+        }
     }
 
     public function requestAnnualAgreement(Request $request){
@@ -2464,16 +2534,49 @@ class ServiceController extends Controller
             'lawfirm'               => $request->input('lawfirm'),
         ]);
 
-        $pageData = getPageDynamicContent('request_payment_success',$lang);
-        $response = [
-            'reference' => $service_request->reference_code,
-            'message'   => $pageData['content']
-        ];
-        return response()->json([
-            'status'    => true,
-            'message'   => __('messages.request_submit_success'),
-            'data'      => $response,
-        ], 200);
+        $total_amount = $service->total_amount ?? 0;
+
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
+        if($total_amount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone
+            ];
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+
+            $payment = createMobOrder($customer, $total_amount, $currency, $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $service->total_amount,
+                    'service_fee' => $service->service_fee,
+                    'govt_fee' => $service->govt_fee,
+                    'tax' => $service->tax,
+                ]);
+
+                return response()->json([
+                    'status'    => true,
+                    'message'   => __('messages.request_submit_success'),
+                    'data'      => json_encode($payment),
+                ], 200);
+
+            }else{
+                return response()->json([
+                    'status'    => false,
+                    'message'   => __('messages.request_submit_failed'),
+                    'data'      => json_encode($payment),
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.request_submit_failed'),
+                'data'      => json_encode($payment),
+            ], 200);
+        }
     }
 
     public function requestLegalTranslation(Request $request){
@@ -2611,20 +2714,49 @@ class ServiceController extends Controller
             }
         }
 
-        if($totalAmount != 0){
+        $total_amount = $totalAmount ?? 0;
 
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
+        if($total_amount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone
+            ];
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+
+            $payment = createMobOrder($customer, $total_amount, $currency, $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $service->total_amount,
+                    'service_fee' => $service->service_fee,
+                    'govt_fee' => $service->govt_fee,
+                    'tax' => $service->tax,
+                ]);
+
+                return response()->json([
+                    'status'    => true,
+                    'message'   => __('messages.request_submit_success'),
+                    'data'      => json_encode($payment),
+                ], 200);
+
+            }else{
+                return response()->json([
+                    'status'    => false,
+                    'message'   => __('messages.request_submit_failed'),
+                    'data'      => json_encode($payment),
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.request_submit_failed'),
+                'data'      => json_encode($payment),
+            ], 200);
         }
-
-        $pageData = getPageDynamicContent('request_payment_success',$lang);
-        $response = [
-            'reference' => $service_request->reference_code,
-            'message'   => $pageData['content']
-        ];
-        return response()->json([
-            'status'    => true,
-            'message'   => __('messages.request_submit_success'),
-            'data'      => $response,
-        ], 200);
     }
 
     public function calculateTranslationPrice(Request $request)
@@ -2710,6 +2842,8 @@ class ServiceController extends Controller
         ];
 
         $order = createOrder($customer, $amount, $currency, $orderReference);
+        echo json_encode($order);
+        die;
         if (!$order || !isset($order['reference'])) {
             return response()->json([
                 'status' => false,
@@ -2783,5 +2917,207 @@ class ServiceController extends Controller
 
         print_r($request->all());
 
+    }
+
+    public function paymentSuccess(Request $request) //network international
+    {
+        $paymentReference = $request->query('ref') ?? NULL;
+        if($paymentReference){
+            $token = getAccessToken();
+
+            $baseUrl = config('services.ngenius.base_url');
+            $outletRef = config('services.ngenius.outlet_ref');
+
+            $response = Http::withToken($token)->get("{$baseUrl}/transactions/outlets/" . $outletRef . "/orders/{$paymentReference}");
+            $data = $response->json();
+
+            $orderRef = $data['merchantOrderReference'] ?? NULL;
+            $serviceData = explode('--', $orderRef);
+
+            $serviceRequestId = $serviceData[0];
+            $serviceRequestCode = $serviceData[1];
+            
+            $status = $data['_embedded']['payment'][0]['state'] ?? null;
+            $paid_amount = $data['_embedded']['payment'][0]['amount']['value'] ?? 0;
+
+            $paidAmount = ($paid_amount != 0) ? $paid_amount/100 : 0;
+            $serviceRequest = ServiceRequest::findOrFail($serviceRequestId);
+
+            $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+
+            if ($status === 'PURCHASED' || $status === 'CAPTURED') {
+
+                $pageData = getPageDynamicContent('request_payment_success',$lang);
+                $returnResponse = [
+                                'reference' => $serviceRequest->reference_code ?? '',
+                                'message'   => $pageData['content']
+                ];
+         
+                if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+                    $annualRequest = RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
+                    if($annualRequest->no_of_installment != 1){
+                        $serviceRequest->update([
+                            'payment_status' => 'partial',
+                            'payment_response' => $data,
+                            'paid_at' => date('Y-m-d h:i:s')
+                        ]);
+                    }else{
+                        $serviceRequest->update([
+                            'payment_status' => 'success',
+                            'payment_response' => $data,
+                            'paid_at' => date('Y-m-d h:i:s')
+                        ]);
+                    }
+                }else{
+
+                   
+
+                    $serviceRequest->update([
+                        'payment_status' => 'success',
+                        'payment_response' => $data,
+                        'paid_at' => date('Y-m-d h:i:s')
+                    ]);
+                }
+
+                if($serviceRequest->service_slug === 'legal-translation'){
+                    $legalTranslation = requestLegalTranslation::where('service_request_id', $serviceRequest->id)->first();
+
+                    $from = $legalTranslation->document_language;
+                    $to = $legalTranslation->translation_language;
+                    $pages = $legalTranslation->no_of_pages;
+
+                    $assignment = DefaultTranslatorAssignment::where([
+                                        'from_language_id' => $from,
+                                        'to_language_id'   => $to,
+                                    ])->first();
+
+                    if ($assignment) {
+                        $rate = TranslatorLanguageRate::where([
+                                                        'translator_id'     => $assignment->translator_id,
+                                                        'from_language_id'  => $from,
+                                                        'to_language_id'    => $to,
+                                                    ])->first();
+
+                        if ($rate) {
+                            $totalAmount = $rate->total_amount * $pages;
+
+                            $legalTranslation->update([
+                                'assigned_translator_id'    => $assignment->translator_id,
+                                'hours_per_page'            => $rate->hours_per_page, 
+                                'admin_amount'              => $rate->admin_amount, 
+                                'translator_amount'         => $rate->translator_amount,  
+                                'total_amount'              => $totalAmount, 
+                            ]);
+
+                            // Store assignment history
+                            App\Models\TranslationAssignmentHistory::create([
+                                'request_id'         => $legalTranslation->id,
+                                'translator_id'      => $assignment->translator_id,
+                                'assigned_by'        => NULL,
+                                'hours_per_page'     => $rate->hours_per_page,
+                                'admin_amount'       => $rate->admin_amount,
+                                'translator_amount'  => $rate->translator_amount,
+                                'total_amount'       => $totalAmount,
+                            ]);
+                        }
+                    }
+                }
+
+                if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+                    $annualRequest = RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
+                    $annualRequest->amount_paid = $paidAmount;
+                    $annualRequest->save();
+
+                    $installment = AnnualAgreementInstallment::where('service_request_id', $serviceRequest->id)
+                                        ->where('installment_no', 1)->first();
+                    $installment->status = 'paid';
+                    $installment->save();              
+                }
+
+                $request->user()->notify(new ServiceRequestSubmitted($serviceRequest));
+
+                $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+                Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
+                
+                return response()->json([
+                    'status' => true,
+                    'message' => $pageData['content'],
+                    'data' => $returnResponse
+                ], 200);
+            }else{
+                $pageData = getPageDynamicContent('request_payment_failed',$lang);
+                $returnResponse = [
+                                'reference' => $serviceRequest->reference_code ?? '',
+                                'message'   => $pageData['content']
+                ];
+
+                $serviceRequest->update([
+                    'payment_status' => 'failed',
+                    'payment_response' => $data,
+                ]);
+                
+                return response()->json([
+                    'status' => true,
+                    'message' => $pageData['content'],
+                    'data' => $returnResponse
+                ], 200);
+            }
+        }
+        
+        return response()->json([
+                    'status' => false,
+                    'message' => 'Payment reference is missing',
+                    'data' => []
+                ], 200);
+    }
+
+    public function paymentCancel(Request $request){
+        $ref = $request->ref ?? NULL; 
+
+        if($ref){
+            $serviceRequest = ServiceRequest::where('payment_reference', $ref)->first();
+
+            if ($serviceRequest) {
+                $serviceSlug = $serviceRequest->service_slug;
+                $requestId   = $serviceRequest->id;
+
+                $serviceModelMap = [
+                    'legal-translation' => \App\Models\RequestLegalTranslation::class,
+                    'expert-report'     => \App\Models\RequestExpertReport::class,
+                    'request-submission' => \App\Models\RequestRequestSubmission::class,
+                    'annual-retainer-agreement' => \App\Models\RequestAnnualAgreement::class,
+                    'immigration-requests' => \App\Models\RequestImmigration::class
+                ];
+                $filePath = [
+                    'legal-translation' => 'legal_translation',
+                    'expert-report'     => 'expert_report',
+                    'request-submission' => 'request_submission',
+                    'annual-retainer-agreement' => 'annual_retainer_agreement',
+                    'immigration-requests' => 'immigration'
+                ];
+
+                if (isset($serviceModelMap[$serviceSlug])) {
+                    $modelClass = $serviceModelMap[$serviceSlug];
+                    $serviceReq = $modelClass::where('service_request_id', $serviceRequest->id)->first();
+                    $serviceReqId = $serviceReq->id;
+
+                    $serviceReq->delete();
+
+                    deleteRequestFolder($filePath[$serviceSlug], $serviceReqId);
+                }
+                $serviceRequest->delete();
+            }
+            return response()->json([
+                    'status' => true,
+                    'message' =>  __('frontend.request_cancelled'),
+                    'data' => []
+                ], 200);
+        }else{
+            return response()->json([
+                    'status' => false,
+                    'message' => 'Payment reference is missing',
+                    'data' => []
+                ], 200);
+        }
     }
 }
