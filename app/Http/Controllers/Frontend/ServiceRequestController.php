@@ -2578,6 +2578,12 @@ class ServiceRequestController extends Controller
             ]);
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         }
+
+        // Notify the user
+        Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
+
+        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
         
         return redirect()->route('user.dashboard')->with('error', 'Payment failed or cancelled.');
     }
