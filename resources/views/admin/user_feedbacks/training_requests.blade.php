@@ -138,19 +138,19 @@
                                                         @endphp
 
                                                         @if(in_array($ext, ['png', 'jpg', 'jpeg', 'webp']))
-                                                            <a href="{{ asset($file) }}" data-lightbox="image{{ $i }}">
-                                                                <img src="{{ asset($file) }}"  alt="doc" width="50" class="mb-1" />
+                                                            <a href="{{ asset(getUploadedImage($file)) }}" data-lightbox="image{{ $i }}">
+                                                                <img src="{{ asset(getUploadedImage($file)) }}"  alt="doc" width="50" class="mb-1" />
                                                             </a>
                                                         @elseif($ext == 'pdf')
-                                                            <a href="{{ asset($file) }}" target="_blank" class="d-inline-block text-danger mr-2">
+                                                            <a href="{{ asset(getUploadedImage($file)) }}" target="_blank" class="d-inline-block text-danger mr-2">
                                                                 <i class="fas fa-file-pdf fa-2x"></i>
                                                             </a>
                                                         @elseif(in_array($ext, ['doc', 'docx']))
-                                                            <a href="{{ asset($file) }}" target="_blank" class="d-inline-block text-primary mr-2">
+                                                            <a href="{{ asset(getUploadedImage($file)) }}" target="_blank" class="d-inline-block text-primary mr-2">
                                                                 <i class="fas fa-file-word fa-2x"></i>
                                                             </a>
                                                         @else
-                                                            <a href="{{ asset($file) }}" target="_blank" class="d-inline-block text-secondary mr-2">
+                                                            <a href="{{ asset(getUploadedImage($file)) }}" target="_blank" class="d-inline-block text-secondary mr-2">
                                                                 <i class="fas fa-file fa-2x"></i>
                                                             </a>
                                                         @endif

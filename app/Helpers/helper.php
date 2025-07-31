@@ -653,28 +653,43 @@ function getUnreadNotifications()
     return Auth::user()->unreadNotifications;
 }
 
-// function ngenius_create_payment($amount, $orderId)
-// {
-//     $token = getAccessToken();
+function createMobOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+{
+    
+    $accessToken = getAccessToken();
+    if (!$accessToken) return null;
 
-//     $baseUrl = config('services.ngenius.base_url');
-//     $outletRef = config('services.ngenius.outlet_ref');
-   
-//     $response = Http::withToken($token)
-//         ->withHeaders(['Content-Type' => 'application/vnd.ni-payment.v2+json'])
-//         ->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", [
-//             "action" => "PURCHASE",
-//             "amount" => [
-//                 "currencyCode" => "AED",
-//                 "value" => $amount * 100 // in fils
-//             ],
-//             "merchantAttributes" => [
-//                 "redirectUrl" => route('user.ngenius.callback', ['order_id' => $orderId])
-//             ]
-//         ]);
+    $baseUrl = config('services.ngenius.base_url');
+    $outletRef = config('services.ngenius.outlet_ref');
 
-//     return $response->json();
-// }
+    $payload = [
+        'action' => 'PURCHASE',
+        'amount' => [
+            'currencyCode' => $currency,
+            'value' => intval($amount * 100), // AED 10.00 => 1000
+        ],
+        'merchantOrderReference' => $orderReference,
+        'merchantAttributes' => [
+            'merchantOrderReference' => $orderReference,
+            'redirectUrl' => route('payment.callback'),
+            'cancelUrl'   => route('payment.cancel')
+        ],
+        'emailAddress' => $customer['email'],
+        
+    ];
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $accessToken,
+        'Accept' => 'application/vnd.ni-payment.v2+json',
+        'Content-Type' => 'application/vnd.ni-payment.v2+json',
+    ])->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", $payload);
+
+    if (!$response->successful()) {
+        Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
+        return null;
+    }
+    return $response->json(); // returns _id, reference, _links etc.
+}
 
 function createWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
 {
@@ -711,11 +726,6 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
         Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
         return null;
     }
-    // $details = json_decode($response->getBody(), true);
-
-    // echo '<pre>';
-    // print_r($details);
-    // die;
     return $response->json(); // returns _id, reference, _links etc.
 }
 

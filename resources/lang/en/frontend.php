@@ -228,6 +228,7 @@ return [
     'clear_all' => 'Clear All',
     'date' => 'Date',
     'no_result_found' => 'No results found',
+    'request_submit_failed' => 'Your request submitted failed.',
     '' => '',
     '' => '',
     '' => '',
