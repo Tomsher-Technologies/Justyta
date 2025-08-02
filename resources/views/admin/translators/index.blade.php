@@ -146,7 +146,7 @@
                                                         {{-- <td>
                                                             <ul class="list-unstyled mb-0">
                                                                 @foreach ($trans->languages as $lang)
-                                                                    <li>🌐 {{ $lang->getTranslatedName('en') }}</li>
+                                                                    <li> {{ $lang->getTranslatedName('en') }}</li>
                                                                 @endforeach
                                                             </ul>
                                                         </td> --}}
@@ -169,15 +169,22 @@
                                                             @endcan
                                                         </td>
                                                         <td class="text-center">
-                                                            @can('edit_translator')
-                                                                <div class="table-actions">
+                                                            
+                                                            <div class="table-actions">
+                                                                @can('edit_translator')
                                                                     <a href="{{ route('translators.edit', $trans->id) }}"
                                                                         title="Edit Translator">
                                                                         <span data-feather="edit"></span>
                                                                     </a>
-                                                                </div>
-                                                            @endcan
+                                                                @endcan
 
+                                                                @can('view_translator_pricing')
+                                                                    <a href="{{ route('translators.edit', $trans->id) }}"
+                                                                            title="Edit Translator Pricing">
+                                                                        <span data-feather="credit-card"></span>
+                                                                    </a>
+                                                                @endcan
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 @endforeach

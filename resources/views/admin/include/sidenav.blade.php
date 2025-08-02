@@ -187,10 +187,37 @@
                 @endcan
                
 
-                @canany(['manage_plan', 'manage_dropdown_option'])
+                @canany(['manage_plan', 'manage_dropdown_option','manage_ads'])
                     <li class="menu-title m-top-10">
                         <span>Settings</span> 
                     </li>
+
+                    @can('manage_ads')
+                        <li
+                            class="has-child {{ areActiveRoutes(['ads.create', 'ads.edit', 'ads.index']) }}">
+                            <a href="#"
+                                class="{{ areActiveRoutes(['ads.create', 'ads.edit', 'ads.index']) }}">
+                              
+                                <span data-feather="tv" class="nav-icon"></span>
+                                <span class="menu-text">Ads</span>
+                                <span class="toggle-icon"></span>
+                            </a>
+                            <ul>
+                                @can('add_ads')
+                                    <li>
+                                        <a class="{{ areActiveRoutes(['ads.create']) }}"
+                                            href="{{ route('ads.create') }}">Add Ad</a>
+                                    </li>
+                                @endcan
+
+                                <li>
+                                    <a class="{{ areActiveRoutes(['ads.edit', 'ads.index']) }}"
+                                        href="{{ route('ads.index') }}">All Ads</a>
+                                </li>
+                            </ul>
+                        </li>
+                    @endcan
+
                     @can('manage_plan')
                         <li
                             class="has-child {{ areActiveRoutes(['membership-plans.create', 'membership-plans.edit', 'membership-plans.index']) }}">
