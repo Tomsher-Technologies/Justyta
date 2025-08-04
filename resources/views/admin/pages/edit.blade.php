@@ -1,4 +1,4 @@
-@extends('layouts.admin_default', ['title' => 'Edit Service Details'])
+@extends('layouts.admin_default', ['title' => 'Edit Page Details'])
 
 @section('content')
     <div class="container-fluid">
