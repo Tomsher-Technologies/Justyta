@@ -29,17 +29,46 @@
                             <form method="GET" action="{{ route('translator-pricing',['id' => base64_encode($translatorId)]) }}" autocomplete="off">
                                 <div class="row mb-2">
                                     <div class="col-md-3 input-group  mb-1">
-                                        <select name="language_id" class="form-control select2 ih-small ip-gray radius-xs b-light px-15" id="select-tag2"  data-placeholder="Select Language" >
-                                            <option value="">Select Language</option>
+                                        <select name="from_language_id" class="form-control select2 ih-small ip-gray radius-xs b-light px-15" id="select-tag3"  data-placeholder="From Language" >
+                                            <option value="">From Language</option>
                                             @foreach($languages as $option)
-                                                <option value="{{ $option->id }}"  {{ request('language_id') == $option->id ? 'selected' : '' }}>
+                                                <option value="{{ $option->id }}"  {{ request('from_language_id') == $option->id ? 'selected' : '' }}>
                                                     {{ $option->name ?? 'Unnamed' }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
 
-                                    <div class="col-md-2 input-group  mb-1">
+                                    <div class="col-md-3 input-group  mb-1">
+                                        <select name="to_language_id" class="form-control select2 ih-small ip-gray radius-xs b-light px-15" id="select-tag2"  data-placeholder="To Language" >
+                                            <option value="">To Language</option>
+                                            @foreach ($languages->whereIn('id', [1, 3]) as $lang)
+                                                <option value="{{ $lang->id }}"  {{ request('to_language_id') == $lang->id ? 'selected' : '' }}>
+                                                    {{ $lang->name ?? 'Unnamed' }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 input-group  mb-1">
+                                        <select name="doc_type_id" id="doc_type_id" class="form-control select2 ih-small ip-gray radius-xs b-light px-15" data-placeholder="Document Type">
+                                            <option value="">Select</option>
+                                            @foreach ($documentTypes as $doctype)
+                                                <option value="{{ $doctype->id }}" {{ request('doc_type_id') == $doctype->id ? 'selected' : '' }}>
+                                                    {{ $doctype->getTranslation('name','en')}}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 input-group  mb-1">
+                                        <select name="doc_subtype_id" id="doc_subtype_id" class="form-control select2 ih-small ip-gray radius-xs b-light px-15" data-placeholder="Document Subtype">
+                                            <option value="">Select</option>
+                                            
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 input-group mt-2 mb-1">
                                         <select name="status"
                                             class="form-control ih-small ip-gray radius-xs b-light px-15">
                                             <option value="">Select Status</option>
@@ -52,7 +81,7 @@
 
             
 
-                                    <div class="col-md-2 mb-1 d-flex flex-wrap align-items-end">
+                                    <div class="col-md-3 mb-1 d-flex flex-wrap align-items-end mt-2">
                                         <button class="btn btn-primary btn-sm " type="submit">Filter</button>
                                         <a href="{{ route('translator-pricing',['id' => base64_encode($translatorId)]) }}"
                                             class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
@@ -317,5 +346,39 @@
                 }
             });
         }
+
+        const checkUrl = "{{ route('get-sub-doc-types', ['docTypeId' => '__docType__']) }}";
+
+        function loadSubDocTypes(docTypeId, selectedSubTypeId = null) {
+            if (!docTypeId) return;
+            const routeUrl = checkUrl.replace('__docType__', docTypeId);
+
+            $.ajax({
+                url: routeUrl,
+                method: 'GET',
+                success: function (response) {
+                    let subDocSelect = $('#doc_subtype_id');
+                    subDocSelect.empty().append('<option value="">{{ __("frontend.choose_option") }}</option>');
+
+                    let data = response.data;
+                    data.forEach(function (sub) {
+                        let selected = (selectedSubTypeId == sub.id) ? 'selected' : '';
+                        subDocSelect.append(`<option value="${sub.id}" ${selected}>${sub.value}</option>`);
+                    });
+                }
+            });
+        }
+        
+        $('#doc_type_id').on('change', function () {
+            loadSubDocTypes($(this).val());
+        });
+
+        let oldDocType = '{{ request("doc_type_id") }}';
+        let oldSubDocType = '{{ request("doc_subtype_id") }}';
+
+        if (oldDocType) {
+            loadSubDocTypes(oldDocType, oldSubDocType);
+        }
+
     </script>
 @endsection

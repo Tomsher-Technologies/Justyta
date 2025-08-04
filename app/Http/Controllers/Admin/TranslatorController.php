@@ -254,7 +254,10 @@ class TranslatorController extends Controller
         }
 
         session()->flash('success', 'Translator details updated successfully.');
-        return redirect()->route('translators.index');
+
+        $url =  session()->has('translator_last_url') ? session()->get('translator_last_url') : route('translators.index');
+       
+        return redirect($url);
     }
 
      function replaceFile($request, $fieldName, $lawyer, $uploadPath, $fileName = 'image_') {
@@ -385,11 +388,35 @@ class TranslatorController extends Controller
         $query = TranslatorLanguageRate::with(['translator','fromLanguage', 'toLanguage','documentType','documentSubType'])
                     ->where('translator_id', $translatorId);
 
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('from_language_id')) {
+            $query->where('from_language_id', $request->from_language_id);
+        }
+
+        if ($request->filled('to_language_id')) {
+            $query->where('to_language_id', $request->to_language_id);
+        }
+
+        if ($request->filled('doc_type_id')) {
+            $query->where('doc_type_id', $request->doc_type_id);
+        }
+
+        if ($request->filled('doc_subtype_id')) {
+            $query->where('doc_subtype_id', $request->doc_subtype_id);
+        }
+
         $translatorPricing = $query->orderBy('id', 'DESC')->paginate(15); 
 
         $languages = TranslationLanguage::where('status', 1)->get();
         $translator = Translator::find($translatorId);
-        return view('admin.translators.index-pricing', compact('translatorPricing','translator', 'languages','translatorId'));
+        $documentTypes = DocumentType::with('translations')->where('status', 1)
+                            ->whereNull('parent_id')
+                            ->orderBy('sort_order')
+                            ->get();
+        return view('admin.translators.index-pricing', compact('documentTypes','translatorPricing','translator', 'languages','translatorId'));
     }
 
     public function createPricing($id){
@@ -551,7 +578,9 @@ class TranslatorController extends Controller
             'status'              => $request->status
         ]);
 
-        return redirect()->route('translator-pricing',['id' => $request->translator_id])->with('success', 'Pricing updated successfully.');
+        $url =  session()->has('translator_pricing_last_url') ? session()->get('translator_pricing_last_url') : route('translator-pricing', ['id' => $request->translator_id]);
+       
+        return redirect($url)->with('success', 'Pricing updated successfully.');
     }
 
     public function getSubDocTypes($docTypeId){
