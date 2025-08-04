@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\ServiceRequestController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\FeedbackController;
+use App\Http\Controllers\Admin\AdController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -129,7 +130,14 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::post('/assign', [TranslatorController::class, 'assign'])->name('translators.set-default');
     Route::get('/default-translators/history/{from_language_id}/{to_language_id}', [TranslatorController::class, 'historyForPair'])
     ->name('default-translators.history');
-
+    Route::get('/translator-pricing/{id}', [TranslatorController::class, 'indexPricing'])->name('translator-pricing');
+    Route::get('/translator-pricing-create/{id}', [TranslatorController::class, 'createPricing'])->name('translator-pricing.create');
+    Route::post('translator-pricing/store', [TranslatorController::class, 'storePricing'])->name('translator-pricing.store');
+    Route::get('/translator-pricing-edit/{id}/{transId}', [TranslatorController::class, 'editPricing'])->name('translator-pricing.edit');
+    Route::put('translator-pricing/{id}', [TranslatorController::class, 'updatePricing'])->name('translator-pricing.update');
+    Route::post('/translator-pricing/status', [TranslatorController::class, 'updatePricingStatus'])->name('translator-pricing.status');
+    Route::delete('translator-pricing/{id}', [TranslatorController::class, 'destroyPricing'])->name('translator-pricing.destroy');
+    Route::get('/get-sub-doc-types/{docTypeId}', [TranslatorController::class, 'getSubDocTypes'])->name('get-sub-doc-types');
 
     // Service Requests Management
     Route::get('/service-requests', [ServiceRequestController::class, 'index'])->name('service-requests.index');
@@ -138,18 +146,28 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::post('/service-requests/payment-status', [ServiceRequestController::class, 'updatePaymentStatus'])->name('update-service-payment-status');
     Route::get('/service-requests/export', [ServiceRequestController::class, 'export'])->name('service-requests.export');
     Route::post('/service-requests/installments/update-status', [ServiceRequestController::class, 'updateInstallmentStatus'])->name('update.installment.status');
+
+    //Training requests
+    Route::get('/training-requests', [FeedbackController::class, 'trainingRequests'])->name('training-requests.index');
    
     // User Feedbacks
     Route::get('/reported-problems', [FeedbackController::class, 'reportedProblems'])->name('user-reported-problems.feedback');
     Route::get('/user-reported-problems/export', [FeedbackController::class, 'exportUserReportProblems'])->name('user-reported-problems.export');
-
     Route::get('/user-ratings', [FeedbackController::class, 'userRatings'])->name('user-ratings.feedback');
     Route::get('/user-ratings/export', [FeedbackController::class, 'exportUserRatings'])->name('user-ratings.export');
-
     Route::get('/user-contacts', [FeedbackController::class, 'userContacts'])->name('user-contacts.feedback');
     Route::get('/user-contacts/export', [FeedbackController::class, 'exportUserContacts'])->name('user-contacts.export');
 
-    Route::get('/training-requests', [FeedbackController::class, 'trainingRequests'])->name('training-requests.index');
+    // Manage Ads
+    Route::get('ads/', [AdController::class, 'index'])->name('ads.index');
+    Route::get('ads/create', [AdController::class, 'create'])->name('ads.create');
+    Route::post('ads/store', [AdController::class, 'store'])->name('ads.store');
+    Route::get('ads/{id}', [AdController::class, 'show'])->name('ads.show');
+    Route::get('ads/{id}/click', [AdController::class, 'click'])->name('ads.click');
+    Route::get('ads/{id}/edit', [AdController::class, 'edit'])->name('ads.edit');
+    Route::put('ads/{id}', [AdController::class, 'update'])->name('ads.update');
+    Route::delete('ads/{id}', [AdController::class, 'destroy'])->name('ads.destroy');
+    Route::post('/ads/status', [AdController::class, 'updateStatus'])->name('ads.status');
 });
 
 

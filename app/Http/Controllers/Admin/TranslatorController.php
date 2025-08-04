@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Dropdown;
 use App\Models\User;
 use App\Models\Translator;
+use App\Models\DocumentType;
 use App\Models\TranslationLanguage;
+use App\Models\TranslatorLanguageRate;
 use App\Models\DefaultTranslatorHistory;
 use App\Models\DefaultTranslatorAssignment;
 use App\Models\DefaultTranslatorAssignmentHistory;
@@ -25,17 +27,21 @@ class TranslatorController extends Controller
     {
         $this->middleware('auth');
        
-        $this->middleware('permission:manage_translators',  ['only' => ['index','destroy']]);
+        $this->middleware('permission:manage_translators',  ['only' => ['index']]);
         $this->middleware('permission:add_translator',  ['only' => ['create','store']]);
         $this->middleware('permission:edit_translator',  ['only' => ['edit','update']]);
         $this->middleware('permission:default_translator',  ['only' => ['showDefaultForm','setDefault']]);
+        $this->middleware('permission:view_translator_pricing',  ['only' => ['indexPricing']]);
+        $this->middleware('permission:add_translator_pricing',  ['only' => ['createPricing','storePricing']]);
+        $this->middleware('permission:edit_translator_pricing',  ['only' => ['editPricing','updatePricing']]);
+        $this->middleware('permission:delete_translator_pricing',  ['only' => ['destroyPricing']]);
     }
 
     public function index(Request $request)
     {
+        $request->session()->put('translator_last_url', url()->full());
         $query = Translator::with(['user','languageRates.fromLanguage', 'languageRates.toLanguage']);
 
-        // Filter by membership plan
         if ($request->filled('language_id')) {
             $selectedLangId = $request->language_id;
             $query->whereHas('languageRates', function ($q) use ($selectedLangId) {
@@ -43,7 +49,6 @@ class TranslatorController extends Controller
             });
         }
 
-        // Filter by keyword in name, email or phone
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
             $query->where(function ($q) use ($keyword){
@@ -54,9 +59,7 @@ class TranslatorController extends Controller
             });
         }
 
-        // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
             $query->whereHas('user', function ($q) use ($request) {
                  if ($request->status == 1) {
                     $q->where('banned', 0);
@@ -66,9 +69,8 @@ class TranslatorController extends Controller
             });
         }
 
-        $translators = $query->orderBy('id', 'DESC')->paginate(15); // or ->get() if you don’t want pagination
+        $translators = $query->orderBy('id', 'DESC')->paginate(15);
 
-        // Optional: to populate dropdowns
         $languages = TranslationLanguage::where('status', 1)->get();
         return view('admin.translators.index', compact('translators', 'languages'));
     }
@@ -151,22 +153,6 @@ class TranslatorController extends Controller
             }
         }
         
-         // Sync dropdowns (pivot table)
-        // $dropdowns = collect([
-        //     'languages' => $request->languages
-        // ]);
-
-        // foreach ($dropdowns as $type => $optionIds) {
-        //     if (!empty($optionIds)) {
-        //         $attachData = [];
-        //         foreach ($optionIds as $optionId) {
-        //             $attachData[$optionId] = ['type' => $type];
-        //         }
-        //         $translator->dropdownOptions()->attach($attachData);
-        //     }
-        // }
-
-
         session()->flash('success','Translator created successfully.');
         return redirect()->route('translators.index');
     }
@@ -260,7 +246,6 @@ class TranslatorController extends Controller
 
         $translator = $user->translator()->save($translator);
 
-        // Remove old rates and add new
         $translator->languageRates()->delete();
 
         if($request->has('rates')){
@@ -269,13 +254,11 @@ class TranslatorController extends Controller
             }
         }
 
-         // Sync dropdowns (pivot table)
         $dropdowns = collect([
             'languages' => $request->languages
         ]);
 
         foreach ($dropdowns as $type => $optionIds) {
-            // Delete existing entries of this type
             $translator->dropdownOptions()
                 ->wherePivot('type', $type)
                 ->detach();
@@ -305,17 +288,6 @@ class TranslatorController extends Controller
         return $lawyer->$fieldName;
     }
 
-
-    // public function showDefaultForm()
-    // {
-    //     $translators = Translator::with('user')->whereHas('user', function ($q) {
-    //             $q->where('banned', 0);
-    //         })->orderBy('name', 'ASC')->get();
-    //     $histories = DefaultTranslatorHistory::with('translator')->orderBy('id','desc')->paginate(20);
-
-    //     return view('admin.translators.default', compact('translators', 'histories'));
-    // }
-
     public function setDefault(Request $request)
     {
         $request->validate([
@@ -326,7 +298,6 @@ class TranslatorController extends Controller
 
         $newTranslatorId = $request->translator_id;
 
-        // End the current default
         $current = Translator::where('is_default', 1)->first();
 
        
@@ -337,11 +308,9 @@ class TranslatorController extends Controller
             ]);
         }
 
-        // Set new default
         $newTranslator = Translator::findOrFail($newTranslatorId);
         $newTranslator->update(['is_default' => 1]);
 
-        // Create history if not already started
         $existingHistory = DefaultTranslatorHistory::where('translator_id', $newTranslatorId)
             ->whereNull('ended_at')->first();
 
@@ -389,7 +358,6 @@ class TranslatorController extends Controller
 
         $adminId = auth()->id();
 
-        // Store history
         DefaultTranslatorAssignmentHistory::create([
             'from_language_id' => $validated['from_language_id'],
             'to_language_id' => $validated['to_language_id'],
@@ -397,7 +365,6 @@ class TranslatorController extends Controller
             'assigned_by' => $adminId,
         ]);
 
-        // Upsert current default
         DefaultTranslatorAssignment::updateOrCreate(
             [
                 'from_language_id' => $validated['from_language_id'],
@@ -428,4 +395,226 @@ class TranslatorController extends Controller
         return view('admin.translators.history-single', compact('fromLang', 'toLang', 'histories'));
     }
 
+
+    public function indexPricing(Request $request, $id)
+    {
+        $request->session()->put('translator_pricing_last_url', url()->full());
+        $translatorId = base64_decode($id);
+        $query = TranslatorLanguageRate::with(['translator','fromLanguage', 'toLanguage','documentType','documentSubType'])
+                    ->where('translator_id', $translatorId);
+
+        $translatorPricing = $query->orderBy('id', 'DESC')->paginate(15); 
+
+        $languages = TranslationLanguage::where('status', 1)->get();
+        $translator = Translator::find($translatorId);
+        return view('admin.translators.index-pricing', compact('translatorPricing','translator', 'languages','translatorId'));
+    }
+
+    public function createPricing($id){
+        $languages = TranslationLanguage::where('status', 1)->get();
+        $documentTypes = DocumentType::with('translations')->where('status', 1)
+                            ->whereNull('parent_id')
+                            ->orderBy('sort_order')
+                            ->get();
+        return view('admin.translators.create-pricing', compact('languages','documentTypes','id'));
+    }
+
+    public function storePricing(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'from_language'     => 'required|integer|different:to_language',
+            'to_language'       => 'required|integer',
+            'doc_type'          => 'required|integer',
+            'sub_doc_type'      => 'required|integer',
+            'admin_amount'      => 'required|numeric|min:0',
+            'translator_amount' => 'required|numeric|min:0',
+            'tax_amount'        => 'required|numeric|min:0',
+            'normal'            => 'required|numeric|min:0',
+            'urgent'            => 'required|numeric|min:0',
+            'email_delivery'    => 'required|numeric|min:0',
+            'physical_delivery' => 'required|numeric|min:0',
+            'total_amount'      => 'required|numeric|min:0',
+            'hours_1_10'        => 'required|numeric|min:0',
+            'hours_11_20'       => 'required|numeric|min:0',
+            'hours_21_30'       => 'required|numeric|min:0',
+            'hours_31_50'       => 'required|numeric|min:0',
+            'hours_above_50'    => 'required|numeric|min:0',
+        ],[
+            '*.required' => 'This field is required.',
+            'from_language.different' => 'From Language and To Language must be different.',
+        ]);
+
+        $translatorId = base64_decode($request->translator_id);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $exists = TranslatorLanguageRate::where('translator_id', $translatorId)
+                                ->where('from_language_id', $request->from_language)
+                                ->where('to_language_id', $request->to_language)
+                                ->where('doc_type_id', $request->doc_type)
+                                ->where('doc_subtype_id', $request->sub_doc_type)
+                                ->exists();
+
+        if ($exists) {
+            return redirect()->back()->withInput()->withErrors([
+                'from_language' => 'Pricing for this language and document combination already exists.'
+            ]);
+        }
+
+        TranslatorLanguageRate::create([
+            'translator_id'       => $translatorId,
+            'from_language_id'    => $request->from_language ?? NULL,
+            'to_language_id'      => $request->to_language ?? NULL,
+            'doc_type_id'         => $request->doc_type ?? NULL,
+            'doc_subtype_id'      => $request->sub_doc_type ?? NULL,
+            'normal'              => $request->normal ?? 0,
+            'urgent'              => $request->urgent ?? 0,
+            'email'               => $request->email_delivery ?? 0,
+            'physical'            => $request->physical_delivery ?? 0,
+            'admin_amount'        => $request->admin_amount ?? 0,
+            'translator_amount'   => $request->translator_amount ?? 0,
+            'tax'                 => $request->tax_amount ?? 0,
+            'hours_1_10'          => $request->hours_1_10 ?? 0,
+            'hours_11_20'         => $request->hours_11_20 ?? 0,
+            'hours_21_30'         => $request->hours_21_30 ?? 0,
+            'hours_31_50'         => $request->hours_31_50 ?? 0,
+            'hours_above_50'      => $request->hours_above_50 ?? 0,
+            'status'              => 1
+        ]);
+      
+        session()->flash('success','Translator pricing created successfully.');
+       
+        return redirect()->route('translator-pricing',['id' => $request->translator_id]);
+    }
+
+    public function editPricing($id, $transId){
+        $id = base64_decode($id);
+        $pricing = TranslatorLanguageRate::find($id);
+        $languages = TranslationLanguage::where('status', 1)->get();
+        $documentTypes = DocumentType::with('translations')->where('status', 1)
+                            ->whereNull('parent_id')
+                            ->orderBy('sort_order')
+                            ->get();
+
+        $subdocTypes = DocumentType::with('translations')->where('status', 1)
+                            ->where('parent_id', $pricing->doc_type_id)
+                            ->orderBy('sort_order')
+                            ->get();
+        return view('admin.translators.edit-pricing', compact('languages','subdocTypes','documentTypes','pricing','transId'));
+    }
+
+    public function updatePricing(Request $request, $id)
+    {
+        $pricing = TranslatorLanguageRate::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'from_language'     => 'required|integer|different:to_language',
+            'to_language'       => 'required|integer',
+            'doc_type'          => 'required|integer',
+            'sub_doc_type'      => 'required|integer',
+            'admin_amount'      => 'required|numeric|min:0',
+            'translator_amount' => 'required|numeric|min:0',
+            'tax_amount'        => 'required|numeric|min:0',
+            'normal'            => 'required|numeric|min:0',
+            'urgent'            => 'required|numeric|min:0',
+            'email_delivery'    => 'required|numeric|min:0',
+            'physical_delivery' => 'required|numeric|min:0',
+            'total_amount'      => 'required|numeric|min:0',
+            'hours_1_10'        => 'required|numeric|min:0',
+            'hours_11_20'       => 'required|numeric|min:0',
+            'hours_21_30'       => 'required|numeric|min:0',
+            'hours_31_50'       => 'required|numeric|min:0',
+            'hours_above_50'    => 'required|numeric|min:0',
+        ],[
+            '*.required' => 'This field is required.',
+            'from_language.different' => 'From Language and To Language must be different.',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $exists = TranslatorLanguageRate::where('translator_id', $pricing->translator_id)
+            ->where('from_language_id', $request->from_language)
+            ->where('to_language_id', $request->to_language)
+            ->where('doc_type_id', $request->doc_type)
+            ->where('doc_subtype_id', $request->sub_doc_type)
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()->withInput()->withErrors([
+                'from_language' => 'Pricing for this language and document combination already exists.'
+            ]);
+        }
+
+        $pricing->update([
+            'from_language_id'    => $request->from_language ?? NULL,
+            'to_language_id'      => $request->to_language ?? NULL,
+            'doc_type_id'         => $request->doc_type ?? NULL,
+            'doc_subtype_id'      => $request->sub_doc_type ?? NULL,
+            'normal'              => $request->normal ?? 0,
+            'urgent'              => $request->urgent ?? 0,
+            'email'               => $request->email_delivery ?? 0,
+            'physical'            => $request->physical_delivery ?? 0,
+            'admin_amount'        => $request->admin_amount ?? 0,
+            'translator_amount'   => $request->translator_amount ?? 0,
+            'tax'                 => $request->tax_amount ?? 0,
+            'hours_1_10'          => $request->hours_1_10 ?? 0,
+            'hours_11_20'         => $request->hours_11_20 ?? 0,
+            'hours_21_30'         => $request->hours_21_30 ?? 0,
+            'hours_31_50'         => $request->hours_31_50 ?? 0,
+            'hours_above_50'      => $request->hours_above_50 ?? 0,
+            'status'              => $request->status
+        ]);
+
+        return redirect()->route('translator-pricing',['id' => $request->translator_id])->with('success', 'Pricing updated successfully.');
+    }
+
+    public function getSubDocTypes($docTypeId){
+        $lang = env('APP_LOCALE','en');
+        $docTypes   = [];
+        
+        if($docTypeId){
+            $docTypes = DocumentType::with('translations')->where('status', 1)
+                            ->where('parent_id', $docTypeId)
+                            ->orderBy('sort_order')
+                            ->get();
+        }
+
+        $response = [];
+        if(!empty($docTypes)){
+            $response = $docTypes->map(function ($type) use ($lang) {    
+                return [
+                    'id'            => $type->id, 
+                    'document_type' => $type->parent_id,
+                    'value'         => $type->getTranslation('name', $lang),
+                ];
+            });
+        }
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => $response,
+        ], 200);
+    }
+
+    public function updatePricingStatus(Request $request)
+    {
+        $price = TranslatorLanguageRate::findOrFail($request->id);
+        
+        $price->status = $request->status;
+        $price->save();
+       
+        return 1;
+    }
+
+    public function destroyPricing($id)
+    {
+        $price = TranslatorLanguageRate::findOrFail($id);
+        $price->delete();
+        return redirect()->back()->with('success', 'Translator pricing deleted successfully.');
+    }
 }
