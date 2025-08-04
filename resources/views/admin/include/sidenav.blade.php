@@ -98,8 +98,8 @@
                 @endcan
 
                 @can('manage_translators')
-                    <li class="has-child {{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index','default-translators.history','translators.default']) }}">
-                        <a href="#" class="{{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index','default-translators.history','translators.default']) }}">
+                    <li class="has-child {{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index','default-translators.history','translators.default','translator-pricing.create','translator-pricing.edit','translator-pricing']) }}">
+                        <a href="#" class="{{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index','default-translators.history','translators.default','translator-pricing.create','translator-pricing.edit','translator-pricing']) }}">
                             {{-- <span data-feather="users" class="nav-icon"></span> --}}
                             <i class="las la-language nav-icon"></i>
                             <span class="menu-text">Translators</span>
@@ -114,7 +114,7 @@
                             @endcan
 
                             <li>
-                                <a class="{{ areActiveRoutes(['translators.edit', 'translators.index']) }}"
+                                <a class="{{ areActiveRoutes(['translators.edit', 'translators.index','translator-pricing.create','translator-pricing.edit','translator-pricing']) }}"
                                     href="{{ route('translators.index') }}">All Translators</a>
                             </li>
                             @can('default_translator')

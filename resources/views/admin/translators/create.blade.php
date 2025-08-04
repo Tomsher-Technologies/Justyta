@@ -361,7 +361,7 @@
 
                             <div class="form-group d-flex flex-wrap align-items-end">
                                 <button type="submit" class="btn btn-primary btn-sm ">Save</button>
-                                <a href="{{ route('translators.index') }}"
+                                <a href="{{ Session::has('translator_last_url') ? Session::get('translator_last_url') : route('translators.index') }}"
                                     class="btn btn-secondary btn-square btn-sm ml-2">Cancel</a>
                             </div>
                         </form>

@@ -130,7 +130,14 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::post('/assign', [TranslatorController::class, 'assign'])->name('translators.set-default');
     Route::get('/default-translators/history/{from_language_id}/{to_language_id}', [TranslatorController::class, 'historyForPair'])
     ->name('default-translators.history');
-
+    Route::get('/translator-pricing/{id}', [TranslatorController::class, 'indexPricing'])->name('translator-pricing');
+    Route::get('/translator-pricing-create/{id}', [TranslatorController::class, 'createPricing'])->name('translator-pricing.create');
+    Route::post('translator-pricing/store', [TranslatorController::class, 'storePricing'])->name('translator-pricing.store');
+    Route::get('/translator-pricing-edit/{id}/{transId}', [TranslatorController::class, 'editPricing'])->name('translator-pricing.edit');
+    Route::put('translator-pricing/{id}', [TranslatorController::class, 'updatePricing'])->name('translator-pricing.update');
+    Route::post('/translator-pricing/status', [TranslatorController::class, 'updatePricingStatus'])->name('translator-pricing.status');
+    Route::delete('translator-pricing/{id}', [TranslatorController::class, 'destroyPricing'])->name('translator-pricing.destroy');
+    Route::get('/get-sub-doc-types/{docTypeId}', [TranslatorController::class, 'getSubDocTypes'])->name('get-sub-doc-types');
 
     // Service Requests Management
     Route::get('/service-requests', [ServiceRequestController::class, 'index'])->name('service-requests.index');

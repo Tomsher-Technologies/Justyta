@@ -1,17 +1,19 @@
-@extends('layouts.admin_default', ['title' => 'All Translators'])
+@extends('layouts.admin_default', ['title' => 'Translator Pricing'])
 
 @section('content')
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
-                    <h4 class="text-capitalize breadcrumb-title">All Translators</h4>
+                    <h4 class="text-capitalize breadcrumb-title">Translator Pricing - {{ $translator->user->name ?? '' }}</h4>
                     <div class="breadcrumb-action justify-content-center flex-wrap">
 
-                        @can('add_translator')
-                            <div class="action-btn">
-                                <a href="{{ route('translators.create') }}" class="btn btn-sm btn-primary btn-add">
-                                    <i class="la la-plus"></i> Add New Translator</a>
+                        @can('add_translator_pricing')
+                            <div class="action-btn d-flex">
+                                <a href="{{ route('translator-pricing.create',['id' => base64_encode($translatorId)]) }}" class="btn btn-sm btn-primary btn-add">
+                                    <i class="la la-plus"></i> Add New Pricing</a>
+                                
+                                <a href="{{ Session::has('translator_last_url') ? Session::get('translator_last_url') : route('translators.index') }}" class="btn btn-sm btn-secondary ml-2">← Back</a>
                             </div>
                         @endcan
                     </div>
@@ -24,15 +26,9 @@
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
 
-                            <form method="GET" action="{{ route('translators.index') }}" autocomplete="off">
+                            <form method="GET" action="{{ route('translator-pricing',['id' => base64_encode($translatorId)]) }}" autocomplete="off">
                                 <div class="row mb-2">
                                     <div class="col-md-3 input-group  mb-1">
-                                        <input type="text" name="keyword" value="{{ request('keyword') }}"
-                                            class="form-control ih-small ip-gray radius-xs b-light px-15"
-                                            placeholder="Search name, email, phone or reference no.">
-                                    </div>
-                                    <div class="col-md-3 input-group  mb-1">
-                                        
                                         <select name="language_id" class="form-control select2 ih-small ip-gray radius-xs b-light px-15" id="select-tag2"  data-placeholder="Select Language" >
                                             <option value="">Select Language</option>
                                             @foreach($languages as $option)
@@ -54,18 +50,11 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-2 input-group  mb-1">
-                                        <select name="type"
-                                            class="form-control ih-small ip-gray radius-xs b-light px-15">
-                                            <option value="">Select Type</option>
-                                            <option value="inhouse" {{ request()->type == 'inhouse' ? 'selected' : '' }}>In-house</option>
-                                            <option value="external" {{ request()->type == 'external' ? 'selected' : '' }}>External</option>
-                                        </select>
-                                    </div>
+            
 
                                     <div class="col-md-2 mb-1 d-flex flex-wrap align-items-end">
                                         <button class="btn btn-primary btn-sm " type="submit">Filter</button>
-                                        <a href="{{ route('translators.index') }}"
+                                        <a href="{{ route('translator-pricing',['id' => base64_encode($translatorId)]) }}"
                                             class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
                                     </div>
                                 </div>
@@ -76,88 +65,73 @@
                                     <thead>
                                         <tr class="userDatatable-header">
                                             <th class="text-center">#</th>
-                                            <th class="text-center">Reference No</th>
-                                            <th width="25%">Name</th>
-                                            <th class="text-center">Type</th>
-                                            <th width="30%">Languages</th>
-                                            <th class="text-center">Total Translations</th>
+                                            <th class="text-center">From Language</th>
+                                            <th class="text-center">To Langugae</th>
+                                            <th class="text-center">Document Type</th>
+                                            <th class="text-center">Document Subtype</th>
+                                            <th class="text-center">Total Amount (AED)</th>
+                                            <th class="text-left">Page Hours</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @can('view_translator')
-                                            @if ($translators->isNotEmpty())
-                                                @foreach ($translators as $key => $trans)
+                                        @can('view_translator_pricing')
+                                            @if ($translatorPricing->isNotEmpty())
+                                                @foreach ($translatorPricing as $key => $trans)
                                                     <tr>
                                                         <td class="text-center">
-                                                            {{ $key + 1 + ($translators->currentPage() - 1) * $translators->perPage() }}
+                                                            {{ $key + 1 + ($translatorPricing->currentPage() - 1) * $translatorPricing->perPage() }}
                                                         </td>
-                                                        <td class="text-center">{{ $trans->ref_no }}</td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                @if ($trans->image)
-                                                                    <img src="{{ asset(getUploadedImage($trans->image)) }}"
-                                                                        alt="{{ $trans->name }}" class="list-avatar">
-                                                                @endif
-                                                                {{ $trans->name }}
-                                                                <i class="fas fa-info-circle text-primary ml-2 popover-toggle"
-                                                                    tabindex="0" data-toggle="popover" data-placement="bottom"
-                                                                    data-html="true" data-trigger="manual"
-                                                                    title='<div class="popover-title">Contact Info</div>'
-                                                                    data-content='
-                                                                        <div class="custom-popover">
-                                                                            <div class="popover-item"><i class="fas fa-envelope"></i> {{ $trans->email }}</div>
-                                                                            <div class="popover-item"><i class="fas fa-phone"></i> {{ $trans->phone }}</div>
-                                                                        </div>
-                                                                    '></i>
+                                                        <td class="text-center"> 
+                                                            {{ $trans->fromLanguage->name ?? '-' }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ $trans->toLanguage->name ?? '-' }}
+                                                        </td>
+                                                        <td class="text-center"> 
+                                                            {{ $trans->documentType->name ?? '-' }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ $trans->documentSubType->name ?? '-' }}
+                                                        </td>
+                                                       
+                                                        <td class="text-center"> 
+                                                            {{ number_format($trans->total_amount, 2) }}
+
+                                                            <i class="fas fa-info-circle text-primary ml-2 popover-toggle"
+                                                            tabindex="0" data-toggle="popover" data-placement="bottom"
+                                                            data-html="true" data-trigger="manual"
+                                                            title='<div class="popover-title">Pricing Details (AED)</div>'
+                                                            data-content='
+                                                            <div class="custom-popover">
+                                                                <div class="popover-item">Normal : {{ number_format($trans->normal, 2) }}</div>
+                                                                <div class="popover-item">Urgent : {{ number_format($trans->urgent, 2) }}</div>
+                                                                <div class="popover-item">Email : {{ number_format($trans->email, 2) }}</div>
+                                                                <div class="popover-item">Physical : {{ number_format($trans->physical, 2) }}</div>
+                                                                <div class="popover-item">Admin : {{ number_format($trans->admin_amount, 2) }}</div>
+                                                                <div class="popover-item">Translator : {{ number_format($trans->translator_amount, 2) }}</div>
+                                                                <div class="popover-item">Tax(5%) : {{ number_format($trans->tax, 2) }}</div>
                                                             </div>
+                                                            '></i>
+
+                                                        </td>
+                                                        <td class="text-left"> 
+                                                            <small>1-10 :</small> {{ number_format($trans->hours_1_10, 2) }}<br>
+                                                            <small>11-20 :</small> {{ number_format($trans->hours_11_20, 2) }}<br>
+                                                            <small>21-30 :</small> {{ number_format($trans->hours_21_30, 2) }}<br>
+                                                            <small>31-50 :</small> {{ number_format($trans->hours_31_50, 2) }}<br>
+                                                            <small>50+ :</small> {{ number_format($trans->hours_above_50, 2) }}
                                                         </td>
                                                         <td class="text-center">
-                                                            @if($trans->type === 'inhouse')
-                                                                In-House
-                                                            @elseif($trans->type === 'external')
-                                                                External
-                                                            @else
-                                                                Unknown
-                                                            @endif
-                                                        </td>
-                                                        {{-- <td class="text-center"> {{ $trans->email ?? 'N/A' }}</td>
-                                                        <td class="text-center"> {{ $trans->phone ?? 'N/A' }}</td> --}}
-                                                        <td>
-                                                             @php
-                                                                $grouped = $trans->languageRates
-                                                                    ->groupBy('to_language_id')
-                                                                    ->map(function ($group) {
-                                                                        $to = $group->first()->toLanguage->name ?? '';
-                                                                        $fromLanguages = $group->pluck('fromLanguage.name')->unique()->filter()->values();
-                                                                        return [
-                                                                            'to' => $to,
-                                                                            'from_list' => $fromLanguages
-                                                                        ];
-                                                                    });
-                                                            @endphp
-                                                            @foreach ($grouped as $entry)
-                                                                <strong>{{ $entry['to'] }}</strong>: {{ $entry['from_list']->implode(', ') }}<br>
-                                                            @endforeach
-                                                        </td>
-                                                        {{-- <td>
-                                                            <ul class="list-unstyled mb-0">
-                                                                @foreach ($trans->languages as $lang)
-                                                                    <li> {{ $lang->getTranslatedName('en') }}</li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </td> --}}
-                                                        <td class="text-center"> 0</td>
-                                                        <td class="text-center">
-                                                            @can('edit_translator')
+                                                            @can('edit_translator_pricing')
                                                                 <div class="atbd-switch-wrap">
                                                                     <div
                                                                         class="custom-control custom-switch switch-secondary switch-sm ">
                                                                         <input type="checkbox" class="custom-control-input"
                                                                             id="switch-s1_{{ $key }}"
                                                                             onchange="update_status(this)"
-                                                                            value="{{ $trans->user->id }}" <?php if ($trans->user->banned == 0) {
+                                                                            value="{{ $trans->id }}" <?php if ($trans->status == 1) {
                                                                                 echo 'checked';
                                                                             } ?>>
                                                                         <label class="custom-control-label"
@@ -166,29 +140,38 @@
                                                                 </div>
                                                             @endcan
                                                         </td>
+
                                                         <td class="text-center">
-                                                            
+
                                                             <div class="table-actions">
-                                                                @can('edit_translator')
-                                                                    <a href="{{ route('translators.edit', $trans->id) }}"
-                                                                        title="Edit Translator">
+                                                                @can('edit_translator_pricing')
+                                                                    <a href="{{ route('translator-pricing.edit', ['id' => base64_encode($trans->id), 'transId' => base64_encode($trans->translator_id)]) }}" title="Edit Translator Pricing">
                                                                         <span data-feather="edit"></span>
                                                                     </a>
                                                                 @endcan
 
-                                                                @can('view_translator_pricing')
-                                                                    <a href="{{ route('translator-pricing', ['id' => base64_encode($trans->id)]) }}"
-                                                                            title="Edit Translator Pricing">
-                                                                        <span data-feather="credit-card"></span>
+                                                                @can('delete_translator_pricing')
+                                                                    <form id="delete-form-{{ $trans->id }}"
+                                                                        action="{{ route('translator-pricing.destroy', $trans->id) }}"
+                                                                        method="POST" style="display:none;">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                    </form>
+
+                                                                    <a href="javascript:void(0)"
+                                                                        onclick="confirmDelete({{ $trans->id }})"
+                                                                        title="Delete Translator Pricing">
+                                                                        <span data-feather="trash-2"></span>
                                                                     </a>
                                                                 @endcan
                                                             </div>
+
                                                         </td>
                                                     </tr>
                                                 @endforeach
                                             @else
                                                 <tr>
-                                                    <td colspan="10" class="text-center">
+                                                    <td colspan="9" class="text-center">
                                                         <div class="atbd-empty__image">
                                                             <img src="{{ asset('assets/img/svg/1.svg') }}" alt="Empty">
                                                         </div>
@@ -202,8 +185,8 @@
                                     </tbody>
                                 </table>
                                 <div class="aiz-pagination mt-4">
-                                    @can('view_translator')
-                                        {{ $translators->appends(request()->input())->links('pagination::bootstrap-5') }}
+                                    @can('view_translator_pricing')
+                                        {{ $translatorPricing->appends(request()->input())->links('pagination::bootstrap-5') }}
                                     @endcan
                                 </div>
                             </div>
@@ -218,6 +201,7 @@
 @endsection
 
 @section('style')
+    <link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
     <style>
         .popover-header {
             background-color: var(--secondary);
@@ -258,24 +242,22 @@
 @endsection
 
 @section('script')
+    <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
     <script type="text/javascript">
         function update_status(el) {
             if (el.checked) {
-                var status = 0;
-            } else {
                 var status = 1;
+            } else {
+                var status = 0;
             }
-            $.post('{{ route('staff.status') }}', {
+            $.post('{{ route('translator-pricing.status') }}', {
                 _token: '{{ csrf_token() }}',
                 id: el.value,
                 status: status
             }, function(data) {
                 if (data == 1) {
-                    toastr.success('Translator status updated successfully');
-                    // setTimeout(function() {
-                    //     window.location.reload();
-                    // }, 3000);
-
+                    toastr.success('Translator pricing status updated successfully');
+                   
                 } else {
                     toastr.error('Something went wrong');
                     setTimeout(function() {
@@ -318,5 +300,22 @@
                 if (window.feather) feather.replace();
             });
         });
+
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            });
+        }
     </script>
 @endsection
