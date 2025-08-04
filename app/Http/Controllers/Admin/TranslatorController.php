@@ -107,8 +107,6 @@ class TranslatorController extends Controller
             'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'passport_expiry' => 'required|date',
             'type' => 'required',
-            // 'languages' => 'required|array',
-            'rates.*' => 'required',
         ],[
             '*.required' => 'This field is required.'
         ]);
@@ -147,12 +145,6 @@ class TranslatorController extends Controller
         ]);
         $translator =  $user->translator()->save($translator);
 
-        if($request->has('rates')){
-            foreach ($request->rates as $rate) {
-                $translator->languageRates()->create($rate);
-            }
-        }
-        
         session()->flash('success','Translator created successfully.');
         return redirect()->route('translators.index');
     }
@@ -202,8 +194,6 @@ class TranslatorController extends Controller
             'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'passport_expiry' => 'required|date',
             'type' => 'required',
-            // 'languages' => 'required|array',
-            'rates.*' => 'required',
         ],[
             '*.required' => 'This field is required.'
         ]);
@@ -245,14 +235,6 @@ class TranslatorController extends Controller
         ]);
 
         $translator = $user->translator()->save($translator);
-
-        $translator->languageRates()->delete();
-
-        if($request->has('rates')){
-            foreach ($request->rates as $rate) {
-                $translator->languageRates()->create($rate);
-            }
-        }
 
         $dropdowns = collect([
             'languages' => $request->languages
