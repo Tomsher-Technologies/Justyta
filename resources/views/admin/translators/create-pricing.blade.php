@@ -79,67 +79,188 @@
                                             @enderror
                                         </div>
 
-                                        <div class="col-md-3 mb-3">
-                                            <label class="col-form-label color-dark fw-500 align-center"> Normal Priority Amount </label>
-                                            <input type="number" step="0.01" name="normal" id="normal" value="{{ old('normal',0) }}" class="form-control" />
-                                            @error('normal')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                        
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3 mt-2">
+                                            <h5><u>Normal Priority</u></h5>
                                         </div>
 
-                                        <div class="col-md-3 mb-3">
-                                            <label class="col-form-label color-dark fw-500 align-center"> Urgent Priority Amount </label>
-                                            <input type="number" step="0.01" name="urgent" id="urgent" value="{{ old('urgent',0) }}" class="form-control" />
-                                            @error('urgent')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="col-md-3 mb-3">
+                                        <div class="col-md-2 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center"> Email Delivery Amount </label>
-                                            <input type="number" step="0.01" name="email_delivery" id="email_delivery" value="{{ old('email_delivery',0) }}" class="form-control" />
-                                            @error('email_delivery')
+                                            <input type="number" step="0.01" name="email_delivery_normal_email" id="email_delivery_normal_email" value="{{ old('email_delivery_normal_email',0) }}" class="form-control" />
+                                            @error('email_delivery_normal_email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
 
-                                        <div class="col-md-3 mb-3">
-                                            <label class="col-form-label color-dark fw-500 align-center"> Physical Delivery Amount </label>
-                                            <input type="number" step="0.01" name="physical_delivery" id="physical_delivery" value="{{ old('physical_delivery',0) }}" class="form-control" />
-                                            @error('physical_delivery')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="col-md-3 mb-3">
+                                        <div class="col-md-2 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center"> Admin Amount <span
                                                     class="text-danger">*</span> </label>
-                                            <input type="number" step="0.01" name="admin_amount" id="admin_amount" value="{{ old('admin_amount',0) }}" class="form-control" />
-                                            @error('admin_amount')
+                                            <input type="number" step="0.01" name="admin_amount_normal_email" id="admin_amount_normal_email" value="{{ old('admin_amount_normal_email',0) }}" class="form-control" />
+                                            @error('admin_amount_normal_email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
 
-                                        <div class="col-md-3 mb-3">
+                                        <div class="col-md-2 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center"> Translator Amount <span class="text-danger">*</span> </label>
-                                            <input type="number" step="0.01" name="translator_amount" id="translator_amount" value="{{ old('translator_amount',0) }}" class="form-control" />
-                                            @error('translator_amount')
+                                            <input type="number" step="0.01" name="translator_amount_normal_email" id="translator_amount_normal_email" value="{{ old('translator_amount_normal_email',0) }}" class="form-control" />
+                                            @error('translator_amount_normal_email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
 
-                                        <div class="col-md-3 mb-3">
+                                        <div class="col-md-2 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center"> Tax Amount (5%)<span class="text-danger">*</span> </label>
-                                            <input type="number" readonly step="0.01" name="tax_amount" id="tax_amount" value="{{ old('tax_amount',0) }}" class="form-control" />
-                                            @error('tax_amount')
+                                            <input type="number" readonly step="0.01" name="tax_amount_normal_email" id="tax_amount_normal_email" value="{{ old('tax_amount_normal_email',0) }}" class="form-control" />
+                                            @error('tax_amount_normal_email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
 
                                         <div class="col-md-3 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center"> Total Amount<span class="text-danger">*</span> </label>
-                                            <input type="number" readonly step="0.01" name="total_amount" id="total_amount" value="{{ old('total_amount',0) }}" class="form-control" />
-                                            @error('total_amount')
+                                            <input type="number" readonly step="0.01" name="total_amount_normal_email" id="total_amount_normal_email" value="{{ old('total_amount_normal_email',0) }}" class="form-control" />
+                                            @error('total_amount_normal_email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+
+                                        <div class="col-md-2 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Physical Delivery Amount </label>
+                                            <input type="number" step="0.01" name="physical_delivery_normal_physical" id="physical_delivery_normal_physical" value="{{ old('physical_delivery_normal_physical',0) }}" class="form-control" />
+                                            @error('physical_delivery_normal_physical')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Admin Amount <span
+                                                    class="text-danger">*</span> </label>
+                                            <input type="number" step="0.01" name="admin_amount_normal_physical" id="admin_amount_normal_physical" value="{{ old('admin_amount_normal_physical',0) }}" class="form-control" />
+                                            @error('admin_amount_normal_physical')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Translator Amount <span class="text-danger">*</span> </label>
+                                            <input type="number" step="0.01" name="translator_amount_normal_physical" id="translator_amount_normal_physical" value="{{ old('translator_amount_normal_physical',0) }}" class="form-control" />
+                                            @error('translator_amount_normal_physical')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Tax Amount (5%)<span class="text-danger">*</span> </label>
+                                            <input type="number" readonly step="0.01" name="tax_amount_normal_physical" id="tax_amount_normal_physical" value="{{ old('tax_amount_normal_physical',0) }}" class="form-control" />
+                                            @error('tax_amount_normal_physical')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-3 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Total Amount<span class="text-danger">*</span> </label>
+                                            <input type="number" readonly step="0.01" name="total_amount_normal_physical" id="total_amount_normal_physical" value="{{ old('total_amount_normal_physical',0) }}" class="form-control" />
+                                            @error('total_amount_normal_physical')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3 mt-2">
+                                            <h5><u>Urgent Priority</u></h5>
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Email Delivery Amount </label>
+                                            <input type="number" step="0.01" name="email_delivery_urgent_email" id="email_delivery_urgent_email" value="{{ old('email_delivery_urgent_email',0) }}" class="form-control" />
+                                            @error('email_delivery_urgent_email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Admin Amount <span
+                                                    class="text-danger">*</span> </label>
+                                            <input type="number" step="0.01" name="admin_amount_urgent_email" id="admin_amount_urgent_email" value="{{ old('admin_amount_urgent_email',0) }}" class="form-control" />
+                                            @error('admin_amount_urgent_email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Translator Amount <span class="text-danger">*</span> </label>
+                                            <input type="number" step="0.01" name="translator_amount_urgent_email" id="translator_amount_urgent_email" value="{{ old('translator_amount_urgent_email',0) }}" class="form-control" />
+                                            @error('translator_amount_urgent_email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Tax Amount (5%)<span class="text-danger">*</span> </label>
+                                            <input type="number" readonly step="0.01" name="tax_amount_urgent_email" id="tax_amount_urgent_email" value="{{ old('tax_amount_urgent_email',0) }}" class="form-control" />
+                                            @error('tax_amount_urgent_email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-3 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Total Amount<span class="text-danger">*</span> </label>
+                                            <input type="number" readonly step="0.01" name="total_amount_urgent_email" id="total_amount_urgent_email" value="{{ old('total_amount_urgent_email',0) }}" class="form-control" />
+                                            @error('total_amount_urgent_email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+
+                                        <div class="col-md-2 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Physical Delivery Amount </label>
+                                            <input type="number" step="0.01" name="physical_delivery_urgent_physical" id="physical_delivery_urgent_physical" value="{{ old('physical_delivery_urgent_physical',0) }}" class="form-control" />
+                                            @error('physical_delivery_urgent_physical')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Admin Amount <span
+                                                    class="text-danger">*</span> </label>
+                                            <input type="number" step="0.01" name="admin_amount_urgent_physical" id="admin_amount_urgent_physical" value="{{ old('admin_amount_urgent_physical',0) }}" class="form-control" />
+                                            @error('admin_amount_urgent_physical')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Translator Amount <span class="text-danger">*</span> </label>
+                                            <input type="number" step="0.01" name="translator_amount_urgent_physical" id="translator_amount_urgent_physical" value="{{ old('translator_amount_urgent_physical',0) }}" class="form-control" />
+                                            @error('translator_amount_urgent_physical')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-2 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Tax Amount (5%)<span class="text-danger">*</span> </label>
+                                            <input type="number" readonly step="0.01" name="tax_amount_urgent_physical" id="tax_amount_urgent_physical" value="{{ old('tax_amount_urgent_physical',0) }}" class="form-control" />
+                                            @error('tax_amount_urgent_physical')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-3 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center"> Total Amount<span class="text-danger">*</span> </label>
+                                            <input type="number" readonly step="0.01" name="total_amount_urgent_physical" id="total_amount_urgent_physical" value="{{ old('total_amount_urgent_physical',0) }}" class="form-control" />
+                                            @error('total_amount_urgent_physical')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
@@ -265,28 +386,79 @@
         return parseFloat(value) || 0;
     }
 
-    function calculateTaxAndTotal() {
-        let normal      = parseFloatOrZero($('#normal').val());
-        let urgent      = parseFloatOrZero($('#urgent').val());
-        let email       = parseFloatOrZero($('#email_delivery').val());
-        let physical    = parseFloatOrZero($('#physical_delivery').val());
-        let admin       = parseFloatOrZero($('#admin_amount').val());
-        let translator  = parseFloatOrZero($('#translator_amount').val());
+    function calculateNormalEmailTaxAndTotal() {
+        let delivery_amount       = parseFloatOrZero($('#email_delivery_normal_email').val());
+        let admin_amount    = parseFloatOrZero($('#admin_amount_normal_email').val());
+        let translator_amount       = parseFloatOrZero($('#translator_amount_normal_email').val());
 
-        let subtotal = normal + urgent + email + physical + admin + translator;
+        let subtotal = delivery_amount + admin_amount + translator_amount;
         let tax = subtotal * 0.05;
         let total = subtotal + tax;
 
-        $('#tax_amount').val(tax.toFixed(2));
-        $('#total_amount').val(total.toFixed(2));
+        $('#tax_amount_normal_email').val(tax.toFixed(2));
+        $('#total_amount_normal_email').val(total.toFixed(2));
     }
 
+    function calculateNormalPhysicalTaxAndTotal() {
+        let delivery_amount       = parseFloatOrZero($('#physical_delivery_normal_physical').val());
+        let admin_amount    = parseFloatOrZero($('#admin_amount_normal_physical').val());
+        let translator_amount       = parseFloatOrZero($('#translator_amount_normal_physical').val());
+
+        let subtotal = delivery_amount + admin_amount + translator_amount;
+        let tax = subtotal * 0.05;
+        let total = subtotal + tax;
+
+        $('#tax_amount_normal_physical').val(tax.toFixed(2));
+        $('#total_amount_normal_physical').val(total.toFixed(2));
+    }
+
+    function calculateUrgentEmailTaxAndTotal() {
+        let delivery_amount       = parseFloatOrZero($('#email_delivery_urgent_email').val());
+        let admin_amount    = parseFloatOrZero($('#admin_amount_urgent_email').val());
+        let translator_amount       = parseFloatOrZero($('#translator_amount_urgent_email').val());
+
+        let subtotal = delivery_amount + admin_amount + translator_amount;
+        let tax = subtotal * 0.05;
+        let total = subtotal + tax;
+
+        $('#tax_amount_urgent_email').val(tax.toFixed(2));
+        $('#total_amount_urgent_email').val(total.toFixed(2));
+    }
+
+    function calculateUrgentPhysicalTaxAndTotal() {
+        let delivery_amount       = parseFloatOrZero($('#physical_delivery_urgent_physical').val());
+        let admin_amount    = parseFloatOrZero($('#admin_amount_urgent_physical').val());
+        let translator_amount       = parseFloatOrZero($('#translator_amount_urgent_physical').val());
+
+        let subtotal = delivery_amount + admin_amount + translator_amount;
+        let tax = subtotal * 0.05;
+        let total = subtotal + tax;
+
+        $('#tax_amount_urgent_physical').val(tax.toFixed(2));
+        $('#total_amount_urgent_physical').val(total.toFixed(2));
+    }
+
+
      $(document).ready(function () {
-        calculateTaxAndTotal();
-        $('#normal, #urgent, #email_delivery, #physical_delivery, #admin_amount, #translator_amount').on('input', function () {
-            calculateTaxAndTotal();
+  
+        $('#email_delivery_normal_email, #admin_amount_normal_email, #translator_amount_normal_email').on('input', function () {
+            calculateNormalEmailTaxAndTotal();
+        });
+
+        $('#physical_delivery_normal_physical, #admin_amount_normal_physical, #translator_amount_normal_physical').on('input', function () {
+            calculateNormalPhysicalTaxAndTotal();
+        });
+
+        $('#email_delivery_urgent_email, #admin_amount_urgent_email, #translator_amount_urgent_email').on('input', function () {
+            calculateUrgentEmailTaxAndTotal();
+        });
+
+        $('#physical_delivery_urgent_physical, #admin_amount_urgent_physical, #translator_amount_urgent_physical').on('input', function () {
+            calculateUrgentPhysicalTaxAndTotal();
         });
     });
+
+
 
 </script>
 @endsection
