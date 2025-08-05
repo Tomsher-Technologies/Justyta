@@ -130,7 +130,7 @@
                                                                     data-id="{{ $option->id }}"
                                                                     data-status="{{ $option->status }}"
                                                                     data-sort_order="{{ $option->sort_order }}"
-                                                                    @foreach ($languages as $lang) data-name-{{ $lang->code }}="{{ $option->translations->firstWhere('language_code', $lang->code)?->name }}" @endforeach>
+                                                                    @foreach ($languages as $lang) data-name-{{ $lang->code }}="{{ $option->translations->firstWhere('language_code', $lang->code)?->name }}" @endforeach  style="cursor: pointer;">
                                                                     <span data-feather="edit"></span>
                                                                 </a>
                                                             @endcan

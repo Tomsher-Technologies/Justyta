@@ -106,7 +106,7 @@
                                                         <td class="text-center">
                                                             @can('edit_dropdown_option')
                                                                 <div class="table-actions">
-                                                                    <a class="edit-btn" data-id="{{ $type->id }}"  title="Edit Contract Type">
+                                                                    <a class="edit-btn" data-id="{{ $type->id }}"  title="Edit Contract Type" style="cursor: pointer;">
                                                                         <span data-feather="edit"></span></a>
                                                                 </div>
                                                             @endcan

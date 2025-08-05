@@ -408,6 +408,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'no_of_visits'          => $model->no_of_visits,
                 'no_of_installment'     => $model->no_of_installment,
                 'lawfirm'               => $model->lawFirm?->getTranslation('law_firm_name',$lang) ?? NULL,
+                'lawfirm_id'            => $model->lawfirm
             ];
         case 'immigration-requests' :
             return [

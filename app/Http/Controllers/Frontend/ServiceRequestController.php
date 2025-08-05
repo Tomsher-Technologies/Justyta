@@ -2515,7 +2515,7 @@ class ServiceRequestController extends Controller
                     'paid_at' => date('Y-m-d h:i:s')
                 ]);
             }
-
+  
             if($serviceRequest->service_slug === 'legal-translation'){
                 $legalTranslation = requestLegalTranslation::where('service_request_id', $serviceRequest->id)->first();
 
@@ -2559,7 +2559,7 @@ class ServiceRequestController extends Controller
                     }
                 }
             }
-
+  
             if($serviceRequest->service_slug === 'annual-retainer-agreement'){
                 $annualRequest = RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
                 $annualRequest->amount_paid = $paidAmount;
