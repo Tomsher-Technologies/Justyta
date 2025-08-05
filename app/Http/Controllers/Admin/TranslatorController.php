@@ -385,7 +385,7 @@ class TranslatorController extends Controller
     {
         $request->session()->put('translator_pricing_last_url', url()->full());
         $translatorId = base64_decode($id);
-        $query = TranslatorLanguageRate::with(['translator','fromLanguage', 'toLanguage','documentType','documentSubType'])
+        $query = TranslatorLanguageRate::with(['translator','fromLanguage', 'toLanguage','documentType','documentSubType','deliveries'])
                     ->where('translator_id', $translatorId);
 
         if ($request->filled('status')) {
@@ -430,27 +430,40 @@ class TranslatorController extends Controller
 
     public function storePricing(Request $request)
     {
+        
         $validator = Validator::make($request->all(), [
-            'from_language'     => 'required|integer|different:to_language',
-            'to_language'       => 'required|integer',
-            'doc_type'          => 'required|integer',
-            'sub_doc_type'      => 'required|integer',
-            'admin_amount'      => 'required|numeric|min:0',
-            'translator_amount' => 'required|numeric|min:0',
-            'tax_amount'        => 'required|numeric|min:0',
-            'normal'            => 'required|numeric|min:0',
-            'urgent'            => 'required|numeric|min:0',
-            'email_delivery'    => 'required|numeric|min:0',
-            'physical_delivery' => 'required|numeric|min:0',
-            'total_amount'      => 'required|numeric|min:0',
-            'hours_1_10'        => 'required|numeric|min:0',
-            'hours_11_20'       => 'required|numeric|min:0',
-            'hours_21_30'       => 'required|numeric|min:0',
-            'hours_31_50'       => 'required|numeric|min:0',
-            'hours_above_50'    => 'required|numeric|min:0',
+            'from_language'                     => 'required|integer|different:to_language',
+            'to_language'                       => 'required|integer',
+            'doc_type'                          => 'required|integer',
+            'sub_doc_type'                      => 'required|integer',
+            'email_delivery_normal_email'       => 'required|numeric|min:0',
+            'admin_amount_normal_email'         => 'required|numeric|min:0',
+            'translator_amount_normal_email'    => 'required|numeric|min:0',
+            'tax_amount_normal_email'           => 'required|numeric|min:0',
+            'total_amount_normal_email'         => 'required|numeric|min:0',
+            'physical_delivery_normal_physical' => 'required|numeric|min:0',
+            'admin_amount_normal_physical'      => 'required|numeric|min:0',
+            'translator_amount_normal_physical' => 'required|numeric|min:0',
+            'tax_amount_normal_physical'        => 'required|numeric|min:0',
+            'total_amount_normal_physical'      => 'required|numeric|min:0',
+            'email_delivery_urgent_email'       => 'required|numeric|min:0',
+            'admin_amount_urgent_email'         => 'required|numeric|min:0',
+            'translator_amount_urgent_email'    => 'required|numeric|min:0',
+            'tax_amount_urgent_email'           => 'required|numeric|min:0',
+            'total_amount_urgent_email'         => 'required|numeric|min:0',
+            'physical_delivery_urgent_physical' => 'required|numeric|min:0',
+            'admin_amount_urgent_physical'      => 'required|numeric|min:0',
+            'translator_amount_urgent_physical' => 'required|numeric|min:0',
+            'tax_amount_urgent_physical'        => 'required|numeric|min:0',
+            'total_amount_urgent_physical'      => 'required|numeric|min:0',
+            'hours_1_10'                        => 'required|numeric|min:0',
+            'hours_11_20'                       => 'required|numeric|min:0',
+            'hours_21_30'                       => 'required|numeric|min:0',
+            'hours_31_50'                       => 'required|numeric|min:0',
+            'hours_above_50'                    => 'required|numeric|min:0',
         ],[
-            '*.required' => 'This field is required.',
-            'from_language.different' => 'From Language and To Language must be different.',
+            '*.required'                        => 'This field is required.',
+            'from_language.different'           => 'From Language and To Language must be different.',
         ]);
 
         $translatorId = base64_decode($request->translator_id);
@@ -471,26 +484,61 @@ class TranslatorController extends Controller
             ]);
         }
 
-        TranslatorLanguageRate::create([
-            'translator_id'       => $translatorId,
-            'from_language_id'    => $request->from_language ?? NULL,
-            'to_language_id'      => $request->to_language ?? NULL,
-            'doc_type_id'         => $request->doc_type ?? NULL,
-            'doc_subtype_id'      => $request->sub_doc_type ?? NULL,
-            'normal'              => $request->normal ?? 0,
-            'urgent'              => $request->urgent ?? 0,
-            'email'               => $request->email_delivery ?? 0,
-            'physical'            => $request->physical_delivery ?? 0,
-            'admin_amount'        => $request->admin_amount ?? 0,
-            'translator_amount'   => $request->translator_amount ?? 0,
-            'tax'                 => $request->tax_amount ?? 0,
-            'hours_1_10'          => $request->hours_1_10 ?? 0,
-            'hours_11_20'         => $request->hours_11_20 ?? 0,
-            'hours_21_30'         => $request->hours_21_30 ?? 0,
-            'hours_31_50'         => $request->hours_31_50 ?? 0,
-            'hours_above_50'      => $request->hours_above_50 ?? 0,
-            'status'              => 1
+        $rate = TranslatorLanguageRate::create([
+            'translator_id'     => $translatorId,
+            'from_language_id'  => $request->from_language,
+            'to_language_id'    => $request->to_language,
+            'doc_type_id'       => $request->doc_type,
+            'doc_subtype_id'    => $request->sub_doc_type,
+            'hours_1_10'        => $request->hours_1_10,
+            'hours_11_20'       => $request->hours_11_20,
+            'hours_21_30'       => $request->hours_21_30,
+            'hours_31_50'       => $request->hours_31_50,
+            'hours_above_50'    => $request->hours_above_50,
         ]);
+
+        $deliveries = [
+            [
+                'priority_type'     => 'normal',
+                'delivery_type'     => 'email',
+                'delivery_amount'   => $request->email_delivery_normal_email,
+                'admin_amount'      => $request->admin_amount_normal_email,
+                'translator_amount' => $request->translator_amount_normal_email,
+                'tax'               => $request->tax_amount_normal_email,
+                'total_amount'      => $request->total_amount_normal_email,
+            ],
+            [
+                'priority_type'     => 'normal',
+                'delivery_type'     => 'physical',
+                'delivery_amount'   => $request->physical_delivery_normal_physical,
+                'admin_amount'      => $request->admin_amount_normal_physical,
+                'translator_amount' => $request->translator_amount_normal_physical,
+                'tax'               => $request->tax_amount_normal_physical,
+                'total_amount'      => $request->total_amount_normal_physical,
+            ],
+            [
+                'priority_type'     => 'urgent',
+                'delivery_type'     => 'email',
+                'delivery_amount'   => $request->email_delivery_urgent_email,
+                'admin_amount'      => $request->admin_amount_urgent_email,
+                'translator_amount' => $request->translator_amount_urgent_email,
+                'tax'               => $request->tax_amount_urgent_email,
+                'total_amount'      => $request->total_amount_urgent_email,
+            ],
+            [
+                'priority_type'     => 'urgent',
+                'delivery_type'     => 'physical',
+                'delivery_amount'   => $request->physical_delivery_urgent_physical,
+                'admin_amount'      => $request->admin_amount_urgent_physical,
+                'translator_amount' => $request->translator_amount_urgent_physical,
+                'tax'               => $request->tax_amount_urgent_physical,
+                'total_amount'      => $request->total_amount_urgent_physical,
+            ],
+        ];
+
+        foreach ($deliveries as $data) {
+            $rate->deliveries()->create($data);
+        }
       
         session()->flash('success','Translator pricing created successfully.');
        
@@ -510,7 +558,17 @@ class TranslatorController extends Controller
                             ->where('parent_id', $pricing->doc_type_id)
                             ->orderBy('sort_order')
                             ->get();
-        return view('admin.translators.edit-pricing', compact('languages','subdocTypes','documentTypes','pricing','transId'));
+
+        $deliveryValues = [];
+
+        foreach ($pricing->deliveries as $delivery) {
+            $priority = $delivery->priority_type; // 'normal' or 'urgent'
+            $type = $delivery->delivery_type;     // 'email' or 'physical'
+
+            $deliveryValues[$priority][$type] = $delivery;
+        }
+      
+        return view('admin.translators.edit-pricing', compact('deliveryValues','languages','subdocTypes','documentTypes','pricing','transId'));
     }
 
     public function updatePricing(Request $request, $id)
@@ -518,23 +576,35 @@ class TranslatorController extends Controller
         $pricing = TranslatorLanguageRate::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'from_language'     => 'required|integer|different:to_language',
-            'to_language'       => 'required|integer',
-            'doc_type'          => 'required|integer',
-            'sub_doc_type'      => 'required|integer',
-            'admin_amount'      => 'required|numeric|min:0',
-            'translator_amount' => 'required|numeric|min:0',
-            'tax_amount'        => 'required|numeric|min:0',
-            'normal'            => 'required|numeric|min:0',
-            'urgent'            => 'required|numeric|min:0',
-            'email_delivery'    => 'required|numeric|min:0',
-            'physical_delivery' => 'required|numeric|min:0',
-            'total_amount'      => 'required|numeric|min:0',
-            'hours_1_10'        => 'required|numeric|min:0',
-            'hours_11_20'       => 'required|numeric|min:0',
-            'hours_21_30'       => 'required|numeric|min:0',
-            'hours_31_50'       => 'required|numeric|min:0',
-            'hours_above_50'    => 'required|numeric|min:0',
+            'from_language'                     => 'required|integer|different:to_language',
+            'to_language'                       => 'required|integer',
+            'doc_type'                          => 'required|integer',
+            'sub_doc_type'                      => 'required|integer',
+            'email_delivery_normal_email'       => 'required|numeric|min:0',
+            'admin_amount_normal_email'         => 'required|numeric|min:0',
+            'translator_amount_normal_email'    => 'required|numeric|min:0',
+            'tax_amount_normal_email'           => 'required|numeric|min:0',
+            'total_amount_normal_email'         => 'required|numeric|min:0',
+            'physical_delivery_normal_physical' => 'required|numeric|min:0',
+            'admin_amount_normal_physical'      => 'required|numeric|min:0',
+            'translator_amount_normal_physical' => 'required|numeric|min:0',
+            'tax_amount_normal_physical'        => 'required|numeric|min:0',
+            'total_amount_normal_physical'      => 'required|numeric|min:0',
+            'email_delivery_urgent_email'       => 'required|numeric|min:0',
+            'admin_amount_urgent_email'         => 'required|numeric|min:0',
+            'translator_amount_urgent_email'    => 'required|numeric|min:0',
+            'tax_amount_urgent_email'           => 'required|numeric|min:0',
+            'total_amount_urgent_email'         => 'required|numeric|min:0',
+            'physical_delivery_urgent_physical' => 'required|numeric|min:0',
+            'admin_amount_urgent_physical'      => 'required|numeric|min:0',
+            'translator_amount_urgent_physical' => 'required|numeric|min:0',
+            'tax_amount_urgent_physical'        => 'required|numeric|min:0',
+            'total_amount_urgent_physical'      => 'required|numeric|min:0',
+            'hours_1_10'                        => 'required|numeric|min:0',
+            'hours_11_20'                       => 'required|numeric|min:0',
+            'hours_21_30'                       => 'required|numeric|min:0',
+            'hours_31_50'                       => 'required|numeric|min:0',
+            'hours_above_50'                    => 'required|numeric|min:0',
         ],[
             '*.required' => 'This field is required.',
             'from_language.different' => 'From Language and To Language must be different.',
@@ -563,13 +633,6 @@ class TranslatorController extends Controller
             'to_language_id'      => $request->to_language ?? NULL,
             'doc_type_id'         => $request->doc_type ?? NULL,
             'doc_subtype_id'      => $request->sub_doc_type ?? NULL,
-            'normal'              => $request->normal ?? 0,
-            'urgent'              => $request->urgent ?? 0,
-            'email'               => $request->email_delivery ?? 0,
-            'physical'            => $request->physical_delivery ?? 0,
-            'admin_amount'        => $request->admin_amount ?? 0,
-            'translator_amount'   => $request->translator_amount ?? 0,
-            'tax'                 => $request->tax_amount ?? 0,
             'hours_1_10'          => $request->hours_1_10 ?? 0,
             'hours_11_20'         => $request->hours_11_20 ?? 0,
             'hours_21_30'         => $request->hours_21_30 ?? 0,
@@ -578,6 +641,55 @@ class TranslatorController extends Controller
             'status'              => $request->status
         ]);
 
+        $deliveries = [
+            [
+                'priority_type'     => 'normal', 
+                'delivery_type'     => 'email',    
+                'delivery_amount'   => $request->email_delivery_normal_email,     
+                'admin_amount'      => $request->admin_amount_normal_email,     
+                'translator_amount' => $request->translator_amount_normal_email,     
+                'tax'               => $request->tax_amount_normal_email,     
+                'total_amount'      => $request->total_amount_normal_email
+            ],
+            [
+                'priority_type'     => 'normal', 
+                'delivery_type'     => 'physical', 
+                'delivery_amount'   => $request->physical_delivery_normal_physical, 
+                'admin_amount'      => $request->admin_amount_normal_physical, 
+                'translator_amount' => $request->translator_amount_normal_physical, 
+                'tax'               => $request->tax_amount_normal_physical, 
+                'total_amount'      => $request->total_amount_normal_physical
+            ],
+            [
+                'priority_type'     => 'urgent', 
+                'delivery_type'     => 'email',    
+                'delivery_amount'   => $request->email_delivery_urgent_email,      
+                'admin_amount'      => $request->admin_amount_urgent_email,      
+                'translator_amount' => $request->translator_amount_urgent_email,      
+                'tax'               => $request->tax_amount_urgent_email,      
+                'total_amount'      => $request->total_amount_urgent_email
+            ],
+            [
+                'priority_type'     => 'urgent', 
+                'delivery_type'     => 'physical', 
+                'delivery_amount'   => $request->physical_delivery_urgent_physical, 
+                'admin_amount'      => $request->admin_amount_urgent_physical, 
+                'translator_amount' => $request->translator_amount_urgent_physical, 
+                'tax'               => $request->tax_amount_urgent_physical, 
+                'total_amount'      => $request->total_amount_urgent_physical],
+        ];
+
+        foreach ($deliveries as $data) {
+            $pricing->deliveries()
+                ->updateOrCreate(
+                    [
+                        'priority_type' => $data['priority_type'],
+                        'delivery_type' => $data['delivery_type']
+                    ],
+                    $data
+                );
+        }
+        
         $url =  session()->has('translator_pricing_last_url') ? session()->get('translator_pricing_last_url') : route('translator-pricing', ['id' => $request->translator_id]);
        
         return redirect($url)->with('success', 'Pricing updated successfully.');
