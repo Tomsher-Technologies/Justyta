@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class TranslatorLanguageRate extends Model
 {
     protected $fillable = [
-        'translator_id', 'from_language_id', 'to_language_id', 'doc_type_id', 'doc_subtype_id', 'normal', 'urgent', 'email', 'physical', 'admin_amount', 'translator_amount', 'tax', 'total_amount', 'hours_1_10', 'hours_11_20', 'hours_21_30', 'hours_31_50', 'hours_above_50', 'status'
+        'translator_id', 'from_language_id', 'to_language_id', 'doc_type_id', 'doc_subtype_id', 'hours_1_10', 'hours_11_20', 'hours_21_30', 'hours_31_50', 'hours_above_50', 'status'
     ];
 
     
@@ -35,4 +35,10 @@ class TranslatorLanguageRate extends Model
     {
         return $this->belongsTo(DocumentType::class, 'doc_subtype_id');
     }
+    
+    public function deliveries()
+    {
+        return $this->hasMany(TranslatorRateDelivery::class, 'rate_id'); 
+    }
+
 }

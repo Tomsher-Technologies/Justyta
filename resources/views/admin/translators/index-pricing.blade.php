@@ -124,27 +124,29 @@
                                                         <td class="text-center">
                                                             {{ $trans->documentSubType->name ?? '-' }}
                                                         </td>
-                                                       
-                                                        <td class="text-center"> 
-                                                            {{ number_format($trans->total_amount, 2) }}
 
-                                                            <i class="fas fa-info-circle text-primary ml-2 popover-toggle"
-                                                            tabindex="0" data-toggle="popover" data-placement="bottom"
-                                                            data-html="true" data-trigger="manual"
-                                                            title='<div class="popover-title">Pricing Details (AED)</div>'
-                                                            data-content='
-                                                            <div class="custom-popover">
-                                                                <div class="popover-item">Normal : {{ number_format($trans->normal, 2) }}</div>
-                                                                <div class="popover-item">Urgent : {{ number_format($trans->urgent, 2) }}</div>
-                                                                <div class="popover-item">Email : {{ number_format($trans->email, 2) }}</div>
-                                                                <div class="popover-item">Physical : {{ number_format($trans->physical, 2) }}</div>
-                                                                <div class="popover-item">Admin : {{ number_format($trans->admin_amount, 2) }}</div>
-                                                                <div class="popover-item">Translator : {{ number_format($trans->translator_amount, 2) }}</div>
-                                                                <div class="popover-item">Tax(5%) : {{ number_format($trans->tax, 2) }}</div>
-                                                            </div>
-                                                            '></i>
+                                                        <td class="text-center">
+                                                            @foreach ($trans->deliveries as $delivery)
+                                                                <small>
+                                                                    {{ ucfirst($delivery->priority_type) }} - {{ ucfirst($delivery->delivery_type) }}:
+                                                                </small>
+                                                                    {{ number_format($delivery->total_amount, 2) }}
 
+                                                                    <i class="fas fa-info-circle text-primary ml-2 popover-toggle" tabindex="0" data-toggle="popover" data-placement="bottom" data-html="true" data-trigger="manual" title='<div class="popover-title">Pricing Details (AED)</div>' data-content=' <div class="custom-popover">
+                                                                        <div class="popover-item"><strong> {{ ucfirst($delivery->priority_type) }} - {{ ucfirst($delivery->delivery_type) }}</strong>
+                                                                        </div>
+                                                                        <hr>
+                                                                        <div class="popover-item">Delivery Amount : {{ number_format($delivery->delivery_amount, 2) }}</div>
+                                                                        <div class="popover-item">Admin Amount : {{ number_format($delivery->admin_amount, 2) }}</div>
+                                                                        <div class="popover-item">Translator Amount : {{ number_format($delivery->translator_amount, 2) }}</div>
+                                                                        <div class="popover-item">Tax Amount(5%) : {{ number_format($delivery->tax, 2) }}</div>
+                                                                        <div class="popover-item"><strong>Total Amount : {{ number_format($delivery->total_amount, 2) }}</strong></div>
+                                                                    </div>
+                                                                '></i>
+                                                                <br>
+                                                            @endforeach
                                                         </td>
+                                                        
                                                         <td class="text-left"> 
                                                             <small>1-10 :</small> {{ number_format($trans->hours_1_10, 2) }}<br>
                                                             <small>11-20 :</small> {{ number_format($trans->hours_11_20, 2) }}<br>
