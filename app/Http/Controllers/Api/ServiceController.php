@@ -891,24 +891,6 @@ class ServiceController extends Controller
         $response['visits']         = [0,1,2,3,4];
         $response['installments']   = [1, 2, 4];
 
-        $lawFirms = Vendor::whereHas('subscriptions', function ($query) {
-                                $query->where('status', 'active')
-                                    ->whereDate('subscription_end', '>=', Carbon::today());
-                            })
-                            ->whereHas('user', function ($query) {
-                                $query->where('banned', 0);
-                            })
-                            ->with(['subscriptions', 'user'])
-                            ->orderBy('law_firm_name', 'ASC')
-                            ->get();
-
-        $response['law_firms'] = $lawFirms->map(function ($lawfirm) use($lang) {
-            return [
-                'id'    => $lawfirm->id,
-                'value' => $lawfirm->getTranslation('law_firm_name',$lang),
-            ];
-        });
-
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -2292,14 +2274,14 @@ class ServiceController extends Controller
             }else{
                 return response()->json([
                     'status'    => false,
-                    'message'   => __('messages.request_submit_failed'),
+                    'message'   => __('frontend.request_submit_failed'),
                     'data'      => json_encode($payment),
                 ], 200);
             }
         }else{
             return response()->json([
                 'status'    => false,
-                'message'   => __('messages.request_submit_failed'),
+                'message'   => __('frontend.request_submit_failed'),
                 'data'      => json_encode($payment),
             ], 200);
         }
@@ -2453,14 +2435,14 @@ class ServiceController extends Controller
             }else{
                 return response()->json([
                     'status'    => false,
-                    'message'   => __('messages.request_submit_failed'),
+                    'message'   => __('frontend.request_submit_failed'),
                     'data'      => json_encode($payment),
                 ], 200);
             }
         }else{
             return response()->json([
                 'status'    => false,
-                'message'   => __('messages.request_submit_failed'),
+                'message'   => __('frontend.request_submit_failed'),
                 'data'      => json_encode($payment),
             ], 200);
         }
@@ -2478,7 +2460,7 @@ class ServiceController extends Controller
             'no_of_calls'       => 'required',
             'no_of_visits'      => 'required',
             'no_of_installment' => 'required',
-            'lawfirm'           => 'required',
+            // 'lawfirm'           => 'required',
         ], [
             'company_name.required'         => __('messages.company_name_required'),
             'emirate_id.required'           => __('messages.emirate_required'),
@@ -2489,7 +2471,7 @@ class ServiceController extends Controller
             'no_of_calls.required'          => __('messages.no_of_calls_required'),
             'no_of_visits.required'         => __('messages.no_of_visits_required'),
             'no_of_installment.required'    => __('messages.no_of_installment_required'),
-            'lawfirm.required'              => __('messages.lawfirm_required'),
+            // 'lawfirm.required'              => __('messages.lawfirm_required'),
         ]);
 
         if ($validator->fails()) {
@@ -2531,7 +2513,7 @@ class ServiceController extends Controller
             'no_of_calls'           => $request->input('no_of_calls'),
             'no_of_visits'          => $request->input('no_of_visits'),
             'no_of_installment'     => $request->input('no_of_installment'),
-            'lawfirm'               => $request->input('lawfirm'),
+            // 'lawfirm'               => $request->input('lawfirm'),
         ]);
 
         $total_amount = $service->total_amount ?? 0;
@@ -2566,14 +2548,14 @@ class ServiceController extends Controller
             }else{
                 return response()->json([
                     'status'    => false,
-                    'message'   => __('messages.request_submit_failed'),
+                    'message'   => __('frontend.request_submit_failed'),
                     'data'      => json_encode($payment),
                 ], 200);
             }
         }else{
             return response()->json([
                 'status'    => false,
-                'message'   => __('messages.request_submit_failed'),
+                'message'   => __('frontend.request_submit_failed'),
                 'data'      => json_encode($payment),
             ], 200);
         }
@@ -2746,14 +2728,14 @@ class ServiceController extends Controller
             }else{
                 return response()->json([
                     'status'    => false,
-                    'message'   => __('messages.request_submit_failed'),
+                    'message'   => __('frontend.request_submit_failed'),
                     'data'      => json_encode($payment),
                 ], 200);
             }
         }else{
             return response()->json([
                 'status'    => false,
-                'message'   => __('messages.request_submit_failed'),
+                'message'   => __('frontend.request_submit_failed'),
                 'data'      => json_encode($payment),
             ], 200);
         }

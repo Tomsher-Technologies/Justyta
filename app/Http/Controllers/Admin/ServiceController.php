@@ -91,7 +91,6 @@ class ServiceController extends Controller
             'status' => $request->status,
             // 'payment_active' => $request->payment_active ?? 0, 
             'service_fee' => $request->service_fee ?? 0,
-            'govt_fee' => $request->govt_fee ?? 0,
             'tax' => $request->tax_total ?? 0,
             'total_amount' => $request->total_amount ?? 0
         ]);
@@ -117,13 +116,12 @@ class ServiceController extends Controller
                 if (!$base) continue;
 
                 $service = floatval($data['service_fee']);
-                $govt = floatval($data['govt_fee']);
+                
                 $tax = ($service) * 0.05;
-                $baseTotal = $service + $govt + $tax;
+                $baseTotal = $service + $tax;
 
                 $base->update([
                     'service_fee' => $service,
-                    'govt_fee' => $govt,
                     'tax' => $tax,
                     'base_total' => $baseTotal,
                 ]);

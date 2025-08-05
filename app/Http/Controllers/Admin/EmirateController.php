@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Country;
+use App\Models\Emirate;
 use App\Models\Language;
 
-class CountryController extends Controller
+class EmirateController extends Controller
 {
     function __construct()
     {
@@ -20,16 +20,13 @@ class CountryController extends Controller
 
     public function index(Request $request)
     {
-        $query = Country::query();
+        $query = Emirate::query();
 
-        // Search by name
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
             if ($request->status == 1) {
                 $query->where('status', 1);
             } elseif ($request->status == 2) {
@@ -37,11 +34,11 @@ class CountryController extends Controller
             }
         }
 
-        $countries = $query->orderBy('name','ASC')->paginate(20)->appends($request->all());
+        $emirates = $query->orderBy('name','ASC')->paginate(20)->appends($request->all());
 
         $languages = Language::where('status', 1)->orderBy('id')->get();
 
-        return view('admin.countries.index', compact('countries', 'languages'));
+        return view('admin.emirates.index', compact('emirates', 'languages'));
     }
 
      public function store(Request $request)
@@ -55,37 +52,37 @@ class CountryController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        $country = Country::create([
+        $emirate = Emirate::create([
             'status' => $request->status
         ]);
 
         foreach ($request->translations as $lang => $data) {
             if($lang === 'en'){
-                $country->name = $data['name'];
-                $country->save();
+                $emirate->name = $data['name'];
+                $emirate->save();
             }
             if($data['name'] != null){
-                $country->translations()->create([
+                $emirate->translations()->create([
                     'lang' => $lang,
                     'name' => $data['name']
                 ]);
             }
         }
 
-        session()->flash('success', 'Country created successfully.');
+        session()->flash('success', 'Emirate created successfully.');
 
-        return response()->json(['success' => true, 'data' => $country]);
+        return response()->json(['success' => true, 'data' => $emirate]);
     }
 
     public function edit($id)
     {
-        $country = Country::with('translations')->findOrFail($id);
+        $emirate = Emirate::with('translations')->findOrFail($id);
 
         // Return both main type fields and translations
         return response()->json([
-            'id' => $country->id,
-            'status' => $country->status,
-            'translations' => $country->translations->pluck('name', 'lang'),
+            'id' => $emirate->id,
+            'status' => $emirate->status,
+            'translations' => $emirate->translations->pluck('name', 'lang'),
         ]);
     }
 
@@ -100,45 +97,51 @@ class CountryController extends Controller
         ]);
 
         // Find the contract type by ID
-        $country = Country::find($id);
+        $emirate = Emirate::find($id);
 
-        if (!$country) {
+        if (!$emirate) {
             return response()->json([
-                'error' => 'Country not found.'
+                'error' => 'Emirate not found.'
             ], 404);
         }
-        $country->status = $request->input('status');
-        $country->save();
+        $emirate->status = $request->input('status');
+        $emirate->save();
 
         foreach ($request->translations as $lang => $data) {
             if($lang === 'en'){
-                $country->name = $data['name'];
-                $country->save();
+                $emirate->name = $data['name'];
+                $emirate->save();
             }
-            if($data['name'] != null){
-                $country->translations()->updateOrCreate(
-                    ['lang' => $lang],
-                    ['name' => $data['name']]
-                );
-            }
-            
+            $emirate->translations()->updateOrCreate(
+                ['lang' => $lang],
+                ['name' => $data['name']]
+            );
         }
 
-        session()->flash('success', 'Country updated successfully.');
+        session()->flash('success', 'Emirate updated successfully.');
         // return response()->json(['success' => true, 'data' => $contractType]);
         return response()->json([
-            'message' => 'Country updated successfully',
-            'country' => $country
+            'message' => 'Emirate updated successfully',
+            'emirate' => $emirate
         ]);
     }
 
     public function updateStatus(Request $request)
     {
-        $country = Country::findOrFail($request->id);
+        $emirate = Emirate::findOrFail($request->id);
         $newStatus = $request->status;
+        $emirate->status = $newStatus;
+        $emirate->save();
 
-        $country->status = $newStatus;
-        $country->save();
+        return 1;
+    }
+
+    public function updateFederalStatus(Request $request)
+    {
+        $emirate = Emirate::findOrFail($request->id);
+        $newStatus = $request->status;
+        $emirate->is_federal = $newStatus;
+        $emirate->save();
 
         return 1;
     }

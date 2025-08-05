@@ -6,10 +6,10 @@
             <div class="col-lg-12">
                 <div class="breadcrumb-main row">
                     {{-- <h4 class="text-capitalize breadcrumb-title col-md-5">Service Request </h4> --}}
-                    <div class="col-md-6 d-flex">
-                        <div class='col-sm-6'>
+                    <div class="col-md-9 d-flex  row">
+                        <div class='col-sm-3'>
                             <label class="col-form-label color-dark fw-500 align-center">Request Status</label>
-                            <select id="statusSelect" class="form-control form-control-sm ip-gray radius-xs b-deep px-15" data-id="{{ $dataService['id'] }}">
+                            <select id="statusSelect" class="form-control ip-gray radius-xs b-deep px-15" data-id="{{ $dataService['id'] }}">
                                 @php
                                     $statuses = ['pending', 'ongoing', 'completed', 'rejected'];
                                 @endphp
@@ -22,9 +22,9 @@
                         </div>
                                    
                         @if($dataService['payment_status'] != NULL)
-                            <div class='col-sm-6'>
+                            <div class='col-sm-3'>
                                 <label class="col-form-label color-dark fw-500 align-center">Payment Status</label>
-                                <select id="paymentStatusSelect" class="form-control form-control-sm ip-gray radius-xs b-deep px-15" data-id="{{ $dataService['id'] }}">
+                                <select id="paymentStatusSelect" class="form-control ip-gray radius-xs b-deep px-15" data-id="{{ $dataService['id'] }}">
                                     @php
                                         $paymentStatuses = ['pending','success'];
                                     @endphp
@@ -36,9 +36,21 @@
                                 </select>
                             </div>
                         @endif
+
+                        @if($dataService['service_slug'] === 'annual-retainer-agreement')
+                            <div class='col-sm-6'>
+                                <label class="col-form-label color-dark fw-500 align-center">Assign Lawfirm</label>
+                                <select id="lawfirmSelect" name="lawfirm" class="select2 form-control ip-gray radius-xs b-deep px-15 " data-id="{{ $dataService['id'] }}">
+                                    <option value="">{{ __('frontend.choose_option') }}</option>
+                                    @foreach ($dataService['law_firms'] as $lawfirm)
+                                        <option value="{{ $lawfirm['id'] }}"  {{ ($dataService['service_details']['lawfirm_id'] == $lawfirm['id']) ? 'selected' : '' }}>{{ $lawfirm['value'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
                         
                     </div>
-                    <div class="col-md-6" style="text-align: -webkit-right;">
+                    <div class="col-md-3" style="text-align: -webkit-right;">
                         <a href="{{ Session::has('service_request_last_url') ? Session::get('service_request_last_url') : route('service-requests.index') }}" class="btn btn-sm btn-primary">← Back</a>
                     </div>
                 </div>
@@ -230,6 +242,12 @@
     <!-- Lightbox2 CSS -->
     <link href="{{ asset('assets/css/lightbox.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
+    <style>
+        .select2-selection{
+            height: 42px !important;
+            border: 1px solid #c6d0dc !important;
+        }    
+    </style>
 @endsection
 
 @section('script')
@@ -321,6 +339,8 @@
                                 }, 3000);
                             }
                         });
+                    }else{
+                        window.location.reload();
                     }
                 });
             });
@@ -359,6 +379,48 @@
                                 }, 3000);
                             }
                         });
+                    }else{
+                        window.location.reload();
+                    }
+                });
+            });
+
+             $('#lawfirmSelect').on('change', function() {
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You are about to assign the Lawfirm.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, Assign!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let serviceId       = $(this).data('id');
+                        let lawfirm   = $('#lawfirmSelect').val();
+
+                        $.ajax({
+                            url: "{{ route('assign-service-lawfirm') }}", // your update route
+                            type: 'POST',
+                            data: {id : serviceId,lawfirm: lawfirm },
+                            success: function(response) {
+                                Swal.fire('Assigned!', 'Lawfirm assigned successfully.', 'success');
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 2000);
+
+                            },
+                            error: function() {
+                                Swal.fire('Error!', 'Failed to assign lawfirm.', 'error');
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 2000);
+                            }
+                        });
+                    }else{
+                        window.location.reload();
                     }
                 });
             });

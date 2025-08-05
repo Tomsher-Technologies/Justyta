@@ -132,7 +132,7 @@
                                                                 </small>
                                                                     {{ number_format($delivery->total_amount, 2) }}
 
-                                                                    <i class="fas fa-info-circle text-primary ml-2 popover-toggle" tabindex="0" data-toggle="popover" data-placement="bottom" data-html="true" data-trigger="manual" title='<div class="popover-title">Pricing Details (AED)</div>' data-content=' <div class="custom-popover">
+                                                                <i class="fas fa-info-circle text-primary ml-2 popover-toggle" tabindex="0" data-toggle="popover" data-placement="bottom" data-html="true" data-trigger="manual" title='<div class="popover-title">Pricing Details (AED)</div>' data-content=' <div class="custom-popover">
                                                                         <div class="popover-item"><strong> {{ ucfirst($delivery->priority_type) }} - {{ ucfirst($delivery->delivery_type) }}</strong>
                                                                         </div>
                                                                         <hr>
@@ -141,18 +141,36 @@
                                                                         <div class="popover-item">Translator Amount : {{ number_format($delivery->translator_amount, 2) }}</div>
                                                                         <div class="popover-item">Tax Amount(5%) : {{ number_format($delivery->tax, 2) }}</div>
                                                                         <div class="popover-item"><strong>Total Amount : {{ number_format($delivery->total_amount, 2) }}</strong></div>
-                                                                    </div>
-                                                                '></i>
+                                                                    </div>'>
+                                                                </i>
                                                                 <br>
                                                             @endforeach
                                                         </td>
                                                         
                                                         <td class="text-left"> 
-                                                            <small>1-10 :</small> {{ number_format($trans->hours_1_10, 2) }}<br>
-                                                            <small>11-20 :</small> {{ number_format($trans->hours_11_20, 2) }}<br>
-                                                            <small>21-30 :</small> {{ number_format($trans->hours_21_30, 2) }}<br>
-                                                            <small>31-50 :</small> {{ number_format($trans->hours_31_50, 2) }}<br>
-                                                            <small>50+ :</small> {{ number_format($trans->hours_above_50, 2) }}
+                                                            Normal Priority
+                                                            <i class="fas fa-info-circle text-primary ml-2 popover-toggle" tabindex="0" data-toggle="popover" data-placement="bottom" data-html="true" data-trigger="manual" title='<div class="popover-title">Normal Priority (Hours)</div>' data-content=' <div class="custom-popover">
+                                                                   
+                                                                    <div class="popover-item">Pages 1-10 : {{ number_format($trans->normal_hours_1_10, 1) }}</div>
+                                                                    <div class="popover-item">Pages 11-20 : {{ number_format($trans->normal_hours_11_20, 1) }}</div>
+                                                                    <div class="popover-item">Pages 21-30 : {{ number_format($trans->normal_hours_21_30, 1) }}</div>
+                                                                    <div class="popover-item">Pages 31-50 : {{ number_format($trans->normal_hours_31_50, 1) }}</div>
+                                                                    <div class="popover-item">Pages 50+ : {{ number_format($trans->normal_hours_above_50, 1) }}</div>
+                                                                </div>'>
+                                                            </i>
+
+                                                            <br>
+                                                            Urgent Priority
+                                                            <i class="fas fa-info-circle text-primary ml-2 popover-toggle" tabindex="0" data-toggle="popover" data-placement="bottom" data-html="true" data-trigger="manual" title='<div class="popover-title">Urgent Priority (Hours)</div>' data-content=' <div class="custom-popover">
+                                                                   
+                                                                    <div class="popover-item">Pages 1-10 : {{ number_format($trans->urgent_hours_1_10, 1) }}</div>
+                                                                    <div class="popover-item">Pages 11-20 : {{ number_format($trans->urgent_hours_11_20, 1) }}</div>
+                                                                    <div class="popover-item">Pages 21-30 : {{ number_format($trans->urgent_hours_21_30, 1) }}</div>
+                                                                    <div class="popover-item">Pages 31-50 : {{ number_format($trans->urgent_hours_31_50, 1) }}</div>
+                                                                    <div class="popover-item">Pages 50+ : {{ number_format($trans->urgent_hours_above_50, 1) }}</div>
+                                                                </div>'>
+                                                            </i>
+
                                                         </td>
                                                         <td class="text-center">
                                                             @can('edit_translator_pricing')

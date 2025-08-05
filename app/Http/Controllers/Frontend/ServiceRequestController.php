@@ -2349,7 +2349,7 @@ class ServiceRequestController extends Controller
             'no_of_calls'       => 'required',
             'no_of_visits'      => 'required',
             'no_of_installment' => 'required',
-            'lawfirm'           => 'required',
+            // 'lawfirm'           => 'required',
         ], [
             'company_name.required'         => __('messages.company_name_required'),
             'emirate_id.required'           => __('messages.emirate_required'),
@@ -2361,7 +2361,7 @@ class ServiceRequestController extends Controller
             'no_of_calls.required'          => __('messages.no_of_calls_required'),
             'no_of_visits.required'         => __('messages.no_of_visits_required'),
             'no_of_installment.required'    => __('messages.no_of_installment_required'),
-            'lawfirm.required'              => __('messages.lawfirm_required'),
+            // 'lawfirm.required'              => __('messages.lawfirm_required'),
         ]);
 
         if ($validator->fails()) {
@@ -2417,7 +2417,7 @@ class ServiceRequestController extends Controller
             'no_of_calls'           => $request->input('no_of_calls') ?? NULL,
             'no_of_visits'          => $request->input('no_of_visits') ?? NULL,
             'no_of_installment'     => $request->input('no_of_installment') ?? NULL,
-            'lawfirm'               => $request->input('lawfirm') ?? NULL,
+            // 'lawfirm'               => $request->input('lawfirm') ?? NULL,
             'final_total'           => $finalTotal
         ]);
 
@@ -2515,7 +2515,7 @@ class ServiceRequestController extends Controller
                     'paid_at' => date('Y-m-d h:i:s')
                 ]);
             }
-
+  
             if($serviceRequest->service_slug === 'legal-translation'){
                 $legalTranslation = requestLegalTranslation::where('service_request_id', $serviceRequest->id)->first();
 
@@ -2559,7 +2559,7 @@ class ServiceRequestController extends Controller
                     }
                 }
             }
-
+  
             if($serviceRequest->service_slug === 'annual-retainer-agreement'){
                 $annualRequest = RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
                 $annualRequest->amount_paid = $paidAmount;

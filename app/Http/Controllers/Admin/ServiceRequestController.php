@@ -139,7 +139,7 @@ class ServiceRequestController extends Controller
             'payment_reference' => $serviceRequest->payment_reference,
             'amount'            => $serviceRequest->amount,
             'submitted_at'      => date('d, M Y h:i A', strtotime($serviceRequest->submitted_at)),
-            'service_details' => $translatedData,
+            'service_details'   => $translatedData,
         ];
 
         if($serviceRequest->service_slug === 'annual-retainer-agreement'){
@@ -154,6 +154,24 @@ class ServiceRequestController extends Controller
                 ];
             });
             $dataService['installments'] = $installments;
+
+            $lawFirms = Vendor::whereHas('subscriptions', function ($query) {
+                                $query->where('status', 'active')
+                                    ->whereDate('subscription_end', '>=', Carbon::today());
+                            })
+                            ->whereHas('user', function ($query) {
+                                $query->where('banned', 0);
+                            })
+                            ->with(['subscriptions', 'user'])
+                            ->orderBy('law_firm_name', 'ASC')
+                            ->get();
+
+            $dataService['law_firms'] = $lawFirms->map(function ($lawfirm) {
+                return [
+                    'id'    => $lawfirm->id,
+                    'value' => $lawfirm->getTranslation('law_firm_name', 'en'),
+                ];
+            });
         }
         // echo '<pre>';
         // print_r($dataService);
@@ -285,5 +303,23 @@ class ServiceRequestController extends Controller
             }
         }
         return response()->json(['success' => true]);
+    }
+
+    public function assignServiceLawfirm(Request $request){
+        $request->validate([
+            'lawfirm' => 'required|exists:vendors,id',
+        ]);
+
+        $lawfirmid = $request->lawfirm;
+
+        $serviceRequest = ServiceRequest::findOrFail($request->id);
+        if($serviceRequest){
+            $serRequest = RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
+            if($serRequest){
+                $serRequest->lawfirm = $lawfirmid;
+                $serRequest->save();
+            }
+        }
+        return response()->json(['status' => true,'message' => 'Lawfirm assigned successfully.']);
     }
 }
