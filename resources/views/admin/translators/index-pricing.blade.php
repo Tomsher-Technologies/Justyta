@@ -149,7 +149,7 @@
                                                         
                                                         <td class="text-left"> 
                                                             Normal Priority
-                                                            <i class="fas fa-info-circle text-primary ml-2 popover-toggle" tabindex="0" data-toggle="popover" data-placement="bottom" data-html="true" data-trigger="manual" title='<div class="popover-title">Normal Hour Details</div>' data-content=' <div class="custom-popover">
+                                                            <i class="fas fa-info-circle text-primary ml-2 popover-toggle" tabindex="0" data-toggle="popover" data-placement="bottom" data-html="true" data-trigger="manual" title='<div class="popover-title">Normal Priority (Hours)</div>' data-content=' <div class="custom-popover">
                                                                    
                                                                     <div class="popover-item">Pages 1-10 : {{ number_format($trans->normal_hours_1_10, 1) }}</div>
                                                                     <div class="popover-item">Pages 11-20 : {{ number_format($trans->normal_hours_11_20, 1) }}</div>
@@ -161,7 +161,7 @@
 
                                                             <br>
                                                             Urgent Priority
-                                                            <i class="fas fa-info-circle text-primary ml-2 popover-toggle" tabindex="0" data-toggle="popover" data-placement="bottom" data-html="true" data-trigger="manual" title='<div class="popover-title">Urgent Hour Details</div>' data-content=' <div class="custom-popover">
+                                                            <i class="fas fa-info-circle text-primary ml-2 popover-toggle" tabindex="0" data-toggle="popover" data-placement="bottom" data-html="true" data-trigger="manual" title='<div class="popover-title">Urgent Priority (Hours)</div>' data-content=' <div class="custom-popover">
                                                                    
                                                                     <div class="popover-item">Pages 1-10 : {{ number_format($trans->urgent_hours_1_10, 1) }}</div>
                                                                     <div class="popover-item">Pages 11-20 : {{ number_format($trans->urgent_hours_11_20, 1) }}</div>
