@@ -140,7 +140,7 @@
                         @enderror
                     </div>
 
-                    <div>
+                    {{-- <div>
                         <label for="lawfirm" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.lawfirm') }}<span class="text-red-500">*</span></label>
                         <select id="lawfirm" name="lawfirm" class="select2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             <option value="">{{ __('frontend.choose_option') }}</option>
@@ -151,7 +151,7 @@
                         @error('lawfirm')
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
-                    </div>
+                    </div> --}}
 
                 </div>
 

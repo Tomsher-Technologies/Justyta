@@ -63,7 +63,7 @@
                                                         alt="{{ $service->name }}" />
                                                 </td>
                                                 <td>
-                                                    {{ $service->name ?? '—' }}
+                                                    {{ $service->name ?? '—' }} {!! ($service->payment_active == 1) ? '<small class="text-primary"> &nbsp;&nbsp; (Paid)</small>' : '' !!}
                                                 </td>
 
                                                 <td class="text-center">

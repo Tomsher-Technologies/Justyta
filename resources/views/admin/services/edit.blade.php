@@ -111,20 +111,7 @@
                             </div>
 
                              @if($service->slug != 'online-live-consultancy' && $service->slug != 'annual-retainer-agreement' && $service->slug != 'law-firm-services' && $service->slug != 'legal-translation')
-                                {{-- <div class="col-md-2 mb-3">
-                                    <label class="col-form-label color-dark fw-500">Payment <span
-                                            class="text-danger">*</span></label>
-                                    <div class="atbd-switch-wrap">
-                                        <div class="custom-control custom-switch switch-secondary switch-md ">
-                                            <input type="checkbox" name="payment_active" class="custom-control-input" id="switch-s1" onchange="checkPayment(this)" value="1" <?php if ($service->payment_active == 1) {
-                                                    echo 'checked';
-                                                } ?>>
-                                            <label class="custom-control-label"
-                                                for="switch-s1"></label>
-                                        </div>
-                                    </div>
-                                </div> --}}
-
+                            
                                 <div id="fee-section" class="col-md-12" style="display: {{ $service->payment_active ? 'flex' : 'none' }};">
                                     
                                     <div class="row">
@@ -135,12 +122,6 @@
                                             <label for="service_fee" class="col-form-label color-dark fw-500">Service Fee</label>
                                             <input type="number" step="0.01" class="form-control ih-small ip-gray radius-xs b-light px-15" id="service_fee" name="service_fee"
                                                 value="{{ $service->service_fee ?? 0 }}" oninput="calculateFees()">
-                                        </div>
-
-                                        <div class="col-md-3">
-                                            <label for="govt_fee" class="col-form-label color-dark fw-500">Govt. Fee</label>
-                                            <input type="number" step="0.01" class="form-control ih-small ip-gray radius-xs b-light px-15" id="govt_fee" name="govt_fee"
-                                                value="{{ $service->govt_fee ?? 0 }}" oninput="calculateFees()">
                                         </div>
 
                                         <div class="col-md-3">
@@ -165,7 +146,7 @@
                                             <div class="col-md-6">
                                                 <div class="card border h-100">
                                                     <div class="card-header">
-                                                        <h6 class="mb-0 text-uppercase text-primary fw-700">Normal Consultation</h6>
+                                                        <h6 class="mb-0 text-uppercase text-primary fw-700">Normal Consultation</h6> (Including Tax(5%))
                                                     </div>
                                                     <div class="card-body">
                                                         <div class="row">
@@ -191,7 +172,7 @@
                                             <div class="col-md-6">
                                                 <div class="card border h-100">
                                                     <div class="card-header ">
-                                                        <h6 class="mb-0 text-uppercase text-secondary fw-700">VIP Consultation</h6>
+                                                        <h6 class="mb-0 text-uppercase text-secondary fw-700">VIP Consultation </h6>(Including Tax(5%))
                                                     </div>
                                                     <div class="card-body">
                                                         <div class="row">
@@ -228,13 +209,12 @@
                                                         <th class="text-center">Calls/Month</th>
                                                         <th class="text-center">Visits/Year</th>
                                                         <th class="text-center">Service Fee</th>
-                                                        <th class="text-center">Govt Fee</th>
                                                         <th class="text-center">Tax (5%)</th>
                                                         <th class="text-center">Base Total</th>
                                                         <th colspan="3" class="text-center">Installments (Extra %)</th>
                                                     </tr>
                                                     <tr>
-                                                        <th colspan="6"></th>
+                                                        <th colspan="5"></th>
                                                         <th class="text-center">1x</th>
                                                         <th class="text-center">2x</th>
                                                         <th class="text-center">4x</th>
@@ -250,7 +230,7 @@
                                                                  {{ $fee->visits_per_year }} {{ ($fee->visits_per_year == 0 || $fee->visits_per_year == 1) ? 'Visit' : 'Visits' }}
                                                             </td>
                                                             <td><input type="number" step="0.01" class="form-control field-color service-fee" name="fees[{{ $fee->id }}][service_fee]" value="{{ $fee->service_fee }}"></td>
-                                                            <td><input type="number" step="0.01" class="form-control field-color govt-fee" name="fees[{{ $fee->id }}][govt_fee]" value="{{ $fee->govt_fee }}"></td>
+                                                            
                                                             <td><input type="number" class="form-control field-color tax" readonly value="{{ $fee->tax }}"></td>
                                                             <td><input type="number" class="form-control field-color base-total" readonly value="{{ $fee->base_total }}"></td>
                                                             @foreach($fee->installments as $inst)
@@ -401,7 +381,6 @@
 
                 // Optionally clear fee inputs
                 document.getElementById('service_fee').value = 0;
-                document.getElementById('govt_fee').value = 0;
                 document.getElementById('tax_total').value = 0;
                 document.getElementById('total_amount').value = 0;
             }
@@ -409,10 +388,9 @@
 
         function calculateFees() {
             const serviceFee = parseFloat(document.getElementById('service_fee').value) || 0;
-            const govtFee = parseFloat(document.getElementById('govt_fee').value) || 0;
-
+            
             const tax = parseFloat((serviceFee * 0.05).toFixed(2));
-            const total = parseFloat((serviceFee + govtFee + tax).toFixed(2));
+            const total = parseFloat((serviceFee + tax).toFixed(2));
 
             document.getElementById('tax_total').value = tax;
             document.getElementById('total_amount').value = total;
@@ -425,13 +403,12 @@
             }
         });
 
-        document.querySelectorAll('.service-fee, .govt-fee, .extra-percent').forEach(input => {
+        document.querySelectorAll('.service-fee,  .extra-percent').forEach(input => {
             input.addEventListener('input', function () {
                 const row = input.closest('tr');
                 const service = parseFloat(row.querySelector('.service-fee').value) || 0;
-                const govt = parseFloat(row.querySelector('.govt-fee').value) || 0;
                 const tax = (service) * 0.05;
-                const base = service + govt + tax;
+                const base = service + tax;
 
                 row.querySelector('.tax').value = tax.toFixed(2);
                 row.querySelector('.base-total').value = base.toFixed(2);
