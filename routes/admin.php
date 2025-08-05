@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\CourtRequestController;
 use App\Http\Controllers\Admin\PublicProsecutionController;
 use App\Http\Controllers\Admin\LicenseTypeController;
 use App\Http\Controllers\Admin\CountryController;
+use App\Http\Controllers\Admin\EmirateController;
 use App\Http\Controllers\Admin\ServiceRequestController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\FeedbackController;
@@ -97,6 +98,12 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::post('/license-types/status', [LicenseTypeController::class, 'updateStatus'])->name('license-types.status');
     Route::get('/license-types/edit/{id}', [LicenseTypeController::class, 'edit']);
 
+    // Manage Emirates
+    Route::resource('emirates', EmirateController::class);
+    Route::post('/emirates/status', [EmirateController::class, 'updateStatus'])->name('emirates.status');
+    Route::get('/emirates/edit/{id}', [EmirateController::class, 'edit']);
+    Route::post('/emirates/federal-status', [EmirateController::class, 'updateFederalStatus'])->name('emirates.federal-status');
+
     // Manage countries
     Route::resource('countries', CountryController::class);
     Route::post('/countries/status', [CountryController::class, 'updateStatus'])->name('countries.status');
@@ -146,6 +153,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::post('/service-requests/payment-status', [ServiceRequestController::class, 'updatePaymentStatus'])->name('update-service-payment-status');
     Route::get('/service-requests/export', [ServiceRequestController::class, 'export'])->name('service-requests.export');
     Route::post('/service-requests/installments/update-status', [ServiceRequestController::class, 'updateInstallmentStatus'])->name('update.installment.status');
+    Route::post('/service-requests/assign-lawfirm', [ServiceRequestController::class, 'assignServiceLawfirm'])->name('assign-service-lawfirm');
 
     //Training requests
     Route::get('/training-requests', [FeedbackController::class, 'trainingRequests'])->name('training-requests.index');
