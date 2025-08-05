@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class TranslatorLanguageRate extends Model
 {
     protected $fillable = [
-        'translator_id', 'from_language_id', 'to_language_id', 'doc_type_id', 'doc_subtype_id', 'hours_1_10', 'hours_11_20', 'hours_21_30', 'hours_31_50', 'hours_above_50', 'status'
+        'translator_id', 'from_language_id', 'to_language_id', 'doc_type_id', 'doc_subtype_id', 'normal_hours_1_10', 'normal_hours_11_20', 'normal_hours_21_30', 'normal_hours_31_50', 'normal_hours_above_50', 'urgent_hours_1_10', 'urgent_hours_11_20', 'urgent_hours_21_30', 'urgent_hours_31_50', 'urgent_hours_above_50', 'status'
     ];
 
     

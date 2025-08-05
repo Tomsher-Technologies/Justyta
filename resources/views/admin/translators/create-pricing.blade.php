@@ -275,12 +275,16 @@
                                             <h5><u>Duration Details (Hours)</u></h5>
                                         </div>
                                         <div class="col-md-12 row">
+                                            <div class="col-md-12 mb-3 mt-2">
+                                                <h6 class="text-secondary" style="font-size: 15px"><u>Normal Priority (Hours)</u></h6>
+                                            </div>
+
                                             <div class="col-md-2 mb-3">
                                                 <label class="col-form-label color-dark fw-500 align-center">
                                                     No. Of Pages 1-10 <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="number" step="0.01" name="hours_1_10" id="hours_1_10" value="{{ old('hours_1_10',0) }}" class="form-control" />
-                                                @error('hours_1_10')
+                                                <input type="number" step="0.01" name="normal_hours_1_10" id="normal_hours_1_10" value="{{ old('normal_hours_1_10',0) }}" class="form-control" />
+                                                @error('normal_hours_1_10')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
@@ -289,8 +293,8 @@
                                                 <label class="col-form-label color-dark fw-500 align-center">
                                                     No. Of Pages 11-20 <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="number" step="0.01" name="hours_11_20" id="hours_11_20" value="{{ old('hours_11_20',0) }}" class="form-control" />
-                                                @error('hours_11_20')
+                                                <input type="number" step="0.01" name="normal_hours_11_20" id="normal_hours_11_20" value="{{ old('normal_hours_11_20',0) }}" class="form-control" />
+                                                @error('normal_hours_11_20')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
@@ -299,8 +303,8 @@
                                                 <label class="col-form-label color-dark fw-500 align-center">
                                                     No. Of Pages 21-30 <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="number" step="0.01" name="hours_21_30" id="hours_21_30" value="{{ old('hours_21_30',0) }}" class="form-control" />
-                                                @error('hours_21_30')
+                                                <input type="number" step="0.01" name="normal_hours_21_30" id="normal_hours_21_30" value="{{ old('normal_hours_21_30',0) }}" class="form-control" />
+                                                @error('normal_hours_21_30')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
@@ -309,8 +313,8 @@
                                                 <label class="col-form-label color-dark fw-500 align-center">
                                                     No. Of Pages 31-50 <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="number" step="0.01" name="hours_31_50" id="hours_31_50" value="{{ old('hours_31_50',0) }}" class="form-control" />
-                                                @error('hours_31_50')
+                                                <input type="number" step="0.01" name="normal_hours_31_50" id="normal_hours_31_50" value="{{ old('normal_hours_31_50',0) }}" class="form-control" />
+                                                @error('normal_hours_31_50')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
@@ -319,8 +323,64 @@
                                                 <label class="col-form-label color-dark fw-500 align-center">
                                                     No. Of Pages 50+ <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="number" step="0.01" name="hours_above_50" id="hours_above_50" value="{{ old('hours_above_50',0) }}" class="form-control" />
-                                                @error('hours_above_50')
+                                                <input type="number" step="0.01" name="normal_hours_above_50" id="normal_hours_above_50" value="{{ old('normal_hours_above_50',0) }}" class="form-control" />
+                                                @error('normal_hours_above_50')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                           
+                                        </div>
+
+                                        <div class="col-md-12 row">
+                                            <div class="col-md-12 mb-3 mt-2">
+                                                <h6 class="text-secondary" style="font-size: 15px"><u>Urgent Priority (Hours)</u></h6>
+                                            </div>
+                                            <div class="col-md-2 mb-3">
+                                                <label class="col-form-label color-dark fw-500 align-center">
+                                                    No. Of Pages 1-10 <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="number" step="0.01" name="urgent_hours_1_10" id="urgent_hours_1_10" value="{{ old('urgent_hours_1_10',0) }}" class="form-control" />
+                                                @error('urgent_hours_1_10')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-md-2 mb-3">
+                                                <label class="col-form-label color-dark fw-500 align-center">
+                                                    No. Of Pages 11-20 <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="number" step="0.01" name="urgent_hours_11_20" id="urgent_hours_11_20" value="{{ old('urgent_hours_11_20',0) }}" class="form-control" />
+                                                @error('urgent_hours_11_20')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-md-2 mb-3">
+                                                <label class="col-form-label color-dark fw-500 align-center">
+                                                    No. Of Pages 21-30 <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="number" step="0.01" name="urgent_hours_21_30" id="urgent_hours_21_30" value="{{ old('urgent_hours_21_30',0) }}" class="form-control" />
+                                                @error('urgent_hours_21_30')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-md-2 mb-3">
+                                                <label class="col-form-label color-dark fw-500 align-center">
+                                                    No. Of Pages 31-50 <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="number" step="0.01" name="urgent_hours_31_50" id="urgent_hours_31_50" value="{{ old('urgent_hours_31_50',0) }}" class="form-control" />
+                                                @error('urgent_hours_31_50')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-md-2 mb-3">
+                                                <label class="col-form-label color-dark fw-500 align-center">
+                                                    No. Of Pages 50+ <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="number" step="0.01" name="urgent_hours_above_50" id="urgent_hours_above_50" value="{{ old('urgent_hours_above_50',0) }}" class="form-control" />
+                                                @error('urgent_hours_above_50')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
