@@ -2274,14 +2274,14 @@ class ServiceController extends Controller
             }else{
                 return response()->json([
                     'status'    => false,
-                    'message'   => __('messages.request_submit_failed'),
+                    'message'   => __('frontend.request_submit_failed'),
                     'data'      => json_encode($payment),
                 ], 200);
             }
         }else{
             return response()->json([
                 'status'    => false,
-                'message'   => __('messages.request_submit_failed'),
+                'message'   => __('frontend.request_submit_failed'),
                 'data'      => json_encode($payment),
             ], 200);
         }
@@ -2435,14 +2435,14 @@ class ServiceController extends Controller
             }else{
                 return response()->json([
                     'status'    => false,
-                    'message'   => __('messages.request_submit_failed'),
+                    'message'   => __('frontend.request_submit_failed'),
                     'data'      => json_encode($payment),
                 ], 200);
             }
         }else{
             return response()->json([
                 'status'    => false,
-                'message'   => __('messages.request_submit_failed'),
+                'message'   => __('frontend.request_submit_failed'),
                 'data'      => json_encode($payment),
             ], 200);
         }
@@ -2548,14 +2548,14 @@ class ServiceController extends Controller
             }else{
                 return response()->json([
                     'status'    => false,
-                    'message'   => __('messages.request_submit_failed'),
+                    'message'   => __('frontend.request_submit_failed'),
                     'data'      => json_encode($payment),
                 ], 200);
             }
         }else{
             return response()->json([
                 'status'    => false,
-                'message'   => __('messages.request_submit_failed'),
+                'message'   => __('frontend.request_submit_failed'),
                 'data'      => json_encode($payment),
             ], 200);
         }
@@ -2728,14 +2728,14 @@ class ServiceController extends Controller
             }else{
                 return response()->json([
                     'status'    => false,
-                    'message'   => __('messages.request_submit_failed'),
+                    'message'   => __('frontend.request_submit_failed'),
                     'data'      => json_encode($payment),
                 ], 200);
             }
         }else{
             return response()->json([
                 'status'    => false,
-                'message'   => __('messages.request_submit_failed'),
+                'message'   => __('frontend.request_submit_failed'),
                 'data'      => json_encode($payment),
             ], 200);
         }
