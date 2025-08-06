@@ -470,9 +470,11 @@ class UserController extends Controller
 
         $report = ProblemReport::create($data);
 
+        $pageData = getPageDynamicContent('report_problem_success',$lang);
+
         return response()->json([
             'status'    => true,
-            'message'   => __('messages.problem_report_success')
+            'message'   => $pageData['content'] ?? __('messages.problem_report_success')
         ], 200);
     }
 
@@ -506,6 +508,7 @@ class UserController extends Controller
 
         $user   = $request->user();
 
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en');
         // Check if user already rated
         $existingRating = Rating::where('user_id', $user->id)->first();
 
@@ -522,9 +525,11 @@ class UserController extends Controller
             'comment' => $request->comment,
         ]);
 
+        $pageData = getPageDynamicContent('rate_us_success',$lang);
+
         return response()->json([
             'status'    => true,
-            'message'   => __('messages.thank_you_feedback')
+            'message'   => $pageData['content'] ?? __('messages.thank_you_feedback')
         ], 200);
     }
 

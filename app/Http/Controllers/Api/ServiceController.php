@@ -756,6 +756,9 @@ class ServiceController extends Controller
                 ];
         });
 
+        $pageData = getPageDynamicContent('translation_calculator_page',$lang);
+        $response['info'] = $pageData;
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -838,6 +841,10 @@ class ServiceController extends Controller
             'tax'               => $service->tax ?? 0,
             'total_amount'      => $service->total_amount ?? 0
         ];
+
+        $pageData = getPageDynamicContent('immigration_page',$lang);
+        $response['info'] = $pageData;
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -890,6 +897,9 @@ class ServiceController extends Controller
         $response['calls']          = [1,2,3,4,5];
         $response['visits']         = [0,1,2,3,4];
         $response['installments']   = [1, 2, 4];
+
+        $pageData = getPageDynamicContent('company_retainership',$lang);
+        $response['info'] = $pageData;
 
         return response()->json([
             'status'    => true,
@@ -2103,16 +2113,49 @@ class ServiceController extends Controller
 
         $expertReport->update($filePaths);
 
-        $pageData = getPageDynamicContent('request_payment_success',$lang);
-        $response = [
-            'reference' => $service_request->reference_code,
-            'message'   => $pageData['content']
-        ];
-        return response()->json([
-            'status'    => true,
-            'message'   => __('messages.request_submit_success'),
-            'data'      => $response,
-        ], 200);
+        $total_amount = $service->total_amount ?? 0;
+
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
+        if($total_amount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone
+            ];
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+
+            $payment = createMobOrder($customer, $total_amount, $currency, $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $service->total_amount,
+                    'service_fee' => $service->service_fee,
+                    'govt_fee' => $service->govt_fee,
+                    'tax' => $service->tax,
+                ]);
+
+                return response()->json([
+                    'status'    => true,
+                    'message'   => __('messages.request_submit_success'),
+                    'data'      => json_encode($payment),
+                ], 200);
+
+            }else{
+                return response()->json([
+                    'status'    => false,
+                    'message'   => __('frontend.request_submit_failed'),
+                    'data'      => json_encode($payment),
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => __('frontend.request_submit_failed'),
+                'data'      => json_encode($payment),
+            ], 200);
+        }
     }
 
     public function requestImmigration(Request $request){
