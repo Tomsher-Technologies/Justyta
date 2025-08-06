@@ -6,6 +6,14 @@
             <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg">
                 <h2 class="text-3xl font-semibold text-gray-900 mb-8">{{ __('frontend.sign_in') }}</h2>
 
+                @php
+                    $lang = app()->getLocale() ?? 'en';
+                    $contentDynamic = getPageDynamicContent('login_page', $lang);
+                @endphp
+                <p class="text-xs text-gray-600">
+                    {{ $contentDynamic['content'] ?? '' }}
+                </p>
+
                 <p class="text-base text-gray-600">
                     
                     {{ __('frontend.dont_have_an_account') }}

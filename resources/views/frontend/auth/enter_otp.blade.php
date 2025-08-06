@@ -5,14 +5,15 @@
         <div class="flex items-center justify-center">
             <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg">
                 <h2 class="text-3xl font-semibold text-gray-900 mb-4">{{ __('frontend.enter_otp') }}</h2>
-                @if(session('success'))
-                    <div class="text-green-600 mb-4 mt-4 text-sm">
-                        {{ session('success') }}
-                    </div>
-                @endif
-
                 
-
+                @php
+                    $lang = app()->getLocale() ?? 'en';
+                    $contentDynamic = getPageDynamicContent('enter_otp', $lang);
+                @endphp
+                <p class="text-xs text-gray-600">
+                    {{ $contentDynamic['content'] ?? '' }}
+                </p>
+            
                 <form method="POST" action="{{ route('otp.verify') }}" class="space-y-6" id="otp-form">
                     @csrf
 
@@ -35,8 +36,10 @@
                         {{ __('frontend.submit') }}
                     </button>
                 </form>
-
-                <a href="{{ route('otp.resend') }}" class="float-right underline text-[#0a0aba]">Resend OTP</a>
+                <div class="mt-4 text-sm">
+                    <span id="countdown-text" class="text-gray-600">{{ __('frontend.resend_code_in') }} <span id="countdown">35</span>s</span>
+                    <div id="resend-link" class=" hidden">{{ __('frontend.didnt_receive_otp') }} <a href="{{ route('otp.resend') }}" class="float-right underline text-[#0a0aba]">{{ __('frontend.resend_otp') }}</a></div>
+                </div>
                 @if(session('error'))
                     <div class="text-red-600 mb-4 mt-4 text-sm">
                         {{ session('error') }}
@@ -50,39 +53,57 @@
 @section('script')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-        const inputs = document.querySelectorAll('.otp-input');
-        const hiddenOtpInput = document.getElementById('otp-full');
-        const form = document.getElementById('otp-form');
+            const inputs = document.querySelectorAll('.otp-input');
+            const hiddenOtpInput = document.getElementById('otp-full');
+            const form = document.getElementById('otp-form');
 
-        inputs.forEach((input, index) => {
-            input.addEventListener('input', (e) => {
-                const value = e.target.value;
-                if (/^\d$/.test(value) && index < inputs.length - 1) {
-                    inputs[index + 1].focus();
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    const value = e.target.value;
+                    if (/^\d$/.test(value) && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+            });
+
+            form.addEventListener('submit', function (e) {
+                let otp = '';
+                inputs.forEach(input => {
+                    otp += input.value;
+                });
+
+                if (otp.length !== 4) {
+                    e.preventDefault();
+                    toastr.error("{{ __('frontend.enter_all_digits') }}");
+                    return;
                 }
+
+                hiddenOtpInput.value = otp;
             });
 
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                    inputs[index - 1].focus();
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            let countdown = 40;
+            const countdownEl = document.getElementById('countdown');
+            const countdownText = document.getElementById('countdown-text');
+            const resendLink = document.getElementById('resend-link');
+
+            const interval = setInterval(() => {
+                countdown--;
+                countdownEl.textContent = countdown;
+
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    countdownText.classList.add('hidden');
+                    resendLink.classList.remove('hidden');
                 }
-            });
+            }, 1000);
         });
-
-        form.addEventListener('submit', function (e) {
-            let otp = '';
-            inputs.forEach(input => {
-                otp += input.value;
-            });
-
-            if (otp.length !== 4) {
-                e.preventDefault();
-                toastr.error("{{ __('frontend.enter_all_digits') }}");
-                return;
-            }
-
-            hiddenOtpInput.value = otp;
-        });
-    });
     </script>
 @endsection
