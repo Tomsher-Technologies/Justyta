@@ -57,9 +57,15 @@
                                                 </div>
                                             @endif
 
-                                            @if ($page->slug === 'payment-page' || $page->slug === 'translation_request_success' || $page->slug === 'lawfirm_signup')
+                                            @if ($page->slug === 'payment-page' || $page->slug === 'translation_request_success' || $page->slug === 'lawfirm_signup' || $page->slug === 'company_retainership')
                                                 <div class="form-group">
-                                                    <label class="col-form-label color-dark fw-500">Description
+                                                    <label class="col-form-label color-dark fw-500">
+                                                        @if($page->slug === 'company_retainership')
+                                                            Form Info
+                                                        @else
+                                                            Description
+                                                        @endif
+                                                        
                                                         ({{ $lang->name }})
                                                         @if ($lang->code == 'en')
                                                             <span class="text-danger">*</span>

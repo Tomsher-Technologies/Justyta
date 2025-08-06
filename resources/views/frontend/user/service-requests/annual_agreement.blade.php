@@ -155,11 +155,7 @@
 
                 </div>
 
-                <hr class="my-8 mb-5" />
-
-                
-
-                @if ($dropdownData['form_info'] != NULL)
+                @if ($dropdownData['form_info'])
                     <p class="text-sm text-[#777777] mt-4 flex items-center gap-1">
                         <svg class="w-5 h-5 text-[#777777]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                             width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -167,7 +163,12 @@
                             d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
 
-                        <span>{{ $dropdownData['form_info'] }}</span>
+                        <span>{{ $dropdownData['form_info']['description'] }}</span>
+                    </p>
+                    <hr class="my-8 mb-5" />
+                    <p class="text-sm text-[#777777] mt-4 flex items-center gap-1">
+        
+                        <span>{{ $dropdownData['form_info']['content'] }}</span>
                     </p>
                 @endif
             </div>

@@ -622,9 +622,9 @@ class ServiceRequestController extends Controller
 
                 $dropdownData['emirates'] = $emirates;
 
-                $form_info = Page::with('translations')->where('slug','request_submission_forminfo')->first();
+                $form_info = getPageDynamicContent('request_submission_forminfo', $lang);
 
-                $dropdownData['form_info'] = $form_info->getTranslation('content',$lang);
+                $dropdownData['form_info'] = $form_info;
 
                 $service    = Service::where('slug', 'request-submission')->firstOrFail();
 
@@ -670,6 +670,9 @@ class ServiceRequestController extends Controller
                             'value' => $doc->getTranslation('name',$lang),
                         ];
                 });
+                $form_info = getPageDynamicContent('translation_calculator_page', $lang);
+
+                $dropdownData['form_info'] = $form_info;
 
                 return view('frontend.user.service-requests.legal_translation', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
@@ -724,9 +727,9 @@ class ServiceRequestController extends Controller
                         'value' => $lawfirm->getTranslation('law_firm_name',$lang),
                     ];
                 });
-                $form_info = Page::with('translations')->where('slug','company_retainership')->first();
+                $form_info = getPageDynamicContent('company_retainership', $lang);
 
-                $dropdownData['form_info'] = $form_info->getTranslation('content',$lang);
+                $dropdownData['form_info'] = $form_info;
 
                 return view('frontend.user.service-requests.annual_agreement', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
@@ -768,6 +771,10 @@ class ServiceRequestController extends Controller
                     'tax'               => $service->tax ?? 0,
                     'total_amount'      => $service->total_amount ?? 0
                 ];
+
+                $form_info = getPageDynamicContent('immigration_page', $lang);
+
+                $dropdownData['form_info'] = $form_info;
 
                 return view('frontend.user.service-requests.immigration', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 

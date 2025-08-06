@@ -82,7 +82,9 @@ class UserController extends Controller
         $usersToNotify = getUsersWithPermissions(['reported_problems']);
         Notification::send($usersToNotify, new ProblemReported($report));
 
-        return redirect()->back()->with('success', __('messages.problem_report_success'));
+        $pageData = getPageDynamicContent('report_problem_success',$lang);
+
+        return redirect()->back()->with('success', $pageData['content'] ?? __('messages.problem_report_success'));
     }
 
     public function rateUs(){
@@ -111,6 +113,7 @@ class UserController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
         $user   = Auth::guard('frontend')->user();
 
         // Check if user already rated
@@ -126,7 +129,9 @@ class UserController extends Controller
             'comment' => $request->comment,
         ]);
 
-        return redirect()->back()->with('success', __('messages.thank_you_feedback'));
+        $pageData = getPageDynamicContent('rate_us_success',$lang);
+
+        return redirect()->back()->with('success', $pageData['content'] ?? __('messages.thank_you_feedback'));
     }
 
     public function getTrainingFormData(){
