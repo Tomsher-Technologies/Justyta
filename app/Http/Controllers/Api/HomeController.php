@@ -14,6 +14,19 @@ use Mail;
 
 class HomeController extends Controller
 {
+
+    public function pageContents(Request $request){
+        $lang = request()->header('lang') ?? env('APP_LOCALE','en'); // default to English
+        $slug = $request->get('slug');
+
+        $page = getPageDynamicContent($slug, $lang);
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Success',
+            'data' => $page
+        ]);
+    }
     public function home(Request $request)
     {
 

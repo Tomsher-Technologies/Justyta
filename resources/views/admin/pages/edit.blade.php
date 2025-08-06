@@ -75,12 +75,7 @@
                                                 </div>
                                             @endif
 
-                                            @if (
-                                                $page->slug === 'consultancy_payment_success' ||
-                                                    $page->slug === 'consultancy_waiting_page' ||
-                                                    $page->slug === 'request_success' || $page->slug === 'request_payment_success' || $page->slug === 'request_payment_failed' || $page->slug === 'translation_request_success' ||
-                                                    $page->slug === 'immigration_success' ||
-                                                    $page->slug === 'report_problem' || $page->slug === 'request_submission_forminfo' || $page->slug === 'new_password_reset' || $page->slug === 'company_retainership' || $page->slug === 'rate_us_form_info')
+                                            @if ($page->slug != 'payment-page' || $page->slug != 'lawfirm_signup')
                                                 <div class="form-group">
                                                     <label class="col-form-label color-dark fw-500">Content
                                                         ({{ $lang->name }})

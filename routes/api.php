@@ -21,6 +21,7 @@ Route::middleware('set_api_locale')->group(function () {
     Route::post('/resend-email-otp', [AuthController::class, 'forgetRequest']);
     Route::post('/verify-email-otp', [AuthController::class, 'verifyOTP']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    Route::get('/page-contents', [HomeController::class, 'pageContents']);
 
 
     Route::middleware(['ensureFrontendRequestsAreStateful', 'auth:sanctum'])->group(function () {
