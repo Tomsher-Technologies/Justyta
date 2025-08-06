@@ -8,8 +8,12 @@
                     {{ __('frontend.reset_password') }}
                 </h2>
 
+                @php
+                    $lang = app()->getLocale() ?? 'en';
+                    $contentDynamic = getPageDynamicContent('reset_password', $lang);
+                @endphp
                 <p class="text-xs text-gray-600">
-                    {{ __('frontend.reset_password_message') }}
+                    {{ $contentDynamic['content'] ?? '' }}
                 </p>
 
                 <form class="space-y-6" method="POST" action="{{ route('frontend.reset-password') }}">
