@@ -756,6 +756,9 @@ class ServiceController extends Controller
                 ];
         });
 
+        $pageData = getPageDynamicContent('translation_calculator_page',$lang);
+        $response['info'] = $pageData;
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -838,6 +841,10 @@ class ServiceController extends Controller
             'tax'               => $service->tax ?? 0,
             'total_amount'      => $service->total_amount ?? 0
         ];
+
+        $pageData = getPageDynamicContent('immigration_page',$lang);
+        $response['info'] = $pageData;
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
