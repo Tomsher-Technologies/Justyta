@@ -64,7 +64,6 @@ function uploadImage($type, $imageUrl, $filename = null){
 
     $imageContents = file_get_contents($imageUrl);
 
-    // Save the original image in the storage folder
     Storage::disk('public')->put($filename, $imageContents);
     $data_url = Storage::url($filename);
     
