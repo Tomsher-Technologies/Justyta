@@ -224,4 +224,13 @@ return [
     'training_request_submit_success' => 'تم إرسال طلب التدريب بنجاح.',
     'training_request_submitted' => 'تم إرسال طلب التدريب الخاص بك بنجاح.',
     'service_request_status_change' => 'تم تحديث حالة طلب الخدمة :service (المرجع: :reference) إلى: :status',
+    'password_regex' => 'يجب أن تكون كلمة المرور 8 أحرف على الأقل، وتحتوي على حرف كبير وحرف صغير ورقم ورمز خاص.',
+    'phone_regex' => 'يرجى إدخال رقم هاتف صالح.',
+    'password_confirmation_mismatch' => 'تأكيد كلمة المرور غير متطابق.',
+    'religion_required' => 'الديانة مطلوبة.',
+    'translation_not_available' => 'الترجمة غير متوفرة!',
+    'subject_max' => 'يجب ألا يزيد الموضوع عن :max حرفًا.',
+    'image_file_mimes' => 'يجب أن تكون الملفات من نوع: pdf، jpg، jpeg، webp، png، svg، doc، docx.',
+    'image_file_max' => 'يجب ألا يزيد حجم الملف عن 500 كيلوبايت.',
+    'selected_notifications_cleared_successfully' => 'تم حذف الإشعارات المحددة بنجاح.',
 ];

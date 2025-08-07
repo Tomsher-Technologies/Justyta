@@ -91,7 +91,7 @@
                                 <label class="col-form-label color-dark fw-500 align-center">Start Date <span class="text-danger">*</span></label>
                                 <input type="text" name="start_date"
                                     class="form-control ih-small ip-gray radius-xs b-light px-15 datepicker"
-                                    value="{{ old('start_date', $ad->start_date) }}" />
+                                    value="{{ old('start_date', $ad->start_date ? date('d F Y', strtotime($ad->start_date)) : '') }}" />
                                 @error('start_date')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
@@ -99,7 +99,7 @@
 
                             <div class="col-md-4 mb-3">
                                 <label class="col-form-label color-dark fw-500 align-center">End Date <span class="text-danger">*</span></label>
-                                <input type="text" name="end_date" class="form-control ih-small ip-gray radius-xs b-light px-15 datepicker" value="{{ old('end_date', $ad->end_date) }}" />
+                                <input type="text" name="end_date" class="form-control ih-small ip-gray radius-xs b-light px-15 datepicker" value="{{ old('end_date', $ad->end_date ? date('d F Y', strtotime($ad->end_date)) : '') }}" />
                                 @error('end_date')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror

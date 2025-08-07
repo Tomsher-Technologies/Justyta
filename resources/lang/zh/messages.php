@@ -224,4 +224,14 @@ return [
     'training_request_submit_success' => '培训请求提交成功。',
     'training_request_submitted' => '您的培训请求已成功提交。',
     'service_request_status_change' => '您的 :service 服务请求（参考编号：:reference）状态已更新为：:status',
+    'password_regex' => '密码必须至少包含8个字符，包括一个大写字母、一个小写字母、一个数字和一个特殊字符。',
+    'phone_regex' => '请输入有效的电话号码。',
+    'password_confirmation_mismatch' => '确认密码不匹配。',
+    'religion_required' => '宗教是必填项。',
+    'translation_not_available' => '翻译不可用！',
+    'subject_max' => '主题不能超过:max个字符。',
+    'image_file_mimes' => '附件必须是以下格式之一：pdf, jpg, jpeg, webp, png, svg, doc, docx。',
+    'image_file_max' => '附件大小不能超过500KB。',
+    'selected_notifications_cleared_successfully' => '已成功删除所选通知。',
+
 ];
