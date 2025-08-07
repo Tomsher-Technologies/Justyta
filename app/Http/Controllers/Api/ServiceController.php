@@ -82,6 +82,19 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+
+        $ads = getActiveAd('court_case_submission', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -121,6 +134,18 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+
+        $ads = getActiveAd('criminal_complaint', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -160,6 +185,19 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+
+        $ads = getActiveAd('power_of_attorney', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -208,6 +246,18 @@ class ServiceController extends Controller
                 ];
         });
         $response['payment'] = [];
+
+        $ads = getActiveAd('last_will', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -247,6 +297,18 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+        $ads = getActiveAd('memo_writing', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -294,6 +356,18 @@ class ServiceController extends Controller
             'tax'               => $service->tax ?? 0,
             'total_amount'      => $service->total_amount ?? 0
         ];
+
+        $ads = getActiveAd('expert_report', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -342,6 +416,18 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+
+        $ads = getActiveAd('contract_drafting', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -384,6 +470,18 @@ class ServiceController extends Controller
 
         $response['payment'] = [];
 
+        $ads = getActiveAd('escrow_accounts', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -423,6 +521,19 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+
+        $ads = getActiveAd('debt_collection', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -471,6 +582,18 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+
+        $ads = getActiveAd('company_setup', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -590,6 +713,18 @@ class ServiceController extends Controller
                 ];
         });
 
+        $ads = getActiveAd('online_consultancy', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -641,6 +776,18 @@ class ServiceController extends Controller
             'tax'               => $service->tax ?? 0,
             'total_amount'      => $service->total_amount ?? 0
         ];
+
+        $ads = getActiveAd('request_submission', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
 
         return response()->json([
             'status'    => true,
@@ -759,6 +906,18 @@ class ServiceController extends Controller
         $pageData = getPageDynamicContent('translation_calculator_page',$lang);
         $response['info'] = $pageData;
 
+        $ads = getActiveAd('legal_translation', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -845,6 +1004,18 @@ class ServiceController extends Controller
         $pageData = getPageDynamicContent('immigration_page',$lang);
         $response['info'] = $pageData;
 
+        $ads = getActiveAd('immigration_request', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -900,6 +1071,18 @@ class ServiceController extends Controller
 
         $pageData = getPageDynamicContent('company_retainership',$lang);
         $response['info'] = $pageData;
+
+        $ads = getActiveAd('company_annual_agreement', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
 
         return response()->json([
             'status'    => true,

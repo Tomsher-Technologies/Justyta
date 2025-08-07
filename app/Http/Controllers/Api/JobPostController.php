@@ -45,6 +45,18 @@ class JobPostController extends Controller
             ];
         });
 
+        $ads = getActiveAd('lawfirm_jobs', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'        => true,
             'message'       => 'Details fetched successfully.',
@@ -53,6 +65,7 @@ class JobPostController extends Controller
             'last_page'     => $jobPosts->lastPage(),
             'limit'         => $jobPosts->perPage(),
             'total'         => $jobPosts->total(),
+            'banner'        => $response['banner']
         ], 200);
     }
 
@@ -72,6 +85,18 @@ class JobPostController extends Controller
             ], 200);
         }
 
+        $ads = getActiveAd('lawfirm_jobs', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Job details found.',
@@ -86,6 +111,7 @@ class JobPostController extends Controller
                 'job_posted_date' => $job->job_posted_date,
                 'deadline_date' => $job->deadline_date,
                 'status' => $job->status,
+                'banner' => $response['banner'] 
             ]
         ], 200);
     }
@@ -141,7 +167,19 @@ class JobPostController extends Controller
                     ];
                 });
             }
-        
+
+            $ads = getActiveAd('lawfirm_jobs', 'mobile');
+
+            $response['banner'] = [];
+            if ($ads) {
+                $file = $ads->files->first();
+                $response['banner'] = [
+                    'file' => getUploadedFile($file->file_path),
+                    'file_type' => $file->file_type,
+                    'url' => $ads->cta_url
+                ];
+            }
+            
             return response()->json([
                 'status'    => true,
                 'message'   => 'Success',
