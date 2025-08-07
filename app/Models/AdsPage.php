@@ -10,6 +10,6 @@ class AdsPage extends Model
 
     public function ads()
     {
-        return $this->hasMany(Ad::class);
+        return $this->hasMany(Ad::class, 'page_id');
     }
 }

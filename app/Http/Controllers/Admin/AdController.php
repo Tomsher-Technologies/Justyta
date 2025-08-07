@@ -224,7 +224,7 @@ class AdController extends Controller
             'customer_email'    => $validated['customer_email'] ?? null,
             'customer_phone'    => $validated['customer_phone'] ?? null,
             'cta_text'          => $validated['cta_text'] ?? null,
-            'cta_url'           => $validated['cta_url'] ?? null,
+            'cta_url'           => $validated['redirection_url'] ?? null,
         ]);
 
         if ($request->hasFile('web_file')) {

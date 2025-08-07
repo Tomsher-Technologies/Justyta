@@ -25,6 +25,6 @@ class Ad extends Model
 
     public function page()
     {
-        return $this->belongsTo(AdsPage::class);
+        return $this->belongsTo(AdsPage::class, 'page_id');
     }
 }

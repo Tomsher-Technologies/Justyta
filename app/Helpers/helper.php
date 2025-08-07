@@ -753,10 +753,27 @@ function getUsersWithPermissions(array $permissions, string $guard = 'web')
 }
 
 function getUnreadNotificationCount()
-    {
-        $user = Auth::guard('frontend')->user();
+{
+    $user = Auth::guard('frontend')->user();
 
-        $count = $user->unreadNotifications()->count();
+    $count = $user->unreadNotifications()->count();
 
-        return $count;
-    }
+    return $count;
+}
+
+function getActiveAd($slug = null, $device = null)
+{
+    $page = \App\Models\AdsPage::where('slug', $slug)->first();
+
+    if (!$page) return null;
+
+    return $page->ads()
+        ->where('status', 1)
+        ->whereDate('start_date', '<=', now())
+        ->whereDate('end_date', '>=', now())
+        ->with(['files' => function ($query) use($device) {
+            $query->where('device', $device)->orderBy('id', 'asc')->limit(1);
+        }])
+        ->latest('start_date')
+        ->first();
+}
