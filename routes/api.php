@@ -22,6 +22,7 @@ Route::middleware('set_api_locale')->group(function () {
     Route::post('/verify-email-otp', [AuthController::class, 'verifyOTP']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     Route::get('/page-contents', [HomeController::class, 'pageContents']);
+    Route::get('/banners', [HomeController::class, 'getBanners']);
 
 
     Route::middleware(['ensureFrontendRequestsAreStateful', 'auth:sanctum'])->group(function () {
@@ -106,6 +107,8 @@ Route::middleware('set_api_locale')->group(function () {
         // Service History
         Route::get('/service-history', [UserController::class, 'getServiceHistory']);
         Route::get('/service-history-details', [UserController::class, 'getServiceHistoryDetails']);
+        Route::get('/pending-services', [UserController::class, 'getServicePending']);
+        Route::get('/payment-history', [UserController::class, 'getServicePaymentHistory']);
 
         //Notifications
         Route::get('/notifications', [UserController::class, 'getGroupedUserNotifications']);
