@@ -15,6 +15,28 @@ use Mail;
 class HomeController extends Controller
 {
 
+    public function getBanners(Request $request){
+        $lang = request()->header('lang') ?? env('APP_LOCALE','en'); // default to English
+        $slug = $request->get('slug');
+
+        $ads = getActiveAd($slug, 'mobile');
+
+        $data = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $data = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Success',
+            'data' => $data
+        ]);
+    }
     public function pageContents(Request $request){
         $lang = request()->header('lang') ?? env('APP_LOCALE','en'); // default to English
         $slug = $request->get('slug');
@@ -30,7 +52,7 @@ class HomeController extends Controller
     public function home(Request $request)
     {
 
-        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); 
         $services = Service::with(['translations' => function ($query) use ($lang) {
                         $query->where('lang', $lang);
                     }])
@@ -39,7 +61,6 @@ class HomeController extends Controller
                     ->orderBy('sort_order', 'ASC')
                     ->get();
 
-        // Optionally transform the result to extract only translated fields
         $data['services'] = $services->map(function ($service) {
             $translation = $service->translations->first();
             return [
@@ -51,7 +72,19 @@ class HomeController extends Controller
         });
       
         $data['quick_link'] = [];
-        $data['banner'] = null;
+
+        $ads = getActiveAd('lawfirm_services', 'mobile');
+
+        $data['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $data['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Success',
@@ -81,7 +114,17 @@ class HomeController extends Controller
             ];
         });
       
-        $data['banner'] = null;
+        $ads = getActiveAd('lawfirm_services', 'mobile');
+
+        $data['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $data['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
         return response()->json([
             'status' => true,
             'message' => 'Success',
@@ -155,6 +198,18 @@ class HomeController extends Controller
                 'og_description' => $translation->og_description ?? '',
             ];
         });
+
+        $ads = getActiveAd('news', 'mobile');
+
+        $data['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $data['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
               
         return response()->json([
             'status' => true,
@@ -164,6 +219,7 @@ class HomeController extends Controller
             'last_page' => $news->lastPage(),
             'limit' => $news->perPage(),
             'total' => $news->total(),
+            'banner' => $data['banner'],
         ], 200);
     }
 
@@ -185,6 +241,18 @@ class HomeController extends Controller
 
         $translation = $news->translations->first();
 
+        $ads = getActiveAd('news', 'mobile');
+
+        $data['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $data['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Success',
@@ -201,6 +269,7 @@ class HomeController extends Controller
                 'twitter_description' => $translation->twitter_description ?? '',
                 'og_title' => $translation->og_title ?? '',
                 'og_description' => $translation->og_description ?? '',
+                'banner' => $data['banner']
             ]
         ], 200);
     }

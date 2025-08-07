@@ -28,6 +28,18 @@ class UserController extends Controller
     public function account(Request $request){
         $user = $request->user();
 
+        $ads = getActiveAd('account_settings', 'mobile');
+
+        $data['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $data['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Success',
@@ -38,6 +50,7 @@ class UserController extends Controller
                 'user_type' => $user->user_type,
                 'phone' => $user->phone,
                 'language' => $user->language,
+                'banner' => $data['banner']
             ],
         ], 200);
     }
@@ -234,6 +247,19 @@ class UserController extends Controller
         $user->unreadNotifications()
             ->whereIn('id', $allShownIds)
             ->update(['read_at' => now()]);
+
+        $ads = getActiveAd('notifications', 'mobile');
+
+        $data['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $data['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         
         return response()->json([
             'status'    => true,
@@ -246,6 +272,7 @@ class UserController extends Controller
                 'last_page'     => $paginatedPast->lastPage(),
                 'per_page'      => $paginatedPast->perPage(),
                 'total'         => $paginatedPast->total(),
+                'banner'        => $data['banner']
             ],
         ], 200);
     }
@@ -317,11 +344,12 @@ class UserController extends Controller
 
     public function getServiceHistory(Request $request){
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
         $serviceSlug = $request->get('service_slug'); 
         $perPage = $request->get('limit', 10);
 
         if($serviceSlug != ''){
-            $query = ServiceRequest::with('user', 'service');
+            $query = ServiceRequest::with('user', 'service')->where('user_id', $user->id);
 
             if ($serviceSlug) {
                 if($serviceSlug === 'law-firm-services'){
@@ -353,6 +381,18 @@ class UserController extends Controller
                         ];
             });
 
+            $ads = getActiveAd('service_history', 'mobile');
+
+            $data['banner'] = [];
+            if ($ads) {
+                $file = $ads->files->first();
+                $data['banner'] = [
+                    'file' => getUploadedFile($file->file_path),
+                    'file_type' => $file->file_type,
+                    'url' => $ads->cta_url
+                ];
+            }
+
             return response()->json([
                 'status'        => true,
                 'message'       => 'success',
@@ -361,6 +401,145 @@ class UserController extends Controller
                 'last_page'     => $paginatedserviceRequests->lastPage(),
                 'per_page'      => $paginatedserviceRequests->perPage(),
                 'total'         => $paginatedserviceRequests->total(),
+                'banner'        => $data['banner']
+            ],200);
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Please provide a service'
+            ], 200);
+        }
+    }
+
+    public function getServicePending(Request $request){
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $serviceSlug = $request->get('service_slug'); 
+        $perPage = $request->get('limit', 10);
+
+        if($serviceSlug != ''){
+            $query = ServiceRequest::with('user', 'service')->where('status', 'pending')->where('user_id', $user->id);
+
+            if ($serviceSlug) {
+                if($serviceSlug === 'law-firm-services'){
+                    $slugs = Service::whereHas('parent', function ($query) {
+                        $query->where('slug', 'law-firm-services');
+                    })->pluck('slug');
+
+                    $query->whereIn('service_slug', $slugs);
+                }elseif($serviceSlug === 'online-live-consultancy'){
+
+                }else{
+                    $query->where('service_slug', $serviceSlug);
+                }    
+            } 
+            $paginatedserviceRequests = $query->orderBy('id', 'desc')->paginate($perPage);
+
+            $serviceRequests = collect($paginatedserviceRequests->items())
+                    ->map(function ($serviceRequest) use($lang) {
+                        
+                        return [
+                            'id'    => $serviceRequest->id,
+                            'title' => __('messages.booked_service'),
+                            'content' => __('messages.service_reference_number') .$serviceRequest->reference_code,
+                            'time'  => $serviceRequest->submitted_at,
+                            'service' => $serviceRequest->service->getTranslation('title',$lang),                        
+                            'slug' => $serviceRequest->service->slug,
+                            'service_status' => __('messages.'.$serviceRequest->status) ?? null,
+                            'payment_status' => ($serviceRequest->payment_status != NULL) ? (($serviceRequest->payment_status == 'pending') ? __('messages.un_paid') : __('messages.paid')) : null,
+                        ];
+            });
+
+            $ads = getActiveAd('pending_services', 'mobile');
+
+            $data['banner'] = [];
+            if ($ads) {
+                $file = $ads->files->first();
+                $data['banner'] = [
+                    'file' => getUploadedFile($file->file_path),
+                    'file_type' => $file->file_type,
+                    'url' => $ads->cta_url
+                ];
+            }
+
+            return response()->json([
+                'status'        => true,
+                'message'       => 'success',
+                'data'          => $serviceRequests,
+                'current_page'  => $paginatedserviceRequests->currentPage(),
+                'last_page'     => $paginatedserviceRequests->lastPage(),
+                'per_page'      => $paginatedserviceRequests->perPage(),
+                'total'         => $paginatedserviceRequests->total(),
+                'banner'        => $data['banner']
+            ],200);
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Please provide a service'
+            ], 200);
+        }
+    }
+
+    public function getServicePaymentHistory(Request $request){
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $serviceSlug = $request->get('service_slug'); 
+        $perPage = $request->get('limit', 10);
+
+        if($serviceSlug != ''){
+            $query = ServiceRequest::with('user', 'service')->whereNotNull('payment_status')->where('user_id', $user->id);
+
+            if ($serviceSlug) {
+                if($serviceSlug === 'law-firm-services'){
+                    $slugs = Service::whereHas('parent', function ($query) {
+                        $query->where('slug', 'law-firm-services');
+                    })->pluck('slug');
+
+                    $query->whereIn('service_slug', $slugs);
+                }elseif($serviceSlug === 'online-live-consultancy'){
+
+                }else{
+                    $query->where('service_slug', $serviceSlug);
+                }    
+            } 
+            $paginatedserviceRequests = $query->orderBy('id', 'desc')->paginate($perPage);
+
+            $serviceRequests = collect($paginatedserviceRequests->items())
+                    ->map(function ($serviceRequest) use($lang) {
+                        
+                        return [
+                            'id'    => $serviceRequest->id,
+                            'title' => __('messages.booked_service'),
+                            'content' => __('messages.service_reference_number') .$serviceRequest->reference_code,
+                            'time'  => $serviceRequest->submitted_at,
+                            'service' => $serviceRequest->service->getTranslation('title',$lang),                        
+                            'slug' => $serviceRequest->service->slug,
+                            'service_status' => __('messages.'.$serviceRequest->status) ?? null,
+                            'payment_status' => ($serviceRequest->payment_status != NULL) ? (($serviceRequest->payment_status == 'pending') ? __('messages.un_paid') : __('messages.paid')) : null,
+                        ];
+            });
+
+            $ads = getActiveAd('payment_history', 'mobile');
+
+            $data['banner'] = [];
+            if ($ads) {
+                $file = $ads->files->first();
+                $data['banner'] = [
+                    'file' => getUploadedFile($file->file_path),
+                    'file_type' => $file->file_type,
+                    'url' => $ads->cta_url
+                ];
+            }
+
+            return response()->json([
+                'status'        => true,
+                'message'       => 'success',
+                'data'          => $serviceRequests,
+                'current_page'  => $paginatedserviceRequests->currentPage(),
+                'last_page'     => $paginatedserviceRequests->lastPage(),
+                'per_page'      => $paginatedserviceRequests->perPage(),
+                'total'         => $paginatedserviceRequests->total(),
+                'banner'        => $data['banner']
             ],200);
         }else{
             return response()->json([
@@ -417,6 +596,18 @@ class UserController extends Controller
                 ];
             });
             $dataService['installments'] = $installments;
+        }
+
+        $ads = getActiveAd('service_history_details', 'mobile');
+
+        $dataService['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $dataService['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
         }
 
         return response()->json([
@@ -482,13 +673,26 @@ class UserController extends Controller
 
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
         $pageData   = getPageDynamicContent('report_problem',$lang);
-        $response   = [
+        $data   = [
             'content'   => $pageData['content']
         ];
+
+        $ads = getActiveAd('report_problem', 'mobile');
+
+        $data['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $data['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'success',
-            'data'      => $response,
+            'data'      => $data,
         ],200);
     }
 
@@ -562,6 +766,18 @@ class UserController extends Controller
                     'value' => $option->getTranslation('name',$lang),
                 ];
             });
+        }
+
+        $ads = getActiveAd('training_requests', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
         }
         
         return response()->json([
