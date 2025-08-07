@@ -104,3 +104,49 @@
         </div>
     </div>
 @endsection
+
+@section('ads')
+    
+    @php
+        $ads = null;
+    @endphp
+    
+    @if($page == 'pending')
+        @php
+            $ads = getActiveAd('pending_services', 'web');
+        @endphp
+    @elseif ($page == 'history')
+        @php
+            $ads = getActiveAd('service_history', 'web');
+        @endphp
+    @elseif ($page == 'payment')
+        @php
+            $ads = getActiveAd('payment_history', 'web');
+        @endphp
+    @endif
+
+    @if ($ads && $ads->files->isNotEmpty())
+
+        <div class="w-full mb-12 px-[50px]">
+            {{-- <img src="{{ asset('assets/images/ad-img.jpg') }}" class="w-full" alt="" /> --}}
+           {{-- muted --}}
+            @php
+                $file = $ads->files->first();
+                $media = $file->file_type === 'video'
+                    ? '<video class="w-full h-100" autoplay loop>
+                        <source src="' . asset($file->file_path) . '" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>'
+                    : '<img src="' . asset($file->file_path) . '" class="w-full h-80" alt="Ad Image">';
+            @endphp
+
+            @if (!empty($ads->cta_url))
+                <a href="{{ $ads->cta_url }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
+                    {!! $media !!}
+                </a>
+            @else
+                {!! $media !!}
+            @endif
+        </div>
+    @endif
+@endsection

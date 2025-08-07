@@ -224,5 +224,14 @@ return [
     'training_request_submit_success' => 'درخواست آموزش با موفقیت ارسال شد.',
     'training_request_submitted' => 'درخواست آموزش شما با موفقیت ارسال شد.',
     'service_request_status_change' => 'وضعیت درخواست خدمت :service شما (شماره مرجع: :reference) به :status به‌روزرسانی شد.',
+    'password_regex' => 'رمز عبور باید حداقل ۸ کاراکتر و شامل یک حرف بزرگ، یک حرف کوچک، یک عدد و یک کاراکتر خاص باشد.',
+    'phone_regex' => 'لطفاً یک شماره تلفن معتبر وارد کنید.',
+    'password_confirmation_mismatch' => 'تأیید رمز عبور مطابقت ندارد.',
+    'religion_required' => 'وارد کردن دین الزامی است.',
+    'translation_not_available' => 'ترجمه موجود نیست!',
+    'subject_max' => 'موضوع نباید بیشتر از :max کاراکتر باشد.',
+    'image_file_mimes' => 'فایل‌ها باید از نوع: pdf, jpg, jpeg, webp, png, svg, doc, docx باشند.',
+    'image_file_max' => 'اندازه فایل نباید بیش از ۵۰۰ کیلوبایت باشد.',
+    'selected_notifications_cleared_successfully' => 'اعلان‌های انتخاب‌شده با موفقیت حذف شدند.',
 
 ];

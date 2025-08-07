@@ -69,7 +69,7 @@
                                                     </div>
                                                     <div class="signUp-condition signIn-condition">
                                                         <div class="checkbox-theme-default custom-checkbox ">
-                                                            <input type="checkbox" class="form-check-input" id="check-1"  name="remember">
+                                                            <input type="checkbox" class="form-check-input" id="check-1"  name="remember" value="1">
                                                             <label for="check-1">
                                                                 <span class="checkbox-text">Keep me logged in</span>
                                                             </label>
