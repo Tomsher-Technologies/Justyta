@@ -175,7 +175,7 @@ class ServiceRequestExport implements FromArray, WithHeadings, WithStyles, WithE
                     'Reference Code' => 25,
                     'Request Status' => 15,
                     'Payment Status' => 15,
-                    'Lawfirm' => 30,
+                    'Law firm' => 30,
                     'Address' => 30,
                     'Zone' => 30,
                     'Licence Type' => 30,

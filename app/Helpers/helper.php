@@ -180,7 +180,7 @@ function serviceModelFieldsMap(){
                 'no_of_calls'       => 'No of Calls',
                 'no_of_visits'      => 'No of Visits',
                 'no_of_installment' => 'No of Installments',
-                'lawfirm'           => 'Lawfirm',
+                'lawfirm'           => 'Law firm',
             ],
         ],
         'company-setup' => [

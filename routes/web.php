@@ -15,8 +15,13 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('frontend.l
 Route::post('/login', [AuthController::class, 'login'])->name('frontend.login.submit');
 Route::get('/logout', [AuthController::class, 'logout'])->name('frontend.logout');
 
+// User registration
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('frontend.register');
 Route::post('/register', [AuthController::class, 'register'])->name('frontend.register.submit');
+
+// Vendor/Law firm registration
+Route::get('/law-firm-register', [AuthController::class, 'showLawfirmRegisterForm'])->name('law-firm.register');
+Route::post('/law-firm-register', [AuthController::class, 'registerLawfirm'])->name('law-firm.register.submit');
 
 Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('frontend.forgot-password');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('frontend.reset-password');

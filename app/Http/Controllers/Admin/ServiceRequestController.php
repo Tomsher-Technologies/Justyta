@@ -320,6 +320,6 @@ class ServiceRequestController extends Controller
                 $serRequest->save();
             }
         }
-        return response()->json(['status' => true,'message' => 'Lawfirm assigned successfully.']);
+        return response()->json(['status' => true,'message' => 'Law firm assigned successfully.']);
     }
 }

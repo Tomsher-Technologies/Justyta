@@ -31,9 +31,9 @@
                                         <input type="text" name="keyword" value="{{ request('keyword') }}" class="col-md-12 form-control ih-small ip-gray radius-xs b-light px-15" placeholder="Search name, email, phone or reference no.">
                                     </div>
                                     <div class="col-md-3 input-group  mb-1">
-                                        <label class="col-md-12 col-form-label color-dark fw-500 align-center pl-0">Lawfirm</label>
+                                        <label class="col-md-12 col-form-label color-dark fw-500 align-center pl-0">Law firm</label>
                                         <select name="lawfirm_id" class="col-md-12 form-control ih-small ip-gray radius-xs b-light px-15 select2" >
-                                            <option value="">-- Select Lawfirm --</option>
+                                            <option value="">-- Select Law firm --</option>
                                             @foreach ($lawfirms as $lf)
                                                 <option value="{{ $lf->id }}"
                                                     {{ request('lawfirm_id') == $lf->id ? 'selected' : '' }}>
@@ -70,7 +70,7 @@
                                             <th class="text-center">#</th>
                                             <th class="text-center">Reference No</th>
                                             <th width="25%">Lawyer Name</th>
-                                            <th width="25%">LawFirm</th>
+                                            <th width="25%">Law Firm</th>
                                             <th class="text-center">No. Of Consultations</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Action</th>
@@ -109,7 +109,7 @@
                                                             <i class="fas fa-info-circle text-primary ml-2 popover-toggle"
                                                                 tabindex="0" data-toggle="popover" data-placement="bottom"
                                                                 data-html="true" data-trigger="manual"
-                                                                title='<div class="popover-title">Lawfirm Owner Contact Info</div>'
+                                                                title='<div class="popover-title">Law firm Owner Contact Info</div>'
                                                                 data-content='
                                                                         <div class="custom-popover">
                                                                             <div class="popover-item"><i class="fas fa-user"></i> {{ $lawyer->lawfirm->owner_name }}</div>

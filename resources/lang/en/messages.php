@@ -175,7 +175,7 @@ return [
     'no_of_calls_required' => 'No. of calls is required.',
     'no_of_visits_required' => 'No. of visits is required.',
     'no_of_installment_required' => 'Installment is required.',
-    'lawfirm_required' => 'Lawfirm is required.',
+    'lawfirm_required' => 'Law firm is required.',
     'priority_level_required' => 'Priority level is required.',
     'document_language_required' => 'Document language is required.',
     'translation_language_required' => 'Translation language is required.',
@@ -236,7 +236,7 @@ return [
     'image_file_max' => 'Attatchment file may not be greater than 500KB.',
     'selected_notifications_cleared_successfully' => 'Selected notifications deleted successfully.',
 
-    
+
     '' => '',
     '' => '',
     '' => '',
