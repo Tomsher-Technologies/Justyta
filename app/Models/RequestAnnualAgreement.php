@@ -63,7 +63,7 @@ class RequestAnnualAgreement extends Model
 
     public function getCaseTypeNamesAttribute()
     {
-        $lang = app()->getLocale(); // Or pass your preferred language
+        $lang = app()->getLocale(); 
         return DropdownOption::whereIn('id', $this->case_type ?? [])
             ->get()
             ->map(function ($item) use ($lang) {

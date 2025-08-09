@@ -54,7 +54,7 @@ class ServiceRequestController extends Controller
 {
 
     public function getAnnualAgreementPrice(Request $request){
-        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en');  
         
         $calls          = $request->query('calls');
         $visits         = $request->query('visits');
@@ -231,7 +231,6 @@ class ServiceRequestController extends Controller
         $to     = $request->to_language_id;
         $pages  = $request->no_of_pages;
 
-        // Step 1: Get default translator
         $assignment = DefaultTranslatorAssignment::where([
             'from_language_id' => $from,
             'to_language_id'   => $to,
@@ -244,7 +243,6 @@ class ServiceRequestController extends Controller
             ], 200);
         }
 
-        // Step 2: Get rate from translator_language_rates
         $rate = TranslatorLanguageRate::where([
             'translator_id'     => $assignment->translator_id,
             'from_language_id'  => $from,
@@ -258,7 +256,6 @@ class ServiceRequestController extends Controller
             ], 200);
         }
 
-        // Step 3: Calculate
         $totalAmount = $rate->total_amount * $pages;
         $totalHours  = $rate->hours_per_page * $pages;
 
@@ -647,7 +644,6 @@ class ServiceRequestController extends Controller
                         ];
                 });
 
-                // Filter only 'en' and 'ar' for translation_language
                 $translationLanguages = $transLanguages->filter(function ($lang) {
                     return in_array($lang->lang_code, ['en', 'ar']);
                 });
@@ -884,7 +880,7 @@ class ServiceRequestController extends Controller
 
         $courtCase->update($filePaths);
 
-        // Notify the user
+        
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -995,7 +991,7 @@ class ServiceRequestController extends Controller
 
         $criminalComplaint->update($filePaths);
 
-        // Notify the user
+        
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1086,7 +1082,7 @@ class ServiceRequestController extends Controller
         }
 
         $lastWill->update($filePaths);
-        // Notify the user
+        
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1143,7 +1139,7 @@ class ServiceRequestController extends Controller
             'about_deal'            => $request->input('about_deal') ?? NULL
         ]);
 
-        // Notify the user
+        
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1245,7 +1241,7 @@ class ServiceRequestController extends Controller
         }
 
         $debtCollection->update($filePaths);
-        // Notify the user
+        
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1341,7 +1337,7 @@ class ServiceRequestController extends Controller
             if ($request->hasFile($inputName)) {
                 $files = $request->file($inputName);
 
-                // If it's a single file, wrap it as an array
+                
                 if (!is_array($files)) {
                     $files = [$files];
                 }
@@ -1357,7 +1353,7 @@ class ServiceRequestController extends Controller
         }
 
         $memoWriting->update($filePaths);
-        // Notify the user
+        
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1501,7 +1497,7 @@ class ServiceRequestController extends Controller
             if ($request->hasFile($inputName)) {
                 $files = $request->file($inputName);
 
-                // If it's a single file, wrap it as an array
+                
                 if (!is_array($files)) {
                     $files = [$files];
                 }
@@ -1517,7 +1513,7 @@ class ServiceRequestController extends Controller
         }
 
         $powerOA->update($filePaths);
-        // Notify the user
+        
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1631,7 +1627,7 @@ class ServiceRequestController extends Controller
         }
 
         $contractDrafting->update($filePaths);
-        // Notify the user
+        
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1732,7 +1728,7 @@ class ServiceRequestController extends Controller
         }
 
         $companySetup->update($filePaths);
-        // Notify the user
+        
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1861,7 +1857,7 @@ class ServiceRequestController extends Controller
 
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
-            // Notify the user
+            
             Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
             $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -2020,7 +2016,7 @@ class ServiceRequestController extends Controller
 
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
-            // Notify the user
+            
             Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
             $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -2168,7 +2164,7 @@ class ServiceRequestController extends Controller
 
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
-            // Notify the user
+            
             Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
             $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -2333,7 +2329,7 @@ class ServiceRequestController extends Controller
 
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
-            // Notify the user
+            
             Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
             $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -2463,7 +2459,7 @@ class ServiceRequestController extends Controller
 
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
-            // Notify the user
+            
             Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
             $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -2473,7 +2469,7 @@ class ServiceRequestController extends Controller
         }
     }
 
-    public function paymentSuccess(Request $request) //network international
+    public function paymentSuccess(Request $request) 
     {
         $paymentReference = $request->query('ref') ?? NULL;
         $token = getAccessToken();
@@ -2483,9 +2479,7 @@ class ServiceRequestController extends Controller
 
         $response = Http::withToken($token)->get("{$baseUrl}/transactions/outlets/" . $outletRef . "/orders/{$paymentReference}");
         $data = $response->json();
-        // Decode the response
-        // $paymentDetails = json_decode($result);
-
+      
         $orderRef = $data['merchantOrderReference'] ?? NULL;
         $serviceData = explode('--', $orderRef);
 
@@ -2553,7 +2547,6 @@ class ServiceRequestController extends Controller
                             'total_amount'              => $totalAmount, 
                         ]);
 
-                        // Store assignment history
                         TranslationAssignmentHistory::create([
                             'request_id'         => $legalTranslation->id,
                             'translator_id'      => $assignment->translator_id,
@@ -2586,7 +2579,7 @@ class ServiceRequestController extends Controller
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         }
 
-        // Notify the user
+        
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -2596,7 +2589,7 @@ class ServiceRequestController extends Controller
     }
 
     public function paymentCancel(Request $request){
-        $ref = $request->get('ref'); // e.g., cfd4e40e-b287-4137-b819-0fa04dd17b76
+        $ref = $request->get('ref'); 
 
         $serviceRequest = ServiceRequest::where('payment_reference', $ref)->first();
 
@@ -2625,7 +2618,6 @@ class ServiceRequestController extends Controller
                 $serviceReqId = $serviceReq->id;
 
                 $serviceReq->delete();
-                // Delete uploaded folder
                 deleteRequestFolder($filePath[$serviceSlug], $serviceReqId);
             }
             $serviceRequest->delete();

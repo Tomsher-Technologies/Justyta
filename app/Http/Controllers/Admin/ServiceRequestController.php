@@ -67,7 +67,6 @@ class ServiceRequestController extends Controller
                             ->where('status',1)->orderBy('name')->get();
         $query = ServiceRequest::with('service')->whereNotIn('service_slug',['legal-translation']); 
 
-        // Filter by service_id
         if ($request->filled('service_id')) {
             $serviceSlug = $request->service_id;
             if($serviceSlug === 'law-firm-services'){
@@ -81,17 +80,14 @@ class ServiceRequestController extends Controller
             }    
         }
 
-        // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filter by payment status
         if ($request->filled('payment_status')) {
             $query->where('payment_status', $request->payment_status);
         }
 
-        // Filter by date range
         if ($request->filled('daterange')) {
             $dates = explode(' to ', $request->daterange);
             if (count($dates) === 2) {
@@ -102,12 +98,10 @@ class ServiceRequestController extends Controller
             }
         }
 
-        // Keyword search on reference_code
         if ($request->filled('keyword')) {
             $query->where('reference_code', 'like', '%' . $request->keyword . '%');
         }
 
-        // Pagination
         $serviceRequests = $query->orderByDesc('id')->paginate(15);
 
         return view('admin.service_requests.index', compact('serviceRequests','services'));
@@ -173,10 +167,7 @@ class ServiceRequestController extends Controller
                 ];
             });
         }
-        // echo '<pre>';
-        // print_r($dataService);
-        // die;
-
+        
         return view('admin.service_requests.show', compact('dataService'));
     }
 
@@ -192,12 +183,8 @@ class ServiceRequestController extends Controller
         $serviceRequest->status = $request->status;
         $serviceRequest->save();
 
-        // 🔔 Send notification to the user who submitted the request
-        $user = $serviceRequest->user; // assumes relation: serviceRequest belongsTo user
+        $user = $serviceRequest->user; 
         $user->notify(new ServiceRequestStatusChanged($serviceRequest));
-
-        // session()->flash('success', 'Service request status updated successfully.');
-
         return response()->json(['status' => true,'message' => 'Service request status updated successfully.']);
     }
 
@@ -212,8 +199,6 @@ class ServiceRequestController extends Controller
         $serviceRequest = ServiceRequest::findOrFail($id);
         $serviceRequest->payment_status  = $request->payment_status ;
         $serviceRequest->save();
-
-        // session()->flash('success', 'Service request payment status updated successfully.');
 
         return response()->json(['status' => true,'message' => 'Service request payment status updated successfully.']);
     }
@@ -234,8 +219,7 @@ class ServiceRequestController extends Controller
         $subModel = $modelInfo['model'];
         $fields = $modelInfo['fields'];
 
-        // Eager load the related sub-model
-        $query = ServiceRequest::with('user', 'service') // 'details' is dynamic
+        $query = ServiceRequest::with('user', 'service')
             ->where('service_slug', $serviceSlug);
 
         if ($request->filled('status')) {
@@ -262,7 +246,6 @@ class ServiceRequestController extends Controller
     
         $records = $query->get();
 
-        // Dynamically attach the sub-model data into `details`
         foreach ($records as $record) {
             $details = $subModel::where('service_request_id', $record->id)->first();
             $record->details = $details;
@@ -289,7 +272,7 @@ class ServiceRequestController extends Controller
         $serviceRequest = $installment->serviceRequest;
 
         if ($serviceRequest) {
-            // Check if all installments are paid
+            
             $allPaid = $serviceRequest->installments()->where('status', '!=', 'paid')->count() === 0;
 
             if ($allPaid) {

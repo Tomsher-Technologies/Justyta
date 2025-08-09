@@ -51,7 +51,7 @@ use Carbon\Carbon;
 class ServiceController extends Controller
 {
     public function getCourtCaseFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -62,7 +62,6 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['case_type', 'you_represent'])->get()->keyBy('slug');
        
-        // Transform each dropdown
         $response   = [];
         $emirates   = Emirate::where('status',1)->orderBy('id')->get();
 
@@ -103,7 +102,7 @@ class ServiceController extends Controller
     }
 
     public function getCriminalComplaintFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -114,7 +113,7 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['case_type', 'you_represent'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+       
         $response   = [];
         $emirates   = Emirate::where('status',1)->orderBy('id')->get();
 
@@ -154,7 +153,7 @@ class ServiceController extends Controller
     }
 
     public function getPowerOfAttorneyFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -165,7 +164,6 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['poa_type', 'poa_relationships'])->get()->keyBy('slug');
        
-        // Transform each dropdown
         $response   = [];
         $emirates   = Emirate::where('status',1)->orderBy('id')->get();
 
@@ -206,7 +204,7 @@ class ServiceController extends Controller
     }
 
     public function getLastWillFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -217,7 +215,6 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['you_represent','religion'])->get()->keyBy('slug');
        
-        // Transform each dropdown
         $response   = [];
         $emirates   = Emirate::where('status',1)->orderBy('id')->get();
 
@@ -266,7 +263,7 @@ class ServiceController extends Controller
     }
 
     public function getMemoWritingFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -277,7 +274,6 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['case_type', 'you_represent'])->get()->keyBy('slug');
        
-        // Transform each dropdown
         $response   = [];
         $emirates   = Emirate::where('status',1)->orderBy('id')->get();
 
@@ -317,7 +313,7 @@ class ServiceController extends Controller
     }
 
     public function getExpertReportsFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -328,7 +324,7 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['expert_report_type', 'expert_report_languages'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response   = [];
         $emirates   = Emirate::where('status',1)->orderBy('id')->get();
 
@@ -376,7 +372,7 @@ class ServiceController extends Controller
     }
 
     public function getContractsDraftingFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -387,7 +383,6 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['contract_languages', 'industries'])->get()->keyBy('slug');
        
-        // Transform each dropdown
         $response   = [];
         $emirates   = Emirate::where('status',1)->orderBy('id')->get();
 
@@ -436,7 +431,7 @@ class ServiceController extends Controller
     }
 
     public function getEscrowAccountsFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -447,7 +442,6 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['industries'])->get()->keyBy('slug');
        
-        // Transform each dropdown
         $response = [];
        
         foreach ($dropdowns as $slug => $dropdown) {
@@ -490,7 +484,7 @@ class ServiceController extends Controller
     }
     
     public function getDebtsCollectionFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -501,7 +495,7 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['debt_type','debt_category'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response   = [];
         $emirates   = Emirate::where('status',1)->orderBy('id')->get();
 
@@ -542,7 +536,7 @@ class ServiceController extends Controller
     }
 
     public function getCompanySetupFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -553,7 +547,7 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['company_type','industries'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response   = [];
         $emirates   = Emirate::where('status',1)->orderBy('id')->get();
 
@@ -673,7 +667,7 @@ class ServiceController extends Controller
     }
     
     public function getOnlineConsultationFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -684,7 +678,7 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['case_type', 'case_stage', 'you_represent','languages'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response   = [];
         $emirates   = Emirate::where('status',1)->orderBy('id')->get();
 
@@ -733,7 +727,7 @@ class ServiceController extends Controller
     }
 
     public function getRequestSubmissionFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -744,7 +738,7 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['case_type'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response = [];
         $emirates = Emirate::where('status',1)->orderBy('id')->get();
 
@@ -867,7 +861,7 @@ class ServiceController extends Controller
     }
 
     public function getLegalTranslationFormData(Request $request){
-        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $response       = [];
         $transLanguages = TranslationLanguage::where('status',1)->orderBy('sort_order')->get();
@@ -879,7 +873,6 @@ class ServiceController extends Controller
                 ];
         });
 
-        // Filter only 'en' and 'ar' for translation_language
         $translationLanguages = $transLanguages->filter(function ($lang) {
             return in_array($lang->lang_code, ['en', 'ar']);
         });
@@ -957,7 +950,7 @@ class ServiceController extends Controller
     }
     
     public function getImmigrationRequestFormData(Request $request){
-        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns = Dropdown::with([
                         'options' => function ($q) {
@@ -968,7 +961,7 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['positions','residency_status','immigration_type'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response = [];
        
         foreach ($dropdowns as $slug => $dropdown) {
@@ -1024,7 +1017,7 @@ class ServiceController extends Controller
     }
 
     public function getAnnualAgreementFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -1035,7 +1028,7 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['industries','no_of_employees','case_type'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response = [];
        
         foreach ($dropdowns as $slug => $dropdown) {
@@ -1092,7 +1085,7 @@ class ServiceController extends Controller
     }
 
     public function getAnnualAgreementPrice(Request $request){
-        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $calls          = $request->query('calls');
         $visits         = $request->query('visits');
@@ -1141,8 +1134,7 @@ class ServiceController extends Controller
                         ]
         ], 200);
     }
-    // Request submission
-
+    
     public function requestCourtCase(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -1250,7 +1242,7 @@ class ServiceController extends Controller
 
         $courtCase->update($filePaths);
 
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1376,7 +1368,7 @@ class ServiceController extends Controller
 
         $criminalComplaint->update($filePaths);
 
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1481,7 +1473,7 @@ class ServiceController extends Controller
         }
 
         $lastWill->update($filePaths);
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1602,7 +1594,7 @@ class ServiceController extends Controller
             if ($request->hasFile($inputName)) {
                 $files = $request->file($inputName);
 
-                // If it's a single file, wrap it as an array
+                
                 if (!is_array($files)) {
                     $files = [$files];
                 }
@@ -1618,7 +1610,7 @@ class ServiceController extends Controller
         }
 
         $powerOA->update($filePaths);
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1728,7 +1720,7 @@ class ServiceController extends Controller
             if ($request->hasFile($inputName)) {
                 $files = $request->file($inputName);
 
-                // If it's a single file, wrap it as an array
+                
                 if (!is_array($files)) {
                     $files = [$files];
                 }
@@ -1744,7 +1736,7 @@ class ServiceController extends Controller
         }
 
         $memoWriting->update($filePaths);
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1815,7 +1807,7 @@ class ServiceController extends Controller
             'about_deal'            => $request->input('about_deal')
         ]);
 
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -1935,7 +1927,7 @@ class ServiceController extends Controller
         }
 
         $debtCollection->update($filePaths);
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -2050,7 +2042,7 @@ class ServiceController extends Controller
         }
 
         $companySetup->update($filePaths);
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -2178,7 +2170,7 @@ class ServiceController extends Controller
         }
 
         $contractDrafting->update($filePaths);
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
         $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
@@ -2996,7 +2988,6 @@ class ServiceController extends Controller
         $to     = $request->to_language_id;
         $pages  = $request->no_of_pages;
 
-        // Step 1: Get default translator
         $assignment = DefaultTranslatorAssignment::where([
             'from_language_id' => $from,
             'to_language_id'   => $to,
@@ -3009,7 +3000,6 @@ class ServiceController extends Controller
             ], 200);
         }
 
-        // Step 2: Get rate from translator_language_rates
         $rate = TranslatorLanguageRate::where([
             'translator_id'     => $assignment->translator_id,
             'from_language_id'  => $from,
@@ -3023,7 +3013,6 @@ class ServiceController extends Controller
             ], 200);
         }
 
-        // Step 3: Calculate
         $totalAmount = $rate->total_amount * $pages;
         $totalHours  = $rate->hours_per_page * $pages;
 
@@ -3063,11 +3052,10 @@ class ServiceController extends Controller
             'status' => true,
             'message' => 'success',
             'data' => [
-                'order_id' => $order['reference'], // Required by mobile SDK
+                'order_id' => $order['reference'],
                 'merchant_reference' => $order['merchantOrderReference'] ?? null,
-                'amount' => $order['amount']['value'] / 100, // AED format
+                'amount' => $order['amount']['value'] / 100, 
                 'currency' => $order['amount']['currencyCode'],
-                // 'payment_url' => $order['_links']['payment']['href'] ?? null, // Optional
             ]
         ]);
     }
@@ -3091,34 +3079,7 @@ class ServiceController extends Controller
         $paymentData = $order['_embedded']['payment'][0] ?? [];
         $amount = ($order['amount']['value'] ?? 0) / 100;
 
-        // DB::beginTransaction();
-        // try {
-        //     $serviceRequest = ServiceRequest::create([
-        //         'user_id' => auth()->id(),
-        //         'service_id' => 1, // set accordingly
-        //         'service_slug' => 'example-service',
-        //         'reference_code' => Str::upper(Str::random(10)),
-        //         'status' => 'pending',
-        //         'payment_status' => 'paid',
-        //         'payment_reference' => $paymentData['paymentReference'] ?? null,
-        //         'amount' => $amount,
-        //         'paid_at' => now(),
-        //         'submitted_at' => now(),
-        //         'source' => 'mobile',
-        //     ]);
-
-        //     DB::commit();
-
-        //     return response()->json([
-        //         'success' => true,
-        //         'message' => 'Payment confirmed',
-        //         'data' => $serviceRequest
-        //     ]);
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     \Log::error('Service request creation failed', ['error' => $e->getMessage()]);
-        //     return response()->json(['success' => false, 'message' => 'Something went wrong'], 500);
-        // }
+       
     }
 
     public function test(Request $request){
@@ -3217,7 +3178,6 @@ class ServiceController extends Controller
                                 'total_amount'              => $totalAmount, 
                             ]);
 
-                            // Store assignment history
                             App\Models\TranslationAssignmentHistory::create([
                                 'request_id'         => $legalTranslation->id,
                                 'translator_id'      => $assignment->translator_id,

@@ -17,11 +17,11 @@ class JobPostController extends Controller
     public function index(Request $request)
     {
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
-        $sort       = $request->input('sort', 'newest'); // 'newest' or 'oldest'
+        $sort       = $request->input('sort', 'newest'); 
         $perPage    = $request->input('limit', 10);
 
         $query = JobPost::where('status', 1);
-        // Sort
+       
         if ($sort === 'oldest') {
             $query->orderBy('job_posted_date', 'asc');
         } else {
@@ -75,7 +75,7 @@ class JobPostController extends Controller
 
         $job = JobPost::where('status', 1)
                     ->where('id', $id)
-                    ->with([ 'location']) // eager load relationships
+                    ->with([ 'location'])
                     ->first();
 
         if (!$job) {
@@ -121,7 +121,7 @@ class JobPostController extends Controller
 
         $job = JobPost::where('status', 1)
                     ->where('id', $id)
-                    ->with([ 'location']) // eager load relationships
+                    ->with([ 'location']) 
                     ->first();
 
         if (!$job) {
@@ -147,7 +147,7 @@ class JobPostController extends Controller
                         }
                     ])->whereIn('slug', ['positions'])->get()->keyBy('slug');
        
-            // Transform each dropdown
+           
             $response = [];
 
             $response['details'] =  array(
@@ -240,13 +240,12 @@ class JobPostController extends Controller
         }
 
         $resumeUrl = '';
-        // Store file
+        
         if ($request->hasFile('resume')) {
             $resumePath = $request->file('resume')->store('resumes', 'public');
             $resumeUrl  = Storage::url($resumePath);
         }
-        
-        // Save application
+       
         $application                = new JobApplication();
         $application->job_post_id   = $job->id;
         $application->user_id       = $user->id;
@@ -257,7 +256,7 @@ class JobPostController extends Controller
         $application->resume_path   = 'storage/'.$resumeUrl;
         $application->save();
 
-        $jobOwner = $job->post_owner; // assumes relationship `user()` in JobPost model
+        $jobOwner = $job->post_owner;
 
         if ($jobOwner && $jobOwner->email) {
             Mail::to($jobOwner->email)->send(new JobApplicationReceived($job, $application));

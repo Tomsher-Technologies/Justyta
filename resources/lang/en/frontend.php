@@ -260,7 +260,7 @@ return [
     'set_up_login_details' => 'Set Up Your Login Details',
     'agree_terms' => 'I agree to the :terms',
     'terms' => 'Terms & Conditions',
-    '' => '',
+    'this_field_required' => 'This field is required.',
     '' => '',
     '' => '',
     '' => '',

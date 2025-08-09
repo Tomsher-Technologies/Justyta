@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Spatie\Permission\Models\Permission as SpatiePermission;
 
-class CustomPermission extends SpatiePermission // Change the class name to avoid conflict
+class CustomPermission extends SpatiePermission 
 {
     public function children()
     {

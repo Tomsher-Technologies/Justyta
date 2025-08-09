@@ -31,14 +31,12 @@ class LawyerController extends Controller
     public function index(Request $request){
         $query = Lawyer::with('lawfirm', 'emirate');
 
-        // Filter by membership plan
         if ($request->filled('lawfirm_id')) {
             $query->whereHas('lawfirm', function ($q) use ($request) {
                 $q->where('id', $request->lawfirm_id);
             });
         }
 
-        // Filter by keyword in name, email or phone
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
             $query->where(function ($q) use ($keyword){
@@ -49,9 +47,8 @@ class LawyerController extends Controller
             });
         }
 
-        // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
+            // 1 = active, 2 = inactive; 
             $query->whereHas('user', function ($q) use ($request) {
                  if ($request->status == 1) {
                     $q->where('banned', 0);
@@ -61,7 +58,7 @@ class LawyerController extends Controller
             });
         }
 
-        $lawyers = $query->paginate(15); // or ->get() if you don’t want pagination
+        $lawyers = $query->paginate(15);
 
         // $emirates = Emirate::orderBy('name','ASC')->get();
         $lawfirms = Vendor::orderBy('law_firm_name','ASC')->get();
@@ -116,10 +113,6 @@ class LawyerController extends Controller
             'translations.en.name.string' => 'The lawyer name in english must be a valid text string.',
         ]);
 
-        // echo '<pre>';
-        // print_r($request->all());
-        // die;
-
         DB::transaction(function () use ($request, $validated) {
             $user = User::create([
                 'name' => $request->translations['en']['name'],
@@ -164,7 +157,6 @@ class LawyerController extends Controller
                 }
             }
 
-            // Sync dropdowns (pivot table)
             $dropdowns = collect([
                 'specialities' => $request->specialities,
                 'languages' => $request->languages,
@@ -284,14 +276,12 @@ class LawyerController extends Controller
             }
         }
 
-        // Sync dropdowns (pivot table)
         $dropdowns = collect([
             'specialities' => $request->specialities,
             'languages' => $request->languages,
         ]);
 
         foreach ($dropdowns as $type => $optionIds) {
-            // Delete existing entries of this type
             $lawyer->dropdownOptions()
                 ->wherePivot('type', $type)
                 ->detach();

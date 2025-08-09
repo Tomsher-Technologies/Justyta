@@ -11,7 +11,7 @@ class NotificationController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $notifications = $user->notifications()->latest()->paginate(30); // change 10 to desired per-page count
+        $notifications = $user->notifications()->latest()->paginate(30); 
 
         return view('admin.notifications.index', compact('notifications'));
     }

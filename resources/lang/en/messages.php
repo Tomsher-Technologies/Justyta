@@ -237,7 +237,7 @@ return [
     'selected_notifications_cleared_successfully' => 'Selected notifications deleted successfully.',
 
 
-    '' => '',
+    'account_not_approved' => 'Your account is not approved yet. Please wait for admin approval.',
     '' => '',
     '' => '',
     '' => '',

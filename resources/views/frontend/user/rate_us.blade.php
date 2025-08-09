@@ -110,7 +110,6 @@
                 error.addClass('text-red-500 text-sm');
 
                 if (element.attr('name') === 'rating') {
-                    // 👇 Append the error below the stars container
                     $('#star-rating').after(error);
                 } else if (element.hasClass('select2-hidden-accessible')) {
                     error.insertAfter(element.next('.select2'));
@@ -134,10 +133,8 @@
                     $(element).removeClass('border-red-500');
                 }
             },
-
-            /** 👇 Prevent actual form submission if invalid */
             submitHandler: function (form) {
-                form.submit(); // real submit
+                form.submit(); 
             }
         });
 

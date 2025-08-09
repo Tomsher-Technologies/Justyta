@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use App\Notifications\ForgotPassword;
 use App\Models\User;
+use App\Models\Vendor;
+use App\Models\MembershipPlan;
+use App\Models\VendorTranslation;
 use App\Mail\CommonMail;
 use Carbon\Carbon;
 
@@ -46,10 +49,21 @@ class AuthController extends Controller
             return back()->withErrors(['password' => __('messages.invalid_credentials')]);
         }
 
+        if ($user->banned === 1) {
+            return back()->withErrors(['password' => __('messages.account_disabled_deleted')]);
+        }
+
+        if ($user->email_verified_at === null) {
+            return back()->withErrors(['password' => __('messages.email_not_verified')]);
+        }
+
+        if ($user->approved === 0) {
+            return back()->withErrors(['password' => __('messages.account_not_approved')]);
+        }
+
         Auth::guard('frontend')->login($user);
         session(['locale' => $user->language]);
-        // App::setLocale($user->language);
-
+       
         return match ($user->user_type) {
             'lawyer' => redirect()->route('lawyer.dashboard'),
             'vendor' => redirect()->route('vendor.dashboard'),
@@ -111,6 +125,7 @@ class AuthController extends Controller
             'email'    => $request->email,
             'phone'    => $request->phone,
             'password' => Hash::make($request->password),
+            'approved' => 1
         ]);
 
         $array['subject'] = 'Registration Successful - Welcome to '.env('APP_NAME','Justyta').'!';
@@ -126,7 +141,7 @@ class AuthController extends Controller
 
         Auth::guard('frontend')->login($user); 
 
-        return redirect()->route('user.dashboard'); // adjust route
+        return redirect()->route('user.dashboard');
     }
 
     public function showForgotPasswordForm()
@@ -250,6 +265,150 @@ class AuthController extends Controller
         session()->forget('reset_email');
 
         return redirect()->route('frontend.login')->with('success', __('frontend.password_updated_successfully'));
+    }
+
+    public function showLawfirmRegisterForm()
+    {
+        $plans = MembershipPlan::where('is_active', 1)->get();
+        return view('frontend.auth.law-firm-register', compact('plans'));
+    }
+
+    public function registerLawfirm(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'law_firm_name' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required|string|max:20',
+            'owner_name' => 'required|string|max:255',
+            'owner_email' => [
+                    'required',
+                    'email',
+                    Rule::unique('users', 'email')
+                        ->where('user_type', 'vendor'),
+                ],
+            'owner_phone' => 'required|string|max:20',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:200',
+            'emirate_id' => 'required',
+            'trn' => 'required',
+            'firm_description' => 'required',
+            'location' => 'required',
+            'country' => 'nullable|string|max:255',
+            'subscription_plan_id' => 'required',
+            'password' => 'required|string|min:6|confirmed',
+            'trade_license' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'trade_license_expiry' => 'required|date',
+            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'emirates_id_expiry' => 'required|date',
+            'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'residence_visa_expiry' => 'nullable|date',
+            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'passport_expiry' => 'required|date',
+            'card_of_law' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'card_of_law_expiry' => 'required|date',
+            'ministry_of_justice_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'ministry_of_justice_card_expiry' => 'required|date',
+            'terms' => 'required',
+        ],[
+            '*.required'            => __('frontend.this_field_required'),
+            'email.email'           => __('messages.valid_email'),
+            'email.unique'          => __('messages.email_already_exist'),
+            'phone.regex'           => __('messages.phone_regex'),
+            'password.min'          => __('messages.password_length'),
+            'password.regex'        => __('messages.password_regex'),
+            'password.confirmed'    => __('messages.password_confirmation_mismatch'),
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+        
+        $user = User::create([
+            'name' => $request->law_firm_name,
+            'email' => $request->owner_email,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password),
+            'user_type' => 'vendor',
+        ]);
+
+        $vendor = new Vendor([
+            'consultation_commission'   => 0,
+            'law_firm_name'             => $request->law_firm_name, 
+            'law_firm_email'            => $request->email, 
+            'law_firm_phone'            => $request->phone, 
+            'office_address'            => $request->location,
+            'owner_name'                => $request->owner_name, 
+            'owner_email'               => $request->owner_email,  
+            'owner_phone'               => $request->owner_phone,  
+            'emirate_id'                => $request->emirate_id, 
+            'trn'                       => $request->trn, 
+            'website_url'               => $request->website_url,
+            'logo'                      => $request->hasfile('logo') ? uploadImage('vendors/'.$user->id, $request->logo, 'logo_') : NULL,  
+            'country' => 'UAE', 
+            'trade_license'             => $request->hasfile('trade_license') ? uploadImage('vendors/'.$user->id, $request->trade_license, 'trade_license_') : NULL,
+            'trade_license_expiry'      => $request->trade_license_expiry ? Carbon::parse($request->trade_license_expiry)->format('Y-m-d') : null,
+            'emirates_id_front'         => $request->hasfile('emirates_id_front') ? uploadImage('vendors/'.$user->id, $request->emirates_id_front, 'emirates_id_front_') : NULL,
+            'emirates_id_back'          => $request->hasfile('emirates_id_back') ? uploadImage('vendors/'.$user->id, $request->emirates_id_back, 'emirates_id_back_') : NULL,
+            'emirates_id_expiry'        => $request->emirates_id_expiry ? Carbon::parse($request->emirates_id_expiry)->format('Y-m-d') : null,
+            'residence_visa'            => $request->hasfile('residence_visa') ? uploadImage('vendors/'.$user->id, $request->residence_visa, 'residence_visa_') : NULL,
+            'residence_visa_expiry'     => $request->residence_visa_expiry ? Carbon::parse($request->residence_visa_expiry)->format('Y-m-d') : null,
+            'passport'                  => $request->hasfile('passport') ? uploadImage('vendors/'.$user->id, $request->passport, 'passport_') : NULL,
+            'passport_expiry'           => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : null,
+            'card_of_law'               => $request->hasfile('card_of_law') ? uploadImage('vendors/'.$user->id, $request->card_of_law, 'card_of_law_') : NULL,
+            'card_of_law_expiry'        => $request->card_of_law_expiry ? Carbon::parse($request->card_of_law_expiry)->format('Y-m-d') : null,
+            'ministry_of_justice_card'  => $request->hasfile('ministry_of_justice_card') ? uploadImage('vendors/'.$user->id, $request->ministry_of_justice_card, 'ministry_of_justice_card_') : NULL,
+            'ministry_of_justice_card_expiry'=> $request->ministry_of_justice_card_expiry ? Carbon::parse($request->ministry_of_justice_card_expiry)->format('Y-m-d') : null,
+        ]);
+
+        $user->vendor()->save($vendor);
+        $plan = MembershipPlan::findOrFail($request->subscription_plan_id);
+
+        $vendorTrans = VendorTranslation::create([
+            'vendor_id' => $vendor->id,
+            'lang' => 'en',
+            'law_firm_name' => $request->law_firm_name,
+            'about' => $request->firm_description
+        ]);
+       
+        $vendor->subscriptions()->create([
+            'membership_plan_id'                => $plan->id,
+            'amount'                            => $plan->amount,
+            'member_count'                      => $plan->member_count,
+            'job_post_count'                    => $plan->job_post_count,
+            'en_ar_price'                       => $plan->en_ar_price,
+            'for_ar_price'                      => $plan->for_ar_price,
+            'live_online'                       => $plan->live_online,
+            'specific_law_firm_choice'          => $plan->specific_law_firm_choice,
+            'annual_legal_contract'             => $plan->annual_legal_contract,
+            'annual_free_ad_days'               => $plan->annual_free_ad_days,
+            'unlimited_training_applications'   => $plan->unlimited_training_applications,
+            'welcome_gift'                      => $plan->welcome_gift,
+            'subscription_start'                => now(),
+            'subscription_end'                  => now()->addYear(), 
+            'status'                            => 'active',
+        ]);
+
+
+        $array['subject'] = 'Registration Successful - Welcome to '.env('APP_NAME','Justyta').'!';
+        $array['from'] = env('MAIL_FROM_ADDRESS');
+        $array['content'] = "Hi $request->owner_name, <p> Congratulations and welcome to ".env('APP_NAME')."! We are delighted to inform you that your registration has been successfully completed. Thank you for choosing us as your trusted partner. We're excited to have your law firm onboard.</p>
+
+            <p>Here are your registration details:</p>
+
+            <ul>
+            <li><strong>Firm Name : </strong> $request->law_firm_name </li>
+            <li><strong>Registered Email : </strong> $request->email </li>
+            <li><strong>Plan : </strong> $plan->title </li>
+            <li><strong>Plan Expiry Date : </strong> ".now()->addYear()." </li>
+            </ul>
+            <p>Thank you for choosing ".env('APP_NAME').". </p><hr>
+            <p style='font-size: 12px; color: #777;'>
+                This email was sent to $user->email. If you did not register on our platform, please ignore this message.
+            </p>";
+        Mail::to($user->email)->queue(new CommonMail($array));
+
+        session()->flash('success', 'Account created successfully. Please wait for the admin approval. You will be notified via email. Thank you.');
+        return redirect()->route('frontend.login'); 
     }
 }
 

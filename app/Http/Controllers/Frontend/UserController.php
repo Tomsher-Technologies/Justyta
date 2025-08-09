@@ -116,7 +116,6 @@ class UserController extends Controller
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
         $user   = Auth::guard('frontend')->user();
 
-        // Check if user already rated
         $existingRating = Rating::where('user_id', $user->id)->first();
 
         if ($existingRating) {
@@ -247,7 +246,6 @@ class UserController extends Controller
 
         $query = JobPost::where('status', 1);
         
-        // Keyword-based filtering
         if (!empty($keyword)) {
             $query->where(function ($q) use ($keyword) {
                 $q->where('ref_no', 'LIKE', "%$keyword%")
@@ -274,7 +272,7 @@ class UserController extends Controller
 
         $job = JobPost::where('status', 1)
                     ->where('id', $id)
-                    ->with([ 'location']) // eager load relationships
+                    ->with([ 'location']) 
                     ->first();
 
         if (!$job) {
@@ -309,7 +307,7 @@ class UserController extends Controller
 
         $job = JobPost::where('status', 1)
                     ->where('id', $id)
-                    ->with([ 'location']) // eager load relationships
+                    ->with([ 'location']) 
                     ->first();
 
         if (!$job) {
@@ -335,7 +333,6 @@ class UserController extends Controller
                 }
             ])->whereIn('slug', ['positions'])->get()->keyBy('slug');
 
-        // Transform each dropdown
         $response = [];
 
         $response['details'] =  array(
@@ -403,13 +400,12 @@ class UserController extends Controller
         }
 
         $resumeUrl = '';
-        // Store file
+ 
         if ($request->hasFile('resume')) {
             $resumePath = $request->file('resume')->store('resumes', 'public');
             $resumeUrl  = Storage::url($resumePath);
         }
         
-        // Save application
         $application                = new JobApplication();
         $application->job_post_id   = $job->id;
         $application->user_id       = $user->id;
@@ -420,7 +416,7 @@ class UserController extends Controller
         $application->resume_path   = 'storage/'.$resumeUrl;
         $application->save();
 
-        $jobOwner = $job->post_owner; // assumes relationship `user()` in JobPost model
+        $jobOwner = $job->post_owner; 
 
         if ($jobOwner && $jobOwner->email) {
             Mail::to($jobOwner->email)->send(new JobApplicationReceived($job, $application));
@@ -434,7 +430,7 @@ class UserController extends Controller
         $page       = 'history';
         $pageTitle = __('frontend.service_history');
         $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
-        $tab        = $serviceSlug = $request->query('tab', 'online-live-consultancy'); // default tab
+        $tab        = $serviceSlug = $request->query('tab', 'online-live-consultancy'); 
         $perPage    = 9;
 
         $request->session()->put('service_last_url', url()->full());
@@ -463,7 +459,6 @@ class UserController extends Controller
                     ->orderBy('sort_order', 'ASC')
                     ->get();
 
-        // Optionally transform the result to extract only translated fields
         $mainServices = $services->map(function ($service) {
             $translation = $service->translations->first();
             return [
@@ -482,7 +477,7 @@ class UserController extends Controller
         $page = 'pending';
         $pageTitle = __('frontend.pending_service');
         $lang   = app()->getLocale() ?? env('APP_LOCALE','en'); 
-        $tab = $serviceSlug = $request->query('tab', 'request-submission'); // default tab
+        $tab = $serviceSlug = $request->query('tab', 'request-submission'); 
         $perPage = 9;
         $request->session()->put('service_last_url', url()->full());
 
@@ -512,7 +507,6 @@ class UserController extends Controller
                     ->orderBy('sort_order', 'ASC')
                     ->get();
 
-        // Optionally transform the result to extract only translated fields
         $mainServices = $services->map(function ($service) {
             $translation = $service->translations->first();
             return [
@@ -531,7 +525,7 @@ class UserController extends Controller
         $page = 'payment';
         $pageTitle = __('frontend.payment_history');
         $lang   = app()->getLocale() ?? env('APP_LOCALE','en'); 
-        $tab = $serviceSlug = $request->query('tab', 'online-live-consultancy'); // default tab
+        $tab = $serviceSlug = $request->query('tab', 'online-live-consultancy'); 
         $perPage = 9;
         $request->session()->put('service_last_url', url()->full());
 
@@ -561,7 +555,6 @@ class UserController extends Controller
                     ->orderBy('sort_order', 'ASC')
                     ->get();
 
-        // Optionally transform the result to extract only translated fields
         $mainServices = $services->map(function ($service) {
             $translation = $service->translations->first();
             return [
@@ -623,10 +616,6 @@ class UserController extends Controller
             $dataService['installments'] = $installments;
         }
 
-        // echo '<pre>';
-        // print_r($dataService);
-        // die;
-
         return view('frontend.user.service_history_details', compact('dataService','lang' ));
     }
 
@@ -666,12 +655,10 @@ class UserController extends Controller
     {
         $user = Auth::guard('frontend')->user();
 
-        // Revoke tokens for Sanctum
         if (method_exists($user, 'tokens')) {
             $user->tokens()->delete();
         }
 
-        // Soft delete
         $user->delete();
 
         return response()->json([
@@ -694,7 +681,7 @@ class UserController extends Controller
                 'required',
                 'string',
                 'min:6',
-                'confirmed'           // must match new_password_confirmation
+                'confirmed'        
             ],
         ],[
             'current_password.required'    => __('messages.current_password_required'),
@@ -750,7 +737,7 @@ class UserController extends Controller
                                             'service'   => $serviceName,
                                             'reference' => $data['reference_code'],
                                         ]),
-                        'time'      => $notification->created_at->format('d M, Y h:i A'), // or 'h:i A' for AM/PM
+                        'time'      => $notification->created_at->format('d M, Y h:i A'), 
                     ];
                 });
 

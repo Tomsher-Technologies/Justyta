@@ -788,3 +788,15 @@ function getActiveAd($slug = null, $device = null)
         ->latest('start_date')
         ->first();
 }
+
+function determineFileType($extension)
+{
+    $extension = strtolower($extension);
+    if (in_array($extension, ['mp4', 'mov', 'avi'])) {
+        return 'video';
+    } elseif ($extension === 'gif') {
+        return 'gif';
+    } else {
+        return 'image';
+    }
+}

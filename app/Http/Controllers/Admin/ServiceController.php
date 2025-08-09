@@ -30,9 +30,8 @@ class ServiceController extends Controller
             'children.translations'
         ])->orderBy('id');
         
-        // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
+            // 1 = active, 2 = inactive; 
             if ($request->status == 1) {
                 $services->where('status', 1);
             } elseif ($request->status == 2) {
@@ -64,9 +63,7 @@ class ServiceController extends Controller
     public function update(Request $request, $id)
     {
         $service = Service::findOrFail($id);
-        // echo '<pre>';
-        // print_r($request->all());
-        // die;
+    
         $request->validate([
             'icon' => 'nullable|image|mimes:png|max:150',
             'sort_order' => 'nullable|integer',
@@ -148,13 +145,10 @@ class ServiceController extends Controller
         $service->status = $newStatus;
         $service->save();
 
-         // 1. If this is a parent and status changes, update all children
         if ($service->parent_id === null) {
-            // Update children
             Service::where('parent_id', $service->id)
                 ->update(['status' => $newStatus]);
         } else {
-            // 2. If child is activated but parent is inactive, activate parent
             $parent = Service::find($service->parent_id);
 
             if ($newStatus == 1 && $parent && $parent->status == 0) {
@@ -162,7 +156,6 @@ class ServiceController extends Controller
                 $parent->save();
             }
 
-            // 3. If child is inactivated and all siblings are also inactive, inactivate parent
             if ($newStatus == 0 && $parent) {
                 $allSiblingsInactive = Service::where('parent_id', $parent->id)
                     ->where('status', 1)

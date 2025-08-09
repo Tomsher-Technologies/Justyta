@@ -35,7 +35,7 @@ class DropdownOption extends Model
         $translated = $this->translations->where('language_code', $langCode)->first();
 
         if (!$translated) {
-            $translated = $this->translations->where('language_code', 'en')->first(); // fallback
+            $translated = $this->translations->where('language_code', 'en')->first(); 
         }
 
         return $translated->name ?? $this->name;
@@ -47,7 +47,7 @@ class DropdownOption extends Model
 
         $translated = $this->translations->where('language_code', $langCode)->first();
 
-        // If not found OR name is empty, fallback to 'en'
+        
         if (!$translated || empty($translated->$field)) {
             $translated = $this->translations->where('language_code', 'en')->first();
         }

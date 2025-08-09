@@ -117,7 +117,6 @@
         const isPassword = input.type === 'password';
         input.type = isPassword ? 'text' : 'password';
 
-        // Toggle icon (optional - if you want to change the eye icon)
         iconSpan.innerHTML = isPassword
             ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hide-eye" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

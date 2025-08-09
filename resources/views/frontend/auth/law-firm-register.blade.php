@@ -22,14 +22,14 @@
                             <input type="text" name="law_firm_name" id="law_firm_name" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"
                                 placeholder="{{ __('frontend.enter') }}">
                             @error('law_firm_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.emirate') }}<span
                                     class="text-red-500">*</span></label>
                             <select name="emirate_id" id="emirate_id" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
-                                <option>{{ __('frontend.choose_option') }}</option>
+                                <option value="">{{ __('frontend.choose_option') }}</option>
                                 @foreach (\App\Models\Emirate::with('translations')->get() as $emirate)
                                     <option value="{{ $emirate->id }}"
                                         {{ old('emirate_id') == $emirate->id ? 'selected' : '' }}>
@@ -39,7 +39,7 @@
                             </select>
 
                             @error('emirate_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                         <div>
@@ -49,7 +49,7 @@
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"
                                 placeholder="{{ __('frontend.enter') }}">
                             @error('location')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                         <div>
@@ -59,7 +59,7 @@
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"
                                 placeholder="{{ __('frontend.enter') }}">
                             @error('phone')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                         <div>
@@ -69,7 +69,7 @@
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"
                                 placeholder="{{ __('frontend.enter') }}">
                             @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                         <div>
@@ -78,7 +78,7 @@
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"
                                 placeholder="{{ __('frontend.enter') }}">
                             @error('website_url')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                         <div>
@@ -86,7 +86,7 @@
                             <input type="file" name="trade_license" id="trade_licenseInput" accept="image/*,application/pdf"
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full">
                             @error('trade_license')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                             <div id="trade_licensePreview" class="mt-2" style="display:none;">
                             </div>
@@ -95,7 +95,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.trade_license_expiry') }}</label>
                             <input type="date" name="trade_license_expiry" placeholder="d M Y" value="{{ old('trade_license_expiry') }}" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             @error('trade_license_expiry')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                         <div>
@@ -105,7 +105,7 @@
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"
                                 placeholder="{{ __('frontend.enter') }}">
                             @error('trn')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="md:col-span-3">
@@ -115,7 +115,7 @@
                                 placeholder="{{ __('frontend.enter') }}">{{ old('firm_description') }}</textarea>
                             <span class="text-[#717171] text-sm">0/1000</span>
                             @error('firm_description')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -134,7 +134,7 @@
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"
                                 placeholder="{{ __('frontend.enter') }}">
                             @error('owner_name')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                         <div>
@@ -144,7 +144,7 @@
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"
                                 placeholder="{{ __('frontend.enter') }}">
                             @error('owner_email')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                         <div>
@@ -154,7 +154,7 @@
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"
                                 placeholder="{{ __('frontend.enter') }}">
                             @error('owner_phone')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                         <div>
@@ -162,7 +162,7 @@
                                     class="text-red-500">*</span></label>
                             <input type="file" name="emirates_id_front" id="emirates_id_frontInput" accept="image/*,application/pdf" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full">
                             @error('emirates_id_front')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                             <div id="emirates_id_frontPreview" class="mt-2" style="display:none;">
                             </div>
@@ -172,7 +172,7 @@
                                     class="text-red-500">*</span></label>
                             <input type="file" name="emirates_id_back" id="emirates_id_backInput" accept="image/*,application/pdf" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full">
                             @error('emirates_id_back')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                             <div id="emirates_id_backPreview" class="mt-2" style="display:none;">
                             </div>
@@ -181,7 +181,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.emirates_id_expiry') }}<span class="text-red-500">*</span></label>
                             <input type="date"  name="emirates_id_expiry" id="emirates_id_expiry" value="{{ old('emirates_id_expiry') }}" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             @error('emirates_id_expiry')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -191,7 +191,7 @@
                             <input type="file" name="passport" id="passportInput" accept="image/*,application/pdf"
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full">
                             @error('passport')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                             <div id="passportPreview" class="mt-2" style="display:none;"></div>
                         </div>
@@ -200,7 +200,7 @@
                             <input type="date" name="passport_expiry" id="passport_expiry" value="{{ old('passport_expiry') }}"
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             @error('passport_expiry')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -209,7 +209,7 @@
                             <input type="file" name="residence_visa" id="residence_visaInput" accept="image/*,application/pdf"
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full">
                             @error('residence_visa')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                             <div id="residence_visaPreview" class="mt-2" style="display:none;">
                             </div>
@@ -219,7 +219,7 @@
                             <input type="date" name="residence_visa_expiry" id="residence_visa_expiry" value="{{ old('residence_visa_expiry') }}"
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             @error('residence_visa_expiry')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -229,7 +229,7 @@
                             <input type="file" name="card_of_law" id="card_of_lawInput" accept="image/*,application/pdf"
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full">
                             @error('card_of_law')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                             <div id="card_of_lawPreview" class="mt-2" style="display:none;"></div>
                         </div>
@@ -238,7 +238,7 @@
                             <input type="date" name="card_of_law_expiry" id="card_of_law_expiry" value="{{ old('card_of_law_expiry') }}"
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             @error('card_of_law_expiry')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -246,7 +246,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.ministry_of_justice_card') }}<span class="text-red-500">*</span></label>
                             <input type="file"  name="ministry_of_justice_card" id="ministry_of_justice_cardInput" accept="image/*,application/pdf" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full">
                             @error('ministry_of_justice_card')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                             <div id="ministry_of_justice_cardPreview" class="mt-2" style="display:none;"></div>
                         </div>
@@ -255,7 +255,7 @@
                             <input type="date" name="ministry_of_justice_card_expiry" id="ministry_of_justice_card_expiry" value="{{ old('ministry_of_justice_card_expiry') }}"
                                 class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             @error('ministry_of_justice_card_expiry')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-sm text-red-500">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -272,13 +272,16 @@
                                 data-modal-toggle="plan-modal">{{ __('frontend.view_plans') }}</a>
                         </div>
                         <select name="subscription_plan_id" id="subscription_plan_id" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5 mb-2">
-                            <option>{{ __('frontend.choose_option') }}</option>
+                            <option value="">{{ __('frontend.choose_option') }}</option>
                             @foreach ($plans as $plan)
                                 <option value="{{ $plan->id }}"
                                     {{ old('subscription_plan_id') == $plan->id ? 'selected' : '' }}>
                                     {{ $plan->title }}</option>
                             @endforeach
                         </select>
+                        @error('subscription_plan_id')
+                            <div class="text-sm text-red-500">{{ $message }}</div>
+                        @enderror
                         <div class="mb-2">{{ __('frontend.membership_amount') }} : <b class="text-[#07683B]">AED 0.00</b></div>
 
                     </div>
@@ -293,7 +296,7 @@
                                     placeholder="{{ __('frontend.enter') }}">
 
                                 @error('password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-sm text-red-500">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="w-full">
@@ -303,10 +306,10 @@
                                     class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5 mb-2"
                                     placeholder="{{ __('frontend.enter') }}">
                                 @error('password_confirmation')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="text-sm text-red-500">{{ $message }}</div>
                                 @enderror
                             </div>
-
+                            
                         </div>
                         <ul class="text-xs text-gray-500 list-disc pl-5 mb-2">
                             <li>{{ __('frontend.min_characters') }}</li>
@@ -317,11 +320,16 @@
                     </div>
                 </div>
             
-                <div class="flex items-center mb-4">
-                    <input type="checkbox" name="terms" id="terms" class="mr-2" />
-                    <label for="terms" class="text-sm">
-                            {!! __('frontend.agree_terms', ['terms' => '<a href="#" class="underline text-[#B9A572]">' . __('frontend.terms') . '</a>']) !!}
-                    </label>
+                <div class="items-center mb-4">
+                    <div class="flex items-center h-5">
+                        <input type="checkbox" name="terms" id="terms" value="1" class="mr-2" />
+                        <label for="terms" class="text-sm">
+                                {!! __('frontend.agree_terms', ['terms' => '<a href="#" class="underline text-[#B9A572]">' . __('frontend.terms') . '</a>']) !!}
+                        </label>
+                    </div>
+                    @error('terms')
+                        <div class="text-sm text-red-500">{{ $message }}</div>
+                    @enderror
                 </div>
                 <button class="bg-[#04502E] text-white px-8 py-3 rounded-lg">{{ __('frontend.sign_up') }}</button>
             </div>
@@ -342,7 +350,6 @@
             input.addEventListener('change', function() {
                 const file = this.files[0];
 
-                // Clear any existing content
                 previewContainer.innerHTML = '';
                 previewContainer.style.display = 'none';
 
@@ -378,7 +385,6 @@
             });
         }
 
-        // Replace image previews with container IDs for both images & PDFs
         setupFilePreview('logoInput', 'logoPreview');
         setupFilePreview('emirates_id_frontInput', 'emirates_id_frontPreview');
         setupFilePreview('emirates_id_backInput', 'emirates_id_backPreview');

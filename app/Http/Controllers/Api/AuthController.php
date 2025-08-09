@@ -23,7 +23,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'email'     => 'required|email',
             'password'  => 'required|string',
-            'user_type' => 'required|in:user,lawyer', // adjust as needed
+            'user_type' => 'required|in:user,lawyer',
         ], [
             'email.required'     => __('messages.email_required'),
             'email.email'        => __('messages.valid_email'),
