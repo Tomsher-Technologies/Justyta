@@ -7,7 +7,7 @@ return [
     'account_disabled_deleted' => 'Your account has been deleted/disabled. Please contact support.',
     'login_success' => 'Successfully logged in',
     'email_required' => 'Email is required.',
-    'valid_email' => 'Email must be a valid email address.',
+    'valid_email' => 'Please enter a valid email address.',
     'password_required' => 'Password is required.',
     'user_type_required' => 'User type is required.',
     'user_type_in' => 'User type must be either "user" or "lawyer".',
@@ -238,7 +238,6 @@ return [
 
 
     'account_not_approved' => 'Your account is not approved yet. Please wait for admin approval.',
-    '' => '',
     '' => '',
     '' => '',
     '' => '',

@@ -800,3 +800,41 @@ function determineFileType($extension)
         return 'image';
     }
 }
+
+function createWebPlanOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+{
+    
+    $accessToken = getAccessToken();
+    if (!$accessToken) return null;
+
+    $baseUrl = config('services.ngenius.base_url');
+    $outletRef = config('services.ngenius.outlet_ref');
+
+    $payload = [
+        'action' => 'PURCHASE',
+        'amount' => [
+            'currencyCode' => $currency,
+            'value' => intval($amount * 100), // AED 10.00 => 1000
+        ],
+        'merchantOrderReference' => $orderReference,
+        'merchantAttributes' => [
+            'merchantOrderReference' => $orderReference,
+            'redirectUrl' => route('purchase-success'),
+            'cancelUrl'   => route('purchase-cancel')
+        ],
+        'emailAddress' => $customer['email'],
+        
+    ];
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $accessToken,
+        'Accept' => 'application/vnd.ni-payment.v2+json',
+        'Content-Type' => 'application/vnd.ni-payment.v2+json',
+    ])->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", $payload);
+
+    if (!$response->successful()) {
+        Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
+        return null;
+    }
+    return $response->json(); // returns _id, reference, _links etc.
+}

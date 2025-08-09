@@ -72,7 +72,7 @@
 @endsection
 
 @section('script')
->
+
 <script>
     document.querySelectorAll('#star-rating .star').forEach(star => {
         star.addEventListener('click', function () {

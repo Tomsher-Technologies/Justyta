@@ -3,7 +3,7 @@
 @section('content')
 <section class="px-[100px] py-[80px] pt-12">
     <div class="w-full p-8 space-y-6 p-5 bg-white rounded-lg ">
-        <form action="{{ route('law-firm.register.submit') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('law-firm.register.submit') }}" id="signupForm" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="space-y-8">
                 <div class="flex items justify-between">
@@ -274,7 +274,7 @@
                         <select name="subscription_plan_id" id="subscription_plan_id" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5 mb-2">
                             <option value="">{{ __('frontend.choose_option') }}</option>
                             @foreach ($plans as $plan)
-                                <option value="{{ $plan->id }}"
+                                <option value="{{ $plan->id }}" data-amount="{{ $plan->amount }}"
                                     {{ old('subscription_plan_id') == $plan->id ? 'selected' : '' }}>
                                     {{ $plan->title }}</option>
                             @endforeach
@@ -282,7 +282,7 @@
                         @error('subscription_plan_id')
                             <div class="text-sm text-red-500">{{ $message }}</div>
                         @enderror
-                        <div class="mb-2">{{ __('frontend.membership_amount') }} : <b class="text-[#07683B]">AED 0.00</b></div>
+                        <div class="mb-2">{{ __('frontend.membership_amount') }} : <b class="text-[#07683B]" id="membership_amount">AED 0.00</b></div>
 
                     </div>
                     <div>
@@ -331,7 +331,7 @@
                         <div class="text-sm text-red-500">{{ $message }}</div>
                     @enderror
                 </div>
-                <button class="bg-[#04502E] text-white px-8 py-3 rounded-lg">{{ __('frontend.sign_up') }}</button>
+                <button type="submit" class="bg-[#04502E] text-white px-8 py-3 rounded-lg">{{ __('frontend.sign_up') }}</button>
             </div>
         </form>
 
@@ -341,6 +341,13 @@
 
 @section('script')
     <script>
+
+        document.getElementById('subscription_plan_id').addEventListener('change', function () {
+            let selectedOption = this.options[this.selectedIndex];
+            let amount = selectedOption.getAttribute('data-amount') || 0;
+            document.getElementById('membership_amount').textContent = 'AED ' + parseFloat(amount).toFixed(2);
+        });
+
         function setupFilePreview(inputId, previewId) {
             const input = document.getElementById(inputId);
             const previewContainer = document.getElementById(previewId);
@@ -393,5 +400,269 @@
         setupFilePreview('passportInput', 'passportPreview');
         setupFilePreview('card_of_lawInput', 'card_of_lawPreview');
         setupFilePreview('trade_licenseInput', 'trade_licensePreview');
+
+        $(document).ready(function () {
+
+            $.validator.addMethod("filesize", function(value, element, param) {
+                if (value === "") return true;
+                if (element.files.length === 0) return false; 
+                return element.files[0].size <= param;
+            }, "File size must be less than {0} bytes.");
+
+            $.validator.addMethod("fileext", function(value, element, param) {
+                if (value === "") return true;
+                if (element.files.length === 0) return false;
+                var ext = value.split('.').pop().toLowerCase();
+                var allowed = param.split(',').map(function(v){ return v.trim().toLowerCase(); });
+                return allowed.indexOf(ext) !== -1;
+            }, "{{ __('frontend.invalid_file_type') }}");
+
+            $.validator.addMethod("strongPassword", function(value, element) {
+                return this.optional(element)
+                    || /[A-Z]/.test(value)
+                    && /[a-z]/.test(value)
+                    && /[0-9]/.test(value)
+                    && /[^A-Za-z0-9]/.test(value)
+                    && value.length >= 8;
+            }, "{{ __('frontend.strong_password') }}");
+
+            // phone simple pattern (+ optional) 7-15 digits
+            $.validator.addMethod("phonePattern", function(value, element) {
+                return this.optional(element) || /^[+]?[0-9]{7,15}$/.test(value);
+            }, "{{ __('message.phone_regex') }}");
+
+            $("#signupForm").validate({
+                ignore: [],
+                rules: {
+                    law_firm_name: {
+                        required: true
+                    },
+                    emirate_id: {
+                        required: true
+                    },
+                    location: {
+                        required: true
+                    },
+                    phone: {
+                        required: true, 
+                        phonePattern: true
+                    },
+                    email: {
+                        required: true, 
+                        email: true
+                    },
+                    trn: {
+                        required: true
+                    },
+                    firm_description: {
+                        required: true, 
+                        maxlength: 1000
+                    },
+                    trade_license: {
+                        required: false, 
+                        fileext: "jpg,jpeg,png,svg,pdf,webp", 
+                        filesize: 2 * 1024 * 1024
+                    },
+                    residence_visa: {
+                        required: false, 
+                        fileext: "jpg,jpeg,png,svg,pdf,webp", 
+                        filesize: 2 * 1024 * 1024
+                    },
+                    emirates_id_front: {
+                        required: true, 
+                        fileext: "jpg,jpeg,png,svg,pdf,webp", 
+                        filesize: 2 * 1024 * 1024
+                    }, 
+                    emirates_id_back:  {
+                        required: true, 
+                        fileext: "jpg,jpeg,png,svg,pdf,webp", 
+                        filesize: 2 * 1024 * 1024
+                    },
+                    emirates_id_expiry: {
+                        required: true, 
+                        dateISO: true
+                    },
+                    passport: {
+                        required: true, 
+                        fileext: "jpg,jpeg,png,svg,pdf,webp", 
+                        filesize: 2 * 1024 * 1024 
+                    },
+                    passport_expiry: {
+                        required: true, 
+                        dateISO: true
+                    },
+                    card_of_law: {
+                        required: true, 
+                        fileext: "jpg,jpeg,png,svg,pdf,webp", 
+                        filesize: 2 * 1024 * 1024
+                    },
+                    card_of_law_expiry: {
+                        required: true, 
+                        dateISO: true
+                    },
+                    ministry_of_justice_card: {
+                        required: true, 
+                        fileext: "jpg,jpeg,png,svg,pdf,webp", 
+                        filesize: 2 * 1024 * 1024
+                    },
+                    ministry_of_justice_card_expiry: {
+                        required: true, 
+                        dateISO: true
+                    },
+                    subscription_plan_id: {
+                        required: true
+                    },
+                    password: {
+                        required: true, 
+                        strongPassword: true
+                    },
+                    password_confirmation: {
+                        required: true, 
+                        equalTo: "#password"
+                    },
+                    owner_name: {
+                        required: true
+                    },
+                    owner_email: {
+                        required: true, 
+                        email: true
+                    },
+                    owner_phone: {
+                        required: true, 
+                        phonePattern: true
+                    },
+                    terms: {
+                        required: true 
+                    }
+                },
+                messages: {
+                    law_firm_name: {
+                        required: "{{ __('frontend.this_field_required') }}"
+                    },
+                    emirate_id: {
+                        required: "{{ __('frontend.this_field_required') }}"
+                    },
+                    location: {
+                        required: "{{ __('frontend.this_field_required') }}"
+                    },
+                    phone: {
+                        required: "{{ __('frontend.this_field_required') }}"
+                    },
+                    email: {
+                        required: "{{ __('frontend.this_field_required') }}", 
+                        email: "{{ __('messages.valid_email') }}"
+                    },
+                    trn: {
+                        required: "{{ __('frontend.this_field_required') }}"
+                    },
+                    firm_description: {
+                        required: "{{ __('frontend.this_field_required') }}", 
+                        maxlength: "{{ __('frontend.max_length', ['length' => 1000]) }}"
+                    },
+                    emirates_id_front: {
+                        required: "{{ __('frontend.this_field_required') }}", 
+                        fileext: "{{ __('frontend.allowed_files') }}", 
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    },
+                    emirates_id_back: {
+                        required: "{{ __('frontend.this_field_required') }}", 
+                        fileext: "{{ __('frontend.allowed_files') }}", 
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    },
+                    emirates_id_expiry: {
+                        required: "{{ __('frontend.this_field_required') }}", 
+                        dateISO: "{{ __('frontend.valid_date') }}"
+                    },
+                    passport: {
+                        required: "{{ __('frontend.this_field_required') }}", 
+                        fileext: "{{ __('frontend.allowed_files') }}", 
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    },
+                    passport_expiry: {
+                        required: "{{ __('frontend.this_field_required') }}",
+                        dateISO: "{{ __('frontend.valid_date') }}"
+                    },
+                    card_of_law: {
+                        required: "{{ __('frontend.this_field_required') }}", 
+                        fileext: "{{ __('frontend.allowed_files') }}", 
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    },
+                    card_of_law_expiry: {
+                        required: "{{ __('frontend.this_field_required') }}",
+                        dateISO: "{{ __('frontend.valid_date') }}"
+                    },
+                    trade_license: {
+                        fileext: "{{ __('frontend.allowed_files') }}", 
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    },
+                    residence_visa: {
+                        fileext: "{{ __('frontend.allowed_files') }}", 
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    },
+                    ministry_of_justice_card: {
+                        required: "{{ __('frontend.this_field_required') }}", 
+                        fileext: "{{ __('frontend.allowed_files') }}", 
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    },
+                    ministry_of_justice_card_expiry: {
+                        required: "{{ __('frontend.this_field_required') }}"
+                    },
+                    subscription_plan_id: {
+                        required: "{{ __('frontend.this_field_required') }}"
+                    },
+                    password: {
+                        required: "{{ __('frontend.this_field_required') }}"
+                    },
+                    password_confirmation: {
+                        required: "{{ __('frontend.this_field_required') }}", 
+                        equalTo: "{{ __('messages.password_confirmation_mismatch') }}"
+                    },
+                    owner_name: {
+                        required: "{{ __('frontend.this_field_required') }}"
+                    },
+                    owner_email: {
+                        required: "{{ __('frontend.this_field_required') }}"
+                    },
+                    owner_phone: {
+                        required: "{{ __('frontend.this_field_required') }}"
+                    },
+                    terms: {
+                        required: "{{ __('frontend.this_field_required') }}"
+                    }
+                },
+                errorElement: 'div',
+                errorClass: 'text-sm text-red-500 mt-1',
+                errorPlacement: function (error, element) {
+                    error.addClass('text-red-500 text-sm');
+
+                    if (element.hasClass('select2-hidden-accessible')) {
+                        error.insertAfter(element.next('.select2')); 
+                    } else if (element.attr("type") === "checkbox") {
+                        error.insertAfter(element.closest('label'));
+                    } else {
+                        error.insertAfter(element);
+                    }
+                },
+                highlight: function (element) {
+                    if ($(element).hasClass('select2-hidden-accessible')) {
+                        $(element).next('.select2').find('.select2-selection')
+                            .addClass('border-red-500');
+                    } else {
+                        $(element).addClass('border-red-500');
+                    }
+                },
+                unhighlight: function (element) {
+                    if ($(element).hasClass('select2-hidden-accessible')) {
+                        $(element).next('.select2').find('.select2-selection')
+                            .removeClass('border-red-500');
+                    } else {
+                        $(element).removeClass('border-red-500');
+                    }
+                },
+                submitHandler: function (form) {
+                    form.submit(); 
+                }
+            });
+        });
     </script>
 @endsection

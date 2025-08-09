@@ -18,6 +18,8 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('frontend.logout'
 // User registration
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('frontend.register');
 Route::post('/register', [AuthController::class, 'register'])->name('frontend.register.submit');
+Route::get('vendor-success-payment', [AuthController::class, 'purchaseSuccess'])->name('purchase-success');
+Route::get('vendor-cancel-payment', [AuthController::class, 'purchaseCancel'])->name('purchase-cancel');
 
 // Vendor/Law firm registration
 Route::get('/law-firm-register', [AuthController::class, 'showLawfirmRegisterForm'])->name('law-firm.register');
