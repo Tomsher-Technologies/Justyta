@@ -58,6 +58,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 
     // Manage law firms
     Route::resource('vendors', VendorController::class);
+    Route::post('/vendor/{id}/status', [VendorController::class, 'updateStatus'])->name('vendor.updateStatus');
 
     // List all dropdowns
     Route::get('/dropdowns', [DropdownOptionController::class, 'dropdowns'])->name('dropdowns.index');

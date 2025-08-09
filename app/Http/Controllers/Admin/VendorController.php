@@ -26,6 +26,7 @@ class VendorController extends Controller
         $this->middleware('permission:manage_vendors',  ['only' => ['index','destroy']]);
         $this->middleware('permission:add_vendor',  ['only' => ['create','store']]);
         $this->middleware('permission:edit_vendor',  ['only' => ['edit','update']]);
+        $this->middleware('permission:approve_vendor',  ['only' => ['updateStatus']]);
     }
 
     public function index(Request $request)
@@ -343,5 +344,18 @@ class VendorController extends Controller
     {
         if (!$file) return null;
         return $file->store('vendors', 'public');
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($request->action === 'approve') {
+            $user->approved = 1;
+        } elseif ($request->action === 'reject') {
+            $user->approved = 2;
+        }
+        $user->save();
+        return response()->json(['success' => true]);
     }
 }
