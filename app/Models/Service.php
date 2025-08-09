@@ -13,7 +13,6 @@ class Service extends Model
         return $this->hasMany(ServiceTranslation::class);
     }
 
-    // Relationship to parent
     public function parent()
     {
         return $this->belongsTo(Service::class, 'parent_id');
@@ -40,7 +39,6 @@ class Service extends Model
         $lang = $lang == false ? getActiveLanguage() : $lang;
         $translations = $this->translations->where('lang', $lang)->first();
     
-         // If not found OR name is empty, fallback to 'en'
         if (!$translations || empty($translations->$field)) {
             $translations = $this->translations->where('lang', 'en')->first();
         }

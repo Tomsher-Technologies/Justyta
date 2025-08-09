@@ -78,7 +78,6 @@ class EmirateController extends Controller
     {
         $emirate = Emirate::with('translations')->findOrFail($id);
 
-        // Return both main type fields and translations
         return response()->json([
             'id' => $emirate->id,
             'status' => $emirate->status,
@@ -95,8 +94,6 @@ class EmirateController extends Controller
             'translations.en.name.required' => 'English name field is required',
             'status.required' => 'Status is required',
         ]);
-
-        // Find the contract type by ID
         $emirate = Emirate::find($id);
 
         if (!$emirate) {
@@ -119,7 +116,6 @@ class EmirateController extends Controller
         }
 
         session()->flash('success', 'Emirate updated successfully.');
-        // return response()->json(['success' => true, 'data' => $contractType]);
         return response()->json([
             'message' => 'Emirate updated successfully',
             'emirate' => $emirate

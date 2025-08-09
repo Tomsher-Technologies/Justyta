@@ -24,9 +24,8 @@ class FaqController extends Controller
     {
         $query = Faq::with('translations')->orderBy('sort_order');
 
-        // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
+            // 1 = active, 2 = inactive; 
             if ($request->status == 1) {
                 $query->where('status', 1);
             } elseif ($request->status == 2) {
@@ -121,11 +120,9 @@ class FaqController extends Controller
 
     public function destroy($id)
     {
-        // Find the news item by ID
         $faq = Faq::findOrFail($id);
         $faq->delete();
         session()->flash('success', 'FAQ deleted successfully.');
-        // Redirect back with success message
         return redirect()->route('faqs.index');
     }
 

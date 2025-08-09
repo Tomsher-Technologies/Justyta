@@ -23,19 +23,15 @@ class FreezoneController extends Controller
     {
         $query = FreeZone::query();
 
-        // Search by name
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
-
-        // Filter by parent type
         if ($request->filled('ptype_id')) {
             $query->where('emirate_id', $request->ptype_id);
         }
 
-        // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
+            // 1 = active, 2 = inactive; 
             if ($request->status == 1) {
                 $query->where('status', 1);
             } elseif ($request->status == 2) {
@@ -103,7 +99,6 @@ class FreezoneController extends Controller
             'emirate_id.required' => 'Emirate is required',
         ]);
 
-        // Find the document type by ID
         $freeZone = FreeZone::find($id);
 
         if (!$freeZone) {
@@ -128,7 +123,6 @@ class FreezoneController extends Controller
         }
 
         session()->flash('success', 'Free zone updated successfully.');
-        // return response()->json(['success' => true, 'data' => $freeZone]);
         return response()->json([
             'message' => 'Free zone updated successfully',
             'freeZone' => $freeZone
@@ -139,7 +133,6 @@ class FreezoneController extends Controller
     {
         $type = FreeZone::with('translations')->findOrFail($id);
 
-        // Return both main type fields and translations
         return response()->json([
             'id' => $type->id,
             'emirate_id' => $type->emirate_id,

@@ -29,18 +29,14 @@ class PublicProsecutionController extends Controller
                 }
             }])->whereNull('parent_id');
 
-
-        // Search by name
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Filter by parent type
         if ($request->filled('ptype_id')) {
             $query->where('id', $request->ptype_id);
         }
 
-        // Apply status filter on parents
         if ($statusFilter == 1 || $statusFilter == 2) {
             $query->where(function ($q) use ($statusFilter) {
                 $q->where('status', $statusFilter == 1 ? 1 : 0)
@@ -108,7 +104,6 @@ class PublicProsecutionController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        // Find the Public prosecution type by ID
         $publicProsecution = PublicProsecution::find($id);
 
         if (!$publicProsecution) {
@@ -133,7 +128,6 @@ class PublicProsecutionController extends Controller
         }
 
         session()->flash('success', 'Public prosecution type updated successfully.');
-        // return response()->json(['success' => true, 'data' => $publicProsecution]);
         return response()->json([
             'message' => 'Public prosecution type updated successfully',
             'publicProsecution' => $publicProsecution
@@ -144,7 +138,6 @@ class PublicProsecutionController extends Controller
     {
         $type = PublicProsecution::with('translations')->findOrFail($id);
 
-        // Return both main type fields and translations
         return response()->json([
             'id' => $type->id,
             'parent_id' => $type->parent_id,
@@ -168,21 +161,16 @@ class PublicProsecutionController extends Controller
         $publicProsecution->status = $newStatus;
         $publicProsecution->save();
 
-        // 1. If this is a parent and status changes, update all children
         if ($publicProsecution->parent_id === null) {
-            // Update children
             PublicProsecution::where('parent_id', $publicProsecution->id)
                 ->update(['status' => $newStatus]);
         } else {
-            // 2. If child is activated but parent is inactive, activate parent
             $parent = PublicProsecution::find($publicProsecution->parent_id);
 
             if ($newStatus == 1 && $parent && $parent->status == 0) {
                 $parent->status = 1;
                 $parent->save();
             }
-
-            // 3. If child is inactivated and all siblings are also inactive, inactivate parent
             if ($newStatus == 0 && $parent) {
                 $allSiblingsInactive = PublicProsecution::where('parent_id', $parent->id)
                     ->where('status', 1)

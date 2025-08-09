@@ -13,7 +13,7 @@ class HomeController extends Controller
     }
 
     public function userDashboard(){
-        $lang = app()->getLocale() ?? env('APP_LOCALE','en'); // default to English
+        $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
         $services = Service::with(['translations' => function ($query) use ($lang) {
                             $query->where('lang', $lang);
                         }])

@@ -256,7 +256,7 @@
                             previewItem.innerHTML = `<div class="text-xs break-words w-20 h-20 overflow-auto">${file.name}</div>`;
                         }
 
-                        // Add remove button
+                        
                         const removeBtn = document.createElement('button');
                         removeBtn.type = 'button';
                         removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs';
@@ -352,7 +352,7 @@
                     error.addClass('text-red-500 text-sm');
 
                     if (element.hasClass('select2-hidden-accessible')) {
-                        error.insertAfter(element.next('.select2')); // Insert after the visible Select2 dropdown
+                        error.insertAfter(element.next('.select2'));
                     } else {
                         error.insertAfter(element);
                     }
@@ -373,10 +373,8 @@
                         $(element).removeClass('border-red-500');
                     }
                 },
-
-                /** 👇 Prevent actual form submission if invalid */
                 submitHandler: function (form) {
-                    form.submit(); // real submit
+                    form.submit();
                 }
             });
 
@@ -387,7 +385,7 @@
 
                 if (documentTypeId) {
                     $.ajax({
-                        url: '{{ route("get.sub.document.types") }}', // adjust this to your actual route
+                        url: '{{ route("get.sub.document.types") }}',
                         type: 'POST',
                         data: {
                             document_type: documentTypeId,
@@ -401,7 +399,7 @@
                                 response.data.forEach(function (item) {
                                     options += `<option value="${item.id}">${item.value}</option>`;
                                 });
-                                $('#document_sub_type').html(options).trigger('change'); // if using Select2
+                                $('#document_sub_type').html(options).trigger('change'); 
                             }
                         },
                         error: function () {
@@ -411,7 +409,6 @@
                 }
             });
 
-            // Optional: Trigger change on page load if document_type was pre-selected (old value)
             const oldSelectedDocType = $('#document_type').val();
             if (oldSelectedDocType) {
                 $('#document_type').trigger('change');
@@ -424,7 +421,7 @@
 
                 if (from_language_id && to_language_id && no_of_pages) {
                     $.ajax({
-                        url: "{{ route('user.calculate-translation-price') }}", // Set this route in web.php
+                        url: "{{ route('user.calculate-translation-price') }}", 
                         type: 'POST',
                         data: {
                             from_language_id: from_language_id,
@@ -433,16 +430,16 @@
                             _token: '{{ csrf_token() }}'
                         },
                         beforeSend: function () {
-                            $('#submit_button').prop('disabled', true); // Disable before request
+                            $('#submit_button').prop('disabled', true);
                             $('#translation_price_result').html(`<span class="text-gray-500 text-sm">Calculating...</span>`);
                         },
                         success: function (res) {
                             if (res.status) {
                                 $('#translation_price_result').html(`{{ __('frontend.AED') }} ${res.data.total_amount.toFixed(2)}`);
-                                $('#submit_button').prop('disabled', false); // Enable if valid
+                                $('#submit_button').prop('disabled', false); 
                             } else {
                                 $('#translation_price_result').html(`<p class="text-red-500">${res.message}</p>`);
-                                $('#submit_button').prop('disabled', true); // Disable if error
+                                $('#submit_button').prop('disabled', true); 
                             }
                         },
                         error: function () {
@@ -453,7 +450,6 @@
                 }
             }
 
-            // Bind change events
             $('#document_language, #translation_language').on('change', calculateTranslationPrice);
             $('input[name="no_of_pages"]').on('input', calculateTranslationPrice);
         });

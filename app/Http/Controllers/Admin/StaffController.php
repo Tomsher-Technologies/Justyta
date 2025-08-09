@@ -44,9 +44,8 @@ class StaffController extends Controller
             });
         }
 
-         // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
+            // 1 = active, 2 = inactive; 
             if ($request->status == 1) {
                 $users->where('banned', 0);
             } elseif ($request->status == 2) {

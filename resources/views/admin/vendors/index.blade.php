@@ -69,13 +69,14 @@
                                         <tr class="userDatatable-header">
                                             <th class="text-center">#</th>
                                             <th>Reference No</th>
-                                            <th width="25%">Law Firm Name</th>
-                                            <th>Owner</th>
+                                            <th width="25%">Law Firm Info</th>
+                                            {{-- <th>Owner</th> --}}
                                             <th class="text-center">Plan</th>
                                             <th class="text-center">Start Date</th>
                                             <th class="text-center">End Date</th>
                                             <th class="text-center">Total Members</th>
                                             <th class="text-center">Status</th>
+                                            <th class="text-center">Approval</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
@@ -103,11 +104,21 @@
                                                                         <div class="custom-popover">
                                                                             <div class="popover-item"><i class="fas fa-envelope"></i> {{ $vendor->law_firm_email }}</div>
                                                                             <div class="popover-item"><i class="fas fa-phone"></i> {{ $vendor->law_firm_phone }}</div>
+
+                                                                            <hr>
+
+                                                                            <div class="popover-title">
+                                                                                Owner Contact Info
+                                                                            </div>
+                                                                             <hr>
+                                                                            <div class="popover-item"><i class="fas fa-user"></i> {{ $vendor->owner_name }}</div>
+                                                                            <div class="popover-item"><i class="fas fa-envelope"></i> {{ $vendor->owner_email }}</div>
+                                                                            <div class="popover-item"><i class="fas fa-phone"></i> {{ $vendor->owner_phone }}</div>
                                                                         </div>
                                                                     '></i>
                                                             </div>
                                                         </td>
-                                                        <td>
+                                                        {{-- <td>
                                                             {{ $vendor->owner_name }}
                                                             <i class="fas fa-info-circle text-primary ml-2 popover-toggle"
                                                                 tabindex="0" data-toggle="popover" data-placement="bottom"
@@ -119,7 +130,7 @@
                                                                             <div class="popover-item"><i class="fas fa-phone"></i> {{ $vendor->owner_phone }}</div>
                                                                         </div>
                                                                     '></i>
-                                                        </td>
+                                                        </td> --}}
                                                         <td class="text-center">
                                                             {{ $vendor->currentSubscription->plan->title ?? 'N/A' }}</td>
                                                         <td class="text-center">
@@ -146,6 +157,35 @@
                                                                     </div>
                                                                 </div>
                                                             @endcan
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                            @if($vendor->user->approved == 0)
+                                                                @can('approve_vendor')
+                                                                    <div class="flex gap-2">
+                                                                        
+                                                                        <button type="button" class="btn btn-xs btn-primary hover:bg-green-700"
+                                                                            onclick="update_vendor_status({{ $vendor->user_id }}, 'approve')">
+                                                                            Approve
+                                                                        </button>
+                                                                        <button type="button"
+                                                                            class="btn btn-xs btn-danger hover:bg-red-700"
+                                                                            onclick="update_vendor_status({{ $vendor->user_id }}, 'reject')">
+                                                                            Reject
+                                                                        </button>
+                                                                    </div>
+                                                                @else
+                                                                    <span class="badge badge-warning">
+                                                                        Pending
+                                                                    </span>
+                                                                @endcan
+                                                            @else
+                                                                @if($vendor->user->approved == 2)
+                                                                    <span class="badge badge-danger">Rejected</span>
+                                                                @else
+                                                                    <span class="badge badge-success">Approved</span>
+                                                                @endif
+                                                            @endif
                                                         </td>
                                                         <td class="text-center">
                                                             @can('edit_vendor')
@@ -225,6 +265,7 @@
             margin-right: 8px;
         }
     </style>
+    <link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
 @endsection
 
 @section('script_first')
@@ -232,6 +273,7 @@
 @endsection
 
 @section('script')
+    <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
     <script type="text/javascript">
         function update_status(el) {
             if (el.checked) {
@@ -259,16 +301,54 @@
             });
         }
 
+        function update_vendor_status(userId, action) {
+             Swal.fire({
+                title: 'Are you sure?',
+                text: "This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    fetch(`/admin/vendor/${userId}/status`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ action: action })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            if(action === 'approve'){
+                                toastr.success(`Law firm approved successfully.`);
+                                location.reload();
+                            } else {
+                                toastr.success(`Law firm rejected successfully.`);
+                                location.reload();
+                            }
+                        } else {
+                            toastr.error('Something went wrong.');
+                        }
+                    })
+                    .catch(() => toastr.error('Error updating status.'));
+                }
+            });
+        }
+
         $(function() {
             $('.popover-toggle').popover();
 
-            // Show on hover/focus
             $('.popover-toggle').on('mouseenter focus', function() {
-                $('.popover-toggle').not(this).popover('hide'); // hide others
+                $('.popover-toggle').not(this).popover('hide'); 
                 $(this).popover('show');
             });
 
-            // Hide on mouseleave or blur only if not hovering popover
             $('.popover-toggle').on('mouseleave blur', function() {
                 let _this = this;
                 setTimeout(function() {
@@ -278,7 +358,6 @@
                 }, 200);
             });
 
-            // Keep popover open on hover
             $(document).on('mouseenter', '.popover', function() {
                 clearTimeout(window._popoverTimeout);
             });
@@ -287,7 +366,6 @@
                 $('[data-toggle="popover"]').popover('hide');
             });
 
-            // Re-render Feather if used
             $(document).on('shown.bs.popover', function() {
                 if (window.feather) feather.replace();
             });

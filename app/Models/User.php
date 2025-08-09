@@ -27,6 +27,7 @@ class User extends Authenticatable
         'password',
         'phone',
         'banned',
+        'approved',
         'user_type',
         'language',
         'address',

@@ -91,7 +91,7 @@
                                         </div>
 
                                         <div class="col-md-2 mb-3">
-                                            <label class="col-form-label color-dark fw-500 align-center"> Email Delivery Amount </label>
+                                            <label class="col-form-label color-dark fw-500 align-center"> Email Amount </label>
                                             <input type="number" step="0.01" name="email_delivery_normal_email" id="email_delivery_normal_email" value="{{ old('email_delivery_normal_email',0) }}" class="form-control" />
                                             @error('email_delivery_normal_email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -133,7 +133,7 @@
 
 
                                         <div class="col-md-2 mb-3">
-                                            <label class="col-form-label color-dark fw-500 align-center"> Physical Delivery Amount </label>
+                                            <label class="col-form-label color-dark fw-500 align-center"> Physical Amount </label>
                                             <input type="number" step="0.01" name="physical_delivery_normal_physical" id="physical_delivery_normal_physical" value="{{ old('physical_delivery_normal_physical',0) }}" class="form-control" />
                                             @error('physical_delivery_normal_physical')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -183,7 +183,7 @@
                                         </div>
 
                                         <div class="col-md-2 mb-3">
-                                            <label class="col-form-label color-dark fw-500 align-center"> Email Delivery Amount </label>
+                                            <label class="col-form-label color-dark fw-500 align-center"> Email Amount </label>
                                             <input type="number" step="0.01" name="email_delivery_urgent_email" id="email_delivery_urgent_email" value="{{ old('email_delivery_urgent_email',0) }}" class="form-control" />
                                             @error('email_delivery_urgent_email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -225,7 +225,7 @@
 
 
                                         <div class="col-md-2 mb-3">
-                                            <label class="col-form-label color-dark fw-500 align-center"> Physical Delivery Amount </label>
+                                            <label class="col-form-label color-dark fw-500 align-center"> Physical Amount </label>
                                             <input type="number" step="0.01" name="physical_delivery_urgent_physical" id="physical_delivery_urgent_physical" value="{{ old('physical_delivery_urgent_physical',0) }}" class="form-control" />
                                             @error('physical_delivery_urgent_physical')
                                                 <div class="invalid-feedback">{{ $message }}</div>

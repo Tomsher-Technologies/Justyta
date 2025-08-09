@@ -7,7 +7,7 @@ return [
     'account_disabled_deleted' => 'Your account has been deleted/disabled. Please contact support.',
     'login_success' => 'Successfully logged in',
     'email_required' => 'Email is required.',
-    'valid_email' => 'Email must be a valid email address.',
+    'valid_email' => 'Please enter a valid email address.',
     'password_required' => 'Password is required.',
     'user_type_required' => 'User type is required.',
     'user_type_in' => 'User type must be either "user" or "lawyer".',
@@ -175,7 +175,7 @@ return [
     'no_of_calls_required' => 'No. of calls is required.',
     'no_of_visits_required' => 'No. of visits is required.',
     'no_of_installment_required' => 'Installment is required.',
-    'lawfirm_required' => 'Lawfirm is required.',
+    'lawfirm_required' => 'Law firm is required.',
     'priority_level_required' => 'Priority level is required.',
     'document_language_required' => 'Document language is required.',
     'translation_language_required' => 'Translation language is required.',
@@ -236,9 +236,8 @@ return [
     'image_file_max' => 'Attatchment file may not be greater than 500KB.',
     'selected_notifications_cleared_successfully' => 'Selected notifications deleted successfully.',
 
-    
-    '' => '',
-    '' => '',
+
+    'account_not_approved' => 'Your account is not approved yet. Please wait for admin approval.',
     '' => '',
     '' => '',
     '' => '',

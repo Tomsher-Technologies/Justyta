@@ -26,20 +26,19 @@ class VendorController extends Controller
         $this->middleware('permission:manage_vendors',  ['only' => ['index','destroy']]);
         $this->middleware('permission:add_vendor',  ['only' => ['create','store']]);
         $this->middleware('permission:edit_vendor',  ['only' => ['edit','update']]);
+        $this->middleware('permission:approve_vendor',  ['only' => ['updateStatus']]);
     }
 
     public function index(Request $request)
     {
         $query = Vendor::with('user', 'currentSubscription.plan');
 
-        // Filter by membership plan
         if ($request->filled('plan_id')) {
             $query->whereHas('currentSubscription', function ($q) use ($request) {
                 $q->where('membership_plan_id', $request->plan_id);
             });
         }
 
-        // Filter by keyword in name, email or phone
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
             $query->where(function ($q) use ($keyword){
@@ -53,9 +52,8 @@ class VendorController extends Controller
             });
         }
 
-        // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
+            // 1 = active, 2 = inactive; 
             $query->whereHas('user', function ($q) use ($request) {
                  if ($request->status == 1) {
                     $q->where('banned', 0);
@@ -65,9 +63,8 @@ class VendorController extends Controller
             });
         }
 
-        $vendors = $query->orderBy('id', 'DESC')->paginate(15); // or ->get() if you don’t want pagination
+        $vendors = $query->orderBy('id', 'DESC')->paginate(15); 
 
-        // Optional: to populate dropdowns
         $plans = MembershipPlan::get();
 
         return view('admin.vendors.index', compact('vendors', 'plans'));
@@ -83,12 +80,11 @@ class VendorController extends Controller
     public function store(Request $request)
     {
         
-         $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'translations.en.name' => 'required|string|max:255',
             'email' => 'required|email',
             'phone' => 'required|string|max:20',
             'owner_name' => 'required|string|max:255',
-            'owner_email' => 'required|email|unique:users,email',
             'owner_email' => [
                     'required',
                     'email',
@@ -106,8 +102,8 @@ class VendorController extends Controller
             'emirates_id_front' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'emirates_id_back' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'emirates_id_expiry' => 'required|date',
-            // 'residence_visa' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
-            // 'residence_visa_expiry' => 'required|date',
+            'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'residence_visa_expiry' => 'nullable|date',
             'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'passport_expiry' => 'required|date',
             'card_of_law' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
@@ -123,10 +119,7 @@ class VendorController extends Controller
         if ($validator->fails()) {
             return redirect()->route('vendors.create')->withErrors($validator)->withInput();
         }
-        // echo '<pre>';
-        // print_r($request->all());
-        // die;
-
+        
         $user = User::create([
             'name' => $request->translations['en']['name'],
             'email' => $request->owner_email,
@@ -175,7 +168,7 @@ class VendorController extends Controller
                 );
             }
         }
-        // Now store subscription with a snapshot
+        
         $vendor->subscriptions()->create([
             'membership_plan_id'                => $plan->id,
             'amount'                            => $plan->amount,
@@ -190,7 +183,7 @@ class VendorController extends Controller
             'unlimited_training_applications'   => $plan->unlimited_training_applications,
             'welcome_gift'                      => $plan->welcome_gift,
             'subscription_start'                => now(),
-            'subscription_end'                  => now()->addYear(), // or based on plan duration
+            'subscription_end'                  => now()->addYear(), 
             'status'                            => 'active',
         ]);
 
@@ -302,18 +295,15 @@ class VendorController extends Controller
 
         $plan = MembershipPlan::findOrFail($request->subscription_plan_id);
 
-        // Check if the plan has changed
         if (!$vendor->currentSubscription || $vendor->currentSubscription->membership_plan_id != $plan->id) {
             
-            // Expire the current subscription if exists
             if ($vendor->currentSubscription) {
                 $vendor->currentSubscription->update([
                     'status' => 'expired',
-                    'subscription_end' => now(), // Mark end time
+                    'subscription_end' => now(), 
                 ]);
             }
 
-            // Create new subscription
             $vendor->subscriptions()->create([
                 'membership_plan_id'                => $plan->id,
                 'amount'                            => $plan->amount,
@@ -328,7 +318,7 @@ class VendorController extends Controller
                 'unlimited_training_applications'   => $plan->unlimited_training_applications,
                 'welcome_gift'                      => $plan->welcome_gift,
                 'subscription_start'                => now(),
-                'subscription_end'                  => now()->addYear(), // or use $plan->duration if dynamic
+                'subscription_end'                  => now()->addYear(), 
                 'status'                            => 'active',
             ]);
         }
@@ -354,5 +344,18 @@ class VendorController extends Controller
     {
         if (!$file) return null;
         return $file->store('vendors', 'public');
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($request->action === 'approve') {
+            $user->approved = 1;
+        } elseif ($request->action === 'reject') {
+            $user->approved = 2;
+        }
+        $user->save();
+        return response()->json(['success' => true]);
     }
 }
