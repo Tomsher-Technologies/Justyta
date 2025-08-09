@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Vendor extends Model
 {
     protected $fillable = [
-        'user_id', 'law_firm_name', 'law_firm_email', 'law_firm_phone', 'office_address', 'owner_name', 'owner_email', 'owner_phone', 'emirate_id', 'trn', 'logo', 'about', 'country', 'trade_license', 'trade_license_expiry', 'emirates_id_front', 'emirates_id_back', 'emirates_id_expiry', 'residence_visa', 'residence_visa_expiry', 'passport', 'passport_expiry', 'card_of_law', 'card_of_law_expiry','consultation_commission'
+        'user_id', 'law_firm_name', 'law_firm_email', 'law_firm_phone', 'office_address', 'owner_name', 'owner_email', 'owner_phone', 'emirate_id', 'trn', 'logo', 'about', 'country', 'trade_license', 'trade_license_expiry', 'emirates_id_front', 'emirates_id_back', 'emirates_id_expiry', 'residence_visa', 'residence_visa_expiry', 'passport', 'passport_expiry', 'card_of_law', 'card_of_law_expiry','consultation_commission', 'ministry_of_justice_card', 'ministry_of_justice_card_expiry','website_url','payment_reference'
     ];
 
      public function location()
@@ -44,9 +44,19 @@ class Vendor extends Model
 
     public static function generateReferenceNumber()
     {
-        $lastId = self::max('id') ?? 0;
-        $nextId = $lastId + 1;
-        return 'LF-' . str_pad($nextId, 6, '0', STR_PAD_LEFT);
+        $prefix = 'LF';
+
+        $lastCode = self::whereNotNull('ref_no')
+            ->orderBy('id', 'desc')
+            ->value('ref_no');
+
+        $nextNumber = 1;
+        if ($lastCode) {
+            preg_match('/(\d+)$/', $lastCode, $matches);
+            $nextNumber = isset($matches[1]) ? intval($matches[1]) + 1 : 1;
+        }
+
+        return $prefix . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
     }
 
     public function translations()
@@ -65,7 +75,6 @@ class Vendor extends Model
         $lang = $lang == false ? getActiveLanguage() : $lang;
         $translations = $this->translations->where('lang', $lang)->first();
     
-         // If not found OR name is empty, fallback to 'en'
         if (!$translations || empty($translations->$field)) {
             $translations = $this->translations->where('lang', 'en')->first();
         }

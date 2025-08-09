@@ -286,7 +286,6 @@ class AdController extends Controller
         return redirect()->route('ads.index')->with('success', 'Ad deleted successfully.');
     }
 
-    // Helpers
     private function determineFileType($extension)
     {
         $extension = strtolower($extension);
@@ -301,7 +300,6 @@ class AdController extends Controller
 
     private function determineDeviceFromInputName($inputName)
     {
-        // Expect input names like web_image, mobile_video, etc.
         if (str_contains($inputName, 'mob')) {
             return 'mobile';
         }

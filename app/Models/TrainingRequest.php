@@ -20,7 +20,7 @@ class TrainingRequest extends Model
 
     protected $casts = [
         'start_date' => 'date',
-        'documents' => 'array', // If you store JSON-encoded array
+        'documents' => 'array', 
     ];
 
      public function user()

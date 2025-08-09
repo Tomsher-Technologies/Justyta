@@ -14,6 +14,7 @@
 
     {{-- Your custom CSS --}}
     <link rel="stylesheet" href="{{ asset('assets/css/web/custom.css') }}">
+    <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
 
     @yield('style')
 </head>
@@ -26,6 +27,9 @@
     @include('frontend.include.footer')
 
     {{-- Toastr Flash Messages --}}
+    <script src="{{ asset('assets/js/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('assets/js/additional-methods.min.js') }}"></script>
+    <script src="{{ asset('assets/js/select2.full.min.js') }}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             toastr.options = {

@@ -26,7 +26,6 @@ class JobPostController extends Controller
     {
         $query = JobPost::with(['translations','location','post_owner'])->orderBy('id','desc');
 
-        // Filter by keyword in name, email or phone
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
             $query->where(function ($q) use ($keyword) {
@@ -37,9 +36,8 @@ class JobPostController extends Controller
             });
         }
 
-        // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
+            // 1 = active, 2 = inactive; 
             if ($request->status == 1) {
                 $query->where('status', 1);
             } elseif ($request->status == 2) {
@@ -143,9 +141,6 @@ class JobPostController extends Controller
             'emirate' => $request->emirate,
             'deadline_date' => $request->deadline_date ? Carbon::parse($request->deadline_date)->format('Y-m-d') : null,
         ]);
-            // 'user_id' => auth()->id(),
-            // 'user_type' => 'admin',
-            
         foreach ($request->translations as $lang => $data) {
             JobPostTranslation::updateOrCreate(
                 ['job_post_id' => $jobPost->id, 'lang' => $lang],

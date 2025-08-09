@@ -80,7 +80,6 @@ class UserController extends Controller
             'language' => $request->language ?? $user->language
         ];
 
-        // Update fields
         $user->update($validated);
 
         return response()->json([
@@ -104,7 +103,7 @@ class UserController extends Controller
                 'required',
                 'string',
                 'min:6',
-                'confirmed'           // must match new_password_confirmation
+                'confirmed'    
             ],
         ],[
             'current_password.required'    => __('messages.current_password_required'),
@@ -144,10 +143,8 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        // Soft delete the user
         $user->delete();
 
-        // Optionally revoke tokens (if using Sanctum)
         $user->tokens()->delete();
 
         return response()->json([
@@ -158,7 +155,7 @@ class UserController extends Controller
 
     public function getGroupedUserNotifications(Request $request)
     {
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');  
         $user       = $request->user();
 
         $today      = Carbon::today();
@@ -176,7 +173,6 @@ class UserController extends Controller
     
         $allNotifications = $user->notifications();
 
-        // Today
         $todayNotifications = (clone $allNotifications)
             ->whereDate('created_at', $today)
             ->orderByDesc('created_at')
@@ -194,10 +190,10 @@ class UserController extends Controller
                                         'reference' => $data['reference_code'],
                                         'status' => __('messages.'.$data['status'])
                                     ]),
-                    'time'      => $notification->created_at->format('h:i A'), // or 'h:i A' for AM/PM
+                    'time'      => $notification->created_at->format('h:i A'), 
                 ];
             });
-        // Yesterday
+        
         $yesterdayNotifications = (clone $allNotifications)
                             ->whereDate('created_at', $yesterday)
                             ->orderByDesc('created_at')
@@ -214,7 +210,7 @@ class UserController extends Controller
                                                         'service'   => $serviceName,
                                                         'reference' => $data['reference_code'],
                                                     ]),
-                                    'time'      => $notification->created_at->format('d,M Y h:i A'), // or 'h:i A' for AM/PM
+                                    'time'      => $notification->created_at->format('d,M Y h:i A'), 
                                 ];
                             });
 
@@ -235,7 +231,7 @@ class UserController extends Controller
                                             'service'   => $serviceName,
                                             'reference' => $data['reference_code'],
                                         ]),
-                        'time'      => $notification->created_at->format('d M, Y h:i A'), // or 'h:i A' for AM/PM
+                        'time'      => $notification->created_at->format('d M, Y h:i A'), 
                     ];
                 });
 
@@ -281,7 +277,6 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        // Delete all notifications
         $user->notifications()->delete();
 
         return response()->json([
@@ -326,7 +321,6 @@ class UserController extends Controller
             'language' => $request->language ?? $user->language
         ];
 
-        // Update fields
         $user->update($validated);
 
         return response()->json([
@@ -713,7 +707,7 @@ class UserController extends Controller
         $user   = $request->user();
 
         $lang           = $request->header('lang') ?? env('APP_LOCALE','en');
-        // Check if user already rated
+ 
         $existingRating = Rating::where('user_id', $user->id)->first();
 
         if ($existingRating) {
@@ -738,7 +732,7 @@ class UserController extends Controller
     }
 
     public function getTrainingFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');  
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {

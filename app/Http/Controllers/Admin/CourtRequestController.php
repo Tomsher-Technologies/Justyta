@@ -29,18 +29,14 @@ class CourtRequestController extends Controller
                 }
             }])->whereNull('parent_id');
 
-
-        // Search by name
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Filter by parent type
         if ($request->filled('ptype_id')) {
             $query->where('id', $request->ptype_id);
         }
 
-        // Apply status filter on parents
         if ($statusFilter == 1 || $statusFilter == 2) {
             $query->where(function ($q) use ($statusFilter) {
                 $q->where('status', $statusFilter == 1 ? 1 : 0)
@@ -108,7 +104,6 @@ class CourtRequestController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        // Find the Court request by ID
         $courtRequest = CourtRequest::find($id);
 
         if (!$courtRequest) {
@@ -133,7 +128,6 @@ class CourtRequestController extends Controller
         }
 
         session()->flash('success', 'Court request updated successfully.');
-        // return response()->json(['success' => true, 'data' => $courtRequest]);
         return response()->json([
             'message' => 'Court request updated successfully',
             'courtRequest' => $courtRequest
@@ -144,7 +138,6 @@ class CourtRequestController extends Controller
     {
         $type = CourtRequest::with('translations')->findOrFail($id);
 
-        // Return both main type fields and translations
         return response()->json([
             'id' => $type->id,
             'parent_id' => $type->parent_id,
@@ -167,14 +160,10 @@ class CourtRequestController extends Controller
 
         $courtRequest->status = $newStatus;
         $courtRequest->save();
-
-        // 1. If this is a parent and status changes, update all children
         if ($courtRequest->parent_id === null) {
-            // Update children
             CourtRequest::where('parent_id', $courtRequest->id)
                 ->update(['status' => $newStatus]);
         } else {
-            // 2. If child is activated but parent is inactive, activate parent
             $parent = CourtRequest::find($courtRequest->parent_id);
 
             if ($newStatus == 1 && $parent && $parent->status == 0) {
@@ -182,7 +171,6 @@ class CourtRequestController extends Controller
                 $parent->save();
             }
 
-            // 3. If child is inactivated and all siblings are also inactive, inactivate parent
             if ($newStatus == 0 && $parent) {
                 $allSiblingsInactive = CourtRequest::where('parent_id', $parent->id)
                     ->where('status', 1)

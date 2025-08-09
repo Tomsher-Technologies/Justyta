@@ -61,7 +61,7 @@ class Lawyer extends Model
     {
         $lastId = self::max('id') ?? 0;
         $nextId = $lastId + 1;
-        return 'LFM-' . str_pad($nextId, 6, '0', STR_PAD_LEFT); // law firm member - LFM
+        return 'LFM-' . str_pad($nextId, 6, '0', STR_PAD_LEFT); 
     }
 
     public function translations()

@@ -105,13 +105,11 @@
             document.querySelectorAll('.notif-checkbox').forEach(cb => cb.checked = this.checked);
         });
 
-        // Uncheck #select-all if any single checkbox is unchecked
         document.querySelectorAll('.notif-checkbox').forEach(cb => {
             cb.addEventListener('change', function() {
                 if (!this.checked) {
                     document.getElementById('select-all').checked = false;
                 } else {
-                    // Check if all checkboxes are checked
                     const allChecked = Array.from(document.querySelectorAll('.notif-checkbox')).every(cb => cb.checked);
                     document.getElementById('select-all').checked = allChecked;
                 }

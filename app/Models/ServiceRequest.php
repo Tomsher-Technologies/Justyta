@@ -20,7 +20,6 @@ class ServiceRequest extends Model
         'submitted_at' => 'datetime',
     ];
 
-    // Relationships
 
     public function user()
     {
@@ -36,7 +35,6 @@ class ServiceRequest extends Model
     {
         $prefix = strtoupper(Str::slug($service->short_code, '-'));
 
-        // Find last reference for this service
         $lastCode = self::where('service_id', $service->id)
             ->whereNotNull('reference_code')
             ->orderBy('id', 'desc')

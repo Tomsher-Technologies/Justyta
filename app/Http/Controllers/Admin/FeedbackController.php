@@ -132,9 +132,6 @@ class FeedbackController extends Controller
             });
         }
 
-        // echo '<pre>';
-        // print_r($response);
-        // die;
         return view('admin.user_feedbacks.training_requests', compact('requests', 'response'));
     }
 

@@ -25,9 +25,8 @@ class NewsController extends Controller
     {
         $query = News::with('translations')->orderBy('news_date','desc');
         
-        // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
+            // 1 = active, 2 = inactive; 
             if ($request->status == 1) {
                 $query->where('status', 1);
             } elseif ($request->status == 2) {
@@ -110,10 +109,6 @@ class NewsController extends Controller
             'translations.en.description.min' => 'The english description field must be at least 50 characters.'
         ]);
         
-        // echo '<pre>';
-        // print_r($request->all());
-        // die;
-
         $data['news_date'] = $request->news_date ? Carbon::parse($request->news_date)->format('Y-m-d') : null;
         $data['status'] = $request->status ?? 1;
 
@@ -150,21 +145,16 @@ class NewsController extends Controller
 
     public function destroy($id)
     {
-        // Find the news item by ID
         $news = News::findOrFail($id);
 
-        // Optionally delete associated image file if stored locally
         if ($news->image != NULL) {
             $icon = str_replace('/storage/', '', $news->image);
             if ($icon && Storage::disk('public')->exists($icon)) {
                 Storage::disk('public')->delete($icon);
             }
         }
-
-        // Delete the news record
         $news->delete();
         session()->flash('success', 'News deleted successfully.');
-        // Redirect back with success message
         return redirect()->route('news.index');
     }
 

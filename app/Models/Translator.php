@@ -38,19 +38,11 @@ class Translator extends Model
         return $this->belongsToMany(DropdownOption::class, 'translator_dropdown_options');
     }
 
-    // public function languages()
-    // {
-    //     return $this->dropdownOptions()
-    //         ->whereHas('dropdown', function ($q) {
-    //             $q->where('slug', 'languages');
-    //         });
-    // }
-
     public function languages()
     {
         return $this->belongsToMany(DropdownOption::class, 'translator_dropdown_options')
                     ->wherePivot('type', 'languages')
-                    ->with('translations'); // this should match the method in DropdownOption
+                    ->with('translations'); 
     }
 
     

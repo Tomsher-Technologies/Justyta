@@ -39,7 +39,7 @@
 
                         @if($dataService['service_slug'] === 'annual-retainer-agreement')
                             <div class='col-sm-6'>
-                                <label class="col-form-label color-dark fw-500 align-center">Assign Lawfirm</label>
+                                <label class="col-form-label color-dark fw-500 align-center">Assign Law firm</label>
                                 <select id="lawfirmSelect" name="lawfirm" class="select2 form-control ip-gray radius-xs b-deep px-15 " data-id="{{ $dataService['id'] }}">
                                     <option value="">{{ __('frontend.choose_option') }}</option>
                                     @foreach ($dataService['law_firms'] as $lawfirm)
@@ -389,7 +389,7 @@
 
                 Swal.fire({
                     title: 'Are you sure?',
-                    text: "You are about to assign the Lawfirm.",
+                    text: "You are about to assign the Law firm.",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
@@ -406,14 +406,14 @@
                             type: 'POST',
                             data: {id : serviceId,lawfirm: lawfirm },
                             success: function(response) {
-                                Swal.fire('Assigned!', 'Lawfirm assigned successfully.', 'success');
+                                Swal.fire('Assigned!', 'Law firm assigned successfully.', 'success');
                                 setTimeout(function() {
                                     window.location.reload();
                                 }, 2000);
 
                             },
                             error: function() {
-                                Swal.fire('Error!', 'Failed to assign lawfirm.', 'error');
+                                Swal.fire('Error!', 'Failed to assign law firm.', 'error');
                                 setTimeout(function() {
                                     window.location.reload();
                                 }, 2000);

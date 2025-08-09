@@ -19,8 +19,6 @@ class RequestLegalTranslation extends Model
         'trade_license' => 'array',
     ];
 
-    // Relationships
-
     public function user()
     {
         return $this->belongsTo(User::class);

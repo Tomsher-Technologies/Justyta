@@ -256,7 +256,6 @@
                             previewItem.innerHTML = `<div class="text-xs break-words w-20 h-20 overflow-auto">${file.name}</div>`;
                         }
 
-                        // Add remove button
                         const removeBtn = document.createElement('button');
                         removeBtn.type = 'button';
                         removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs';
@@ -352,7 +351,7 @@
                     error.addClass('text-red-500 text-sm');
 
                     if (element.hasClass('select2-hidden-accessible')) {
-                        error.insertAfter(element.next('.select2')); // Insert after the visible Select2 dropdown
+                        error.insertAfter(element.next('.select2')); 
                     } else {
                         error.insertAfter(element);
                     }
@@ -373,17 +372,15 @@
                         $(element).removeClass('border-red-500');
                     }
                 },
-
-                /** 👇 Prevent actual form submission if invalid */
                 submitHandler: function (form) {
-                    form.submit(); // real submit
+                    form.submit(); 
                 }
             });
 
             $('#contract_type').on('change', function () {
                 const contractId = $(this).val();
                 const subSelect = $('#sub_contract_type');
-                const baseUrl = $('#contract_type').data('url'); // example: "/user/get-sub-contract-types"
+                const baseUrl = $('#contract_type').data('url');
 
                 subSelect.empty().append(`<option value="">Loading...</option>`);
 
@@ -396,7 +393,7 @@
                             $.each(res, function (index, item) {
                                 subSelect.append(`<option value="${item.id}">${item.value}</option>`);
                             });
-                            subSelect.trigger('change'); // if select2 is used
+                            subSelect.trigger('change'); 
                         },
                         error: function () {
                             subSelect.empty().append(`<option value="">{{ __('frontend.choose_option') }}</option>`);

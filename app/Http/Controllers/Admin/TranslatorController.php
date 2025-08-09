@@ -312,7 +312,7 @@ class TranslatorController extends Controller
     public function showDefaultForm()
     {
         $combinations = TranslationLanguage::all()->flatMap(function ($from) {
-            return TranslationLanguage::whereIn('id', [1, 3]) // to_lang = English/Arabic
+            return TranslationLanguage::whereIn('id', [1, 3]) 
                 ->where('id', '!=', $from->id)
                 ->get()
                 ->map(function ($to) use ($from) {

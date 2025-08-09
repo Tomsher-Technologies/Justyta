@@ -16,7 +16,7 @@ class HomeController extends Controller
 {
 
     public function getBanners(Request $request){
-        $lang = request()->header('lang') ?? env('APP_LOCALE','en'); // default to English
+        $lang = request()->header('lang') ?? env('APP_LOCALE','en'); 
         $slug = $request->get('slug');
 
         $ads = getActiveAd($slug, 'mobile');
@@ -38,7 +38,7 @@ class HomeController extends Controller
         ]);
     }
     public function pageContents(Request $request){
-        $lang = request()->header('lang') ?? env('APP_LOCALE','en'); // default to English
+        $lang = request()->header('lang') ?? env('APP_LOCALE','en'); 
         $slug = $request->get('slug');
 
         $page = getPageDynamicContent($slug, $lang);
@@ -94,7 +94,7 @@ class HomeController extends Controller
 
     public function lawfirmServices(Request $request)
     {
-        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); 
         $services = Service::with(['translations' => function ($query) use ($lang) {
                 $query->where('lang', $lang);
             }])
@@ -103,7 +103,6 @@ class HomeController extends Controller
             ->orderBy('sort_order', 'ASC')
             ->get();
 
-        // Optionally transform the result to extract only translated fields
         $data['services'] = $services->map(function ($service) {
             $translation = $service->translations->first();
             return [
@@ -134,9 +133,9 @@ class HomeController extends Controller
 
     public function search(Request $request)
     {
-        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en');
         $keyword = $request->get('keyword');
-        // DB::enableQueryLog();
+        
         $services = Service::where('status', 1)
                     ->whereNotIn('slug',['law-firm-services'])
                     ->whereHas('translations', function ($query) use ($keyword) {
@@ -150,8 +149,7 @@ class HomeController extends Controller
                     }])
                     ->orderBy('sort_order', 'ASC')
                     ->get();
-                    // dd(DB::getQueryLog());
-
+                  
         $servs = $services->map(function ($service) {
                     $translation = $service->translations->first();
                     return [
@@ -170,7 +168,7 @@ class HomeController extends Controller
 
     public function news(Request $request)
     {
-        $lang = $request->header('lang') ?? env('APP_LOCALE','en');  // default to 'en'
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en');  
         $limit = $request->get('limit', 10);
 
         $news = News::with(['translations' => function ($q) use ($lang) {

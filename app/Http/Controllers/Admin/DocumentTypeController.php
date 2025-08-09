@@ -29,18 +29,13 @@ class DocumentTypeController extends Controller
                 }
             }])->whereNull('parent_id');
 
-
-        // Search by name
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Filter by parent type
         if ($request->filled('ptype_id')) {
             $query->where('id', $request->ptype_id);
         }
-
-        // Apply status filter on parents
         if ($statusFilter == 1 || $statusFilter == 2) {
             $query->where(function ($q) use ($statusFilter) {
                 $q->where('status', $statusFilter == 1 ? 1 : 0)
@@ -108,7 +103,6 @@ class DocumentTypeController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        // Find the document type by ID
         $documentType = DocumentType::find($id);
 
         if (!$documentType) {
@@ -133,7 +127,6 @@ class DocumentTypeController extends Controller
         }
 
         session()->flash('success', 'Document type updated successfully.');
-        // return response()->json(['success' => true, 'data' => $documentType]);
         return response()->json([
             'message' => 'Document Type updated successfully',
             'documentType' => $documentType
@@ -144,7 +137,6 @@ class DocumentTypeController extends Controller
     {
         $type = DocumentType::with('translations')->findOrFail($id);
 
-        // Return both main type fields and translations
         return response()->json([
             'id' => $type->id,
             'parent_id' => $type->parent_id,
@@ -168,13 +160,10 @@ class DocumentTypeController extends Controller
         $documentType->status = $newStatus;
         $documentType->save();
 
-        // 1. If this is a parent and status changes, update all children
         if ($documentType->parent_id === null) {
-            // Update children
             DocumentType::where('parent_id', $documentType->id)
                 ->update(['status' => $newStatus]);
         } else {
-            // 2. If child is activated but parent is inactive, activate parent
             $parent = DocumentType::find($documentType->parent_id);
 
             if ($newStatus == 1 && $parent && $parent->status == 0) {
@@ -182,7 +171,6 @@ class DocumentTypeController extends Controller
                 $parent->save();
             }
 
-            // 3. If child is inactivated and all siblings are also inactive, inactivate parent
             if ($newStatus == 0 && $parent) {
                 $allSiblingsInactive = DocumentType::where('parent_id', $parent->id)
                     ->where('status', 1)

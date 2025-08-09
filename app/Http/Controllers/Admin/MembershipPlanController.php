@@ -20,21 +20,18 @@ class MembershipPlanController extends Controller
         $this->middleware('permission:edit_plan',  ['only' => ['edit','update']]);
     }
 
-    // Show all membership plans
     public function index()
     {
         $plans = MembershipPlan::latest()->paginate(10);
         return view('admin.membership_plans.index', compact('plans'));
     }
 
-    // Show create form
     public function create()
     {
         $languages = Language::where('status', 1)->get();
         return view('admin.membership_plans.create', compact('languages'));
     }
 
-    // Store new plan
     public function store(Request $request)
     {
         $request->validate([
@@ -96,7 +93,6 @@ class MembershipPlanController extends Controller
         return redirect()->route('membership-plans.index');
     }
 
-    // Show edit form
     public function edit($id)
     {
         $plan = MembershipPlan::findOrFail($id);
@@ -104,8 +100,6 @@ class MembershipPlanController extends Controller
         $languages = Language::where('status', 1)->get();
         return view('admin.membership_plans.edit', compact('plan','languages'));
     }
-
-    // Update existing plan
     public function update(Request $request, $id)
     {
         $plan = MembershipPlan::findOrFail($id);
@@ -163,7 +157,6 @@ class MembershipPlanController extends Controller
         return redirect()->route('membership-plans.index')->with('success', 'Membership Plan updated successfully.');
     }
 
-    // Delete plan
     public function destroy($id)
     {
         $plan = MembershipPlan::findOrFail($id);
