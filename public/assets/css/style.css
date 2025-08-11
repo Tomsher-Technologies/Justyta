@@ -7225,6 +7225,13 @@ ul {
     border-style: dashed;
 }
 
+.btn-xxs {
+    font-size: 11px;
+    border-radius: 15px;
+    padding: 0 0.36rem;
+    line-height: 2;
+}
+
 .btn-xs {
     font-size: 12px;
     border-radius: 4px;

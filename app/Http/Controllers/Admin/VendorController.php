@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
+use App\Mail\VendorStatusChanged;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
 
@@ -59,6 +61,19 @@ class VendorController extends Controller
                     $q->where('banned', 0);
                 } elseif ($request->status == 2) {
                     $q->where('banned', 1);
+                }
+            });
+        }
+
+        if ($request->filled('approval_status')) {
+            // 1 = approved, 2 = rejected, 3 = pending; 
+            $query->whereHas('user', function ($q) use ($request) {
+                 if ($request->approval_status == 1) {
+                    $q->where('approved', 1);
+                } elseif ($request->approval_status == 2) {
+                    $q->where('approved', 2);
+                } elseif ($request->approval_status == 3) {
+                    $q->where('approved', 0);
                 }
             });
         }
@@ -111,9 +126,9 @@ class VendorController extends Controller
             'consultation_commission' => 'required'
         ],[
             '*.required' => 'This field is required.',
-            'translations.en.name.required' => 'The lawyer name in english is required.',
-            'translations.en.name.max' => 'The lawyer name in english may not be greater than 255 characters.',
-            'translations.en.name.string' => 'The lawyer name in english must be a valid text string.',
+            'translations.en.name.required' => 'The law firm name in english is required.',
+            'translations.en.name.max' => 'The law firm name in english may not be greater than 255 characters.',
+            'translations.en.name.string' => 'The law firm name in english must be a valid text string.',
         ]);
 
         if ($validator->fails()) {
@@ -138,6 +153,7 @@ class VendorController extends Controller
             'owner_email'               => $request->owner_email,  
             'owner_phone'               => $request->owner_phone,  
             'emirate_id'                => $request->emirate_id, 
+            'website_url'               => $request->website_url,
             'trn'                       => $request->trn, 
             'logo'                      => $request->hasfile('logo') ? uploadImage('vendors/'.$user->id, $request->logo, 'logo_') : NULL,  
             'country' => 'UAE', 
@@ -235,9 +251,9 @@ class VendorController extends Controller
             'consultation_commission' => 'required'
         ],[
             '*.required' => 'This field is required.',
-            'translations.en.name.required' => 'The lawyer name in english is required.',
-            'translations.en.name.max' => 'The lawyer name in english may not be greater than 255 characters.',
-            'translations.en.name.string' => 'The lawyer name in english must be a valid text string.',
+            'translations.en.name.required' => 'The law firm name in english is required.',
+            'translations.en.name.max' => 'The law firm name in english may not be greater than 255 characters.',
+            'translations.en.name.string' => 'The law firm name in english must be a valid text string.',
         ]);
 
         if ($validator->fails()) {
@@ -245,7 +261,7 @@ class VendorController extends Controller
         }
 
         $user->update([
-            'name' => $request->name,
+            'name' => $request->translations['en']['name'],
             'email' => $request->owner_email,
             'phone' => $request->phone,
             'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
@@ -255,7 +271,7 @@ class VendorController extends Controller
 
         $vendor->update([
             'consultation_commission'   => $request->consultation_commission,
-            'law_firm_name'             => $request->name, 
+            'law_firm_name'             => $request->translations['en']['name'], 
             'law_firm_email'            => $request->email, 
             'law_firm_phone'            => $request->phone, 
             'office_address'            => $request->office_address,
@@ -264,6 +280,7 @@ class VendorController extends Controller
             'owner_phone'               => $request->owner_phone,  
             'emirate_id'                => $request->emirate_id, 
             'trn'                       => $request->trn, 
+            'website_url'               => $request->website_url,
             'logo'                      => $this->replaceFile($request, 'logo', $vendor, $uploadPath,'logo_'),
             'country' => 'UAE', 
             'trade_license'             => $this->replaceFile($request, 'trade_license', $vendor, $uploadPath,'trade_license_'),
@@ -356,6 +373,11 @@ class VendorController extends Controller
             $user->approved = 2;
         }
         $user->save();
+
+        $statusText = $user->approved == 1 ? 'Approved' : 'Rejected';
+
+        Mail::to($user->email)->send(new VendorStatusChanged($user->name, strtolower($statusText)));
+
         return response()->json(['success' => true]);
     }
 }

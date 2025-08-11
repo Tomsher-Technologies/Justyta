@@ -5,6 +5,7 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\Auth\AuthController;
 use App\Http\Controllers\Frontend\ServiceRequestController;
 use App\Http\Controllers\Frontend\UserController;
+use App\Http\Controllers\Frontend\VendorHomeController;
 
 require __DIR__.'/admin.php';
 
@@ -46,9 +47,10 @@ Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:law
 });
 
 Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:vendor'])->group(function () {
-    Route::get('/dashboard', function () {
-        return 'Vendor Dashboard';
-    })->name('vendor.dashboard');
+    Route::get('/dashboard', [VendorHomeController::class, 'dashboard'])->name('vendor.dashboard');
+    // Manage Lawyers
+    Route::get('/lawyers', [VendorHomeController::class, 'lawyers'])->name('vendor.lawyers');
+    Route::get('/create-lawyer', [VendorHomeController::class, 'createLawyer'])->name('vendor.create.lawyers');
 });
 
 Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {
