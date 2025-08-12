@@ -228,7 +228,7 @@
 @endsection
 
 @section('style')
-    <link rel="stylesheet" href="{{ asset('assets/css/flag-icons.min.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('assets/css/flag-icons.min.css') }}"> --}}
 
     <style>
         .ck-editor__editable_inline {

@@ -22,7 +22,7 @@
                 <div class="card-body">
                     <div class="row">
                         @foreach($plans as $plan)
-                            <div class="col-xxl-3 col-lg-4 col-sm-4 mb-30">
+                            <div class="col-xxl-6 col-lg-6 col-sm-6 mb-30">
                                 <div class="card h-100">
                                     <div class="card-body p-30">
                                         @if($plan->icon)

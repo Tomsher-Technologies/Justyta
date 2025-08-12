@@ -219,29 +219,12 @@
                     @endcan
 
                     @can('manage_plan')
-                        <li
-                            class="has-child {{ areActiveRoutes(['membership-plans.create', 'membership-plans.edit', 'membership-plans.index']) }}">
-                            <a href="#"
-                                class="{{ areActiveRoutes(['membership-plans.create', 'membership-plans.edit', 'membership-plans.index']) }}">
-                                {{-- <span data-feather="dollar-sign" class="nav-icon"></span> --}}
+                        <li class="">
+                            <a href="{{ route('membership-plans.index') }}"
+                                class="{{ areActiveRoutes(['membership-plans.edit', 'membership-plans.index']) }}">
                                 <i class="las la-dollar-sign nav-icon"></i>
-                                {{-- <i class="fas fa-dollar-sign nav-icon"></i> --}}
                                 <span class="menu-text">Membership Plans</span>
-                                <span class="toggle-icon"></span>
                             </a>
-                            <ul>
-                                @can('add_plan')
-                                    <li>
-                                        <a class="{{ areActiveRoutes(['membership-plans.create']) }}"
-                                            href="{{ route('membership-plans.create') }}">Add Plan</a>
-                                    </li>
-                                @endcan
-
-                                <li>
-                                    <a class="{{ areActiveRoutes(['membership-plans.edit', 'membership-plans.index']) }}"
-                                        href="{{ route('membership-plans.index') }}">All Plans</a>
-                                </li>
-                            </ul>
                         </li>
                     @endcan
 
