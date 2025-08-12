@@ -221,7 +221,7 @@
                     @can('manage_plan')
                         <li class="">
                             <a href="{{ route('membership-plans.index') }}"
-                                class="{{ areActiveRoutes(['membership-plans.edit', 'membership-plans.index']) }}">
+                                class="{{ areActiveRoutes(['membership-plans.edit', 'membership-plans.index','plan-pricing.create','plan-pricing.edit','plan-pricing']) }}">
                                 <i class="las la-dollar-sign nav-icon"></i>
                                 <span class="menu-text">Membership Plans</span>
                             </a>

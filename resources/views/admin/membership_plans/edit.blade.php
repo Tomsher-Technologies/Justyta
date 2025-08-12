@@ -102,30 +102,6 @@
                                     @enderror
                                 </div>
 
-                                <!-- EN → AR Translation Price -->
-                                <div class="col-md-6 mb-25">
-                                    <label class="col-form-label color-dark fw-500 align-center">EN → AR Translation / Page
-                                        <span class="text-danger">*</span></label>
-                                    <input type="number" step="0.01" name="en_ar_price"
-                                        value="{{ old('en_ar_price', $plan->en_ar_price) }}"
-                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
-                                    @error('en_ar_price')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-
-                                <!-- Foreign → AR Translation Price -->
-                                <div class="col-md-6 mb-25">
-                                    <label class="col-form-label color-dark fw-500 align-center">Foreign → AR Translation /
-                                        Page <span class="text-danger">*</span></label>
-                                    <input type="number" step="0.01" name="for_ar_price"
-                                        value="{{ old('for_ar_price', $plan->for_ar_price) }}"
-                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
-                                    @error('for_ar_price')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-
                                 <!-- Job Posts -->
                                 <div class="col-md-6 mb-25">
                                     <label class="col-form-label color-dark fw-500 align-center">Job Posts / Month <span
