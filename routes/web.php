@@ -51,6 +51,16 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
     // Manage Lawyers
     Route::get('/lawyers', [VendorHomeController::class, 'lawyers'])->name('vendor.lawyers');
     Route::get('/create-lawyer', [VendorHomeController::class, 'createLawyer'])->name('vendor.create.lawyers');
+    Route::post('/store-lawyer', [VendorHomeController::class, 'storeLawyer'])->name('vendor.store.lawyers');
+
+    Route::post('/check-lawyer-email', function (Illuminate\Http\Request $request) {
+        $exists = \App\Models\User::where('email', $request->email)
+            ->where('user_type', 'lawyer')
+            ->exists();
+
+        return response()->json(!$exists); // true means valid, false means already taken
+    })->name('check.lawyer.email');
+
 });
 
 Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {

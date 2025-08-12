@@ -31,7 +31,7 @@ class User extends Authenticatable
         'user_type',
         'language',
         'address',
-        'image','otp_expires_at','otp'
+        'image','otp_expires_at','otp','last_login_at','last_login_ip','is_online'
     ];
 
     /**

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Lawyer extends Model
 {
     protected $fillable = [
-        'lawfirm_id', 'full_name', 'email', 'phone', 'gender', 'date_of_birth', 'emirate_id', 'nationality', 'years_of_experience', 'profile_photo', 'emirate_id_front', 'emirate_id_back', 'emirate_id_expiry', 'passport', 'passport_expiry', 'residence_visa', 'residence_visa_expiry', 'bar_card', 'bar_card_expiry', 'practicing_lawyer_card', 'practicing_lawyer_card_expiry'
+        'lawfirm_id', 'full_name', 'email', 'phone', 'gender', 'date_of_birth', 'emirate_id', 'nationality', 'years_of_experience', 'profile_photo', 'emirate_id_front', 'emirate_id_back', 'emirate_id_expiry', 'passport', 'passport_expiry', 'residence_visa', 'residence_visa_expiry', 'bar_card', 'bar_card_expiry', 'practicing_lawyer_card', 'practicing_lawyer_card_expiry','working_hours'
     ];
 
     public function user()
@@ -31,23 +31,20 @@ class Lawyer extends Model
  
     public function dropdownOptions()
     {
-        return $this->belongsToMany(DropdownOption::class, 'lawyer_dropdown_options');
+        return $this->belongsToMany(DropdownOption::class, 'lawyer_dropdown_options')
+                    ->withPivot('type');
     }
 
     public function specialities()
     {
-        return $this->dropdownOptions()
-            ->whereHas('dropdown', function ($q) {
-                $q->where('slug', 'specialities');
-            });
+        return $this->hasMany(LawyerDropdownOption::class)
+                    ->where('type', 'specialities'); 
     }
 
     public function languages()
     {
-        return $this->dropdownOptions()
-            ->whereHas('dropdown', function ($q) {
-                $q->where('slug', 'languages');
-            });
+        return $this->hasMany(LawyerDropdownOption::class)
+                    ->where('type', 'languages');
     }
 
     protected static function booted()
