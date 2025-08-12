@@ -50,13 +50,12 @@
                     <div class="flex items-middle gap-6 w-full">
                         <div class="relative inline-block">
                             <img class="h-[130px] w-[130px] rounded-full object-cover"
-                                src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/jese-leos.png"
-                                alt="Jackson Carter Avatar">
+                                src="{{ asset(getUploadedUserImage($lawyer->profile_photo)) }}" alt="{{ $lawyer->full_name }}">
                             
                             @if($lawyer->user->is_online)
-                                <span class="absolute bottom-2 right-2 w-4 h-4 bg-green-500 border-2 border-white rounded-full" title="Online"></span>
+                                <span class="absolute bottom-2 right-2 w-5 h-5 bg-green-500 border-2 border-white rounded-full" title="Online"></span>
                             @else
-                                <span class="absolute bottom-2 right-2 w-4 h-4 bg-gray-400 border-2 border-white rounded-full" title="Offline"></span>
+                                <span class="absolute bottom-2 right-2 w-5 h-5 bg-gray-400 border-2 border-white rounded-full" title="Offline"></span>
                             @endif
                         </div>
                         <div>

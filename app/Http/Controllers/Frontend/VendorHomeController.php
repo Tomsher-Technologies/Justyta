@@ -148,7 +148,7 @@ class VendorHomeController extends Controller
                 'bar_card'                          => $request->hasfile('bar_card') ? uploadImage('lawyers/'.$user->id, $request->bar_card, 'bar_card_') : NULL,
                 'bar_card_expiry'                   => $request->bar_card_expiry ? Carbon::parse($request->bar_card_expiry)->format('Y-m-d') : null,
                 'practicing_lawyer_card'            => $request->hasfile('ministry_of_justice_card') ? uploadImage('lawyers/'.$user->id, $request->ministry_of_justice_card, 'lawyer_card_') : NULL,
-                'ministry_of_justice_card_expiry'     => $request->ministry_of_justice_card_expiry ? Carbon::parse($request->ministry_of_justice_card_expiry)->format('Y-m-d') : null,
+                'practicing_lawyer_card_expiry'     => $request->ministry_of_justice_card_expiry ? Carbon::parse($request->ministry_of_justice_card_expiry)->format('Y-m-d') : null,
             ]);
             
             $user->lawyer()->save($lawyer);

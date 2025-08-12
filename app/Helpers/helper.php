@@ -82,6 +82,18 @@ function getUploadedImage(?string $path, string $default = 'assets/img/default_i
     return asset($default);
 }
 
+function getUploadedUserImage(?string $path, string $default = 'assets/img/default_user.png'): string
+{
+    if ($path) {
+        $relativePath = str_replace('/storage/', '', $path);
+        if (Storage::disk('public')->exists($relativePath)) {
+            return asset($path);
+        }
+    }
+
+    return asset($default);
+}
+
 function getUploadedFile(?string $path): string
 {
     if ($path) {

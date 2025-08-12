@@ -56,9 +56,19 @@ class Lawyer extends Model
 
     public static function generateReferenceNumber()
     {
-        $lastId = self::max('id') ?? 0;
-        $nextId = $lastId + 1;
-        return 'LFM-' . str_pad($nextId, 6, '0', STR_PAD_LEFT); 
+        $prefix = 'LFM';
+
+        $lastCode = self::whereNotNull('ref_no')
+            ->orderBy('id', 'desc')
+            ->value('ref_no');
+
+        $nextNumber = 1;
+        if ($lastCode) {
+            preg_match('/(\d+)$/', $lastCode, $matches);
+            $nextNumber = isset($matches[1]) ? intval($matches[1]) + 1 : 1;
+        }
+
+        return $prefix . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
     }
 
     public function translations()
