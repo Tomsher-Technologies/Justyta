@@ -55,6 +55,14 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 
     // Manage membership plans
     Route::resource('membership-plans', MembershipPlanController::class);
+    Route::get('/plan-pricing/{id}', [MembershipPlanController::class, 'indexPricing'])->name('plan-pricing');
+    Route::get('/plan-pricing-create/{id}', [MembershipPlanController::class, 'createPricing'])->name('plan-pricing.create');
+    Route::post('plan-pricing/store', [MembershipPlanController::class, 'storePricing'])->name('plan-pricing.store');
+    Route::get('/plan-pricing-edit/{id}/{planId}', [MembershipPlanController::class, 'editPricing'])->name('plan-pricing.edit');
+    Route::put('plan-pricing/{id}', [MembershipPlanController::class, 'updatePricing'])->name('plan-pricing.update');
+    Route::post('/plan-pricing/status', [MembershipPlanController::class, 'updatePricingStatus'])->name('plan-pricing.status');
+    Route::delete('plan-pricing/{id}', [MembershipPlanController::class, 'destroyPricing'])->name('plan-pricing.destroy');
+
 
     // Manage law firms
     Route::resource('vendors', VendorController::class);

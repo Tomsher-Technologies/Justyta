@@ -33,7 +33,7 @@
                                 @foreach (\App\Models\Emirate::with('translations')->get() as $emirate)
                                     <option value="{{ $emirate->id }}"
                                         {{ old('emirate_id') == $emirate->id ? 'selected' : '' }}>
-                                        {{ $emirate->translation('en')?->name }}
+                                        {{ $emirate->getTranslation('name', app()->getLocale() ?? 'en') }}
                                     </option>
                                 @endforeach
                             </select>
@@ -429,7 +429,7 @@
             // phone simple pattern (+ optional) 7-15 digits
             $.validator.addMethod("phonePattern", function(value, element) {
                 return this.optional(element) || /^[+]?[0-9]{7,15}$/.test(value);
-            }, "{{ __('message.phone_regex') }}");
+            }, "{{ __('messages.phone_regex') }}");
 
             $("#signupForm").validate({
                 ignore: [],

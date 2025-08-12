@@ -1,11 +1,11 @@
-@extends('layouts.admin_default', ['title' => 'Edit Pricing'])
+@extends('layouts.admin_default', ['title' => 'Edit Membership Plan Pricing'])
 
 @section('content')
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
-                    <h4 class="text-capitalize breadcrumb-title">Edit Pricing</h4>
+                    <h4 class="text-capitalize breadcrumb-title">Edit {{ $plan->title }} Plan Pricing</h4>
                 </div>
             </div>
         </div>
@@ -13,7 +13,7 @@
             <div class="col-lg-12">
                 <div class="card card-default card-md mb-4">
                     <div class="card-body pb-md-30">
-                        <form action="{{ route('translator-pricing.update', $pricing->id) }}" method="POST" enctype="multipart/form-data"  autocomplete="off">
+                        <form action="{{ route('plan-pricing.update', $pricing->id) }}" method="POST" enctype="multipart/form-data"  autocomplete="off">
                             @csrf
                             @method('PUT')
                             <div class="row">
@@ -22,7 +22,7 @@
                                     <div class="row">
                                         <div class="col-md-12 mb-4">
                                             <h5><u>Pricing Details</u></h5>
-                                            <input type="hidden" name="translator_id" id="translator_id" value="{{ old('translator_id', $transId) }}" class="form-control" />
+                                            <input type="hidden" name="membership_plan_id" id="membership_plan_id" value="{{ old('membership_plan_id', $planId) }}" class="form-control" />
                                         </div>
 
                                         <div class="col-md-3 mb-3">
@@ -127,8 +127,8 @@
 
                                         <div class="col-md-2 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center"> Translator Amount <span class="text-danger">*</span> </label>
-                                            <input type="number" step="0.01" name="translator_amount_normal_email" id="translator_amount_normal_email" value="{{ old('translator_amount_normal_email', $deliveryValues['normal']['email']->translator_amount ?? 0) }}" class="form-control" />
-                                            @error('translator_amount_normal_email')
+                                            <input type="number" step="0.01" name="plan_amount_normal_email" id="plan_amount_normal_email" value="{{ old('plan_amount_normal_email', $deliveryValues['normal']['email']->translator_amount ?? 0) }}" class="form-control" />
+                                            @error('plan_amount_normal_email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
@@ -169,8 +169,8 @@
 
                                         <div class="col-md-2 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center"> Translator Amount <span class="text-danger">*</span> </label>
-                                            <input type="number" step="0.01" name="translator_amount_normal_physical" id="translator_amount_normal_physical" value="{{ old('translator_amount_normal_physical',$deliveryValues['normal']['physical']->translator_amount ?? 0) }}" class="form-control" />
-                                            @error('translator_amount_normal_physical')
+                                            <input type="number" step="0.01" name="plan_amount_normal_physical" id="plan_amount_normal_physical" value="{{ old('plan_amount_normal_physical',$deliveryValues['normal']['physical']->translator_amount ?? 0) }}" class="form-control" />
+                                            @error('plan_amount_normal_physical')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
@@ -219,8 +219,8 @@
 
                                         <div class="col-md-2 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center"> Translator Amount <span class="text-danger">*</span> </label>
-                                            <input type="number" step="0.01" name="translator_amount_urgent_email" id="translator_amount_urgent_email" value="{{ old('translator_amount_urgent_email',$deliveryValues['urgent']['email']->translator_amount ?? 0) }}" class="form-control" />
-                                            @error('translator_amount_urgent_email')
+                                            <input type="number" step="0.01" name="plan_amount_urgent_email" id="plan_amount_urgent_email" value="{{ old('plan_amount_urgent_email',$deliveryValues['urgent']['email']->translator_amount ?? 0) }}" class="form-control" />
+                                            @error('plan_amount_urgent_email')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
@@ -261,8 +261,8 @@
 
                                         <div class="col-md-2 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center"> Translator Amount <span class="text-danger">*</span> </label>
-                                            <input type="number" step="0.01" name="translator_amount_urgent_physical" id="translator_amount_urgent_physical" value="{{ old('translator_amount_urgent_physical',$deliveryValues['urgent']['physical']->translator_amount ?? 0) }}" class="form-control" />
-                                            @error('translator_amount_urgent_physical')
+                                            <input type="number" step="0.01" name="plan_amount_urgent_physical" id="plan_amount_urgent_physical" value="{{ old('plan_amount_urgent_physical',$deliveryValues['urgent']['physical']->translator_amount ?? 0) }}" class="form-control" />
+                                            @error('plan_amount_urgent_physical')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
@@ -409,7 +409,7 @@
 
                             <div class="form-group d-flex flex-wrap align-items-end">
                                 <button type="submit" class="btn btn-primary btn-sm ">Save</button>
-                                <a href="{{ Session::has('translator_pricing_last_url') ? Session::get('translator_pricing_last_url') : route('translator-pricing', ['id' => $transId ]) }}"
+                                <a href="{{ Session::has('plan_pricing_last_url') ? Session::get('plan_pricing_last_url') : route('plan-pricing', ['id' => $transId ]) }}"
                                     class="btn btn-secondary btn-square btn-sm ml-2">Cancel</a>
                             </div>
                         </form>
@@ -466,9 +466,9 @@
     function calculateNormalEmailTaxAndTotal() {
         let delivery_amount       = parseFloatOrZero($('#email_delivery_normal_email').val());
         let admin_amount    = parseFloatOrZero($('#admin_amount_normal_email').val());
-        let translator_amount       = parseFloatOrZero($('#translator_amount_normal_email').val());
+        let plan_amount       = parseFloatOrZero($('#plan_amount_normal_email').val());
 
-        let subtotal = delivery_amount + admin_amount + translator_amount;
+        let subtotal = delivery_amount + admin_amount + plan_amount;
         let tax = subtotal * 0.05;
         let total = subtotal + tax;
 
@@ -479,9 +479,9 @@
     function calculateNormalPhysicalTaxAndTotal() {
         let delivery_amount       = parseFloatOrZero($('#physical_delivery_normal_physical').val());
         let admin_amount    = parseFloatOrZero($('#admin_amount_normal_physical').val());
-        let translator_amount       = parseFloatOrZero($('#translator_amount_normal_physical').val());
+        let plan_amount       = parseFloatOrZero($('#plan_amount_normal_physical').val());
 
-        let subtotal = delivery_amount + admin_amount + translator_amount;
+        let subtotal = delivery_amount + admin_amount + plan_amount;
         let tax = subtotal * 0.05;
         let total = subtotal + tax;
 
@@ -492,9 +492,9 @@
     function calculateUrgentEmailTaxAndTotal() {
         let delivery_amount       = parseFloatOrZero($('#email_delivery_urgent_email').val());
         let admin_amount    = parseFloatOrZero($('#admin_amount_urgent_email').val());
-        let translator_amount       = parseFloatOrZero($('#translator_amount_urgent_email').val());
+        let plan_amount       = parseFloatOrZero($('#plan_amount_urgent_email').val());
 
-        let subtotal = delivery_amount + admin_amount + translator_amount;
+        let subtotal = delivery_amount + admin_amount + plan_amount;
         let tax = subtotal * 0.05;
         let total = subtotal + tax;
 
@@ -505,9 +505,9 @@
     function calculateUrgentPhysicalTaxAndTotal() {
         let delivery_amount       = parseFloatOrZero($('#physical_delivery_urgent_physical').val());
         let admin_amount    = parseFloatOrZero($('#admin_amount_urgent_physical').val());
-        let translator_amount       = parseFloatOrZero($('#translator_amount_urgent_physical').val());
+        let plan_amount       = parseFloatOrZero($('#plan_amount_urgent_physical').val());
 
-        let subtotal = delivery_amount + admin_amount + translator_amount;
+        let subtotal = delivery_amount + admin_amount + plan_amount;
         let tax = subtotal * 0.05;
         let total = subtotal + tax;
 
@@ -518,19 +518,19 @@
 
      $(document).ready(function () {
   
-        $('#email_delivery_normal_email, #admin_amount_normal_email, #translator_amount_normal_email').on('input', function () {
+        $('#email_delivery_normal_email, #admin_amount_normal_email, #plan_amount_normal_email').on('input', function () {
             calculateNormalEmailTaxAndTotal();
         });
 
-        $('#physical_delivery_normal_physical, #admin_amount_normal_physical, #translator_amount_normal_physical').on('input', function () {
+        $('#physical_delivery_normal_physical, #admin_amount_normal_physical, #plan_amount_normal_physical').on('input', function () {
             calculateNormalPhysicalTaxAndTotal();
         });
 
-        $('#email_delivery_urgent_email, #admin_amount_urgent_email, #translator_amount_urgent_email').on('input', function () {
+        $('#email_delivery_urgent_email, #admin_amount_urgent_email, #plan_amount_urgent_email').on('input', function () {
             calculateUrgentEmailTaxAndTotal();
         });
 
-        $('#physical_delivery_urgent_physical, #admin_amount_urgent_physical, #translator_amount_urgent_physical').on('input', function () {
+        $('#physical_delivery_urgent_physical, #admin_amount_urgent_physical, #plan_amount_urgent_physical').on('input', function () {
             calculateUrgentPhysicalTaxAndTotal();
         });
     });

@@ -55,7 +55,20 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-2 mb-1 d-flex flex-wrap align-items-end">
+                                    <div class="col-md-3 input-group  mb-1 mt-1 ">
+                                        <select name="approval_status"
+                                            class="form-control ih-small ip-gray radius-xs b-light px-15">
+                                            <option value="">--Select Approval Status--</option>
+                                            <option value="3" {{ request()->approval_status == 3 ? 'selected' : '' }}>Pending
+                                            </option>
+                                            <option value="1" {{ request()->approval_status == 1 ? 'selected' : '' }}>Approved
+                                            </option>
+                                            <option value="2" {{ request()->approval_status == 2 ? 'selected' : '' }}>Rejected
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-2 mb-1 mt-1 d-flex flex-wrap align-items-end">
                                         <button class="btn btn-primary btn-sm " type="submit">Filter</button>
                                         <a href="{{ route('vendors.index') }}"
                                             class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
@@ -70,7 +83,6 @@
                                             <th class="text-center">#</th>
                                             <th>Reference No</th>
                                             <th width="25%">Law Firm Info</th>
-                                            {{-- <th>Owner</th> --}}
                                             <th class="text-center">Plan</th>
                                             <th class="text-center">Start Date</th>
                                             <th class="text-center">End Date</th>
@@ -91,10 +103,10 @@
                                                         <td class="text-center">{{ $vendor->ref_no }}</td>
                                                         <td>
                                                             <div class="d-flex align-items-center">
-                                                                @if ($vendor->logo)
+                                                                {{-- @if ($vendor->logo)
                                                                     <img src="{{ asset(getUploadedImage($vendor->logo)) }}"
                                                                         alt="Logo" class="list-avatar">
-                                                                @endif
+                                                                @endif --}}
                                                                 {{ $vendor->law_firm_name }}
                                                                 <i class="fas fa-info-circle text-primary ml-2 popover-toggle"
                                                                     tabindex="0" data-toggle="popover" data-placement="bottom"
@@ -118,19 +130,7 @@
                                                                     '></i>
                                                             </div>
                                                         </td>
-                                                        {{-- <td>
-                                                            {{ $vendor->owner_name }}
-                                                            <i class="fas fa-info-circle text-primary ml-2 popover-toggle"
-                                                                tabindex="0" data-toggle="popover" data-placement="bottom"
-                                                                data-html="true" data-trigger="manual"
-                                                                title='<div class="popover-title">Owner Contact Info</div>'
-                                                                data-content='
-                                                                        <div class="custom-popover">
-                                                                            <div class="popover-item"><i class="fas fa-envelope"></i> {{ $vendor->owner_email }}</div>
-                                                                            <div class="popover-item"><i class="fas fa-phone"></i> {{ $vendor->owner_phone }}</div>
-                                                                        </div>
-                                                                    '></i>
-                                                        </td> --}}
+                                                        
                                                         <td class="text-center">
                                                             {{ $vendor->currentSubscription->plan->title ?? 'N/A' }}</td>
                                                         <td class="text-center">
@@ -162,14 +162,14 @@
                                                         <td class="text-center">
                                                             @if($vendor->user->approved == 0)
                                                                 @can('approve_vendor')
-                                                                    <div class="flex gap-2">
+                                                                    <div class="d-flex ">
                                                                         
-                                                                        <button type="button" class="btn btn-xs btn-primary hover:bg-green-700"
+                                                                        <button type="button" class="btn btn-xxs btn-primary hover:bg-green-700"
                                                                             onclick="update_vendor_status({{ $vendor->user_id }}, 'approve')">
                                                                             Approve
                                                                         </button>
                                                                         <button type="button"
-                                                                            class="btn btn-xs btn-danger hover:bg-red-700"
+                                                                            class="ml-1 btn btn-xxs btn-danger hover:bg-red-700"
                                                                             onclick="update_vendor_status({{ $vendor->user_id }}, 'reject')">
                                                                             Reject
                                                                         </button>
