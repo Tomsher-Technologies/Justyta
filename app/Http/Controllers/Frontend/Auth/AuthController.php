@@ -63,6 +63,11 @@ class AuthController extends Controller
         }
 
         Auth::guard('frontend')->login($user);
+
+        $user->update([
+            'last_login_at' => now(),
+            'last_login_ip' => request()->ip(),
+        ]);
         session(['locale' => $user->language]);
        
         return match ($user->user_type) {

@@ -5,6 +5,7 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\Auth\AuthController;
 use App\Http\Controllers\Frontend\ServiceRequestController;
 use App\Http\Controllers\Frontend\UserController;
+use App\Http\Controllers\Frontend\VendorHomeController;
 
 require __DIR__.'/admin.php';
 
@@ -46,9 +47,20 @@ Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:law
 });
 
 Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:vendor'])->group(function () {
-    Route::get('/dashboard', function () {
-        return 'Vendor Dashboard';
-    })->name('vendor.dashboard');
+    Route::get('/dashboard', [VendorHomeController::class, 'dashboard'])->name('vendor.dashboard');
+    // Manage Lawyers
+    Route::get('/lawyers', [VendorHomeController::class, 'lawyers'])->name('vendor.lawyers');
+    Route::get('/create-lawyer', [VendorHomeController::class, 'createLawyer'])->name('vendor.create.lawyers');
+    Route::post('/store-lawyer', [VendorHomeController::class, 'storeLawyer'])->name('vendor.store.lawyers');
+
+    Route::post('/check-lawyer-email', function (Illuminate\Http\Request $request) {
+        $exists = \App\Models\User::where('email', $request->email)
+            ->where('user_type', 'lawyer')
+            ->exists();
+
+        return response()->json(!$exists); // true means valid, false means already taken
+    })->name('check.lawyer.email');
+
 });
 
 Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {
