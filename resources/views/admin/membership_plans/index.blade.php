@@ -99,7 +99,7 @@
                                             @endcan
 
                                             @can('view_plan_pricing')
-                                                <a href="{{ route('plan-pricing', base64_encode($plan->id)) }}" class="btn btn-sm btn-secondary ml-2">Pricing</a>
+                                                <a href="{{ route('plan-pricing', base64_encode($plan->id)) }}" class="btn btn-sm btn-secondary ml-2">Translation Pricing</a>
                                             @endcan
                                         </div>
                                         
