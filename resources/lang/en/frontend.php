@@ -229,8 +229,6 @@ return [
     'resend_code_in' => 'Resend code in ',
     'didnt_receive_otp' => "Didn't receive OTP? ",
     'resend_otp' => 'Resend OTP',
-
-
     'back_to_login' => 'Back to Login',
     'law_firm_information' => 'Law Firm Information',
     'law_firm_name' => 'Law Firm Name',
@@ -300,6 +298,8 @@ return [
     'last_login' => 'Last login',
     'no_of_consultation' => 'No. of Consultation',
     'no_data_found' => 'No Data Found',
+
+    
     '' => '',
     '' => '',
     '' => '',
