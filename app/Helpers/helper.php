@@ -6,6 +6,8 @@ use App\Models\EnquiryStatus;
 use App\Models\Service;
 use App\Models\Page;
 use App\Models\User;
+use App\Models\VendorSubscription;
+use App\Models\Lawyer;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Request;
@@ -52,6 +54,24 @@ function getActiveLanguage()
         return Session::get('locale');
     }
     return 'en';
+}
+
+
+function checkLawyerLimit()
+{
+    $lawfirmId = Auth::guard('frontend')->user()->vendor?->id;
+
+    $lawfirmPlan = VendorSubscription::where('vendor_id', $lawfirmId)
+        ->where('status', 'active')
+        ->first();
+
+    $lawyerCount = Lawyer::where('lawfirm_id', $lawfirmId)->count();
+
+    if ($lawfirmPlan && $lawyerCount < $lawfirmPlan->member_count) {
+        return true; 
+    }
+
+    return false; 
 }
 
 function uploadImage($type, $imageUrl, $filename = null){

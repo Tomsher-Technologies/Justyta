@@ -46,7 +46,17 @@
     @if ($lawyers->isNotEmpty())
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($lawyers as $key => $lawyer)
-                <div class="{{ $lawyer->user->banned == 1 ? 'bg-gray-100 opacity-50' : 'bg-white' }} rounded-lg border border-[#DDD3B9] p-6">
+                <div class="{{ $lawyer->user->banned == 1 ? 'bg-gray-100 opacity-50' : 'bg-white' }} rounded-lg border border-[#DDD3B9] p-6 relative">
+                    {{-- Edit Link --}}
+                    <a href="{{ route('vendor.edit.lawyers', $lawyer->id) }}" 
+                    class="absolute top-3 right-3 text-blue-600 hover:underline text-sm">
+                        <svg class="w-6 h-6 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" 
+                            stroke-width="2"
+                            d="M09 7H4a2 3 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-06M16.5 3.5a2.121 2.1 0 013 3L10 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                    </a>
+
                     <div class="flex items-middle gap-6 w-full">
                         <div class="relative inline-block">
                             <img class="h-[130px] w-[130px] rounded-full object-cover"
@@ -72,6 +82,7 @@
                         </div>
                     </div>
                 </div>
+
             @endforeach
         </div>
     @else

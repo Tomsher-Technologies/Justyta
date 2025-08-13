@@ -61,6 +61,8 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
         return response()->json(!$exists); // true means valid, false means already taken
     })->name('check.lawyer.email');
 
+    Route::get('/edit-lawyer/{id}', [VendorHomeController::class, 'editLawyer'])->name('vendor.edit.lawyers');
+    Route::put('/update-lawyer/{id}', [VendorHomeController::class, 'updateLawyer'])->name('vendor.update.lawyers');
 });
 
 Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {
