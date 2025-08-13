@@ -5,13 +5,13 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
-                    <h4 class="text-capitalize breadcrumb-title">Membership Plan Pricing - {{ $plan->title ?? '' }}</h4>
+                    <h4 class="text-capitalize breadcrumb-title">Membership Plan Translation Pricing - {{ $plan->title ?? '' }}</h4>
                     <div class="breadcrumb-action justify-content-center flex-wrap">
 
                         @can('add_plan_pricing')
                             <div class="action-btn d-flex">
                                 <a href="{{ route('plan-pricing.create',['id' => base64_encode($plan->id)]) }}" class="btn btn-sm btn-primary btn-add">
-                                    <i class="la la-plus"></i> Add New Pricing</a>
+                                    <i class="la la-plus"></i> Add New Translation Pricing</a>
                                 
                                 <a href="{{ Session::has('plan_last_url') ? Session::get('plan_last_url') : route('plan-pricing', base64_encode($plan->id)) }}" class="btn btn-sm btn-secondary ml-2">← Back</a>
                             </div>
