@@ -28,7 +28,7 @@
             </li>
 
             <li class="flex items-center gap-2">
-                <a href="{{ route('vendor.lawyers') }}" class="contents {{ areActiveWebRoutes(['vendor.lawyers','vendor.create.lawyers','vendor.edit.lawyers']) }}">
+                <a href="{{ route('vendor.lawyers') }}" class="contents {{ areActiveWebRoutes(['vendor.lawyers','vendor.create.lawyers','vendor.edit.lawyers','vendor.view.lawyers']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="27" height="29" viewBox="0 0 27 29"
                         fill="none">
                         <path

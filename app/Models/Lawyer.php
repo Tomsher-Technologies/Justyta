@@ -24,7 +24,12 @@ class Lawyer extends Model
         return $this->belongsTo(Emirate::class,'emirate_id');
     }
 
-    public function nationality()
+    public function yearsExperienceOption()
+    {
+        return $this->belongsTo(DropdownOption::class, 'years_of_experience');
+    }
+
+    public function nationalityCountry()
     {
         return $this->belongsTo(Country::class,'nationality');
     }
@@ -38,13 +43,13 @@ class Lawyer extends Model
     public function specialities()
     {
         return $this->hasMany(LawyerDropdownOption::class)
-                    ->where('type', 'specialities'); 
+                    ->where('type', 'specialities')->with(['dropdownOption']); 
     }
 
     public function languages()
     {
         return $this->hasMany(LawyerDropdownOption::class)
-                    ->where('type', 'languages');
+                    ->where('type', 'languages')->with(['dropdownOption']); 
     }
 
     protected static function booted()
@@ -74,5 +79,18 @@ class Lawyer extends Model
     public function translations()
     {
         return $this->hasMany(LawyerTranslation::class);
+    }
+
+     public function getTranslation($field = '', $lang = false)
+    {
+        $lang = $lang == false ? getActiveLanguage() : $lang;
+        $translations = $this->translations->where('lang', $lang)->first();
+    
+         
+        if (!$translations || empty($translations->$field)) {
+            $translations = $this->translations->where('lang', 'en')->first();
+        }
+
+        return $translations != null ? $translations->$field : $this->$field;
     }
 }

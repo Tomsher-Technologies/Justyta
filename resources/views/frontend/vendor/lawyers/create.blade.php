@@ -5,6 +5,13 @@
 
     <div class="flex justify-between items-center mb-8">
         <h2 class="text-xl font-semibold text-gray-800">{{ __('frontend.lawyer_information') }}</h2>
+
+        <a href="{{ Session::has('lawyers_last_url') ? Session::get('lawyers_last_url') : route('vendor.lawyers') }}" class="ml-2 flex text-black bg-[#ccb478] rounded-full py-2.5 px-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-6 text-gray-700 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7 7-7M3 12h18" />
+            </svg>
+            {{ __('frontend.go_back') }}
+        </a>
     </div>
     <div class="mx-auto mt-10">
         <!-- Stepper -->
@@ -12,7 +19,7 @@
             <div class="flex justify-between items-center">
                 <div class="step flex flex-col items-start z-[999]" data-step="0">
                     <div
-                        class="circle w-8 h-8 flex items-center justify-center relative  rounded-full bg-blue-600 text-white">
+                        class="circle w-8 h-8 flex items-center justify-center relative  rounded-full bg-[#ccb478] text-white">
                         1</div>
                     <span class="text-sm mt-2 z-[999]">{{ __('frontend.lawyer_information') }}</span>
                 </div>
@@ -29,7 +36,7 @@
             </div>
             <!-- Progress Line -->
             <div class="absolute top-4 left-2 w-[99%] h-1 bg-gray-200 z-0">
-                <div id="progress-bar" class="h-1 bg-blue-600 w-0 transition-all duration-300 z-[-1] relative">
+                <div id="progress-bar" class="h-1 bg-[#ccb478] w-0 transition-all duration-300 z-[-1] relative">
                 </div>
             </div>
         </div>
@@ -282,7 +289,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Bar Card/Legal Certificate<span
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.bar_card_legal_certificate') }}<span
                                 class="text-red-500">*</span></label>
                         <input type="file" name="bar_card" id="bar_cardInput" accept="image/*,application/pdf"
                             class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full">
@@ -292,7 +299,7 @@
                         <div id="bar_cardPreview" class="mt-2" style="display:none;"></div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Bar Card/Legal Certificate Expiry<span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.bar_card_legal_certificate_expiry') }}<span class="text-red-500">*</span></label>
                         <input type="date" name="bar_card_expiry" id="bar_card_expiry" value="{{ old('bar_card_expiry') }}"
                             class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                         @error('bar_card_expiry')
@@ -349,7 +356,7 @@
             <!-- Navigation -->
             <div class="flex justify-between mt-4">
                 <button type="button" id="prevBtn" class="px-4 py-2 text-sm text-white bg-gray-500 rounded disabled:opacity-50" disabled>Previous</button>
-                <button type="button" id="nextBtn" class="px-4 py-2 text-sm text-white bg-blue-600 rounded">Next</button>
+                <button type="button" id="nextBtn" class="px-4 py-2 text-sm text-white bg-[#07683B] rounded">Next</button>
             </div>
         </form>
 
@@ -376,10 +383,10 @@
                 steps.forEach((step, index) => {
                     const circle = step.querySelector(".circle");
                     if (index === currentStep) {
-                    circle.classList.replace("bg-gray-300", "bg-blue-600");
+                    circle.classList.replace("bg-gray-300", "bg-[#ccb478]");
                     circle.classList.replace("text-gray-800", "text-white");
                     } else {
-                    circle.classList.replace("bg-blue-600", "bg-gray-300");
+                    circle.classList.replace("bg-[#ccb478]", "bg-gray-300");
                     circle.classList.replace("text-white", "text-gray-800");
                     }
                 });

@@ -47,8 +47,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($lawyers as $key => $lawyer)
                 <div class="{{ $lawyer->user->banned == 1 ? 'bg-gray-100 opacity-50' : 'bg-white' }} rounded-lg border border-[#DDD3B9] p-6 relative">
-                    {{-- Edit Link --}}
-                    <a href="{{ route('vendor.edit.lawyers', $lawyer->id) }}" 
+                    <a href="{{ route('vendor.edit.lawyers', base64_encode($lawyer->id)) }}" 
                     class="absolute top-3 right-3 text-blue-600 hover:underline text-sm">
                         <svg class="w-6 h-6 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" 
@@ -57,30 +56,32 @@
                         </svg>
                     </a>
 
-                    <div class="flex items-middle gap-6 w-full">
-                        <div class="relative inline-block">
-                            <img class="h-[130px] w-[130px] rounded-full object-cover"
-                                src="{{ asset(getUploadedUserImage($lawyer->profile_photo)) }}" alt="{{ $lawyer->full_name }}">
-                            
-                            @if($lawyer->user->is_online)
-                                <span class="absolute bottom-2 right-2 w-5 h-5 bg-green-500 border-2 border-white rounded-full" title="Online"></span>
-                            @else
-                                <span class="absolute bottom-2 right-2 w-5 h-5 bg-gray-400 border-2 border-white rounded-full" title="Offline"></span>
-                            @endif
-                        </div>
-                        <div>
-                            <div class="border-b pb-4 mb-4">
-                                <h3 class="text-lg font-semibold text-gray-900">{{ $lawyer->full_name }}</h3>
-                                <p class="text-sm text-gray-500">{{ $lawyer->ref_no }}</p>
+                    <a href="{{ route('vendor.view.lawyers', base64_encode($lawyer->id)) }}">
+                        <div class="flex items-middle gap-6 w-full">
+                            <div class="relative inline-block">
+                                <img class="h-[130px] w-[130px] rounded-full object-cover"
+                                    src="{{ asset(getUploadedUserImage($lawyer->profile_photo)) }}" alt="{{ $lawyer->getTranslation('full_name', app()->getLocale()) }}">
+                                
+                                @if($lawyer->user->is_online)
+                                    <span class="absolute bottom-2 right-2 w-5 h-5 bg-green-500 border-2 border-white rounded-full" title="Online"></span>
+                                @else
+                                    <span class="absolute bottom-2 right-2 w-5 h-5 bg-gray-400 border-2 border-white rounded-full" title="Offline"></span>
+                                @endif
                             </div>
-                            <div class="text-sm text-gray-700">
-                                <p>{{ __('frontend.last_login') }} : <span class="font-medium">
-                                    {{ ($lawyer->user?->last_login_at != null) ? date('d M Y, h:i A', strtotime($lawyer->user?->last_login_at)) : '' }}
-                                </span></p>
-                                <p>{{ __('frontend.no_of_consultation') }} : <span class="font-medium">0</span></p>
+                            <div>
+                                <div class="border-b pb-4 mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">{{ $lawyer->getTranslation('full_name', app()->getLocale()) }}</h3>
+                                    <p class="text-sm text-gray-500">{{ $lawyer->ref_no }}</p>
+                                </div>
+                                <div class="text-sm text-gray-700">
+                                    <p>{{ __('frontend.last_login') }} : <span class="font-medium">
+                                        {{ ($lawyer->user?->last_login_at != null) ? date('d M Y, h:i A', strtotime($lawyer->user?->last_login_at)) : '' }}
+                                    </span></p>
+                                    <p>{{ __('frontend.no_of_consultation') }} : <span class="font-medium">0</span></p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
             @endforeach

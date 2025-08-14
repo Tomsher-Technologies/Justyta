@@ -63,6 +63,7 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
 
     Route::get('/edit-lawyer/{id}', [VendorHomeController::class, 'editLawyer'])->name('vendor.edit.lawyers');
     Route::put('/update-lawyer/{id}', [VendorHomeController::class, 'updateLawyer'])->name('vendor.update.lawyers');
+    Route::get('/lawyer-details/{id}', [VendorHomeController::class, 'viewLawyer'])->name('vendor.view.lawyers');
 });
 
 Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {

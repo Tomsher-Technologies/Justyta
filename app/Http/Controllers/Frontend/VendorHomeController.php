@@ -65,7 +65,7 @@ class VendorHomeController extends Controller
             });
         }
 
-        $lawyers = $query->paginate(12);
+        $lawyers = $query->orderBy('id', 'DESC')->paginate(12);
         $dropdowns = Dropdown::with(['options.translations'])->whereIn('slug', ['specialities'])->get()->keyBy('slug');
         return view('frontend.vendor.lawyers.index', compact('lang','lawyers','dropdowns'));
     }
@@ -144,17 +144,17 @@ class VendorHomeController extends Controller
                 'nationality'                       => $request->country, 
                 'years_of_experience'               => $request->experience, 
                 'working_hours'                     => $request->working_hours,     
-                'profile_photo'                     => $request->hasfile('photo') ? uploadImage('lawyers/'.$user->id, $request->photo, 'lawyer_') : NULL,
-                'emirate_id_front'                  => $request->hasfile('emirates_id_front') ? uploadImage('lawyers/'.$user->id, $request->emirates_id_front, 'emirate_id_') : NULL,
-                'emirate_id_back'                   => $request->hasfile('emirates_id_back') ? uploadImage('lawyers/'.$user->id, $request->emirates_id_back, 'emirate_id_') : NULL,
+                'profile_photo'                     => $request->hasfile('photo') ? uploadImage('lawyers/'.$user->id, $request->photo, 'lawyer') : NULL,
+                'emirate_id_front'                  => $request->hasfile('emirates_id_front') ? uploadImage('lawyers/'.$user->id, $request->emirates_id_front, 'emirate_id_front') : NULL,
+                'emirate_id_back'                   => $request->hasfile('emirates_id_back') ? uploadImage('lawyers/'.$user->id, $request->emirates_id_back, 'emirate_id_back') : NULL,
                 'emirate_id_expiry'                 => $request->emirates_id_expiry ? Carbon::parse($request->emirates_id_expiry)->format('Y-m-d') : null,
-                'passport'                          => $request->hasfile('passport') ? uploadImage('lawyers/'.$user->id, $request->passport, 'passport_') : NULL,
+                'passport'                          => $request->hasfile('passport') ? uploadImage('lawyers/'.$user->id, $request->passport, 'passport') : NULL,
                 'passport_expiry'                   => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : null,
-                'residence_visa'                    => $request->hasfile('residence_visa') ? uploadImage('lawyers/'.$user->id, $request->residence_visa, 'residence_visa_') : NULL,
+                'residence_visa'                    => $request->hasfile('residence_visa') ? uploadImage('lawyers/'.$user->id, $request->residence_visa, 'residence_visa') : NULL,
                 'residence_visa_expiry'             => $request->residence_visa_expiry ? Carbon::parse($request->residence_visa_expiry)->format('Y-m-d') : null,
-                'bar_card'                          => $request->hasfile('bar_card') ? uploadImage('lawyers/'.$user->id, $request->bar_card, 'bar_card_') : NULL,
+                'bar_card'                          => $request->hasfile('bar_card') ? uploadImage('lawyers/'.$user->id, $request->bar_card, 'bar_card') : NULL,
                 'bar_card_expiry'                   => $request->bar_card_expiry ? Carbon::parse($request->bar_card_expiry)->format('Y-m-d') : null,
-                'practicing_lawyer_card'            => $request->hasfile('ministry_of_justice_card') ? uploadImage('lawyers/'.$user->id, $request->ministry_of_justice_card, 'lawyer_card_') : NULL,
+                'practicing_lawyer_card'            => $request->hasfile('ministry_of_justice_card') ? uploadImage('lawyers/'.$user->id, $request->ministry_of_justice_card, 'lawyer_card') : NULL,
                 'practicing_lawyer_card_expiry'     => $request->ministry_of_justice_card_expiry ? Carbon::parse($request->ministry_of_justice_card_expiry)->format('Y-m-d') : null,
             ]);
             
@@ -189,6 +189,7 @@ class VendorHomeController extends Controller
     }
 
     public function editLawyer($id){
+        $id = base64_decode($id);
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
         
         $dropdowns = Dropdown::with(['options.translations'])->whereIn('slug', ['specialities', 'languages', 'years_experience'])->get()->keyBy('slug');
@@ -247,6 +248,7 @@ class VendorHomeController extends Controller
             'name' => $request->translations['en']['name'],
             // 'email' => $request->email,
             'phone' => $request->phone,
+            'banned' => $request->status ?? $user->banned,
             'password' => $request->filled('password') ? Hash::make($request->password) : $user->password
         ]);
 
@@ -262,17 +264,17 @@ class VendorHomeController extends Controller
             'nationality'                       => $request->country, 
             'years_of_experience'               => $request->experience, 
             'working_hours'                     => $request->working_hours,  
-            'profile_photo'                     => $this->replaceFile($request, 'profile_photo', $lawyer, $uploadPath, 'lawyer_'),
-            'emirate_id_front'                  => $this->replaceFile($request, 'emirate_id_front', $lawyer, $uploadPath, 'emirate_id_front_'),
-            'emirate_id_back'                   => $this->replaceFile($request, 'emirate_id_back', $lawyer, $uploadPath, 'emirate_id_back_'),
+            'profile_photo'                     => $this->replaceFile($request, 'profile_photo', $lawyer, $uploadPath, 'lawyer'),
+            'emirate_id_front'                  => $this->replaceFile($request, 'emirate_id_front', $lawyer, $uploadPath, 'emirate_id_front'),
+            'emirate_id_back'                   => $this->replaceFile($request, 'emirate_id_back', $lawyer, $uploadPath, 'emirate_id_back'),
             'emirate_id_expiry'                 => $request->emirates_id_expiry ? Carbon::parse($request->emirates_id_expiry)->format('Y-m-d') : $lawyer->emirate_id_expiry, 
-            'passport'                          => $this->replaceFile($request, 'passport', $lawyer, $uploadPath, 'passport_'),
+            'passport'                          => $this->replaceFile($request, 'passport', $lawyer, $uploadPath, 'passport'),
             'passport_expiry'                   => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : $lawyer->passport_expiry,
-            'residence_visa'                    => $this->replaceFile($request, 'residence_visa', $lawyer, $uploadPath, 'residence_visa_'),
+            'residence_visa'                    => $this->replaceFile($request, 'residence_visa', $lawyer, $uploadPath, 'residence_visa'),
             'residence_visa_expiry'             => $request->residence_visa_expiry ? Carbon::parse($request->residence_visa_expiry)->format('Y-m-d') : $lawyer->residence_visa_expiry,
-            'bar_card'                          => $this->replaceFile($request, 'bar_card', $lawyer, $uploadPath, 'bar_card_'),
+            'bar_card'                          => $this->replaceFile($request, 'bar_card', $lawyer, $uploadPath, 'bar_card'),
             'bar_card_expiry'                   => $request->bar_card_expiry ? Carbon::parse($request->bar_card_expiry)->format('Y-m-d') : $lawyer->bar_card_expiry,
-            'practicing_lawyer_card'            => $this->replaceFile($request, 'practicing_lawyer_card', $lawyer, $uploadPath, 'lawyer_card_'),
+            'practicing_lawyer_card'            => $this->replaceFile($request, 'practicing_lawyer_card', $lawyer, $uploadPath, 'lawyer_card'),
             'practicing_lawyer_card_expiry'     => $request->ministry_of_justice_card_expiry ? Carbon::parse($request->ministry_of_justice_card_expiry)->format('Y-m-d') : $lawyer->ministry_of_justice_card_expiry  
         ]);
 
@@ -325,4 +327,15 @@ class VendorHomeController extends Controller
         return $lawyer->$fieldName;
     }
 
+    public function viewLawyer($id){
+        $id = base64_decode($id);
+        $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
+       
+        $lawyer = Lawyer::with('lawfirm', 'emirate')->findOrFail($id);
+    
+        $specialityIds = $lawyer->dropdownOptions()->wherePivot('type', 'specialities')->pluck('dropdown_option_id')->toArray();
+        $languageIds = $lawyer->dropdownOptions()->wherePivot('type', 'languages')->pluck('dropdown_option_id')->toArray();
+
+        return view('frontend.vendor.lawyers.show', compact('lang', 'lawyer','specialityIds','languageIds'));
+    }
 }
