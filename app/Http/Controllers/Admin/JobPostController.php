@@ -17,9 +17,9 @@ class JobPostController extends Controller
     {
         $this->middleware('auth');
        
-        $this->middleware('permission:manage_plan',  ['only' => ['index','destroy']]);
-        $this->middleware('permission:add_plan',  ['only' => ['create','store']]);
-        $this->middleware('permission:edit_plan',  ['only' => ['edit','update']]);
+        $this->middleware('permission:manage_job_post',  ['only' => ['index','destroy']]);
+        $this->middleware('permission:add_job_post',  ['only' => ['create','store']]);
+        $this->middleware('permission:edit_job_post',  ['only' => ['edit','update']]);
     }
 
     public function index(Request $request)
@@ -90,7 +90,6 @@ class JobPostController extends Controller
             'deadline_date' => 'required|date',
             'translations.en.title' => 'required',
             'translations.en.description' => 'required',
-            'translations.en.salary' => 'required'
         ],[
             '*.required' => 'This field is required',
             'translations.en.*.required' => 'This field is required',
@@ -130,7 +129,6 @@ class JobPostController extends Controller
             'deadline_date' => 'required|date',
             'translations.en.title' => 'required',
             'translations.en.description' => 'required',
-            'translations.en.salary' => 'required'
         ],[
             '*.required' => 'This field is required',
             'translations.en.*.required' => 'This field is required',

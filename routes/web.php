@@ -6,6 +6,7 @@ use App\Http\Controllers\Frontend\Auth\AuthController;
 use App\Http\Controllers\Frontend\ServiceRequestController;
 use App\Http\Controllers\Frontend\UserController;
 use App\Http\Controllers\Frontend\VendorHomeController;
+use App\Http\Controllers\Frontend\VendorJobPostController;
 
 require __DIR__.'/admin.php';
 
@@ -64,6 +65,14 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
     Route::get('/edit-lawyer/{id}', [VendorHomeController::class, 'editLawyer'])->name('vendor.edit.lawyers');
     Route::put('/update-lawyer/{id}', [VendorHomeController::class, 'updateLawyer'])->name('vendor.update.lawyers');
     Route::get('/lawyer-details/{id}', [VendorHomeController::class, 'viewLawyer'])->name('vendor.view.lawyers');
+
+    //Manage job posts
+    Route::resource('jobs', VendorJobPostController::class);
+    Route::post('/jobs/status', [VendorJobPostController::class, 'updateStatus'])->name('jobs.status');
+    Route::get('/jobs/details/{id}', [VendorJobPostController::class, 'jobPostDetails'])->name('jobs.details');
+    Route::get('/jobs/edit/{id}', [VendorJobPostController::class, 'edit'])->name('jobs.edit');
+    Route::post('/jobs/delete', [VendorJobPostController::class, 'destroy'])->name('jobs.delete');
+    Route::get('/jobs/applications/{id}', [VendorJobPostController::class, 'applications'])->name('jobs.applications');
 });
 
 Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {

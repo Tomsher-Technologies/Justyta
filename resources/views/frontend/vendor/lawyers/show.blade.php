@@ -15,7 +15,7 @@
                     {{ __('frontend.edit') }}
                 </a>
 
-                <a href="{{ Session::has('lawyers_last_url') ? Session::get('lawyers_last_url') : route('vendor.lawyers') }}" class="ml-2 flex text-black bg-[#ccb478] rounded-full py-2.5 px-6">
+                <a href="{{ Session::has('lawyers_last_url') ? Session::get('lawyers_last_url') : route('vendor.lawyers') }}" class="ml-2 flex text-black bg-[#ccb478] rounded-full px-4 py-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-6 text-gray-700 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7 7-7M3 12h18" />
                     </svg>
