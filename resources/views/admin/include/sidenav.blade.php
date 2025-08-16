@@ -229,9 +229,9 @@
                     @endcan
 
                     @can('manage_dropdown_option')
-                        <li class="has-child {{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index', 'document-types.index','free-zones.index','contract-types.index','court-requests.index','public-prosecutions.index','license-types.index','countries.index','emirates.index']) }}">
+                        <li class="has-child {{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index', 'document-types.index','free-zones.index','contract-types.index','court-requests.index','public-prosecutions.index','license-types.index','countries.index','emirates.index','case-types.index']) }}">
                             <a href="#"
-                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index','document-types.index','free-zones.index','contract-types.index','court-requests.index','public-prosecutions.index','license-types.index','countries.index','emirates.index']) }}">
+                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index','document-types.index','free-zones.index','contract-types.index','court-requests.index','public-prosecutions.index','license-types.index','countries.index','emirates.index','case-types.index']) }}">
                                 <span data-feather="list" class="nav-icon"></span>
                                 <span class="menu-text">Dropdown Contents</span>
                                 <span class="toggle-icon"></span>
@@ -241,6 +241,11 @@
                                 <li>
                                     <a class="{{ areActiveRoutes(['emirates.index']) }}"
                                         href="{{ route('emirates.index') }}">Emirates</a>
+                                </li>
+
+                                <li>
+                                    <a class="{{ areActiveRoutes(['case-types.index']) }}"
+                                        href="{{ route('case-types.index') }}">Case Types</a>
                                 </li>
 
                                 <li>

@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\ServiceRequestController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\FeedbackController;
 use App\Http\Controllers\Admin\AdController;
+use App\Http\Controllers\Admin\CaseTypeController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -92,6 +93,13 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::post('/contract-types/status', [ContractTypeController::class, 'updateStatus'])->name('contract-types.status');
     Route::get('/contract-types/edit/{id}', [ContractTypeController::class, 'edit']);
 
+    // Manage case types
+    Route::resource('case-types', CaseTypeController::class);
+    Route::post('/case-types/status', [CaseTypeController::class, 'updateStatus'])->name('case-types.status');
+    Route::get('/case-types/edit/{id}', [CaseTypeController::class, 'edit']);
+
+  
+    
     // Manage court requests
     Route::resource('court-requests', CourtRequestController::class);
     Route::post('/court-requests/status', [CourtRequestController::class, 'updateStatus'])->name('court-requests.status');
