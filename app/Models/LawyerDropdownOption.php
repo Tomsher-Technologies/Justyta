@@ -13,4 +13,9 @@ class LawyerDropdownOption extends Model
     ];
 
     public $timestamps = false; 
+
+    public function dropdownOption()
+    {
+        return $this->belongsTo(DropdownOption::class);
+    }
 }
