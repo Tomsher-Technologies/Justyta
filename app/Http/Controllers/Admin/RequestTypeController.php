@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\CaseType;
-use App\Models\CaseTypeTranslation;
+use App\Models\RequestType;
+use App\Models\RequestTypeTranslation;
 use App\Models\Language;
-use App\Models\Emirate;
+use App\Models\RequestTitle;
+use App\Models\RequestTitleTranslation;
 
-class CaseTypeController extends Controller
+class RequestTypeController extends Controller
 {
     function __construct()
     {
@@ -19,13 +20,15 @@ class CaseTypeController extends Controller
         $this->middleware('permission:add_dropdown_option',  ['only' => ['create','store']]);
         $this->middleware('permission:edit_dropdown_option',  ['only' => ['edit','update']]);
     }
-
     public function index(Request $request)
     {
-        $query = CaseType::query();
+        $request->session()->put('request_types_last_url', url()->full());
+        $query = RequestType::query();
 
         if ($request->filled('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%');
+            $query->whereHas('translations', function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%');
+            });
         }
 
         if ($request->filled('litigation_place')) {
@@ -45,11 +48,11 @@ class CaseTypeController extends Controller
             }
         }
 
-        $case_types = $query->orderBy('id','desc')->paginate(20)->appends($request->all());
+        $request_types = $query->orderBy('id','desc')->paginate(20)->appends($request->all());
 
         $languages = Language::where('status', 1)->orderBy('id')->get();
 
-        return view('admin.case_types.index', compact('case_types','languages'));
+        return view('admin.request_types.index', compact('request_types', 'languages'));
     }
 
     public function store(Request $request)
@@ -69,7 +72,7 @@ class CaseTypeController extends Controller
             'emirate_id.required' => 'Emirate is required',
         ]);
 
-        $type = CaseType::create([
+        $type = RequestType::create([
             'litigation_place' => $request->litigation_place,
             'litigation_type' => $request->litigation_type,
             'status' => $request->status,
@@ -89,7 +92,7 @@ class CaseTypeController extends Controller
             }
         }
 
-        session()->flash('success', 'Case type created successfully.');
+        session()->flash('success', 'Request type created successfully.');
 
         return response()->json(['success' => true, 'data' => $type]);
     }
@@ -110,11 +113,11 @@ class CaseTypeController extends Controller
             'emirate_id.required' => 'Emirate is required',
         ]);
 
-        $type = CaseType::find($id);
+        $type = RequestType::find($id);
 
         if (!$type) {
             return response()->json([
-                'error' => 'Case type not found.'
+                'error' => 'Request type not found.'
             ], 404);
         }
 
@@ -135,16 +138,16 @@ class CaseTypeController extends Controller
             );
         }
 
-        session()->flash('success', 'Case type updated successfully.');
+        session()->flash('success', 'Request type updated successfully.');
         return response()->json([
-            'message' => 'Case type updated successfully',
-            'case_type' => $type
+            'message' => 'Request type updated successfully',
+            'request_type' => $type
         ]);
     }
 
     public function edit($id)
     {
-        $type = CaseType::with('translations')->findOrFail($id);
+        $type = RequestType::with('translations')->findOrFail($id);
 
         return response()->json([
             'id' => $type->id,
@@ -158,7 +161,7 @@ class CaseTypeController extends Controller
 
     public function updateStatus(Request $request)
     {
-        $type = CaseType::findOrFail($request->id);
+        $type = RequestType::findOrFail($request->id);
         $newStatus = $request->status;
 
         $type->status = $newStatus;
@@ -166,4 +169,5 @@ class CaseTypeController extends Controller
        
         return 1;
     }
+
 }
