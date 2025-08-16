@@ -116,9 +116,9 @@
 
                                         <div class="col-md-4 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center">Profile Photo</label>
-                                            <input type="file" name="photo" id="logoInput" accept="image/*"
+                                            <input type="file" name="profile_photo" id="logoInput" accept="image/*"
                                                 class="form-control ih-small ip-gray radius-xs b-light px-15 ">
-                                            @error('photo')
+                                            @error('profile_photo')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
                                            

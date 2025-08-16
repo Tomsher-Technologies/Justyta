@@ -229,9 +229,9 @@
                     @endcan
 
                     @can('manage_dropdown_option')
-                        <li class="has-child {{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index', 'document-types.index','free-zones.index','contract-types.index','court-requests.index','public-prosecutions.index','license-types.index','countries.index','emirates.index']) }}">
+                        <li class="has-child {{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index', 'document-types.index','free-zones.index','contract-types.index','court-requests.index','public-prosecutions.index','license-types.index','countries.index','emirates.index','case-types.index','request-types.index','request-titles.index']) }}">
                             <a href="#"
-                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index','document-types.index','free-zones.index','contract-types.index','court-requests.index','public-prosecutions.index','license-types.index','countries.index','emirates.index']) }}">
+                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index','document-types.index','free-zones.index','contract-types.index','court-requests.index','public-prosecutions.index','license-types.index','countries.index','emirates.index','case-types.index','request-types.index','request-titles.index']) }}">
                                 <span data-feather="list" class="nav-icon"></span>
                                 <span class="menu-text">Dropdown Contents</span>
                                 <span class="toggle-icon"></span>
@@ -244,6 +244,11 @@
                                 </li>
 
                                 <li>
+                                    <a class="{{ areActiveRoutes(['case-types.index']) }}"
+                                        href="{{ route('case-types.index') }}">Case Types</a>
+                                </li>
+
+                                <li>
                                     <a class="{{ areActiveRoutes(['contract-types.index']) }}"
                                         href="{{ route('contract-types.index') }}">Contract Types</a>
                                 </li>
@@ -253,10 +258,10 @@
                                         href="{{ route('countries.index') }}">Countries</a>
                                 </li>
 
-                                <li>
+                                {{-- <li>
                                     <a class="{{ areActiveRoutes(['court-requests.index']) }}"
                                         href="{{ route('court-requests.index') }}">Court Requests</a>
-                                </li>
+                                </li> --}}
 
                                 <li>
                                     <a class="{{ areActiveRoutes(['document-types.index']) }}"
@@ -273,9 +278,14 @@
                                         href="{{ route('license-types.index') }}">License Types & Activities</a>
                                 </li>
 
-                                <li>
+                                {{-- <li>
                                     <a class="{{ areActiveRoutes(['public-prosecutions.index']) }}"
                                         href="{{ route('public-prosecutions.index') }}">Public Prosecution Types</a>
+                                </li> --}}
+
+                                <li>
+                                    <a class="{{ areActiveRoutes(['request-types.index','request-titles.index']) }}"
+                                        href="{{ route('request-types.index') }}">Request Types & Titles</a>
                                 </li>
 
                                 <li>

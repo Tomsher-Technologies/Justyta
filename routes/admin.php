@@ -28,6 +28,9 @@ use App\Http\Controllers\Admin\ServiceRequestController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\FeedbackController;
 use App\Http\Controllers\Admin\AdController;
+use App\Http\Controllers\Admin\CaseTypeController;
+use App\Http\Controllers\Admin\RequestTypeController;
+use App\Http\Controllers\Admin\RequestTitleController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -91,6 +94,24 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::resource('contract-types', ContractTypeController::class);
     Route::post('/contract-types/status', [ContractTypeController::class, 'updateStatus'])->name('contract-types.status');
     Route::get('/contract-types/edit/{id}', [ContractTypeController::class, 'edit']);
+
+    // Manage case types
+    Route::resource('case-types', CaseTypeController::class);
+    Route::post('/case-types/status', [CaseTypeController::class, 'updateStatus'])->name('case-types.status');
+    Route::get('/case-types/edit/{id}', [CaseTypeController::class, 'edit']);
+
+    // Manage Request Types and Titles
+    Route::resource('request-types', RequestTypeController::class);
+    Route::post('/request-types/status', [RequestTypeController::class, 'updateStatus'])->name('request-types.status');
+    Route::get('/request-types/edit/{id}', [RequestTypeController::class, 'edit']);
+
+    // Manage request Titles
+    // Route::resource('request-titles', RequestTitleController::class);
+    Route::get('/request-titles/{id}', [RequestTitleController::class, 'index'])->name('request-titles.index');
+    Route::post('/request-titles/store', [RequestTitleController::class, 'store'])->name('request-titles.store');
+    Route::get('/request-titles/edit/{id}', [RequestTitleController::class, 'edit'])->name('request-titles.edit');
+    Route::put('/request-titles/{id}', [RequestTitleController::class, 'update'])->name('request-titles.update');
+    Route::post('/request-titles/status', [RequestTitleController::class, 'updateStatus'])->name('request-titles.status');
 
     // Manage court requests
     Route::resource('court-requests', CourtRequestController::class);
