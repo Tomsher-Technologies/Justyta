@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Emirate;
+use App\Models\EmirateLitigation;
 use App\Models\Language;
+use DB;
 
 class EmirateController extends Controller
 {
@@ -20,11 +22,8 @@ class EmirateController extends Controller
 
     public function index(Request $request)
     {
-        $query = Emirate::query();
-
-        if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
-        }
+        $module = $request->module ?? 'others';
+        $query = EmirateLitigation::with(['emirate']);
 
         if ($request->filled('status')) {
             if ($request->status == 1) {
@@ -34,11 +33,17 @@ class EmirateController extends Controller
             }
         }
 
-        $emirates = $query->orderBy('name','ASC')->paginate(20)->appends($request->all());
+        if ($request->filled('module')) {
+            $query->where('slug', $request->module);
+        }else{
+            $query->where('slug', $module);
+        }
+
+        $emirates = $query->orderBy('emirate_id','ASC')->paginate(20)->appends($request->all());
 
         $languages = Language::where('status', 1)->orderBy('id')->get();
 
-        return view('admin.emirates.index', compact('emirates', 'languages'));
+        return view('admin.emirates.index', compact('emirates', 'languages', 'module'));
     }
 
      public function store(Request $request)
@@ -88,11 +93,11 @@ class EmirateController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|boolean',
+            // 'status' => 'required|boolean',
             'translations.en.name' => 'required|string|max:255'
         ],[
             'translations.en.name.required' => 'English name field is required',
-            'status.required' => 'Status is required',
+            // 'status.required' => 'Status is required',
         ]);
         $emirate = Emirate::find($id);
 
@@ -101,8 +106,8 @@ class EmirateController extends Controller
                 'error' => 'Emirate not found.'
             ], 404);
         }
-        $emirate->status = $request->input('status');
-        $emirate->save();
+        // $emirate->status = $request->input('status');
+        // $emirate->save();
 
         foreach ($request->translations as $lang => $data) {
             if($lang === 'en'){
@@ -124,7 +129,7 @@ class EmirateController extends Controller
 
     public function updateStatus(Request $request)
     {
-        $emirate = Emirate::findOrFail($request->id);
+        $emirate = EmirateLitigation::findOrFail($request->id);
         $newStatus = $request->status;
         $emirate->status = $newStatus;
         $emirate->save();
@@ -134,9 +139,19 @@ class EmirateController extends Controller
 
     public function updateFederalStatus(Request $request)
     {
-        $emirate = Emirate::findOrFail($request->id);
+        $emirate = EmirateLitigation::findOrFail($request->id);
         $newStatus = $request->status;
         $emirate->is_federal = $newStatus;
+        $emirate->save();
+
+        return 1;
+    }
+
+    public function updateLocalStatus(Request $request)
+    {
+        $emirate = EmirateLitigation::findOrFail($request->id);
+        $newStatus = $request->status;
+        $emirate->is_local = $newStatus;
         $emirate->save();
 
         return 1;
