@@ -306,7 +306,9 @@
             }, function(data) {
                 if (data == 1) {
                     toastr.success('Translator pricing status updated successfully');
-                   
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
                 } else {
                     toastr.error('Something went wrong');
                     setTimeout(function() {
@@ -319,13 +321,11 @@
         $(function() {
             $('.popover-toggle').popover();
 
-            // Show on hover/focus
             $('.popover-toggle').on('mouseenter focus', function() {
-                $('.popover-toggle').not(this).popover('hide'); // hide others
+                $('.popover-toggle').not(this).popover('hide'); 
                 $(this).popover('show');
             });
 
-            // Hide on mouseleave or blur only if not hovering popover
             $('.popover-toggle').on('mouseleave blur', function() {
                 let _this = this;
                 setTimeout(function() {
@@ -335,7 +335,6 @@
                 }, 200);
             });
 
-            // Keep popover open on hover
             $(document).on('mouseenter', '.popover', function() {
                 clearTimeout(window._popoverTimeout);
             });
@@ -344,7 +343,6 @@
                 $('[data-toggle="popover"]').popover('hide');
             });
 
-            // Re-render Feather if used
             $(document).on('shown.bs.popover', function() {
                 if (window.feather) feather.replace();
             });

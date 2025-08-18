@@ -61,7 +61,7 @@ class TranslatorController extends Controller
 
         if ($request->filled('status')) {
             $query->whereHas('user', function ($q) use ($request) {
-                 if ($request->status == 1) {
+                if ($request->status == 1) {
                     $q->where('banned', 0);
                 } elseif ($request->status == 2) {
                     $q->where('banned', 1);
@@ -389,7 +389,11 @@ class TranslatorController extends Controller
                     ->where('translator_id', $translatorId);
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if ($request->status == 1) {
+                $query->where('status', 1);
+            } elseif ($request->status == 2) {
+                $query->where('status', 0);
+            }
         }
 
         if ($request->filled('from_language_id')) {

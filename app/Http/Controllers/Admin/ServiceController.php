@@ -6,11 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\Language;
+use App\Models\Dropdown;
+use App\Models\ExpertReportPricing;
 use App\Models\ServiceTranslation;
 use App\Models\ConsultationDuration;
 use App\Models\AnnualRetainerBaseFee;
 use App\Models\AnnualRetainerInstallment;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class ServiceController extends Controller
 {
@@ -18,9 +24,9 @@ class ServiceController extends Controller
     {
         $this->middleware('auth');
        
-        $this->middleware('permission:manage_service',  ['only' => ['index','destroy']]);
-        $this->middleware('permission:view_service',  ['only' => ['index']]);
-        $this->middleware('permission:edit_service',  ['only' => ['edit','update','updateStatus']]);
+        $this->middleware('permission:manage_service',  ['only' => ['index','destroy','indexExpertPricing']]);
+        $this->middleware('permission:view_service',  ['only' => ['index','indexExpertPricing']]);
+        $this->middleware('permission:edit_service',  ['only' => ['edit','update','updateStatus','createExpertPricing','storeExpertPricing', 'editExpertPricing','updateExpertPricing','destroyExpertPricing']]);
     }
 
     public function index(Request $request)
@@ -172,4 +178,153 @@ class ServiceController extends Controller
         return 1;
     }
 
+
+     public function indexExpertPricing(Request $request)
+    {
+        $request->session()->put('expert_pricing_last_url', url()->full());
+
+        $query = ExpertReportPricing::with(['reportType','language']);
+                
+        if ($request->filled('status')) {
+            if ($request->status == 1) {
+                $query->where('status', 1);
+            } elseif ($request->status == 2) {
+                $query->where('status', 0);
+            }
+        }
+
+        if ($request->filled('report_lang')) {
+            $query->where('language_id', $request->report_lang);
+        }
+
+        if ($request->filled('report_type')) {
+            $query->where('expert_report_type_id', $request->report_type);
+        }
+
+        if ($request->filled('litigation_type')) {
+            $query->where('litigation_type', $request->litigation_type);
+        }
+
+        $expertPricing = $query->orderBy('id', 'DESC')->paginate(20); 
+
+        $dropdowns = Dropdown::with(['options.translations' => function ($q) {
+                                    $q->where('language_code', 'en');
+                                }])->whereIn('slug', ['expert_report_type','expert_report_languages'])->get()->keyBy('slug');
+
+        return view('admin.services.index-report-pricing', compact('dropdowns','expertPricing'));
+    }
+
+    public function createExpertPricing(){
+        $dropdowns = Dropdown::with(['options.translations' => function ($q) {
+                                    $q->where('language_code', 'en');
+                                }])->whereIn('slug', ['expert_report_type','expert_report_languages'])->get()->keyBy('slug');
+        return view('admin.services.create-report-pricing', compact('dropdowns'));
+    }
+
+    public function storeExpertPricing(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'litigation_type'           => 'required',
+            'expert_report_type'        => 'required',
+            'expert_report_language'    => 'required',
+            'admin_amount'              => 'required|numeric|min:0',
+            'tax_amount'                => 'required|numeric|min:0',
+            'total_amount'              => 'required|numeric|min:0',
+        ],[
+            '*.required'                        => 'This field is required.'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $exists = ExpertReportPricing::where('litigation_type', $request->litigation_type)
+                                    ->where('expert_report_type_id', $request->expert_report_type)
+                                    ->where('language_id', $request->expert_report_language)
+                                    ->exists();
+
+        if ($exists) {
+            return redirect()->back()->withInput()->withErrors([
+                'litigation_type' => 'Pricing for this combination already exists.'
+            ]);
+        }
+
+        $rate = ExpertReportPricing::create([
+            'litigation_type'       => $request->litigation_type,
+            'expert_report_type_id' => $request->expert_report_type,
+            'language_id'           => $request->expert_report_language,
+            'admin_fee'             => $request->admin_amount,
+            'status'                => 1
+        ]);
+
+        session()->flash('success','Expert report pricing created successfully.');
+       
+        return redirect()->route('expert-pricing.index');
+    }
+
+    public function editExpertPricing($id){
+        $pricing = ExpertReportPricing::find(base64_decode($id));
+        $dropdowns = Dropdown::with(['options.translations' => function ($q) {
+                                    $q->where('language_code', 'en');
+                                }])->whereIn('slug', ['expert_report_type','expert_report_languages'])->get()->keyBy('slug');
+        return view('admin.services.edit-report-pricing', compact('dropdowns','pricing'));
+    }
+
+    public function updateExpertPricing(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'litigation_type'           => 'required',
+            'expert_report_type'        => 'required',
+            'expert_report_language'    => 'required',
+            'admin_amount'              => 'required|numeric|min:0',
+            'tax_amount'                => 'required|numeric|min:0',
+            'total_amount'              => 'required|numeric|min:0',
+        ],[
+            '*.required'                        => 'This field is required.'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+        $pricing = ExpertReportPricing::findOrFail($id);
+
+        $exists = ExpertReportPricing::where('litigation_type', $request->litigation_type)
+                                    ->where('expert_report_type_id', $request->expert_report_type)
+                                    ->where('language_id', $request->expert_report_language)
+                                    ->where('id', '!=', $id)
+                                    ->exists();
+
+        if ($exists) {
+            return redirect()->back()->withInput()->withErrors([
+                'litigation_type' => 'Pricing for this combination already exists.'
+            ]);
+        }
+
+        $pricing->update([
+            'litigation_type'       => $request->litigation_type,
+            'expert_report_type_id' => $request->expert_report_type,
+            'language_id'           => $request->expert_report_language,
+            'admin_fee'             => $request->admin_amount
+        ]);
+
+        $url =  session()->get('expert_pricing_last_url') ?? route('expert-pricing.index');
+        return redirect($url)->with('success', 'Pricing updated successfully.');
+    }
+
+    public function updateExpertPricingStatus(Request $request)
+    {
+        $price = ExpertReportPricing::findOrFail($request->id);
+        
+        $price->status = $request->status;
+        $price->save();
+       
+        return 1;
+    }
+
+    public function destroyExpertPricing($id)
+    {
+        $price = ExpertReportPricing::findOrFail($id);
+        $price->delete();
+        return redirect()->back()->with('success', 'Expert report pricing deleted successfully.');
+    }
 }
