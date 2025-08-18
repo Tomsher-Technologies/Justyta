@@ -38,7 +38,6 @@
                                         }
                                     @endphp
                                     <select name="module" onchange="this.form.submit()" class="select2 form-control ih-small ip-gray radius-xs b-light px-15">
-                                        
                                         <option value="">-- Select Module --</option>
                                         <option {{ $module === "annual-retainer-agreement" ? 'selected' : '' }} value="annual-retainer-agreement">Companies Retainership Annual Agreement</option>
                                         <option {{ $module === "company-setup" ? 'selected' : '' }} value="company-setup">Company Setup</option>
