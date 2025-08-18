@@ -26,13 +26,38 @@
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
                             <form class="row mb-2" id="sort_brands" action="" method="GET" autocomplete="off">
-                                <div class="col-md-4 input-group  mb-1">
-                                    <input type="text" class="form-control ih-small ip-gray radius-xs b-light px-15"
-                                        id="search" name="search" value="{{ request()->search }}"
-                                        placeholder="Type emirate name..">
+                                <div class="col-md-5 input-group  mb-1">
+                                    
+                                    @php
+                                        $module = request()->module ?? 'others';
+                                        $local_federal_need = false;
+                                        $local_federal = ['court-case-submission','criminal-complaint','expert-report','memo-writing','online-live-consultancy','request-submission'];
+
+                                        if (in_array($module,$local_federal)) {
+                                            $local_federal_need = true;
+                                        }
+                                    @endphp
+                                    <select name="module" class="select2 form-control ih-small ip-gray radius-xs b-light px-15">
+                                        
+                                        <option value="">-- Select Module --</option>
+                                        <option {{ $module === "annual-retainer-agreement" ? 'selected' : '' }} value="annual-retainer-agreement">Companies Retainership Annual Agreement</option>
+                                        <option {{ $module === "company-setup" ? 'selected' : '' }} value="company-setup">Company Setup</option>
+                                        <option {{ $module === "contract-drafting" ? 'selected' : '' }} value="contract-drafting">Contract Drafting</option>
+                                        <option {{ $module === "court-case-submission" ? 'selected' : '' }} value="court-case-submission">Court Case Submission</option>
+                                        <option {{ $module === "criminal-complaint" ? 'selected' : '' }} value="criminal-complaint">Criminal Complaint</option>
+                                        <option {{ $module === "debts-collection" ? 'selected' : '' }} value="debts-collection">Debts Collection</option>
+                                        <option {{ $module === "expert-report" ? 'selected' : '' }} value="expert-report">Expert Report</option>
+                                        <option {{ $module === "last-will-and-testament" ? 'selected' : '' }} value="last-will-and-testament">Last Will & Testament</option>
+                                        <option {{ $module === "memo-writing" ? 'selected' : '' }} value="memo-writing">Memo Writing</option>
+                                        <option {{ $module === "online-live-consultancy" ? 'selected' : '' }} value="online-live-consultancy">Online Live Consultancy</option>
+                                        <option {{ $module === "others" ? 'selected' : '' }} value="others">Others</option>
+                                        <option {{ $module === "power-of-attorney" ? 'selected' : '' }} value="power-of-attorney">Power Of Attorney</option>
+                                        <option {{ $module === "request-submission" ? 'selected' : '' }} value="request-submission">Request Submission</option>
+                                        <option {{ $module === "training" ? 'selected' : '' }} value="training">Training</option>
+                                    </select>
                                 </div>
 
-                                <div class="col-md-3 input-group  mb-1">
+                                {{-- <div class="col-md-3 input-group  mb-1">
                                     <select name="status" class="form-control ih-small ip-gray radius-xs b-light px-15">
                                         <option value="">--Select Status--</option>
                                         <option value="1" {{ request()->status == 1 ? 'selected' : '' }}>Active
@@ -40,7 +65,7 @@
                                         <option value="2" {{ request()->status == 2 ? 'selected' : '' }}>Inactive
                                         </option>
                                     </select>
-                                </div>
+                                </div> --}}
 
                                 <div class="col-md-3 mb-1 d-flex flex-wrap align-items-end">
                                     <button class="btn btn-primary btn-sm " type="submit">Filter</button>
@@ -55,7 +80,10 @@
                                         <tr class="userDatatable-header">
                                             <th class="text-center">Sl No.</th>
                                             <th>Emirate Name</th>
-                                            <th class="text-center">Federal</th>
+                                            @if ($local_federal_need)
+                                                <th class="text-center">Local</th>
+                                                <th class="text-center">Federal</th>    
+                                            @endif
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Actions</th>
                                         </tr>
@@ -68,24 +96,38 @@
                                                         <td class="text-center ">
                                                             {{ $key + 1 + ($emirates->currentPage() - 1) * $emirates->perPage() }}
                                                         </td>
-                                                        <td class="">{{ $type->name }}</td>
-                                                        <td class="text-center ">
-                                                            @can('edit_dropdown_option')
-                                                                <div class="atbd-switch-wrap">
-                                                                    <div
-                                                                        class="custom-control custom-switch switch-secondary switch-sm ">
-                                                                        <input type="checkbox" class="custom-control-input"
-                                                                            id="switch_{{ $type->id }}"
-                                                                            onchange="update_federal_status(this)"
-                                                                            value="{{ $type->id }}" <?php if ($type->is_federal == 1) {
-                                                                                echo 'checked';
-                                                                            } ?>>
-                                                                        <label class="custom-control-label"
-                                                                            for="switch_{{ $type->id }}"></label>
+                                                        <td class="">{{ $type->emirate->name }}</td>
+                                                        @if ($local_federal_need)
+                                                            <td class="text-center ">
+                                                                @can('edit_dropdown_option')
+                                                                    <div class="atbd-switch-wrap">
+                                                                        <div class="custom-control custom-switch switch-secondary switch-sm ">
+                                                                            <input type="checkbox" class="custom-control-input"
+                                                                                id="switch_local_{{ $type->id }}"  onchange="update_local_status(this)"
+                                                                                value="{{ $type->id }}" <?php if ($type->is_local == 1) {
+                                                                                    echo 'checked';
+                                                                                } ?>>
+                                                                            <label class="custom-control-label" for="switch_local_{{ $type->id }}"></label>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            @endcan
-                                                        </td>
+                                                                @endcan
+                                                            </td>
+
+                                                            <td class="text-center ">
+                                                                @can('edit_dropdown_option')
+                                                                    <div class="atbd-switch-wrap">
+                                                                        <div class="custom-control custom-switch switch-secondary switch-sm ">
+                                                                            <input type="checkbox" class="custom-control-input"
+                                                                                id="switch_federal_{{ $type->id }}"  onchange="update_federal_status(this)"
+                                                                                value="{{ $type->id }}" <?php if ($type->is_federal == 1) {
+                                                                                    echo 'checked';
+                                                                                } ?>>
+                                                                            <label class="custom-control-label" for="switch_federal_{{ $type->id }}"></label>
+                                                                        </div>
+                                                                    </div>
+                                                                @endcan
+                                                            </td>
+                                                        @endif
 
                                                         <td class="text-center ">
                                                             @can('edit_dropdown_option')
@@ -108,7 +150,7 @@
                                                         <td class="text-center">
                                                             @can('edit_dropdown_option')
                                                                 <div class="table-actions">
-                                                                    <a class="edit-btn" data-id="{{ $type->id }}" title="Edit Emirate"  style="cursor: pointer;">
+                                                                    <a class="edit-btn" data-id="{{ $type->emirate->id }}" title="Edit Emirate"  style="cursor: pointer;">
                                                                         <span data-feather="edit"></span></a>
                                                                 </div>
                                                             @endcan
@@ -178,14 +220,14 @@
 
                         
                         
-                        <div class="form-group mb-2 col-sm-6">
+                        {{-- <div class="form-group mb-2 col-sm-6">
                             <label class="col-form-label color-dark fw-500 align-center">Status</label>
                             <select name="status" id="typeStatus"
                                 class="form-control ih-small ip-gray radius-xs b-light px-15">
                                 <option value="1">Active</option>
                                 <option value="0">Inactive</option>
                             </select>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary btn-sm">Save</button>
@@ -313,6 +355,32 @@
             }, function(data) {
                 if (data == 1) {
                     toastr.success('Federal status updated successfully');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
+
+                } else {
+                    toastr.error('Something went wrong');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
+                }
+            });
+        }
+
+        function update_local_status(el) {
+            if (el.checked) {
+                var status = 1;
+            } else {
+                var status = 0;
+            }
+            $.post('{{ route('emirates.local-status') }}', {
+                _token: '{{ csrf_token() }}',
+                id: el.value,
+                status: status
+            }, function(data) {
+                if (data == 1) {
+                    toastr.success('Local status updated successfully');
                     setTimeout(function() {
                         window.location.reload();
                     }, 2000);

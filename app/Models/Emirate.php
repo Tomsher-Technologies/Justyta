@@ -13,6 +13,11 @@ class Emirate extends Model
         return $this->hasMany(EmirateTranslation::class);
     }
 
+    public function emirate_litigations()
+    {
+        return $this->hasMany(EmirateLitigation::class);
+    }
+
     public function translation($lang = null)
     {
         $lang = $lang ?: app()->getLocale();

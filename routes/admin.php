@@ -133,6 +133,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::post('/emirates/status', [EmirateController::class, 'updateStatus'])->name('emirates.status');
     Route::get('/emirates/edit/{id}', [EmirateController::class, 'edit']);
     Route::post('/emirates/federal-status', [EmirateController::class, 'updateFederalStatus'])->name('emirates.federal-status');
+    Route::post('/emirates/local-status', [EmirateController::class, 'updateLocalStatus'])->name('emirates.local-status');
 
     // Manage countries
     Route::resource('countries', CountryController::class);
