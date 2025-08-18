@@ -144,6 +144,14 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::resource('services', ServiceController::class);
     Route::post('/services/status', [ServiceController::class, 'updateStatus'])->name('services.status');
 
+    Route::get('/expert-pricing', [ServiceController::class, 'indexExpertPricing'])->name('expert-pricing.index');
+    Route::get('/expert-pricing-create', [ServiceController::class, 'createExpertPricing'])->name('expert-pricing.create');
+    Route::post('expert-pricing/store', [ServiceController::class, 'storeExpertPricing'])->name('expert-pricing.store');
+    Route::get('/expert-pricing-edit/{id}', [ServiceController::class, 'editExpertPricing'])->name('expert-pricing.edit');
+    Route::put('expert-pricing/{id}', [ServiceController::class, 'updateExpertPricing'])->name('expert-pricing.update');
+    Route::post('/expert-pricing/status', [ServiceController::class, 'updateExpertPricingStatus'])->name('expert-pricing.status');
+    Route::delete('expert-pricing/{id}', [ServiceController::class, 'destroyExpertPricing'])->name('expert-pricing.destroy');
+
     // Manage pages
     Route::resource('pages', PageController::class);
 

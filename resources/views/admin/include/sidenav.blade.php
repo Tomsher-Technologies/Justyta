@@ -16,7 +16,7 @@
                 @can('manage_service')
                     <li class="">
                         <a href="{{ route('services.index') }}"
-                            class="{{ areActiveRoutes(['services.index', 'services.edit']) }}">
+                            class="{{ areActiveRoutes(['services.index', 'services.edit','expert-pricing.index','expert-pricing.create','expert-pricing.edit']) }}">
                             <span data-feather="layers" class="nav-icon"></span>
                             <span class="menu-text">Services</span>
                         </a>
