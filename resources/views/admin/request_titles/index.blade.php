@@ -56,7 +56,7 @@
                                         <tr class="userDatatable-header">
                                             <th class="text-center">Sl No.</th>
                                             <th class="text-start">Title</th>
-                                            <th class="text-center">Request Type</th>
+                                            {{-- <th class="text-center">Request Type</th> --}}
                                             <th class="text-center">Sort Order</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Actions</th>
@@ -68,7 +68,7 @@
                                                 <tr>
                                                     <td class="text-center">{{ $key + 1 + ($titles->currentPage() - 1) * $titles->perPage() }}</td>
                                                     <td class="text-start">{{ $title->title }}</td>
-                                                    <td class="text-center">{{ $title->type->getTranslation('title', 'en') }}</td>
+                                                    {{-- <td class="text-center">{{ $title->type->getTranslation('title', 'en') }}</td> --}}
                                                     <td class="text-center">{{ $title->sort_order }}</td>
                                                     <td class="text-center">
                                                         @can('edit_dropdown_option')
