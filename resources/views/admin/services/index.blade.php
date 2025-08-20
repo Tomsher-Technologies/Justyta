@@ -100,7 +100,9 @@
                                                                     <span data-feather="credit-card"></span>
                                                                 </a>
                                                             @elseif ($service->slug === 'request-submission')
-                                                            
+                                                                <a href="{{ route('request-pricing.index') }}" title="Edit Request Submission Pricing">
+                                                                    <span data-feather="credit-card"></span>
+                                                                </a>
                                                             @endif
                                                         </div>
                                                     @endcan
