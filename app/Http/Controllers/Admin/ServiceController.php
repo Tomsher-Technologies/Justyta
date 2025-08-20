@@ -12,6 +12,7 @@ use App\Models\ServiceTranslation;
 use App\Models\ConsultationDuration;
 use App\Models\AnnualRetainerBaseFee;
 use App\Models\AnnualRetainerInstallment;
+use App\Models\RequestSubmissionPricing;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -24,9 +25,9 @@ class ServiceController extends Controller
     {
         $this->middleware('auth');
        
-        $this->middleware('permission:manage_service',  ['only' => ['index','destroy','indexExpertPricing']]);
-        $this->middleware('permission:view_service',  ['only' => ['index','indexExpertPricing']]);
-        $this->middleware('permission:edit_service',  ['only' => ['edit','update','updateStatus','createExpertPricing','storeExpertPricing', 'editExpertPricing','updateExpertPricing','destroyExpertPricing']]);
+        $this->middleware('permission:manage_service',  ['only' => ['index','destroy','indexExpertPricing','indexRequestPricing']]);
+        $this->middleware('permission:view_service',  ['only' => ['index','indexExpertPricing','indexRequestPricing']]);
+        $this->middleware('permission:edit_service',  ['only' => ['edit','update','updateStatus','createExpertPricing','storeExpertPricing', 'editExpertPricing','updateExpertPricing','destroyExpertPricing','createRequestPricing','storeRequestPricing', 'editRequestPricing','updateRequestPricing','destroyRequestPricing']]);
     }
 
     public function index(Request $request)
@@ -327,4 +328,191 @@ class ServiceController extends Controller
         $price->delete();
         return redirect()->back()->with('success', 'Expert report pricing deleted successfully.');
     }
+
+     public function indexRequestPricing(Request $request)
+    {
+        $request->session()->put('request_pricing_last_url', url()->full());
+
+        $query = RequestSubmissionPricing::with(['requestTitle','caseType','requestType']);
+                
+        if ($request->filled('status')) {
+            if ($request->status == 1) {
+                $query->where('status', 1);
+            } elseif ($request->status == 2) {
+                $query->where('status', 0);
+            }
+        }
+
+        if ($request->filled('request_title')) {
+            $query->where('request_title_id', $request->request_title);
+        }
+
+        if ($request->filled('request_type')) {
+            $query->where('request_type_id', $request->request_type);
+        }
+        
+        if ($request->filled('case_type')) {
+            $query->where('case_type_id', $request->case_type);
+        }
+
+        if ($request->filled('litigation_type')) {
+            $query->where('litigation_type', $request->litigation_type);
+        }
+
+        if ($request->filled('litigation_place')) {
+            $query->where('litigation_place', $request->litigation_place);
+        }
+
+        $requestPricing = $query->orderBy('id', 'DESC')->paginate(20); 
+
+        return view('admin.services.index-request-pricing', compact('requestPricing'));
+    }
+
+    public function createRequestPricing(){
+        
+        return view('admin.services.create-request-pricing');
+    }
+
+    public function storeRequestPricing(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'litigation_type'   => 'required',
+            'litigation_place'  => 'required',
+            'case_type'         => 'required',
+            'request_title'     => 'required',
+            'request_type'      => 'required',
+            'govt_amount'       => 'nullable|numeric|min:0',
+            'admin_amount'      => 'required|numeric|min:0',
+            'tax_amount'        => 'required|numeric|min:0',
+            'total_amount'      => 'required|numeric|min:0',
+        ],[
+            '*.required'                        => 'This field is required.'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $exists = RequestSubmissionPricing::where('request_title_id', $request->request_title)
+                                    ->where('request_type_id', $request->request_type)
+                                    ->where('case_type_id', $request->case_type)
+                                    ->exists();
+
+        if ($exists) {
+            return redirect()->back()->withInput()->withErrors([
+                'litigation_type' => 'Pricing for this combination already exists.'
+            ]);
+        }
+
+        $rate = RequestSubmissionPricing::create([
+            'litigation_type'       => $request->litigation_type ?? null,
+            'litigation_place'      => $request->litigation_place ?? null,
+            'case_type_id'          => $request->case_type ?? null,
+            'request_title_id'      => $request->request_title ?? null,
+            'request_type_id'       => $request->request_type ?? null,
+            'govt_fee'              => $request->govt_amount ?? 0,
+            'admin_fee'             => $request->admin_amount ?? 0,
+            'vat'                   => $request->tax_amount ?? 0,
+            'total_amount'          => $request->total_amount ?? 0,
+            'status'                => 1
+        ]);
+
+        session()->flash('success','Request submission pricing created successfully.');
+       
+        return redirect()->route('request-pricing.index');
+    }
+
+    public function editRequestPricing($id){
+        $pricing = RequestSubmissionPricing::find(base64_decode($id));
+       
+        return view('admin.services.edit-request-pricing', compact('pricing'));
+    }
+
+    public function updateRequestPricing(Request $request, $id)
+    {
+         $validator = Validator::make($request->all(), [
+            'litigation_type'   => 'required',
+            'litigation_place'  => 'required',
+            'case_type'         => 'required',
+            'request_title'     => 'required',
+            'request_type'      => 'required',
+            'govt_amount'       => 'nullable|numeric|min:0',
+            'admin_amount'      => 'required|numeric|min:0',
+            'tax_amount'        => 'required|numeric|min:0',
+            'total_amount'      => 'required|numeric|min:0',
+        ],[
+            '*.required'                        => 'This field is required.'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+        $pricing = RequestSubmissionPricing::findOrFail($id);
+
+        $exists = RequestSubmissionPricing::where('request_title_id', $request->request_title)
+                                    ->where('request_type_id', $request->request_type)
+                                    ->where('case_type_id', $request->case_type)
+                                    ->where('id', '!=', $id)
+                                    ->exists();
+
+        if ($exists) {
+            return redirect()->back()->withInput()->withErrors([
+                'litigation_type' => 'Pricing for this combination already exists.'
+            ]);
+        }
+
+        $pricing->update([
+            'litigation_type'       => $request->litigation_type ?? null,
+            'litigation_place'      => $request->litigation_place ?? null,
+            'case_type_id'          => $request->case_type ?? null,
+            'request_title_id'      => $request->request_title ?? null,
+            'request_type_id'       => $request->request_type ?? null,
+            'govt_fee'              => $request->govt_amount ?? 0,
+            'admin_fee'             => $request->admin_amount ?? 0,
+            'vat'                   => $request->tax_amount ?? 0,
+            'total_amount'          => $request->total_amount ?? 0,
+        ]);
+
+        $url =  session()->get('request_pricing_last_url') ?? route('request-pricing.index');
+        return redirect($url)->with('success', 'Pricing updated successfully.');
+    }
+
+    public function updateRequestPricingStatus(Request $request)
+    {
+        $price = RequestSubmissionPricing::findOrFail($request->id);
+        
+        $price->status = $request->status;
+        $price->save();
+       
+        return 1;
+    }
+
+    public function destroyRequestPricing($id)
+    {
+        $price = RequestSubmissionPricing::findOrFail($id);
+        $price->delete();
+        return redirect()->back()->with('success', 'Expert report pricing deleted successfully.');
+    }
+
+    public function getCaseTypes(Request $request)
+    {
+        $caseTypes = getCaseTypes($request->litigation_type, $request->litigation_place, 'en');
+
+        return response()->json($caseTypes);
+    }
+
+    public function getRequestTypes(Request $request)
+    {
+        $requestTypes = getRequestTypes($request->litigation_type, $request->litigation_place, 'en');
+
+        return response()->json($requestTypes);
+    }
+
+    public function getRequestTitles(Request $request)
+    {
+        $titles = getRequestTitles($request->request_type_id, 'en');
+
+        return response()->json($titles);
+    }
+
 }

@@ -95,8 +95,12 @@
                                                                 title="Edit Service">
                                                                 <span data-feather="edit"></span>
                                                             </a>
-                                                            @if($service->slug === 'expert-report' || $service->slug === 'request-submission')
+                                                            @if($service->slug === 'expert-report' )
                                                                 <a href="{{ route('expert-pricing.index') }}" title="Edit Export Report Pricing">
+                                                                    <span data-feather="credit-card"></span>
+                                                                </a>
+                                                            @elseif ($service->slug === 'request-submission')
+                                                                <a href="{{ route('request-pricing.index') }}" title="Edit Request Submission Pricing">
                                                                     <span data-feather="credit-card"></span>
                                                                 </a>
                                                             @endif

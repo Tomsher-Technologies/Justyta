@@ -18,6 +18,11 @@ class RequestTitle extends Model
         return $this->belongsTo(RequestType::class,'request_type_id');
     }
 
+    public function pricings()
+    {
+        return $this->hasMany(RequestSubmissionPricing::class, 'request_title_id');
+    }
+
     public function getTranslation($field = '', $lang = false)
     {
         $lang = $lang == false ? getActiveLanguage() : $lang;

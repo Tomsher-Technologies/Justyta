@@ -18,6 +18,11 @@ class RequestType extends Model
         return $this->hasMany(RequestTitle::class);
     }
 
+    public function pricings()
+    {
+        return $this->hasMany(RequestSubmissionPricing::class, 'request_type_id');
+    }
+
     public function getTranslation($field = '', $lang = false)
     {
         $lang = $lang == false ? getActiveLanguage() : $lang;
