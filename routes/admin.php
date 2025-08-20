@@ -152,6 +152,18 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::post('/expert-pricing/status', [ServiceController::class, 'updateExpertPricingStatus'])->name('expert-pricing.status');
     Route::delete('expert-pricing/{id}', [ServiceController::class, 'destroyExpertPricing'])->name('expert-pricing.destroy');
 
+    Route::get('/request-pricing', [ServiceController::class, 'indexRequestPricing'])->name('request-pricing.index');
+    Route::get('/request-pricing-create', [ServiceController::class, 'createRequestPricing'])->name('request-pricing.create');
+    Route::post('request-pricing/store', [ServiceController::class, 'storeRequestPricing'])->name('request-pricing.store');
+    Route::get('/request-pricing-edit/{id}', [ServiceController::class, 'editRequestPricing'])->name('request-pricing.edit');
+    Route::put('request-pricing/{id}', [ServiceController::class, 'updateRequestPricing'])->name('request-pricing.update');
+    Route::post('/request-pricing/status', [ServiceController::class, 'updateRequestPricingStatus'])->name('request-pricing.status');
+    Route::delete('request-pricing/{id}', [ServiceController::class, 'destroyRequestPricing'])->name('request-pricing.destroy');
+
+    Route::get('/get-case-types', [ServiceController::class, 'getCaseTypes'])->name('filter-case-types');
+    Route::get('/get-request-types', [ServiceController::class, 'getRequestTypes'])->name('filter-request-types');
+    Route::get('/get-request-titles', [ServiceController::class, 'getRequestTitles'])->name('filter-request-titles');
+
     // Manage pages
     Route::resource('pages', PageController::class);
 

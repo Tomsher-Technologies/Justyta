@@ -8,6 +8,9 @@ use App\Models\Page;
 use App\Models\User;
 use App\Models\VendorSubscription;
 use App\Models\Lawyer;
+use App\Models\CaseType;
+use App\Models\RequestType;
+use App\Models\RequestTitle;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Request;
@@ -16,6 +19,59 @@ use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+
+
+    function getCaseTypes($litigation_type, $litigation_place, $lang = 'en')
+    {
+        $caseTypes = CaseType::where('litigation_type', $litigation_type)
+                ->where('litigation_place', $litigation_place)
+                ->where('status', 1)
+                ->orderBy('sort_order')
+                ->get();
+        
+        $caseTypes = $caseTypes->map( function ($caseType) use ($lang) {
+            return [
+                'id' => $caseType->id,
+                'title' => $caseType->getTranslation('title', $lang),
+            ];
+        });
+
+        return $caseTypes;
+    }
+
+    function getRequestTypes($litigation_type, $litigation_place, $lang = 'en')
+    {
+        $requestTypes = RequestType::where('litigation_type', $litigation_type)
+                                ->where('litigation_place', $litigation_place)
+                                ->where('status', 1)
+                                ->orderBy('sort_order')
+                                ->get();
+        
+        $requestTypes = $requestTypes->map(function ($requestType) use ($lang) {
+            return [
+                'id' => $requestType->id,
+                'title' => $requestType->getTranslation('title', $lang),
+            ];
+        });
+
+        return $requestTypes;
+    }
+
+    function getRequestTitles($request_type_id, $lang = 'en'){
+        $requestTitles = RequestTitle::where('request_type_id', $request_type_id)
+                                ->where('status', 1)    
+                                ->orderBy('sort_order')
+                                ->get();
+        
+        $requestTitles = $requestTitles->map(function ($requestTitle) use ($lang) {
+            return [
+                'id' => $requestTitle->id,
+                'title' => $requestTitle->getTranslation('title', $lang),
+            ];
+        });
+
+        return $requestTitles;
+    }
 
 if (!function_exists('getBaseURL')) {
     function getBaseURL()
