@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\JobPostController;
+use App\Http\Controllers\Api\CommonController;
 
 Route::group(['prefix' => 'v1'], function () {
 Route::middleware('set_api_locale')->group(function () {
@@ -57,6 +58,10 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/apply-job/{id}', [JobPostController::class, 'applyJobFormData']);
         Route::post('/job-posts/apply', [JobPostController::class, 'applyJob']); 
 
+        // Common Datas
+        Route::get('/emirates', [CommonController::class, 'getEmirates']);
+        Route::get('/case-types', [CommonController::class, 'getCaseTypes']);
+
         // Get Service Form Contents
         Route::get('/court-case-submission', [ServiceController::class, 'getCourtCaseFormData']);
         Route::get('/criminal-complaint-submission', [ServiceController::class, 'getCriminalComplaintFormData']);
@@ -81,6 +86,9 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/annual-agreement', [ServiceController::class, 'getAnnualAgreementFormData']);
         Route::get('/annual-agreement-price', [ServiceController::class, 'getAnnualAgreementPrice']);
         Route::get('/translation/payment-calculate', [ServiceController::class, 'calculateTranslationPrice']);
+
+        Route::get('/expert-report-price', [ServiceController::class, 'getExpertReportPrice']);
+        Route::get('/request-submission-price', [ServiceController::class, 'getRequestSubmissionPrice']);
 
         // Service Request Submission
         Route::post('/court-case-request', [ServiceController::class, 'requestCourtCase']);

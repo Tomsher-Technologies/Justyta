@@ -238,7 +238,7 @@ return [
 
 
     'account_not_approved' => 'Your account is not approved yet. Please wait for admin approval.',
-    '' => '',
+    'fill_all_fields' => 'Fill all fields.',
     '' => '',
     '' => '',
     '' => '',
