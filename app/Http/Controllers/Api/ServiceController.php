@@ -2239,7 +2239,7 @@ class ServiceController extends Controller
                                     ->where('status', 1)
                                     ->first();
 
-        $total_amount = $base->total ?? 0;
+        $total_amount = (float)($base->total ?? 0);
 
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
@@ -2256,10 +2256,10 @@ class ServiceController extends Controller
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
                     'payment_reference' => $payment['reference'] ?? null,
-                    'amount' => $base->total ?? 0,
-                    'service_fee' => $base->admin_fee ?? 0,
+                    'amount' => (float)($base->total ?? 0),
+                    'service_fee' => (float)($base->admin_fee ?? 0),
                     'govt_fee' => 0,
-                    'tax' => $base->vat ?? 0,
+                    'tax' => (float)($base->vat ?? 0),
                 ]);
 
                 return response()->json([
@@ -2428,10 +2428,10 @@ class ServiceController extends Controller
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
                     'payment_reference' => $payment['reference'] ?? null,
-                    'amount' => $service->total_amount,
-                    'service_fee' => $service->service_fee,
-                    'govt_fee' => $service->govt_fee,
-                    'tax' => $service->tax,
+                    'amount' => $service->total_amount ?? 0,
+                    'service_fee' => $service->service_fee ?? 0,
+                    'govt_fee' => $service->govt_fee ?? 0,
+                    'tax' => $service->tax ?? 0,
                 ]);
 
                 return response()->json([
@@ -2572,7 +2572,15 @@ class ServiceController extends Controller
 
         $requestSubmission->update($filePaths);
 
-        $total_amount = $service->total_amount ?? 0;
+        $base = RequestSubmissionPricing::where('litigation_type', $request->input('litigation_type'))
+                                    ->where('litigation_place', $request->input('litigation_place'))
+                                    ->where('case_type_id', $request->input('case_type'))
+                                    ->where('request_type_id', $request->input('request_type'))
+                                    ->where('request_title_id', $request->input('request_title'))
+                                    ->where('status', 1)
+                                    ->first();
+
+        $total_amount = (float)($base->total_amount ?? 0);
 
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
@@ -2589,10 +2597,10 @@ class ServiceController extends Controller
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
                     'payment_reference' => $payment['reference'] ?? null,
-                    'amount' => $service->total_amount,
-                    'service_fee' => $service->service_fee,
-                    'govt_fee' => $service->govt_fee,
-                    'tax' => $service->tax,
+                    'amount' => (float)($base->total_amount ?? 0),
+                    'service_fee' => (float)($base->admin_fee ?? 0),
+                    'govt_fee' => (float)($base->govt_fee ?? 0),
+                    'tax' => (float)($base->vat ?? 0),
                 ]);
 
                 return response()->json([
@@ -2692,10 +2700,10 @@ class ServiceController extends Controller
         if($base){
             $installment = $base->installments()->where('installments', $request->input('no_of_installment'))->first();
             if($installment){
-                $total_amount   = $installment->final_total ?? 0;
-                $service_fee    = $base->service_fee ?? 0;
-                $govt_fee       = $base->govt_fee ?? 0;
-                $tax            = $base->tax ?? 0;
+                $total_amount   = (float)($installment->final_total ?? 0);
+                $service_fee    = (float)($base->service_fee ?? 0);
+                $govt_fee       = (float)($base->govt_fee ?? 0);
+                $tax            = (float)($base->tax ?? 0);
             }
         }
     
@@ -3261,8 +3269,13 @@ class ServiceController extends Controller
 
         if ($litigation_type === NULL || $report_type === NULL || $report_language === NULL) {
             return response()->json([
-                'status'    => false,
-                'message'   => __('messages.fill_all_fields'),
+                'status'    => true,
+                'message'   => 'Success',
+                'data'      => [
+                                'admin_fee' => 0,
+                                'tax'       => 0,
+                                'total'     => 0,
+                            ]
             ], 200);
         }
 
@@ -3293,8 +3306,14 @@ class ServiceController extends Controller
 
         if ($litigation_type === NULL || $litigation_place === NULL || $case_type === NULL || $request_type === NULL || $request_title === NULL) {
             return response()->json([
-                'status'    => false,
-                'message'   => __('messages.fill_all_fields'),
+                'status'    => true,
+                'message'   => 'Success',
+                'data'      => [
+                                'admin_fee' => 0,
+                                'govt_fee' => 0,
+                                'tax'       => 0,
+                                'total'     => 0,
+                            ]
             ], 200);
         }
 
