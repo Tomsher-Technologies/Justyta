@@ -744,7 +744,9 @@ class UserController extends Controller
                     ])->whereIn('slug', ['positions','residency_status'])->get()->keyBy('slug');
 
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'training')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [

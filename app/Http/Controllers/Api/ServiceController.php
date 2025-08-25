@@ -38,6 +38,8 @@ use App\Models\DefaultTranslatorAssignment;
 use App\Models\TranslatorLanguageRate;
 use App\Models\RequestLastWill;
 use App\Models\AnnualAgreementInstallment;
+use App\Models\ExpertReportPricing;
+use App\Models\RequestSubmissionPricing;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -63,14 +65,8 @@ class ServiceController extends Controller
                     ])->whereIn('slug', ['case_type', 'you_represent'])->get()->keyBy('slug');
        
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
-
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
-        });
+    
+        $response['emirates'] = [];
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -115,14 +111,7 @@ class ServiceController extends Controller
        
        
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
-
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
-        });
+        $response['emirates'] = [];
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -165,7 +154,9 @@ class ServiceController extends Controller
                     ])->whereIn('slug', ['poa_type', 'poa_relationships'])->get()->keyBy('slug');
        
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'power-of-attorney')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -216,7 +207,9 @@ class ServiceController extends Controller
                     ])->whereIn('slug', ['you_represent','religion'])->get()->keyBy('slug');
        
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'last-will-and-testament')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -275,14 +268,9 @@ class ServiceController extends Controller
                     ])->whereIn('slug', ['case_type', 'you_represent'])->get()->keyBy('slug');
        
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = [];
 
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
-        });
+        $response['emirates'] = $emirates;
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -326,14 +314,9 @@ class ServiceController extends Controller
        
         
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = [];
 
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
-        });
+        $response['emirates'] = $emirates;
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -384,7 +367,9 @@ class ServiceController extends Controller
                     ])->whereIn('slug', ['contract_languages', 'industries'])->get()->keyBy('slug');
        
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'contract-drafting')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -497,7 +482,9 @@ class ServiceController extends Controller
        
         
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'debts-collection')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -549,7 +536,9 @@ class ServiceController extends Controller
        
         
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'company-setup')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -680,14 +669,9 @@ class ServiceController extends Controller
        
         
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = [];
 
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
-        });
+        $response['emirates'] = $emirates;
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -740,14 +724,9 @@ class ServiceController extends Controller
        
         
         $response = [];
-        $emirates = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates = [];
 
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
-        });
+        $response['emirates'] = $emirates;
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -793,70 +772,34 @@ class ServiceController extends Controller
     public function getRequestTypes(Request $request){
         $lang               = $request->header('lang') ?? env('APP_LOCALE', 'en');
         $litigation_place   = $request->litigation_place ?? NULL;
-        $requestTypes       = [];
-        if(trim(strtolower($litigation_place)) === 'court'){
-            $requestTypes = CourtRequest::with('translations')->where('status', 1)
-                            ->whereNull('parent_id')
-                            ->orderBy('sort_order')
-                            ->get();
-        }elseif(trim(strtolower($litigation_place)) === 'public_prosecution'){
-            $requestTypes = PublicProsecution::with('translations')->where('status', 1)
-                            ->whereNull('parent_id')
-                            ->orderBy('sort_order')
-                            ->get();
+        $litigation_type    = $request->litigation_type ?? NULL;    
+
+        if ($litigation_type === NULL || $litigation_place === NULL) {
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.fill_all_fields'),
+            ], 200);
         }
 
-        $response = [];
-        if(!empty($requestTypes)){
-            $response = $requestTypes->map(function ($type) use ($lang, $litigation_place) {    
-                return [
-                    'id'                => $type->id,
-                    'litigation_place'  => $litigation_place,
-                    'value'             => $type->getTranslation('name', $lang),
-                ];
-            });
-        }
+        $requestTypes = getRequestTypes($litigation_type, $litigation_place, $lang);
 
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
-            'data'      => $response,
+            'data'      => $requestTypes,
         ], 200);
     }
     
     public function getRequestTitles(Request $request){
         $lang               = $request->header('lang') ?? env('APP_LOCALE', 'en');
-        $litigation_place   = $request->litigation_place ?? NULL;
         $request_type       = $request->request_type ?? NULL;
 
-        $requestTypes       = [];
-        if(trim(strtolower($litigation_place)) === 'court'){
-            $requestTypes = CourtRequest::with('translations')->where('status', 1)
-                            ->where('parent_id', $request_type)
-                            ->orderBy('sort_order')
-                            ->get();
-        }elseif(trim(strtolower($litigation_place)) === 'public_prosecution'){
-            $requestTypes = PublicProsecution::with('translations')->where('status', 1)
-                            ->where('parent_id', $request_type)
-                            ->orderBy('sort_order')
-                            ->get();
-        }
-
-        $response = [];
-        if(!empty($requestTypes)){
-            $response = $requestTypes->map(function ($type) use ($lang, $litigation_place) {    
-                return [
-                    'id'                => $type->id,
-                    'litigation_place'  => $litigation_place,
-                    'value'             => $type->getTranslation('name', $lang),
-                ];
-            });
-        }
+        $requestTitles = getRequestTitles($request_type, $lang);
 
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
-            'data'      => $response,
+            'data'      => $requestTitles,
         ], 200);
     }
 
@@ -1040,7 +983,9 @@ class ServiceController extends Controller
             });
         }
 
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'annual-retainer-agreement')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -2288,7 +2233,13 @@ class ServiceController extends Controller
 
         $expertReport->update($filePaths);
 
-        $total_amount = $service->total_amount ?? 0;
+        $base = ExpertReportPricing::where('litigation_type', $request->input('applicant_place'))
+                                    ->where('expert_report_type_id', $request->input('expert_report_type'))
+                                    ->where('language_id', $request->input('expert_report_language'))
+                                    ->where('status', 1)
+                                    ->first();
+
+        $total_amount = $base->total ?? 0;
 
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
@@ -2305,10 +2256,10 @@ class ServiceController extends Controller
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
                     'payment_reference' => $payment['reference'] ?? null,
-                    'amount' => $service->total_amount,
-                    'service_fee' => $service->service_fee,
-                    'govt_fee' => $service->govt_fee,
-                    'tax' => $service->tax,
+                    'amount' => $base->total ?? 0,
+                    'service_fee' => $base->admin_fee ?? 0,
+                    'govt_fee' => 0,
+                    'tax' => $base->vat ?? 0,
                 ]);
 
                 return response()->json([
@@ -2734,8 +2685,20 @@ class ServiceController extends Controller
             // 'lawfirm'               => $request->input('lawfirm'),
         ]);
 
-        $total_amount = $service->total_amount ?? 0;
-
+        $total_amount = $service_fee = $govt_fee = $tax = 0;
+        $base = AnnualRetainerBaseFee::where('calls_per_month', $request->input('no_of_calls'))
+                                    ->where('visits_per_year', $request->input('no_of_visits'))
+                                    ->first();
+        if($base){
+            $installment = $base->installments()->where('installments', $request->input('no_of_installment'))->first();
+            if($installment){
+                $total_amount   = $installment->final_total ?? 0;
+                $service_fee    = $base->service_fee ?? 0;
+                $govt_fee       = $base->govt_fee ?? 0;
+                $tax            = $base->tax ?? 0;
+            }
+        }
+    
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
         if($total_amount != 0){
@@ -2751,10 +2714,10 @@ class ServiceController extends Controller
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
                     'payment_reference' => $payment['reference'] ?? null,
-                    'amount' => $service->total_amount,
-                    'service_fee' => $service->service_fee,
-                    'govt_fee' => $service->govt_fee,
-                    'tax' => $service->tax,
+                    'amount' => $total_amount ?? 0,
+                    'service_fee' => $service_fee ?? 0,
+                    'govt_fee' => $govt_fee ?? 0,
+                    'tax' => $tax ?? 0,
                 ]);
 
                 return response()->json([
@@ -3288,4 +3251,70 @@ class ServiceController extends Controller
                 ], 200);
         }
     }
+
+    public function getExpertReportPrice(Request $request){
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); 
+        
+        $litigation_type    = $request->query('litigation_type') ?? NULL;
+        $report_type        = $request->query('report_type') ?? NULL;
+        $report_language    = $request->query('report_language') ?? NULL;
+
+        if ($litigation_type === NULL || $report_type === NULL || $report_language === NULL) {
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.fill_all_fields'),
+            ], 200);
+        }
+
+        $base = ExpertReportPricing::where('litigation_type', $litigation_type)
+                                    ->where('expert_report_type_id', $report_type)
+                                    ->where('language_id', $report_language)
+                                    ->where('status', 1)
+                                    ->first();
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'admin_fee' => (float)($base->admin_fee ?? 0),
+                            'tax'       => (float)($base->vat ?? 0),
+                            'total'     => (float)($base->total ?? 0),
+                        ]
+        ], 200);
+    }
+
+    public function getRequestSubmissionPrice(Request $request){
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); 
+        
+        $litigation_type    = $request->query('litigation_type') ?? NULL;
+        $litigation_place   = $request->query('litigation_place') ?? NULL;
+        $case_type          = $request->query('case_type') ?? NULL;
+        $request_type       = $request->query('request_type') ?? NULL;
+        $request_title      = $request->query('request_title') ?? NULL;
+
+        if ($litigation_type === NULL || $litigation_place === NULL || $case_type === NULL || $request_type === NULL || $request_title === NULL) {
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.fill_all_fields'),
+            ], 200);
+        }
+
+         $base = RequestSubmissionPricing::where('litigation_type', $litigation_type)
+                                    ->where('litigation_place', $litigation_place)
+                                    ->where('case_type_id', $case_type)
+                                    ->where('request_type_id', $request_type)
+                                    ->where('request_title_id', $request_title)
+                                    ->where('status', 1)
+                                    ->first();
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'admin_fee' => (float)($base->admin_fee ?? 0),
+                            'govt_fee' => (float)($base->govt_fee ?? 0),
+                            'tax'       => (float)($base->vat ?? 0),
+                            'total'     => (float)($base->total_amount ?? 0),
+                        ]
+        ], 200);
+    }
+    
 }
