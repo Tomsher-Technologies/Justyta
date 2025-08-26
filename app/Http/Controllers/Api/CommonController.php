@@ -12,6 +12,7 @@ class CommonController extends Controller
         $lang       = $request->header('lang') ?? env('APP_LOCALE', 'en');
 
         $litigation_type   = $request->litigation_type ?? NULL;
+        $litigation_place   = $request->litigation_place ?? NULL;
         $service            = $request->service ?? NULL;
 
         $emirates   = Emirate::whereHas('emirate_litigations', function ($q) use ($service, $litigation_type) {
@@ -32,7 +33,6 @@ class CommonController extends Controller
                 ];
         });
 
-        $litigation_place = NULL;
         if(in_array($service, ['court-case-submission', 'memo-writing'])) {
             $litigation_place = 'court';
         }elseif($service == 'criminal-complaint') {
@@ -55,6 +55,7 @@ class CommonController extends Controller
         $lang       = $request->header('lang') ?? env('APP_LOCALE', 'en');
 
         $litigation_type   = $request->litigation_type ?? NULL;
+        $litigation_place   = $request->litigation_place ?? NULL;
         $service            = $request->service ?? NULL;
 
         if(in_array($service, ['court-case-submission', 'memo-writing'])) {
