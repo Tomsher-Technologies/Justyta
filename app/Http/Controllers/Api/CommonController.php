@@ -33,7 +33,7 @@ class CommonController extends Controller
                 ];
         });
 
-        if(in_array($service, ['court-case-submission', 'memo-writing'])) {
+        if(in_array($service, ['court-case-submission', 'memo-writing','online-live-consultancy'])) {
             $litigation_place = 'court';
         }elseif($service == 'criminal-complaint') {
             $litigation_place = 'public_prosecution';

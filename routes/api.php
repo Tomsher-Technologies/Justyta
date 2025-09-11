@@ -89,6 +89,7 @@ Route::middleware('set_api_locale')->group(function () {
 
         Route::get('/expert-report-price', [ServiceController::class, 'getExpertReportPrice']);
         Route::get('/request-submission-price', [ServiceController::class, 'getRequestSubmissionPrice']);
+        Route::get('/online-consultation-price', [ServiceController::class, 'getOnlineConsultationPrice']);
 
         // Service Request Submission
         Route::post('/court-case-request', [ServiceController::class, 'requestCourtCase']);
@@ -128,7 +129,16 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/training-request', [UserController::class, 'requestTraining']);
 
         
+        // Online Consulation User endpoints
+        Route::post('/consultations', [ConsultationController::class,'store']);
+        Route::get('/consultations/{id}', [ConsultationController::class,'show']);
+        Route::post('/consultations/{id}/payment-success', [ConsultationController::class,'paymentSuccess']);
+        Route::post('/consultations/{id}/extend', [ConsultationController::class,'extendZoom']);
 
+        // Online Consulation Lawyer endpoints
+        Route::get('/lawyers/consultations/pending', [ConsultationController::class,'lawyerPending']);
+        Route::post('/consultations/{id}/accept', [ConsultationController::class,'accept']);
+        Route::post('/consultations/{id}/reject', [ConsultationController::class,'reject']);
 
     });
 
