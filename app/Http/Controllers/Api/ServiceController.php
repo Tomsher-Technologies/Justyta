@@ -2632,7 +2632,7 @@ class ServiceController extends Controller
             'no_of_employees'   => 'required',
             'case_type'         => 'required',
             'no_of_calls'       => 'required',
-            'no_of_visits'      => 'required',
+            // 'no_of_visits'      => 'required',
             'no_of_installment' => 'required',
             // 'lawfirm'           => 'required',
         ], [
@@ -2643,7 +2643,7 @@ class ServiceController extends Controller
             'no_of_employees.required'      => __('messages.no_of_employees_required'),
             'case_type.required'            => __('messages.case_type_required'),
             'no_of_calls.required'          => __('messages.no_of_calls_required'),
-            'no_of_visits.required'         => __('messages.no_of_visits_required'),
+            // 'no_of_visits.required'         => __('messages.no_of_visits_required'),
             'no_of_installment.required'    => __('messages.no_of_installment_required'),
             // 'lawfirm.required'              => __('messages.lawfirm_required'),
         ]);
