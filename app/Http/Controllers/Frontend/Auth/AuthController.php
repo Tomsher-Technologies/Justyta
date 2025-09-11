@@ -58,7 +58,7 @@ class AuthController extends Controller
             return back()->withErrors(['password' => __('messages.account_disabled_deleted')]);
         }
 
-        if ($user->approved === 0) {
+        if ($user->user_type === 'vendor' && $user->approved === 0) {
             return back()->withErrors(['password' => __('messages.account_not_approved')]);
         }
 

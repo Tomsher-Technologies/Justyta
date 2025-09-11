@@ -665,13 +665,10 @@ class ServiceController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['case_type', 'case_stage', 'you_represent','languages'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['case_stage', 'you_represent','languages'])->get()->keyBy('slug');
        
         
         $response   = [];
-        $emirates   = [];
-
-        $response['emirates'] = $emirates;
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -3336,4 +3333,38 @@ class ServiceController extends Controller
         ], 200);
     }
     
+    public function getOnlineConsultationPrice(Request $request){
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); 
+        
+        $consultant_type    = $request->query('consultant_type') ?? NULL;
+        $duration           = $request->query('duration') ?? NULL;
+
+        if ($consultant_type === NULL || $duration === NULL) {
+            return response()->json([
+                'status'    => true,
+                'message'   => 'Success',
+                'data'      => [
+                                'admin_fee' => 0,
+                                'govt_fee' => 0,
+                                'tax'       => 0,
+                                'total'     => 0,
+                            ]
+            ], 200);
+        }
+
+        $base = ConsultationDuration::where('type', $consultant_type)
+                                    ->where('duration', $duration)
+                                    ->where('status', 1)
+                                    ->first();
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'admin_fee' => 0,
+                            'govt_fee' => 0,
+                            'tax'       => 0,
+                            'total'     => (float)($base->amount ?? 0),
+                        ]
+        ], 200);
+    }
 }
