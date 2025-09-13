@@ -111,7 +111,7 @@
                                                 ];
                                             @endphp
                                             <tr>
-                                                <td class="text-center">{{ $key + 1 }}</td>
+                                                <td class="text-center">{{ $serviceRequests->firstItem() + $key }}</td>
                                                 <td class="text-center">
                                                     {{ $serviceReq->reference_code ?? '' }}
                                                 </td>

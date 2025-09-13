@@ -343,7 +343,7 @@ class UserController extends Controller
         $perPage = $request->get('limit', 10);
 
         if($serviceSlug != ''){
-            $query = ServiceRequest::with('user', 'service')->where('user_id', $user->id);
+            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', $user->id);
 
             if ($serviceSlug) {
                 if($serviceSlug === 'law-firm-services'){
@@ -412,7 +412,7 @@ class UserController extends Controller
         $perPage = $request->get('limit', 10);
 
         if($serviceSlug != ''){
-            $query = ServiceRequest::with('user', 'service')->where('status', 'pending')->where('user_id', $user->id);
+            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('status', 'pending')->where('user_id', $user->id);
 
             if ($serviceSlug) {
                 if($serviceSlug === 'law-firm-services'){
@@ -481,7 +481,7 @@ class UserController extends Controller
         $perPage = $request->get('limit', 10);
 
         if($serviceSlug != ''){
-            $query = ServiceRequest::with('user', 'service')->whereNotNull('payment_status')->where('user_id', $user->id);
+            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->whereNotNull('payment_status')->where('user_id', $user->id);
 
             if ($serviceSlug) {
                 if($serviceSlug === 'law-firm-services'){

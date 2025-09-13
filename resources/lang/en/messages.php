@@ -239,6 +239,10 @@ return [
 
     'account_not_approved' => 'Your account is not approved yet. Please wait for admin approval.',
     'fill_all_fields' => 'Fill all fields.',
+    'priority_required' => 'Priority is required.',
+    'doc_type_required' => 'Document type is required.',
+    'subdoc_type_required' => 'Subdocument type is required.',
+    'receive_by_required' => 'Receive by is required.',
     '' => '',
     '' => '',
     '' => '',
