@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Language;
 use App\Models\JobPost;
+use App\Models\JobApplication;
 use App\Models\JobPostTranslation;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class JobPostController extends Controller
     {
         $this->middleware('auth');
        
-        $this->middleware('permission:manage_job_post',  ['only' => ['index','destroy']]);
+        $this->middleware('permission:manage_job_post',  ['only' => ['index','destroy','applications']]);
         $this->middleware('permission:add_job_post',  ['only' => ['create','store']]);
         $this->middleware('permission:edit_job_post',  ['only' => ['edit','update']]);
     }
@@ -156,5 +157,14 @@ class JobPostController extends Controller
         $jobpost->save();
        
         return 1;
+    }
+
+    public function applications($id)
+    {
+        $jobId = base64_decode($id);
+        $job = JobPost::find($jobId);
+
+        $applications = JobApplication::where('job_post_id', $jobId)->paginate(30);
+        return view('admin.job_posts.applications', compact('job','applications'));
     }
 }
