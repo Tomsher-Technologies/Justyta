@@ -2689,6 +2689,26 @@ class ServiceController extends Controller
         ]);
         $casetype = explode(',',$request->input('case_type'));
         
+        $total_amount = $service_fee = $govt_fee = $tax = 0;
+        $amountToBePaidNow = $finalTotal = 0;
+
+        $installments   = $request->input('no_of_installment') ?? 1;
+        
+        $base = AnnualRetainerBaseFee::where('calls_per_month', $request->input('no_of_calls'))
+                                    ->where('visits_per_year', $request->input('no_of_visits'))
+                                    ->first();
+        if($base){
+            $installment = $base->installments()->where('installments', $request->input('no_of_installment'))->first();
+            if($installment){
+                $total_amount   = (float)($installment->final_total ?? 0);
+                $service_fee    = (float)($base->service_fee ?? 0);
+                $govt_fee       = (float)($base->govt_fee ?? 0);
+                $tax            = (float)($base->tax ?? 0);
+                $finalTotal          = $installment?->final_total ?? 0;
+                $amountToBePaidNow   = $installments > 0 ? $finalTotal / $installments : $finalTotal;
+            }
+        }
+
         $annualAgreement = RequestAnnualAgreement::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
@@ -2703,25 +2723,22 @@ class ServiceController extends Controller
             'no_of_visits'          => $request->input('no_of_visits'),
             'no_of_installment'     => $request->input('no_of_installment'),
             // 'lawfirm'               => $request->input('lawfirm'),
+            'final_total'           => $finalTotal
         ]);
-
-        $total_amount = $service_fee = $govt_fee = $tax = 0;
-        $base = AnnualRetainerBaseFee::where('calls_per_month', $request->input('no_of_calls'))
-                                    ->where('visits_per_year', $request->input('no_of_visits'))
-                                    ->first();
-        if($base){
-            $installment = $base->installments()->where('installments', $request->input('no_of_installment'))->first();
-            if($installment){
-                $total_amount   = (float)($installment->final_total ?? 0);
-                $service_fee    = (float)($base->service_fee ?? 0);
-                $govt_fee       = (float)($base->govt_fee ?? 0);
-                $tax            = (float)($base->tax ?? 0);
-            }
-        }
     
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
-        if($total_amount != 0){
+        if($amountToBePaidNow != 0){
+            for ($i = 1; $i <= $installments; $i++) {
+                AnnualAgreementInstallment::create([
+                    'service_request_id' => $service_request->id,
+                    'installment_no'     => $i,
+                    'amount'             => round($finalTotal / $installments, 2),
+                    'status'             => 'pending',
+                    'due_date'           => now()->addMonths($i - 1),
+                ]);
+            }
+
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
