@@ -174,6 +174,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     //Manage job posts
     Route::resource('job-posts', JobPostController::class);
     Route::post('/job-posts/status', [JobPostController::class, 'updateStatus'])->name('job-posts.status');  
+    Route::get('/job/applications/{id}', [JobPostController::class, 'applications'])->name('job-applications');
 
     //Manage faqs
     Route::resource('faqs', FaqController::class)->except(['show']);

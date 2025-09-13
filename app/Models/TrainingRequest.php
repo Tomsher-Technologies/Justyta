@@ -35,7 +35,7 @@ class TrainingRequest extends Model
 
     public function positionOption()
     {
-        return $this->belongsTo(DropdownOption::class, 'training_positions');
+        return $this->belongsTo(DropdownOption::class, 'position');
     }
 
     public function residencyStatusOption()
