@@ -741,7 +741,7 @@ class UserController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['positions','residency_status'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['training_positions','residency_status'])->get()->keyBy('slug');
 
         $response   = [];
         $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
@@ -762,6 +762,11 @@ class UserController extends Controller
                     'value' => $option->getTranslation('name',$lang),
                 ];
             });
+        }
+
+        if(isset($response['training_positions'])){
+            $response['positions'] = $response['training_positions'];
+            unset($response['training_positions']);
         }
 
         $ads = getActiveAd('training_requests', 'mobile');

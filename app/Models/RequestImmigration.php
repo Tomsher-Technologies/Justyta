@@ -42,7 +42,7 @@ class RequestImmigration extends Model
 
     public function currentPosition()
     {
-        return $this->belongsTo(DropdownOption::class, 'position');
+        return $this->belongsTo(DropdownOption::class, 'immigration_positions');
     }
     public function residencyStatus()
     {

@@ -31,7 +31,7 @@
                             class="text-red-500">*</span></label>
                     <select id="position" name="position" class="select2 bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                         <option value="">{{ __('frontend.choose_option') }}</option>
-                        @foreach ($response['positions'] as $ert)
+                        @foreach ($response['training_positions'] as $ert)
                             <option value="{{ $ert['id'] }}"  {{ (old('current_position') == $ert['id']) ? 'selected' : '' }}>{{ $ert['value'] }}</option>
                         @endforeach
                     </select>

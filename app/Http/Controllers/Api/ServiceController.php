@@ -899,7 +899,7 @@ class ServiceController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['positions','residency_status','immigration_type'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['immigration_positions','residency_status','immigration_type'])->get()->keyBy('slug');
        
         
         $response = [];
@@ -911,6 +911,11 @@ class ServiceController extends Controller
                     'value' => $option->getTranslation('name',$lang),
                 ];
             });
+        }
+
+        if(isset($response['immigration_positions'])){
+            $response['positions'] = $response['immigration_positions'];
+            unset($response['immigration_positions']);
         }
 
         $countries = Country::where('status',1)->orderBy('id')->get();

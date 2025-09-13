@@ -737,7 +737,7 @@ class ServiceRequestController extends Controller
                                 'options.translations' => function ($q) use ($lang) {
                                     $q->whereIn('language_code', [$lang, 'en']);
                                 }
-                            ])->whereIn('slug', ['positions','residency_status','immigration_type'])->get()->keyBy('slug');
+                            ])->whereIn('slug', ['immigration_positions','residency_status','immigration_type'])->get()->keyBy('slug');
                 
                 foreach ($dropdowns as $slug => $dropdown) {
                     $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){

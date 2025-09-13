@@ -1,5 +1,9 @@
-ALTER TABLE `translator_language_rates` CHANGE `hours_1_10` `normal_hours_1_10` DECIMAL(10,2) NOT NULL DEFAULT '0.00', CHANGE `hours_11_20` `normal_hours_11_20` DECIMAL(10,2) NOT NULL DEFAULT '0.00', CHANGE `hours_21_30` `normal_hours_21_30` DECIMAL(10,2) NOT NULL DEFAULT '0.00', CHANGE `hours_31_50` `normal_hours_31_50` DECIMAL(10,2) NOT NULL DEFAULT '0.00', CHANGE `hours_above_50` `normal_hours_above_50` DECIMAL(10,2) NOT NULL DEFAULT '0.00';
 
-ALTER TABLE `translator_language_rates` CHANGE `normal_hours_1_10` `normal_hours_1_10` DECIMAL(8,2) NOT NULL DEFAULT '0.00', CHANGE `normal_hours_11_20` `normal_hours_11_20` DECIMAL(8,2) NOT NULL DEFAULT '0.00', CHANGE `normal_hours_21_30` `normal_hours_21_30` DECIMAL(8,2) NOT NULL DEFAULT '0.00', CHANGE `normal_hours_31_50` `normal_hours_31_50` DECIMAL(8,2) NOT NULL DEFAULT '0.00', CHANGE `normal_hours_above_50` `normal_hours_above_50` DECIMAL(8,2) NOT NULL DEFAULT '0.00';
+INSERT INTO `pages` (`id`, `name`, `slug`, `created_at`, `updated_at`) VALUES (NULL, 'Mobile User App Home Page', 'user_app_home', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-ALTER TABLE `translator_language_rates` ADD `urgent_hours_1_10` DECIMAL(8,2) NOT NULL DEFAULT '0' AFTER `normal_hours_above_50`, ADD `urgent_hours_11_20` DECIMAL(8,2) NOT NULL DEFAULT '0' AFTER `urgent_hours_1_10`, ADD `urgent_hours_21_30` DECIMAL(8,2) NOT NULL DEFAULT '0' AFTER `urgent_hours_11_20`, ADD `urgent_hours_31_50` DECIMAL(8,2) NOT NULL DEFAULT '0' AFTER `urgent_hours_21_30`, ADD `urgent_hours_above_50` DECIMAL(8,2) NOT NULL DEFAULT '0' AFTER `urgent_hours_31_50`;
+ALTER TABLE `pages` ADD `content` TEXT NULL DEFAULT NULL AFTER `slug`;
+UPDATE `dropdowns` SET `name` = 'Immigration Positions', `slug` = 'immigration_positions', `created_at` = NULL, `updated_at` = NULL WHERE `dropdowns`.`id` = 21;
+
+INSERT INTO `dropdowns` (`id`, `name`, `slug`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, 'Job Positions', 'job_positions', '1','2025-09-13 10:49:32', '2025-09-13 10:49:32');
+
+INSERT INTO `dropdowns` (`id`, `name`, `slug`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, 'Training Positions', 'training_positions', '1', '2025-09-13 10:49:32', '2025-09-13 10:49:32');
