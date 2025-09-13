@@ -2693,7 +2693,7 @@ class ServiceController extends Controller
         $amountToBePaidNow = $finalTotal = 0;
 
         $installments   = $request->input('no_of_installment') ?? 1;
-        
+
         $base = AnnualRetainerBaseFee::where('calls_per_month', $request->input('no_of_calls'))
                                     ->where('visits_per_year', $request->input('no_of_visits'))
                                     ->first();
@@ -2746,7 +2746,7 @@ class ServiceController extends Controller
             ];
             $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
-            $payment = createMobOrder($customer, $total_amount, $currency, $orderReference);
+            $payment = createMobOrder($customer, $amountToBePaidNow, $currency, $orderReference);
 
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
