@@ -29,7 +29,7 @@
                         <label for="current_position" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.current_position') }}<span class="text-red-500">*</span></label>
                         <select id="current_position" data-url="{{ url('user/get-sub-contract-types') }}" name="position" class="select2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             <option value="">{{ __('frontend.choose_option') }}</option>
-                            @foreach ($dropdownData['positions'] as $ert)
+                            @foreach ($dropdownData['immigation_positions'] as $ert)
                                 <option value="{{ $ert['id'] }}"  {{ (old('current_position') == $ert['id']) ? 'selected' : '' }}>{{ $ert['value'] }}</option>
                             @endforeach
                         </select>

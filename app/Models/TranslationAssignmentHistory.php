@@ -9,7 +9,7 @@ class TranslationAssignmentHistory extends Model
     protected $table = 'translation_assignment_histories';
 
     protected $fillable = [
-        'request_id', 'translator_id', 'assigned_by', 'hours_per_page', 'admin_amount', 'translator_amount', 'total_amount', 'assigned_at'
+        'request_id', 'translator_id', 'assigned_by', 'hours_per_page', 'admin_amount', 'translator_amount', 'total_amount', 'assigned_at','delivery_amount','tax'
     ];
 
     protected $dates = ['assigned_at'];

@@ -110,7 +110,7 @@
                                 </div>
                             </div>
 
-                             @if($service->slug != 'online-live-consultancy' && $service->slug != 'annual-retainer-agreement' && $service->slug != 'law-firm-services' && $service->slug != 'legal-translation')
+                             @if($service->slug === 'immigration-requests')
                             
                                 <div id="fee-section" class="col-md-12" style="display: {{ $service->payment_active ? 'flex' : 'none' }};">
                                     

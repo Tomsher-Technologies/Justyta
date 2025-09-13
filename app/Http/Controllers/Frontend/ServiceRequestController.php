@@ -737,7 +737,7 @@ class ServiceRequestController extends Controller
                                 'options.translations' => function ($q) use ($lang) {
                                     $q->whereIn('language_code', [$lang, 'en']);
                                 }
-                            ])->whereIn('slug', ['positions','residency_status','immigration_type'])->get()->keyBy('slug');
+                            ])->whereIn('slug', ['immigration_positions','residency_status','immigration_type'])->get()->keyBy('slug');
                 
                 foreach ($dropdowns as $slug => $dropdown) {
                     $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -830,6 +830,7 @@ class ServiceRequestController extends Controller
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'court-case-submission',
+            'request_success'   => 1,
             'reference_code'    => $referenceCode,
             'source'            => 'web',
             'submitted_at'      => date('Y-m-d H:i:s')
@@ -941,6 +942,7 @@ class ServiceRequestController extends Controller
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'criminal-complaint',
+            'request_success'   => 1,
             'reference_code'    => $referenceCode,
             'source'            => 'web',
             'submitted_at'      => date('Y-m-d H:i:s')
@@ -1038,6 +1040,7 @@ class ServiceRequestController extends Controller
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'last-will-and-testament',
+            'request_success'   => 1,
             'reference_code'    => $referenceCode,
             'source'            => 'web',
             'submitted_at'      => date('Y-m-d H:i:s')
@@ -1123,6 +1126,7 @@ class ServiceRequestController extends Controller
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'escrow-accounts',
+            'request_success'   => 1,
             'reference_code'    => $referenceCode,
             'source'            => 'web',
             'submitted_at'      => date('Y-m-d H:i:s')
@@ -1195,6 +1199,7 @@ class ServiceRequestController extends Controller
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'debts-collection',
+            'request_success'   => 1,
             'reference_code'    => $referenceCode,
             'source'            => 'web',
             'submitted_at'      => date('Y-m-d H:i:s')
@@ -1300,6 +1305,7 @@ class ServiceRequestController extends Controller
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'memo-writing',
+            'request_success'   => 1,
             'reference_code'    => $referenceCode,
             'source'            => 'web',
             'submitted_at'      => date('Y-m-d H:i:s')
@@ -1457,6 +1463,7 @@ class ServiceRequestController extends Controller
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'power-of-attorney',
+            'request_success'   => 1,
             'reference_code'    => $referenceCode,
             'source'            => 'web',
             'submitted_at'      => date('Y-m-d H:i:s')
@@ -1577,6 +1584,7 @@ class ServiceRequestController extends Controller
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'contract-drafting',
+            'request_success'   => 1,
             'reference_code'    => $referenceCode,
             'source'            => 'web',
             'submitted_at'      => date('Y-m-d H:i:s')
@@ -1681,6 +1689,7 @@ class ServiceRequestController extends Controller
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'company-setup',
+            'request_success'   => 1,
             'reference_code'    => $referenceCode,
             'source'            => 'web',
             'submitted_at'      => date('Y-m-d H:i:s')
@@ -2499,11 +2508,13 @@ class ServiceRequestController extends Controller
                     $serviceRequest->update([
                         'payment_status' => 'partial',
                         'payment_response' => $data,
+                        'request_success'   => 1,
                         'paid_at' => date('Y-m-d h:i:s')
                     ]);
                 }else{
                     $serviceRequest->update([
                         'payment_status' => 'success',
+                        'request_success'   => 1,
                         'payment_response' => $data,
                         'paid_at' => date('Y-m-d h:i:s')
                     ]);
@@ -2512,6 +2523,7 @@ class ServiceRequestController extends Controller
             }else{
                 $serviceRequest->update([
                     'payment_status' => 'success',
+                    'request_success'   => 1,
                     'payment_response' => $data,
                     'paid_at' => date('Y-m-d h:i:s')
                 ]);
@@ -2523,6 +2535,10 @@ class ServiceRequestController extends Controller
                 $from = $legalTranslation->document_language;
                 $to = $legalTranslation->translation_language;
                 $pages = $legalTranslation->no_of_pages;
+                $priority = $legalTranslation->priority_level;
+                $receive_by = $legalTranslation->receive_by;
+                $doc_type = $legalTranslation->document_type;
+                $subdoc_type = $legalTranslation->document_sub_type;
 
                 $assignment = DefaultTranslatorAssignment::where([
                                     'from_language_id' => $from,
@@ -2530,31 +2546,70 @@ class ServiceRequestController extends Controller
                                 ])->first();
 
                 if ($assignment) {
-                    $rate = TranslatorLanguageRate::where([
-                                                    'translator_id'     => $assignment->translator_id,
-                                                    'from_language_id'  => $from,
-                                                    'to_language_id'    => $to,
-                                                ])->first();
+                    $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
+                                            $q->where('priority_type', $priority)
+                                            ->where('delivery_type', $receive_by);
+                                        }])
+                                        ->where('translator_id', $assignment->translator_id)
+                                        ->where('from_language_id', $from)
+                                        ->where('to_language_id', $to)
+                                        ->where('doc_type_id', $doc_type)
+                                        ->where('doc_subtype_id', $subdoc_type)
+                                        ->where('status', 1)
+                                        ->first();
 
                     if ($rate) {
-                        $totalAmount = $rate->total_amount * $pages;
+                        $totalHours = 0;
+                        if ($priority === 'normal') {
+                            if ($pages <= 10) {
+                                $totalHours = $rate->normal_hours_1_10;
+                            } elseif ($pages <= 20) {
+                                $totalHours = $rate->normal_hours_11_20;
+                            } elseif ($pages <= 30) {
+                                $totalHours = $rate->normal_hours_21_30;
+                            } elseif ($pages <= 50) {
+                                $totalHours = $rate->normal_hours_31_50;
+                            } else {
+                                $totalHours = $rate->normal_hours_above_50;
+                            }
+                        } else {
+                            if ($pages <= 10) {
+                                $totalHours = $rate->urgent_hours_1_10;
+                            } elseif ($pages <= 20) {
+                                $totalHours = $rate->urgent_hours_11_20;
+                            } elseif ($pages <= 30) {
+                                $totalHours = $rate->urgent_hours_21_30;
+                            } elseif ($pages <= 50) {
+                                $totalHours = $rate->urgent_hours_31_50;
+                            } else {
+                                $totalHours = $rate->urgent_hours_above_50;
+                            }
+                        }
+
+                        $delivery = $rate->deliveries->first();
+                        $admin_amount = $delivery->admin_amount * $pages;
+                        $translator_amount = $delivery->translator_amount * $pages;
+
+                        $totalAmountNoTax = ($admin_amount + $translator_amount + $delivery->delivery_amount);
+
+                        $tax = ($totalAmountNoTax/100) * 5;
+
+                        $totalAmount = $totalAmountNoTax + $tax;
 
                         $legalTranslation->update([
-                            'assigned_translator_id'    => $assignment->translator_id,
-                            'hours_per_page'            => $rate->hours_per_page, 
-                            'admin_amount'              => $rate->admin_amount, 
-                            'translator_amount'         => $rate->translator_amount,  
-                            'total_amount'              => $totalAmount, 
+                            'assigned_translator_id'    => $assignment->translator_id
                         ]);
 
                         TranslationAssignmentHistory::create([
                             'request_id'         => $legalTranslation->id,
                             'translator_id'      => $assignment->translator_id,
                             'assigned_by'        => NULL,
-                            'hours_per_page'     => $rate->hours_per_page,
-                            'admin_amount'       => $rate->admin_amount,
-                            'translator_amount'  => $rate->translator_amount,
-                            'total_amount'       => $totalAmount,
+                            'hours_per_page'     => $totalHours ?? 0,
+                            'admin_amount'       => $admin_amount ?? 0,
+                            'translator_amount'  => $translator_amount ?? 0,
+                            'delivery_amount'    => $delivery->delivery_amount ?? 0,
+                            'tax'               => $tax ?? 0,
+                            'total_amount'       => $totalAmount ?? 0,
                         ]);
                     }
                 }
@@ -2572,10 +2627,64 @@ class ServiceRequestController extends Controller
             }
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         }else{
-            $serviceRequest->update([
-                'payment_status' => 'failed',
-                'payment_response' => $data,
-            ]);
+            $pageData = getPageDynamicContent('request_payment_failed',$lang);
+            
+            if($serviceRequest->service_slug === 'expert-report'){
+                $serviceRequest->update([
+                    'payment_status' => 'failed',
+                    'request_success'   => 1,
+                    'payment_response' => $data,
+                ]);
+                $referenceCode = $serviceRequest->reference_code;
+                return response()->json([
+                    'status' => true,
+                    'message' => $pageData['content'],
+                    'data' => [
+                            'reference' => $referenceCode ?? '',
+                            'message'   => $pageData['content']
+                            ]
+                ], 200);
+            }else{
+
+                $serviceSlug = $serviceRequest->service_slug;
+                $requestId   = $serviceRequest->id;
+
+                $serviceModelMap = [
+                    'legal-translation' => \App\Models\RequestLegalTranslation::class,
+                    'expert-report'     => \App\Models\RequestExpertReport::class,
+                    'request-submission' => \App\Models\RequestRequestSubmission::class,
+                    'annual-retainer-agreement' => \App\Models\RequestAnnualAgreement::class,
+                    'immigration-requests' => \App\Models\RequestImmigration::class
+                ];
+                $filePath = [
+                    'legal-translation' => 'legal_translation',
+                    'expert-report'     => 'expert_report',
+                    'request-submission' => 'request_submission',
+                    'annual-retainer-agreement' => 'annual_retainer_agreement',
+                    'immigration-requests' => 'immigration'
+                ];
+
+                if (isset($serviceModelMap[$serviceSlug])) {
+                    $modelClass = $serviceModelMap[$serviceSlug];
+                    $serviceReq = $modelClass::where('service_request_id', $serviceRequest->id)->first();
+                    $serviceReqId = $serviceReq->id;
+
+                    $serviceReq->delete();
+
+                    deleteRequestFolder($filePath[$serviceSlug], $serviceReqId);
+                }
+                $serviceRequest->delete();
+            
+                $referenceCode = '';
+                return response()->json([
+                    'status' => false,
+                    'message' => $pageData['content'],
+                    'data' => [
+                            'reference' => $referenceCode ?? '',
+                            'message'   => $pageData['content']
+                            ]
+                ], 200);
+            }
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         }
 

@@ -145,7 +145,7 @@ class JobPostController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['positions'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['job_positions'])->get()->keyBy('slug');
        
            
             $response = [];
@@ -166,6 +166,11 @@ class JobPostController extends Controller
                         'value' => $option->getTranslation('name',$lang),
                     ];
                 });
+            }
+
+            if(isset($response['job_positions'])){
+                $response['positions'] = $response['job_positions'];
+                unset($response['job_positions']);
             }
 
             $ads = getActiveAd('lawfirm_jobs', 'mobile');

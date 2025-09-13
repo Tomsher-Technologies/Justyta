@@ -23,7 +23,7 @@ class JobApplication extends Model
 
     public function currentPostion()
     {
-        return $this->belongsTo(DropdownOption::class,'position');
+        return $this->belongsTo(DropdownOption::class,'job_positions');
     }
 
 }

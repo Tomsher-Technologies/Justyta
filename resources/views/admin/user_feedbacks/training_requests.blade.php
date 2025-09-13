@@ -34,7 +34,7 @@
                                     <div class="col-md-3 input-group mt-2  mb-1">
                                         <select name="position" class="select2 form-control ih-small ip-gray radius-xs b-deep px-15"  data-placeholder="Select Position" >
                                             <option value="">--Select Position--</option>
-                                             @foreach($response['positions'] as $res)
+                                             @foreach($response['training_positions'] as $res)
                                                 <option value="{{ $res['id'] }}"  {{ request('position') == $res['id'] ? 'selected' : '' }}>
                                                     {{ $res['value'] ?? '---' }}
                                                 </option>

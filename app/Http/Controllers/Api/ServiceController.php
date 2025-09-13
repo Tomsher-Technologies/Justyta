@@ -19,6 +19,7 @@ use App\Models\Page;
 use App\Models\CourtRequest;
 use App\Models\PublicProsecution;
 use App\Models\TranslationLanguage;
+use App\Models\TranslationAssignmentHistory;
 use App\Models\DocumentType;
 use App\Models\ServiceRequest;
 use App\Models\RequestCourtCase;
@@ -899,7 +900,7 @@ class ServiceController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['positions','residency_status','immigration_type'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['immigration_positions','residency_status','immigration_type'])->get()->keyBy('slug');
        
         
         $response = [];
@@ -911,6 +912,11 @@ class ServiceController extends Controller
                     'value' => $option->getTranslation('name',$lang),
                 ];
             });
+        }
+
+        if(isset($response['immigration_positions'])){
+            $response['positions'] = $response['immigration_positions'];
+            unset($response['immigration_positions']);
         }
 
         $countries = Country::where('status',1)->orderBy('id')->get();
@@ -1089,10 +1095,10 @@ class ServiceController extends Controller
             'documents'         => 'nullable|array',
             'eid'               => 'required|array',
             'trade_license'     => 'required|array',
-            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'litigation_type.required'  => __('messages.litigation_type_required'),
@@ -1136,6 +1142,7 @@ class ServiceController extends Controller
             'service_slug'      => 'court-case-submission',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
@@ -1214,10 +1221,10 @@ class ServiceController extends Controller
             'documents'         => 'required|array',
             'eid'               => 'required|array',
             'trade_license'     => 'required|array',
-            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'litigation_type.required'  => __('messages.litigation_type_required'),
@@ -1262,6 +1269,7 @@ class ServiceController extends Controller
             'service_slug'      => 'criminal-complaint',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
@@ -1338,7 +1346,7 @@ class ServiceController extends Controller
             'you_represent'     => 'required',
             'full_name'         => 'required',
             'eid'               => 'required|array',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'testament_place.required'  => __('messages.testament_place_required'),
             'nationality.required'      => __('messages.nationality_required'),
@@ -1372,6 +1380,7 @@ class ServiceController extends Controller
             'service_id'        => $service->id,
             'service_slug'      => 'last-will-and-testament',
             'reference_code'    => $referenceCode,
+            'request_success'   => 1,
             'source'            => 'mob',
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
@@ -1449,9 +1458,9 @@ class ServiceController extends Controller
             'authorized_passport'   => 'nullable|array',
             'appointer_id'          => 'required|array',
             'authorized_id'         => 'required|array',
-            'authorized_passport.*' => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'appointer_id.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'authorized_id.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'authorized_passport.*' => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'appointer_id.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'authorized_id.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'       => __('messages.applicant_type_required'),
             'appointer_name.required'       => __('messages.appointer_name_required'),
@@ -1498,6 +1507,7 @@ class ServiceController extends Controller
             'service_slug'      => 'power-of-attorney',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
@@ -1582,9 +1592,9 @@ class ServiceController extends Controller
             'documents'         => 'required|array',
             'eid'               => 'required|array',
             'trade_license'     => 'required|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'litigation_type.required'  => __('messages.litigation_type_required'),
@@ -1627,6 +1637,7 @@ class ServiceController extends Controller
             'service_slug'      => 'memo-writing',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
@@ -1735,6 +1746,7 @@ class ServiceController extends Controller
             'service_slug'      => 'escrow-accounts',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
@@ -1779,9 +1791,9 @@ class ServiceController extends Controller
             'documents'         => 'nullable|array',
             'eid'               => 'required|array',
             'trade_license'     => 'required|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'debt_type.required'        => __('messages.debt_type_required'),
@@ -1825,6 +1837,7 @@ class ServiceController extends Controller
             'service_slug'      => 'debts-collection',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
@@ -1901,7 +1914,7 @@ class ServiceController extends Controller
             'mobile'            => 'required',
             'email'             => 'required',
             'documents'         => 'nullable|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'zone.required'             => __('messages.zone_required'),
@@ -1939,6 +1952,7 @@ class ServiceController extends Controller
             'service_slug'      => 'company-setup',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
@@ -2017,9 +2031,9 @@ class ServiceController extends Controller
             'documents'         => 'nullable|array',
             'eid'               => 'required|array',
             'trade_license'     => 'required|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'       => __('messages.applicant_type_required'),
             'contract_type.required'        => __('messages.contract_type_required'),
@@ -2064,6 +2078,7 @@ class ServiceController extends Controller
             'service_slug'      => 'contract-drafting',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
@@ -2141,9 +2156,9 @@ class ServiceController extends Controller
             'documents'                 => 'required|array',
             'eid'                       => 'required|array',
             'trade_license'             => 'required|array',
-            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'                     => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'                     => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'           => __('messages.applicant_type_required'),
             'applicant_place.required'          => __('messages.applicant_place_required'),
@@ -2298,11 +2313,11 @@ class ServiceController extends Controller
             'passport'              => 'required|array',
             'photo'                 => 'required|array',
             'account_statement'     => 'required|array',
-            'cv.*'                  => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'certificates.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'account_statement.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'passport.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'photo.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'cv.*'                  => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'certificates.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'account_statement.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'passport.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'photo.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'preferred_country.required'    => __('messages.preferred_country_required'),
             'position.required'             => __('messages.position_required'),
@@ -2468,10 +2483,10 @@ class ServiceController extends Controller
             'documents'         => 'nullable|array',
             'eid'               => 'required|array',
             'trade_license'     => 'required|array',
-            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'litigation_type.required'  => __('messages.litigation_type_required'),
@@ -2761,10 +2776,10 @@ class ServiceController extends Controller
             'documents'                 => 'required|array',
             'additional_documents'      => 'nullable|array',
             'trade_license'             => 'nullable|array',
-            'memo.*'                    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:2048',
-            'additional_documents.*'    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:2048',
-            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'memo.*'                    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'additional_documents.*'    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'priority_level.required'       => __('messages.priority_level_required'),
             'document_language.required'    => __('messages.document_language_required'),
@@ -2863,22 +2878,76 @@ class ServiceController extends Controller
         $from           = $request->input('document_language');
         $to             = $request->input('translation_language');
         $pages          = $request->input('no_of_pages') ?? 0;
-        $totalAmount    = 0;
+        $priority       = $request->priority_level ?? null;
+        $doc_type       = $request->document_type;
+        $subdoc_type    = $request->document_sub_type;
+        $receive_by     = $request->receive_by ?? null;
+        
+        $totalAmount  = $totalHours  = 0;
 
         $assignment = DefaultTranslatorAssignment::where([
-                                    'from_language_id' => $from,
-                                    'to_language_id'   => $to,
-                                ])->first();
-
+                            'from_language_id' => $from,
+                            'to_language_id'   => $to,
+                        ])->first();
         if ($assignment) {
-            $rate = TranslatorLanguageRate::where([
-                                            'translator_id'     => $assignment->translator_id,
-                                            'from_language_id'  => $from,
-                                            'to_language_id'    => $to,
-                                        ])->first();
+            $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
+                                            $q->where('priority_type', $priority)
+                                            ->where('delivery_type', $receive_by);
+                                        }])
+                                        ->where('translator_id', $assignment->translator_id)
+                                        ->where('from_language_id', $from)
+                                        ->where('to_language_id', $to)
+                                        ->where('doc_type_id', $doc_type)
+                                        ->where('doc_subtype_id', $subdoc_type)
+                                        ->where('status', 1)
+                                        ->first();
 
             if ($rate) {
-                $totalAmount = $rate->total_amount * $pages;
+                if ($priority === 'normal') {
+                    if ($pages <= 10) {
+                        $totalHours = $rate->normal_hours_1_10;
+                    } elseif ($pages <= 20) {
+                        $totalHours = $rate->normal_hours_11_20;
+                    } elseif ($pages <= 30) {
+                        $totalHours = $rate->normal_hours_21_30;
+                    } elseif ($pages <= 50) {
+                        $totalHours = $rate->normal_hours_31_50;
+                    } else {
+                        $totalHours = $rate->normal_hours_above_50;
+                    }
+                } else {
+                    if ($pages <= 10) {
+                        $totalHours = $rate->urgent_hours_1_10;
+                    } elseif ($pages <= 20) {
+                        $totalHours = $rate->urgent_hours_11_20;
+                    } elseif ($pages <= 30) {
+                        $totalHours = $rate->urgent_hours_21_30;
+                    } elseif ($pages <= 50) {
+                        $totalHours = $rate->urgent_hours_31_50;
+                    } else {
+                        $totalHours = $rate->urgent_hours_above_50;
+                    }
+                }
+
+                $delivery = $rate->deliveries->first();
+                $admin_amount = $delivery->admin_amount * $pages;
+                $translator_amount = $delivery->translator_amount * $pages;
+
+                $totalAmountNoTax = ($admin_amount + $translator_amount + $delivery->delivery_amount);
+
+                $tax = ($totalAmountNoTax/100) * 5;
+
+                $totalAmount = $totalAmountNoTax + $tax;
+                
+
+                $legalTranslation->update([
+                    'admin_amount' => $admin_amount,
+                    'translator_amount' => $translator_amount,
+                    'delivery_amount' => $delivery->delivery_amount,
+                    'tax' => $tax,
+                    'total_amount' => $totalAmount,
+                    'hours_per_page' => $totalHours
+                ]);
             }
         }
 
@@ -2933,6 +3002,10 @@ class ServiceController extends Controller
             'from_language_id' => 'required|integer|exists:translation_languages,id',
             'to_language_id'   => 'required|integer|exists:translation_languages,id',
             'no_of_pages'      => 'required|integer|min:1',
+            'priority'         => 'required',
+            'doc_type'         => 'required',   
+            'subdoc_type'      => 'required',
+            'receive_by'       => 'required',
         ],[
             'from_language_id.required' => __('messages.from_language_id_required'),
             'from_language_id.exists'   => __('messages.from_language_id_exists'),
@@ -2941,6 +3014,10 @@ class ServiceController extends Controller
             'no_of_pages.required'      => __('messages.no_of_pages_required'),
             'no_of_pages.integer'       => __('messages.no_of_pages_integer'),
             'no_of_pages.min'           => __('messages.no_of_pages_min'),
+            'priority.required'         => __('messages.priority_required'),
+            'doc_type.required'         => __('messages.doc_type_required'),
+            'subdoc_type.required'      => __('messages.subdoc_type_required'),
+            'receive_by.required'       => __('messages.receive_by_required'),
         ]);
 
         if ($validator->fails()) {
@@ -2955,6 +3032,10 @@ class ServiceController extends Controller
         $from   = $request->from_language_id;
         $to     = $request->to_language_id;
         $pages  = $request->no_of_pages;
+        $priority = $request->priority ?? null;
+        $doc_type = $request->doc_type;
+        $subdoc_type = $request->subdoc_type;
+        $receive_by = $request->receive_by ?? null;
 
         $assignment = DefaultTranslatorAssignment::where([
             'from_language_id' => $from,
@@ -2967,12 +3048,18 @@ class ServiceController extends Controller
                 'message'   => __('messages.no_default_translators'),
             ], 200);
         }
-
-        $rate = TranslatorLanguageRate::where([
-            'translator_id'     => $assignment->translator_id,
-            'from_language_id'  => $from,
-            'to_language_id'    => $to,
-        ])->first();
+        
+        $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
+                                            $q->where('priority_type', $priority)
+                                            ->where('delivery_type', $receive_by);
+                                        }])
+                                        ->where('translator_id', $assignment->translator_id)
+                                        ->where('from_language_id', $from)
+                                        ->where('to_language_id', $to)
+                                        ->where('doc_type_id', $doc_type)
+                                        ->where('doc_subtype_id', $subdoc_type)
+                                        ->where('status', 1)
+                                        ->first();
 
         if (!$rate) {
             return response()->json([
@@ -2981,17 +3068,49 @@ class ServiceController extends Controller
             ], 200);
         }
 
-        $totalAmount = $rate->total_amount * $pages;
-        $totalHours  = $rate->hours_per_page * $pages;
+        if ($priority === 'normal') {
+            if ($pages <= 10) {
+                $totalHours = $rate->normal_hours_1_10;
+            } elseif ($pages <= 20) {
+                $totalHours = $rate->normal_hours_11_20;
+            } elseif ($pages <= 30) {
+                $totalHours = $rate->normal_hours_21_30;
+            } elseif ($pages <= 50) {
+                $totalHours = $rate->normal_hours_31_50;
+            } else {
+                $totalHours = $rate->normal_hours_above_50;
+            }
+        } else {
+            if ($pages <= 10) {
+                $totalHours = $rate->urgent_hours_1_10;
+            } elseif ($pages <= 20) {
+                $totalHours = $rate->urgent_hours_11_20;
+            } elseif ($pages <= 30) {
+                $totalHours = $rate->urgent_hours_21_30;
+            } elseif ($pages <= 50) {
+                $totalHours = $rate->urgent_hours_31_50;
+            } else {
+                $totalHours = $rate->urgent_hours_above_50;
+            }
+        }
+
+        $delivery = $rate->deliveries->first();
+        
+        $admin_amount = $delivery->admin_amount * $pages;
+        $translator_amount = $delivery->translator_amount * $pages;
+
+        $totalAmountNoTax = ($admin_amount + $translator_amount + $delivery->delivery_amount);
+
+        $tax = ($totalAmountNoTax/100) * 5;
+
+        $totalAmount = $totalAmountNoTax + $tax;
 
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
             'data'      => [
                             'total_amount'      => $totalAmount,
-                            'total_hours'       => $totalHours,
-                            'amount_per_page'   => $rate->total_amount,
-                            'hours_per_page'    => $rate->hours_per_page 
+                            'total_hours'       => $totalHours
                         ]
         ],200);
     }
@@ -3096,22 +3215,22 @@ class ServiceController extends Controller
                         $serviceRequest->update([
                             'payment_status' => 'partial',
                             'payment_response' => $data,
+                            'request_success'   => 1,
                             'paid_at' => date('Y-m-d h:i:s')
                         ]);
                     }else{
                         $serviceRequest->update([
                             'payment_status' => 'success',
                             'payment_response' => $data,
+                            'request_success'   => 1,
                             'paid_at' => date('Y-m-d h:i:s')
                         ]);
                     }
                 }else{
-
-                   
-
                     $serviceRequest->update([
                         'payment_status' => 'success',
                         'payment_response' => $data,
+                        'request_success'   => 1,
                         'paid_at' => date('Y-m-d h:i:s')
                     ]);
                 }
@@ -3122,6 +3241,10 @@ class ServiceController extends Controller
                     $from = $legalTranslation->document_language;
                     $to = $legalTranslation->translation_language;
                     $pages = $legalTranslation->no_of_pages;
+                    $priority = $legalTranslation->priority_level;
+                    $receive_by = $legalTranslation->receive_by;
+                    $doc_type = $legalTranslation->document_type;
+                    $subdoc_type = $legalTranslation->document_sub_type;
 
                     $assignment = DefaultTranslatorAssignment::where([
                                         'from_language_id' => $from,
@@ -3129,31 +3252,70 @@ class ServiceController extends Controller
                                     ])->first();
 
                     if ($assignment) {
-                        $rate = TranslatorLanguageRate::where([
-                                                        'translator_id'     => $assignment->translator_id,
-                                                        'from_language_id'  => $from,
-                                                        'to_language_id'    => $to,
-                                                    ])->first();
+                        $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
+                                            $q->where('priority_type', $priority)
+                                            ->where('delivery_type', $receive_by);
+                                        }])
+                                        ->where('translator_id', $assignment->translator_id)
+                                        ->where('from_language_id', $from)
+                                        ->where('to_language_id', $to)
+                                        ->where('doc_type_id', $doc_type)
+                                        ->where('doc_subtype_id', $subdoc_type)
+                                        ->where('status', 1)
+                                        ->first();
 
                         if ($rate) {
-                            $totalAmount = $rate->total_amount * $pages;
+                            $totalHours = 0;
+                            if ($priority === 'normal') {
+                                if ($pages <= 10) {
+                                    $totalHours = $rate->normal_hours_1_10;
+                                } elseif ($pages <= 20) {
+                                    $totalHours = $rate->normal_hours_11_20;
+                                } elseif ($pages <= 30) {
+                                    $totalHours = $rate->normal_hours_21_30;
+                                } elseif ($pages <= 50) {
+                                    $totalHours = $rate->normal_hours_31_50;
+                                } else {
+                                    $totalHours = $rate->normal_hours_above_50;
+                                }
+                            } else {
+                                if ($pages <= 10) {
+                                    $totalHours = $rate->urgent_hours_1_10;
+                                } elseif ($pages <= 20) {
+                                    $totalHours = $rate->urgent_hours_11_20;
+                                } elseif ($pages <= 30) {
+                                    $totalHours = $rate->urgent_hours_21_30;
+                                } elseif ($pages <= 50) {
+                                    $totalHours = $rate->urgent_hours_31_50;
+                                } else {
+                                    $totalHours = $rate->urgent_hours_above_50;
+                                }
+                            }
+
+                            $delivery = $rate->deliveries->first();
+                            $admin_amount = $delivery->admin_amount * $pages;
+                            $translator_amount = $delivery->translator_amount * $pages;
+
+                            $totalAmountNoTax = ($admin_amount + $translator_amount + $delivery->delivery_amount);
+
+                            $tax = ($totalAmountNoTax/100) * 5;
+
+                            $totalAmount = $totalAmountNoTax + $tax;
 
                             $legalTranslation->update([
-                                'assigned_translator_id'    => $assignment->translator_id,
-                                'hours_per_page'            => $rate->hours_per_page, 
-                                'admin_amount'              => $rate->admin_amount, 
-                                'translator_amount'         => $rate->translator_amount,  
-                                'total_amount'              => $totalAmount, 
+                                'assigned_translator_id'    => $assignment->translator_id
                             ]);
 
-                            App\Models\TranslationAssignmentHistory::create([
+                            TranslationAssignmentHistory::create([
                                 'request_id'         => $legalTranslation->id,
                                 'translator_id'      => $assignment->translator_id,
                                 'assigned_by'        => NULL,
-                                'hours_per_page'     => $rate->hours_per_page,
-                                'admin_amount'       => $rate->admin_amount,
-                                'translator_amount'  => $rate->translator_amount,
-                                'total_amount'       => $totalAmount,
+                                'hours_per_page'     => $totalHours ?? 0,
+                                'admin_amount'       => $admin_amount ?? 0,
+                                'translator_amount'  => $translator_amount ?? 0,
+                                'delivery_amount'    => $delivery->delivery_amount ?? 0,
+                                'tax'               => $tax ?? 0,
+                                'total_amount'       => $totalAmount ?? 0,
                             ]);
                         }
                     }
@@ -3182,21 +3344,63 @@ class ServiceController extends Controller
                 ], 200);
             }else{
                 $pageData = getPageDynamicContent('request_payment_failed',$lang);
-                $returnResponse = [
-                                'reference' => $serviceRequest->reference_code ?? '',
+            
+                if($serviceRequest->service_slug === 'expert-report'){
+                    $serviceRequest->update([
+                        'payment_status' => 'failed',
+                        'request_success'   => 1,
+                        'payment_response' => $data,
+                    ]);
+                    $referenceCode = $serviceRequest->reference_code;
+                    return response()->json([
+                        'status' => true,
+                        'message' => $pageData['content'],
+                        'data' => [
+                                'reference' => $referenceCode ?? '',
                                 'message'   => $pageData['content']
-                ];
+                                ]
+                    ], 200);
+                }else{
 
-                $serviceRequest->update([
-                    'payment_status' => 'failed',
-                    'payment_response' => $data,
-                ]);
+                    $serviceSlug = $serviceRequest->service_slug;
+                    $requestId   = $serviceRequest->id;
+
+                    $serviceModelMap = [
+                        'legal-translation' => \App\Models\RequestLegalTranslation::class,
+                        'expert-report'     => \App\Models\RequestExpertReport::class,
+                        'request-submission' => \App\Models\RequestRequestSubmission::class,
+                        'annual-retainer-agreement' => \App\Models\RequestAnnualAgreement::class,
+                        'immigration-requests' => \App\Models\RequestImmigration::class
+                    ];
+                    $filePath = [
+                        'legal-translation' => 'legal_translation',
+                        'expert-report'     => 'expert_report',
+                        'request-submission' => 'request_submission',
+                        'annual-retainer-agreement' => 'annual_retainer_agreement',
+                        'immigration-requests' => 'immigration'
+                    ];
+
+                    if (isset($serviceModelMap[$serviceSlug])) {
+                        $modelClass = $serviceModelMap[$serviceSlug];
+                        $serviceReq = $modelClass::where('service_request_id', $serviceRequest->id)->first();
+                        $serviceReqId = $serviceReq->id;
+
+                        $serviceReq->delete();
+
+                        deleteRequestFolder($filePath[$serviceSlug], $serviceReqId);
+                    }
+                    $serviceRequest->delete();
                 
-                return response()->json([
-                    'status' => true,
-                    'message' => $pageData['content'],
-                    'data' => $returnResponse
-                ], 200);
+                    $referenceCode = '';
+                    return response()->json([
+                        'status' => false,
+                        'message' => $pageData['content'],
+                        'data' => [
+                                'reference' => $referenceCode ?? '',
+                                'message'   => $pageData['content']
+                                ]
+                    ], 200);
+                }
             }
         }
         

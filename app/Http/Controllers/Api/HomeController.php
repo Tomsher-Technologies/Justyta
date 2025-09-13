@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Service;
 use App\Models\News;
+use App\Models\Page;
 use App\Models\Contacts;
 use Illuminate\Http\Request;
 use App\Mail\ContactEnquiry;
@@ -71,7 +72,25 @@ class HomeController extends Controller
             ];
         });
       
-        $data['quick_link'] = [];
+        $quickServices = Page::where('slug', 'user_app_home')->pluck('content');
+        $quickIds = $quickServices ? json_decode($quickServices[0]) : [];
+        
+        $servicesQuick = Service::with(['translations' => function ($queryQ) use ($lang) {
+                        $queryQ->where('lang', $lang);
+                    }])
+                    ->whereIn('id', $quickIds)
+                    ->where('status', 1)
+                    ->orderBy('sort_order', 'ASC')
+                    ->get();
+
+        $data['quick_link'] = $servicesQuick->map(function ($serv) {
+            $translationQ = $serv->translations->first();
+            return [
+                'id' => $serv->id,
+                'slug' => $serv->slug,
+                'title' => $translationQ->title ?? ''
+            ];
+        });
 
         $ads = getActiveAd('lawfirm_services', 'mobile');
 
