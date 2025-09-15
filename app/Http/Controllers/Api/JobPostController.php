@@ -11,6 +11,8 @@ use App\Models\JobApplication;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Mail\JobApplicationReceived;
+use Illuminate\Support\Facades\Mail;
 
 class JobPostController extends Controller
 {
@@ -258,7 +260,7 @@ class JobPostController extends Controller
         $application->email         = $request->email;
         $application->phone         = $request->phone;
         $application->position      = $request->position;
-        $application->resume_path   = 'storage/'.$resumeUrl;
+        $application->resume_path   = $resumeUrl;
         $application->save();
 
         $jobOwner = $job->post_owner;
