@@ -958,7 +958,7 @@ function createWebPlanOrder($customer, float $amount, string $currency = 'AED', 
 
         $countLanguages = count($languages);
 
-        $lawyer = DB::table('lawyers as l')
+        $lawyerId =  DB::table('lawyers as l')
                 ->join('users as u', 'u.id', '=', 'l.user_id')
                 ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
                     $join->on('ld_speciality.lawyer_id', '=', 'l.id')
@@ -981,8 +981,10 @@ function createWebPlanOrder($customer, float $amount, string $currency = 'AED', 
                 ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
                 ->groupBy('l.id')
                 ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
-                ->select('l.*')
+                ->pluck('l.id')
                 ->first();
+
+        $lawyer = $lawyerId ? \App\Models\Lawyer::find($lawyerId) : null;
 
         return $lawyer;
     }
