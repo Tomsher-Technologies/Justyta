@@ -142,7 +142,13 @@ class ConsultationController extends Controller
                     assignLawyer($consultation, $lawyer->id);
                 }
 
-                return response()->json(['status' => true,'message'=> __('frontend.lawyer_assigned_waiting_response')],200);
+                return response()->json([
+                    'status' => true,
+                    'message'=> __('frontend.lawyer_assigned_waiting_response'),
+                    'data' => [
+                        'consultation_id' => $consultation->id ?? null,
+                    ]
+                ],200);
             }
         }
         return response()->json(['status'=>false, 'message'=>__('frontend.payment_failed')],200);
@@ -187,7 +193,7 @@ class ConsultationController extends Controller
     }
 
 
-   public function lawyerResponse(Request $request, ZoomService $zoomService){
+    public function lawyerResponse(Request $request, ZoomService $zoomService){
         $request->validate([
             'action'=>'required|in:accept,reject',
             'consultation_id'=>'required'
@@ -216,7 +222,7 @@ class ConsultationController extends Controller
             $consultation->lawyer_id = $lawyerId;
             $consultation->save();
 
-            // Zoom meeting placeholder
+            // Zoom meeting creation
             $zoom = new \App\Services\ZoomService();
             $meeting = $zoom->createMeeting(
                 "Consultation #{$consultation->id}",
@@ -229,27 +235,62 @@ class ConsultationController extends Controller
             $consultation->zoom_start_url  = $meeting['start_url'];
             $consultation->save();
 
-            return response()->json(['status'=>true,'message'=>'Call accepted, Zoom meeting initialized','data'=> [
-                'zoom_meeting_id' => $consultation->zoom_meeting_id,
-                'zoom_join_url' => $consultation->zoom_join_url,
-                'zoom_start_url' => $consultation->zoom_start_url
-            ]],200);
+            return response()->json([
+                'status' => true,
+                'message' => 'Call accepted, Zoom meeting initialized',
+                'data'=> [
+                    'consultation_id' => $consultation->id,
+                    'zoom_meeting_id' => $consultation->zoom_meeting_id,
+                    'zoom_join_url' => $consultation->zoom_join_url,
+                    'zoom_start_url' => $consultation->zoom_start_url
+                ]],200);
         }
 
         $nextLawyer = findBestFitLawyer($consultation);
         if($nextLawyer){
             assignLawyer($consultation, $nextLawyer);
-            return response()->json(['message'=>'Lawyer rejected, next lawyer assigned']);
+            return response()->json(['status'=> false, 'message'=>'Lawyer rejected, next lawyer assigned']);
         }else{
             $consultation->status = 'rejected';
             $consultation->save();
-            return response()->json(['message'=>'Lawyer rejected, no other lawyer available']);
+            return response()->json(['status'=> false, 'message'=> __('frontend.rejected_no_lawyer_available')]);
         }
 
         $consultation->status = 'rejected';
         $consultation->save();
-        return response()->json(['message'=>'Lawyer rejected, no other lawyer available']);
+        return response()->json(['status'=> false, 'message'=> __('frontend.rejected_no_lawyer_available')]);
     }
+
+    public function checkUserConsultationStatus(Request $request)
+    {
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $userId   = $user->id ?? null; 
+        
+        $consultationId = $request->consultation_id ?? null;
+
+        $consultation = Consultation::where('id',$consultationId)->where('user_id', $userId)
+                                        ->where('status', 'accepted')->first();
+
+        if (!$consultation) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No consultation found',
+            ], 200);
+        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Success',
+            'data' => [
+                'consultation_id' => $consultation->id ?? null,
+                'status' => $consultation->status ?? null,
+                'lawyer_id' => $consultation->lawyer_id ?? null,
+                'zoom_join_url' => $consultation->zoom_join_url ?? null,
+                'zoom_start_url' => $consultation->zoom_start_url ?? null
+            ],
+        ], 200);
+    }
+
 
     public function extendZoom(Request $request, $id)
     {
@@ -294,13 +335,4 @@ class ConsultationController extends Controller
         $consultation->update(['duration'=>$consultation->duration + $extraMinutes]);
     }
 
-    private function getZoomJWT()
-    {
-        $key = env('ZOOM_API_KEY');
-        $secret = env('ZOOM_API_SECRET');
-        return \Firebase\JWT\JWT::encode([
-            "iss"=>$key,
-            "exp"=>time()+60
-        ],$secret,'HS256');
-    }
 }
