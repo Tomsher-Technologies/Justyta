@@ -294,7 +294,7 @@ class ConsultationController extends Controller
     }
 
 
-    public function handleZoomWebhook(Request $request)
+    public function handleZoomCompleted(Request $request)
     {
         $event = $request->event ?? null;
 
