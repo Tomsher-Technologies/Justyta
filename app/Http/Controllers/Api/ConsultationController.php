@@ -235,6 +235,8 @@ class ConsultationController extends Controller
             $consultation->zoom_start_url  = $meeting['start_url'];
             $consultation->save();
 
+            $consultation->lawyer->update(['is_busy' => 1]);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Call accepted, Zoom meeting initialized',
@@ -290,6 +292,29 @@ class ConsultationController extends Controller
             ],
         ], 200);
     }
+
+
+    public function handleZoomWebhook(Request $request)
+    {
+        $event = $request->event ?? null;
+
+        if ($event === 'meeting.ended') {
+            $meetingId = $request->input('payload.object.id');
+
+            $consultation = Consultation::where('zoom_meeting_id', $meetingId)->first();
+            if ($consultation) {
+                $consultation->status = 'completed';
+                $consultation->save();
+
+                $consultation->lawyer->update(['is_busy' => 0]);
+            }
+        }
+    }
+
+
+
+
+
 
 
     public function extendZoom(Request $request, $id)
