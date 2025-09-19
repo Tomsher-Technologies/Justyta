@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Service;
 use App\Models\News;
+use App\Models\Consultation;
 use App\Models\Page;
 use App\Models\Contacts;
 use Illuminate\Http\Request;
@@ -362,6 +363,6 @@ class HomeController extends Controller
             }
         }
 
-        return response()->json(['message' => 'Webhook received']);
+        return response()->json(['message' => 'Webhook received'], 200);
     }
 }
