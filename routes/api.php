@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\JobPostController;
 use App\Http\Controllers\Api\CommonController;
 use App\Http\Controllers\Api\ConsultationController;
+use App\Http\Controllers\Api\LawyerController;
 
 Route::group(['prefix' => 'v1'], function () {
 Route::middleware('set_api_locale')->group(function () {
@@ -51,6 +52,9 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/rate-us', [UserController::class, 'rateUs']);
         Route::post('/user/online-status', [UserController::class, 'updateOnlineStatus']);
 
+        //Lawyer Account APIs
+        Route::get('/lawyer/dashboard', [LawyerController::class, 'dashboard']);
+        Route::get('/lawyer/consultations', [LawyerController::class, 'assignedConsultations']);
 
         //Contact US
         Route::post('/contact-us', [HomeController::class, 'contactUs']);
