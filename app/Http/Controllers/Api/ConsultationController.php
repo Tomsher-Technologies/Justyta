@@ -142,11 +142,17 @@ class ConsultationController extends Controller
                     assignLawyer($consultation, $lawyer->id);
                 }
 
+                $pageData = getPageDynamicContent('consultancy_payment_success',$lang);
+                $waitingMessage = getPageDynamicContent('consultancy_waiting_page',$lang);
+
                 return response()->json([
                     'status' => true,
-                    'message'=> __('frontend.lawyer_assigned_waiting_response'),
+                    'message'=> $pageData['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
                     'data' => [
                         'consultation_id' => $consultation->id ?? null,
+                        'ref_code' => $consultation->ref_code ?? null,
+                        'success_message' => $pageData['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                        'waiting_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
                     ]
                 ],200);
             }
