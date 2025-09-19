@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Lawyer extends Model
 {
     protected $fillable = [
-        'lawfirm_id', 'full_name', 'email', 'phone', 'gender', 'date_of_birth', 'emirate_id', 'nationality', 'years_of_experience', 'profile_photo', 'emirate_id_front', 'emirate_id_back', 'emirate_id_expiry', 'passport', 'passport_expiry', 'residence_visa', 'residence_visa_expiry', 'bar_card', 'bar_card_expiry', 'practicing_lawyer_card', 'practicing_lawyer_card_expiry','working_hours'
+        'lawfirm_id','is_busy', 'full_name', 'email', 'phone', 'gender', 'date_of_birth', 'emirate_id', 'nationality', 'years_of_experience', 'profile_photo', 'emirate_id_front', 'emirate_id_back', 'emirate_id_expiry', 'passport', 'passport_expiry', 'residence_visa', 'residence_visa_expiry', 'bar_card', 'bar_card_expiry', 'practicing_lawyer_card', 'practicing_lawyer_card_expiry','working_hours'
     ];
 
     public function user()

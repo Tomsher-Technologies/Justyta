@@ -329,4 +329,39 @@ class HomeController extends Controller
 
         return response()->json(['status' => true,"message"=> __('messages.contact_us_success'),"data" => []],200);
     }
+
+    public function handleZoomWebhook(Request $request)
+    {
+        $zoomSecret = config('services.zoom.webhook_secret'); 
+        $providedSecret = $request->header('Authorization');
+
+        if ($zoomSecret && $providedSecret !== "Bearer {$zoomSecret}") {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $event = $request->event;
+        $meetingId = $request->input('payload.object.id');
+
+        if ($event === 'meeting.started') {
+            $consultation = Consultation::where('zoom_meeting_id', $meetingId)->first();
+            if ($consultation) {
+                $consultation->status = 'in_progress';
+                $consultation->save();
+
+                $consultation->lawyer->update(['is_busy' => 1]);
+            }
+        }
+
+        if ($event === 'meeting.ended') {
+            $consultation = Consultation::where('zoom_meeting_id', $meetingId)->first();
+            if ($consultation) {
+                $consultation->status = 'completed';
+                $consultation->save();
+
+                $consultation->lawyer->update(['is_busy' => 0]);
+            }
+        }
+
+        return response()->json(['message' => 'Webhook received']);
+    }
 }

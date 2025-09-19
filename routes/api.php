@@ -25,6 +25,7 @@ Route::middleware('set_api_locale')->group(function () {
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     Route::get('/page-contents', [HomeController::class, 'pageContents']);
     Route::get('/banners', [HomeController::class, 'getBanners']);
+    Route::post('/zoom/webhook', [HomeController::class, 'handleZoomWebhook']);
 
 
     Route::middleware(['ensureFrontendRequestsAreStateful', 'auth:sanctum'])->group(function () {

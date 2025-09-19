@@ -977,6 +977,7 @@ function createWebPlanOrder($customer, float $amount, string $currency = 'AED', 
                 // })
 
                 ->where('u.is_online', 1)
+                ->where('l.is_busy', 0)
                 ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
                 ->groupBy('l.id')
                 ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
