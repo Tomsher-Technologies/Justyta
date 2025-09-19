@@ -611,7 +611,7 @@ class UserController extends Controller
             ],200);
     }
 
-   public function reportProblem(Request $request)
+    public function reportProblem(Request $request)
     {
         $lang           = $request->header('lang') ?? env('APP_LOCALE','en');
         $validator = Validator::make($request->all(), [
@@ -864,5 +864,25 @@ class UserController extends Controller
             'status'    => true,
             'message'   => __('messages.training_request_submit_success'),
         ], 200);
+    }
+
+    public function updateOnlineStatus(Request $request)
+    {
+        $request->validate([
+            'is_online' => 'required',
+        ]);
+
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $user->is_online = $request->is_online;
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => __('frontend.online_status_updated'),
+            'data' => [
+                'is_online' => $user->is_online
+            ]
+        ]);
     }
 }

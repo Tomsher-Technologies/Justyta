@@ -11,6 +11,7 @@ use App\Models\Lawyer;
 use App\Models\CaseType;
 use App\Models\RequestType;
 use App\Models\RequestTitle;
+use App\Models\ConsultationAssignment;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Request;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 
     function getCaseTypes($litigation_type, $litigation_place, $lang = 'en')
@@ -926,4 +928,61 @@ function createWebPlanOrder($customer, float $amount, string $currency = 'AED', 
     }
     return $response->json(); // returns _id, reference, _links etc.
 }
+
+
+    function assignLawyer($consultation, $lawyerId){
+        ConsultationAssignment::create([
+            'consultation_id'=>$consultation->id,
+            'lawyer_id'=>$lawyerId,
+            'status'=>'assigned'
+        ]);
+
+        $consultation->lawyer_id = $lawyerId;
+        $consultation->save();
+
+        // Notify lawyer via notification system (placeholder)
+        // Notification::send($lawyer, new ConsultationRequest($consultation));
+    }
+
+
+    function findBestFitLawyer($consultation)
+    {
+        $languages   = (array) $consultation->language;  
+        $caseType    = $consultation->case_type;         
+        // $emirateId   = $consultation->emirate_id;
+
+        // Already rejected lawyers
+        $lawyerIdsAlreadyRejected = ConsultationAssignment::where('consultation_id', $consultation->id)
+            ->where('status', 'rejected')
+            ->pluck('lawyer_id');
+
+        $countLanguages = count($languages);
+
+        $lawyer = DB::table('lawyers as l')
+                ->join('users as u', 'u.id', '=', 'l.user_id')
+                ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
+                    $join->on('ld_speciality.lawyer_id', '=', 'l.id')
+                        ->where('ld_speciality.type', 'specialities')
+                        ->where('ld_speciality.dropdown_option_id', $caseType);
+                })
+
+                ->join('lawyer_dropdown_options as ld_lang', function ($join) use ($languages) {
+                    $join->on('ld_lang.lawyer_id', '=', 'l.id')
+                        ->where('ld_lang.type', 'languages')
+                        ->whereIn('ld_lang.dropdown_option_id', $languages);
+                })
+
+                // ->when($emirateId, function ($q) use ($emirateId) {
+                //     $q->where('l.emirate_id', $emirateId);
+                // })
+
+                ->where('u.is_online', 1)
+                ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
+                ->groupBy('l.id')
+                ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
+                ->select('l.*')
+                ->first();
+
+        return $lawyer;
+    }
 

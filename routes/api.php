@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\JobPostController;
 use App\Http\Controllers\Api\CommonController;
+use App\Http\Controllers\Api\ConsultationController;
 
 Route::group(['prefix' => 'v1'], function () {
 Route::middleware('set_api_locale')->group(function () {
@@ -47,6 +48,7 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/report-problem', [UserController::class, 'reportProblem']);
         Route::get('/report-problem-content', [UserController::class, 'getReportProblemFormData']);
         Route::post('/rate-us', [UserController::class, 'rateUs']);
+        Route::post('/user/online-status', [UserController::class, 'updateOnlineStatus']);
 
 
         //Contact US
@@ -132,25 +134,24 @@ Route::middleware('set_api_locale')->group(function () {
         // Online Consulation User endpoints
         Route::post('/consultations', [ConsultationController::class,'store']);
         Route::get('/consultations/{id}', [ConsultationController::class,'show']);
-        Route::post('/consultations/{id}/payment-success', [ConsultationController::class,'paymentSuccess']);
+        Route::get('/consultation/payment-success', [ConsultationController::class,'paymentSuccess']);
         Route::post('/consultations/{id}/extend', [ConsultationController::class,'extendZoom']);
 
         // Online Consulation Lawyer endpoints
-        Route::get('/lawyers/consultations/pending', [ConsultationController::class,'lawyerPending']);
-        Route::post('/consultations/{id}/accept', [ConsultationController::class,'accept']);
-        Route::post('/consultations/{id}/reject', [ConsultationController::class,'reject']);
-
+        Route::get('/consultation/lawyer-poll', [ConsultationController::class, 'poll'])->name('lawyer.poll');
+        Route::post('/respond-request', [ConsultationController::class, 'lawyerResponse']);
+        Route::post('/lawyer-con/respond', [ConsultationController::class,'lawyerResponse']);
     });
 
     
 });
 
-Route::fallback(function () {
-    return response()->json([
-        'status' => false,
-        'message' => 'Route not found.',
-    ], 404);
-});
+    Route::fallback(function () {
+        return response()->json([
+            'status' => false,
+            'message' => 'Route not found.',
+        ], 404);
+    });
 });
 
 Route::fallback(function () {

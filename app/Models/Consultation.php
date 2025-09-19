@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Consultation extends Model
 {
     protected $fillable = [
-        'user_id','applicant_type','litigation_type','consultant_type',
+        'user_id','ref_code','applicant_type','litigation_type','consultant_type',
         'emirate_id','you_represent','case_type','case_stage','language',
-        'duration','amount','lawyer_id','status','zoom_meeting_id','zoom_join_url'
+        'duration','amount','lawyer_id','status','zoom_meeting_id','zoom_join_url','meeting_end_time','is_completed'
     ];
 
     public function user() {
@@ -39,13 +39,37 @@ class Consultation extends Model
         return $this->belongsTo(DropdownOption::class, 'case_stage');
     }
 
-    public function language()
+    public function languageValue()
     {
         return $this->belongsTo(DropdownOption::class, 'language');
     }
 
-    public function attempts() {
-        return $this->hasMany(ConsultationLawyerAttempt::class);
+    public function assignments() {
+        return $this->hasMany(ConsultationAssignment::class);
+    }
+
+    protected static function booted()
+    {
+        static::creating(function ($lawyer) {
+            $lawyer->ref_code = self::generateReferenceNumber();
+        });
+    }
+
+    public static function generateReferenceNumber()
+    {
+        $prefix = 'ONC';
+
+        $lastCode = self::whereNotNull('ref_code')
+            ->orderBy('id', 'desc')
+            ->value('ref_code');
+
+        $nextNumber = 1;
+        if ($lastCode) {
+            preg_match('/(\d+)$/', $lastCode, $matches);
+            $nextNumber = isset($matches[1]) ? intval($matches[1]) + 1 : 1;
+        }
+
+        return $prefix . '-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
     }
 }
 

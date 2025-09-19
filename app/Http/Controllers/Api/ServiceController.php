@@ -666,7 +666,7 @@ class ServiceController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['case_stage', 'you_represent','languages'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['specialities', 'case_stage', 'you_represent','languages'])->get()->keyBy('slug');
        
         
         $response   = [];
@@ -678,6 +678,11 @@ class ServiceController extends Controller
                     'value' => $option->getTranslation('name',$lang),
                 ];
             });
+        }
+
+        if(isset($response['specialities'])){
+            $response['case_types'] = $response['specialities'];
+            unset($response['specialities']);
         }
 
         $timeslots = ConsultationDuration::where('status',1)->where('type','normal')->orderBy('id')->get();
