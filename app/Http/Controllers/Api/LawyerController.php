@@ -68,10 +68,13 @@ class LawyerController extends Controller
             // return ['month' => $monthNames[$m], 'total' => $count];
         });
 
+        $todayHours = getTodaysActiveHours($userId);
+        
         return response()->json([
             'status' => true,
             'message' => 'Success',
             'data' => [
+                'today_hours' => $todayHours,
                 'total_consultations' => $totalConsultations,
                 'todays_consultations' => $todaysConsultations,
                 'recent_consultations' => $recentCons,

@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Translator::class);
     }
+
+    public function onlineLogs()
+    {
+        return $this->hasMany(UserOnlineLog::class);
+    }
 }
