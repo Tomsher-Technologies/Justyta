@@ -145,4 +145,44 @@ class LawyerController extends Controller
             'data' => $consultations,
         ]);
     }
+
+    public function accountDetails(Request $request) {
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $userId     = $user->id ?? null;
+    
+        $lawyer = Lawyer::with('user')->where('user_id', $userId)->first();
+
+        $data = [
+            'name' => $lawyer->getTranslation('full_name', $lang),
+            'email' => $lawyer->email ?? null,
+            'phone' => $lawyer->phone ?? null,
+            'gender' => trans('frontend.'.$lawyer->gender),
+            'date_of_birth' => $lawyer->date_of_birth ?? null,
+            'emirate' => $lawyer->emirate?->getTranslation('name', $lang),
+            'nationality' => $lawyer->nationalityCountry?->getTranslation('name', $lang),
+            'years_of_experience' => $lawyer->yearsExperienceOption?->getTranslation('name', $lang),
+            'working_hours' => $lawyer->working_hours ?? null,
+            'profile_photo' => asset(getUploadedImage($lawyer->profile_photo)),
+            'documents' => [
+                'emirate_id_front' => asset(getUploadedImage($lawyer->emirate_id_front)),
+                'emirate_id_back' => asset(getUploadedImage($lawyer->emirate_id_back)),
+                'emirate_id_expiry' => $lawyer->emirate_id_expiry ?? null,
+                'passport' => asset(getUploadedImage($lawyer->passport)),
+                'passport_expiry' => $lawyer->passport_expiry ?? null,
+                'residence_visa' => asset(getUploadedImage($lawyer->residence_visa)),
+                'residence_visa_expiry' => $lawyer->residence_visa_expiry ?? null,
+                'bar_card' => asset(getUploadedImage($lawyer->bar_card)),
+                'bar_card_expiry' => $lawyer->bar_card_expiry ?? null,
+                'practicing_lawyer_card' => asset(getUploadedImage($lawyer->practicing_lawyer_card)),
+                'practicing_lawyer_card_expiry' => $lawyer->practicing_lawyer_card_expiry ?? null
+            ]
+        ];
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Success',
+            'data' => $data
+        ]);
+    }
 }

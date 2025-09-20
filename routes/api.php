@@ -55,6 +55,7 @@ Route::middleware('set_api_locale')->group(function () {
         //Lawyer Account APIs
         Route::get('/lawyer/dashboard', [LawyerController::class, 'dashboard']);
         Route::get('/lawyer/consultations', [LawyerController::class, 'assignedConsultations']);
+        Route::get('/lawyer/account', [LawyerController::class, 'accountDetails']);
 
         //Contact US
         Route::post('/contact-us', [HomeController::class, 'contactUs']);
