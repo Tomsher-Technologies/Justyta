@@ -11,6 +11,7 @@ use App\Models\Lawyer;
 use App\Models\CaseType;
 use App\Models\RequestType;
 use App\Models\RequestTitle;
+use App\Models\UserOnlineLog;
 use App\Models\ConsultationAssignment;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
@@ -21,7 +22,48 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
+    function getTodaysActiveHours($userId)
+    {
+        $tz = config('app.timezone');
+        $todayStart = Carbon::now($tz)->startOfDay();
+        $todayEnd   = Carbon::now($tz)->endOfDay();
+
+        $logs = UserOnlineLog::where('user_id', $userId)
+                    ->whereBetween('created_at', [$todayStart, $todayEnd])
+                    ->orderBy('created_at', 'asc')
+                    ->get();
+
+
+        $totalSeconds = 0;
+        $onlineAt = null;
+
+        foreach ($logs as $key => $log) {
+            $logTime = Carbon::parse($log->created_at, $tz);
+
+            if ($log->status == 1) {
+                if (!$onlineAt) {
+                    $onlineAt = $logTime;
+                }
+            } else {
+                if ($onlineAt) {
+                    $diff = $onlineAt->diffInSeconds($logTime);
+                    $totalSeconds += max($diff, 0);
+                    $onlineAt = null;
+                }
+            }
+        }
+
+        if ($onlineAt) {
+            $diff = $onlineAt->diffInSeconds(Carbon::now($tz));
+            $totalSeconds += max($diff, 0);
+        }
+
+        $hours = round($totalSeconds / 3600, 2);
+
+        return $hours;
+    }
 
     function getCaseTypes($litigation_type, $litigation_place, $lang = 'en')
     {

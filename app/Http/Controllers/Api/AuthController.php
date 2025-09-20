@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use App\Notifications\ForgotPassword;
 use App\Models\User;
+use App\Models\UserOnlineLog;
 use App\Mail\CommonMail;
 use Carbon\Carbon;
 
@@ -61,6 +62,12 @@ class AuthController extends Controller
     {
         $user->is_online = 1;
         $user->save();
+
+        UserOnlineLog::create([
+            'user_id' => $user->id,
+            'status'  => 1
+        ]);
+
         $token = $user->createToken('API Token')->plainTextToken;
         return response()->json([
             'status' => true,
@@ -241,6 +248,14 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         if ($request->user()) {
+            $user = $request->user();
+            $user->is_online = 1;
+            $user->save();
+
+            UserOnlineLog::create([
+                'user_id' => $user->id,
+                'status'  => 0
+            ]);
             $request->user()->currentAccessToken()->delete();
 
             return response()->json([
