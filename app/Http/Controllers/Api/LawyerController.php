@@ -46,7 +46,8 @@ class LawyerController extends Controller
                                 'case_type' => $recent->caseType?->getTranslation('name', $lang),
                                 'case_stage' => $recent->caseStage?->getTranslation('name', $lang),
                                 'language' => $recent->languageValue?->getTranslation('name', $lang),
-                                'duration' => $recent->duration
+                                'duration' => $recent->duration,
+                                'date' => $recent->created_at
                             ];
                         });  
                         
@@ -135,7 +136,8 @@ class LawyerController extends Controller
                             'case_type' => $con->consultation?->caseType?->getTranslation('name', $lang),
                             'case_stage' => $con->consultation?->caseStage?->getTranslation('name', $lang),
                             'language' => $con->consultation?->languageValue?->getTranslation('name', $lang),
-                            'duration' => $con->consultation?->duration
+                            'duration' => $con->consultation?->duration,
+                            'date' => $con->consultation?->assigned_at
                         ];
             });
 
