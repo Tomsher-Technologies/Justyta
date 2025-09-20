@@ -65,7 +65,9 @@ class ServiceRequestController extends Controller
 
         $services = Service::whereNotIn('slug', ['online-live-consultancy','legal-translation','law-firm-services'])
                             ->where('status',1)->orderBy('name')->get();
-        $query = ServiceRequest::with('service')->whereNotIn('service_slug',['legal-translation']); 
+        $query = ServiceRequest::with('service')
+                    ->where('request_success', 1)
+                    ->whereNotIn('service_slug',['legal-translation']); 
 
         if ($request->filled('service_id')) {
             $serviceSlug = $request->service_id;
@@ -102,7 +104,7 @@ class ServiceRequestController extends Controller
             $query->where('reference_code', 'like', '%' . $request->keyword . '%');
         }
 
-        $serviceRequests = $query->orderByDesc('id')->paginate(15);
+        $serviceRequests = $query->orderByDesc('id')->paginate(30);
 
         return view('admin.service_requests.index', compact('serviceRequests','services'));
     }
@@ -220,7 +222,8 @@ class ServiceRequestController extends Controller
         $fields = $modelInfo['fields'];
 
         $query = ServiceRequest::with('user', 'service')
-            ->where('service_slug', $serviceSlug);
+                ->where('request_success', 1)
+                ->where('service_slug', $serviceSlug);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);

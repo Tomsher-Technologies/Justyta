@@ -136,7 +136,9 @@
                                                         </td>
 
                                                         <td class="text-center">
-                                                            0
+                                                            <a href="{{ route('job-applications', ['id' => base64_encode($job->id)]) }}">
+                                                                {{ $job->applications?->count() ?? 0 }}
+                                                            </a>
                                                         </td>
                                                         <td class="text-center">
                                                             @can('edit_job_post')

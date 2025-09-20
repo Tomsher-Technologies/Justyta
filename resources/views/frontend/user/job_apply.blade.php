@@ -44,7 +44,7 @@
                     <select id="preferred-language" name="position"
                         class="select2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                         <option value="">{{ __('frontend.choose_option') }}</option>
-                        @foreach ($response['positions'] as $ert)
+                        @foreach ($response['job_positions'] as $ert)
                             <option value="{{ $ert['id'] }}"  {{ (old('position') == $ert['id']) ? 'selected' : '' }}>{{ $ert['value'] }}</option>
                         @endforeach
                     </select>

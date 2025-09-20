@@ -11,6 +11,8 @@ use App\Models\JobApplication;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Mail\JobApplicationReceived;
+use Illuminate\Support\Facades\Mail;
 
 class JobPostController extends Controller
 {
@@ -145,7 +147,7 @@ class JobPostController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['positions'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['job_positions'])->get()->keyBy('slug');
        
            
             $response = [];
@@ -166,6 +168,11 @@ class JobPostController extends Controller
                         'value' => $option->getTranslation('name',$lang),
                     ];
                 });
+            }
+
+            if(isset($response['job_positions'])){
+                $response['positions'] = $response['job_positions'];
+                unset($response['job_positions']);
             }
 
             $ads = getActiveAd('lawfirm_jobs', 'mobile');
@@ -253,7 +260,7 @@ class JobPostController extends Controller
         $application->email         = $request->email;
         $application->phone         = $request->phone;
         $application->position      = $request->position;
-        $application->resume_path   = 'storage/'.$resumeUrl;
+        $application->resume_path   = $resumeUrl;
         $application->save();
 
         $jobOwner = $job->post_owner;

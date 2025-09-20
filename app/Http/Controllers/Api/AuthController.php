@@ -59,6 +59,8 @@ class AuthController extends Controller
 
     protected function loginSuccess($user)
     {
+        $user->is_online = 1;
+        $user->save();
         $token = $user->createToken('API Token')->plainTextToken;
         return response()->json([
             'status' => true,

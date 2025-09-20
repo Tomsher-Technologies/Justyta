@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Page extends Model
 {
-    protected $fillable = ['name', 'slug'];
+    protected $fillable = ['name', 'slug','content'];
 
     public function translations()
     {

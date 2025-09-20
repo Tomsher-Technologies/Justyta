@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\JobPostController;
 use App\Http\Controllers\Api\CommonController;
+use App\Http\Controllers\Api\ConsultationController;
+use App\Http\Controllers\Api\LawyerController;
 
 Route::group(['prefix' => 'v1'], function () {
 Route::middleware('set_api_locale')->group(function () {
@@ -24,6 +26,7 @@ Route::middleware('set_api_locale')->group(function () {
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     Route::get('/page-contents', [HomeController::class, 'pageContents']);
     Route::get('/banners', [HomeController::class, 'getBanners']);
+    Route::post('/zoom/webhook', [HomeController::class, 'handleZoomWebhook']);
 
 
     Route::middleware(['ensureFrontendRequestsAreStateful', 'auth:sanctum'])->group(function () {
@@ -47,7 +50,11 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/report-problem', [UserController::class, 'reportProblem']);
         Route::get('/report-problem-content', [UserController::class, 'getReportProblemFormData']);
         Route::post('/rate-us', [UserController::class, 'rateUs']);
+        Route::post('/user/online-status', [UserController::class, 'updateOnlineStatus']);
 
+        //Lawyer Account APIs
+        Route::get('/lawyer/dashboard', [LawyerController::class, 'dashboard']);
+        Route::get('/lawyer/consultations', [LawyerController::class, 'assignedConsultations']);
 
         //Contact US
         Route::post('/contact-us', [HomeController::class, 'contactUs']);
@@ -89,6 +96,7 @@ Route::middleware('set_api_locale')->group(function () {
 
         Route::get('/expert-report-price', [ServiceController::class, 'getExpertReportPrice']);
         Route::get('/request-submission-price', [ServiceController::class, 'getRequestSubmissionPrice']);
+        Route::get('/online-consultation-price', [ServiceController::class, 'getOnlineConsultationPrice']);
 
         // Service Request Submission
         Route::post('/court-case-request', [ServiceController::class, 'requestCourtCase']);
@@ -128,19 +136,29 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/training-request', [UserController::class, 'requestTraining']);
 
         
+        // Online Consulation User endpoints
+        Route::post('/consultations', [ConsultationController::class,'store']);
+        Route::get('/consultations/{id}', [ConsultationController::class,'show']);
+        Route::get('/consultation/payment-success', [ConsultationController::class,'paymentSuccess']);
+        Route::get('/consultation/user-poll', [ConsultationController::class, 'checkUserConsultationStatus']);
 
+        Route::post('/consultations/{id}/extend', [ConsultationController::class,'extendZoom']);
 
+        // Online Consulation Lawyer endpoints
+        Route::get('/consultation/lawyer-poll', [ConsultationController::class, 'poll'])->name('lawyer.poll');
+        Route::post('/respond-request', [ConsultationController::class, 'lawyerResponse']);
+        Route::post('/lawyer-con/respond', [ConsultationController::class,'lawyerResponse']);
     });
 
     
 });
 
-Route::fallback(function () {
-    return response()->json([
-        'status' => false,
-        'message' => 'Route not found.',
-    ], 404);
-});
+    Route::fallback(function () {
+        return response()->json([
+            'status' => false,
+            'message' => 'Route not found.',
+        ], 404);
+    });
 });
 
 Route::fallback(function () {

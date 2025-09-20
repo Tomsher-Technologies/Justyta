@@ -142,7 +142,7 @@ class UserController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['positions','residency_status'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['training_positions','residency_status'])->get()->keyBy('slug');
 
         $response   = [];
         $emirates   = Emirate::where('status',1)->orderBy('id')->get();
@@ -331,7 +331,7 @@ class UserController extends Controller
                 'options.translations' => function ($q) use ($lang) {
                     $q->whereIn('language_code', [$lang, 'en']);
                 }
-            ])->whereIn('slug', ['positions'])->get()->keyBy('slug');
+            ])->whereIn('slug', ['job_positions'])->get()->keyBy('slug');
 
         $response = [];
 

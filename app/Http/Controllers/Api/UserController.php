@@ -343,7 +343,7 @@ class UserController extends Controller
         $perPage = $request->get('limit', 10);
 
         if($serviceSlug != ''){
-            $query = ServiceRequest::with('user', 'service')->where('user_id', $user->id);
+            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', $user->id);
 
             if ($serviceSlug) {
                 if($serviceSlug === 'law-firm-services'){
@@ -412,7 +412,7 @@ class UserController extends Controller
         $perPage = $request->get('limit', 10);
 
         if($serviceSlug != ''){
-            $query = ServiceRequest::with('user', 'service')->where('status', 'pending')->where('user_id', $user->id);
+            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('status', 'pending')->where('user_id', $user->id);
 
             if ($serviceSlug) {
                 if($serviceSlug === 'law-firm-services'){
@@ -481,7 +481,7 @@ class UserController extends Controller
         $perPage = $request->get('limit', 10);
 
         if($serviceSlug != ''){
-            $query = ServiceRequest::with('user', 'service')->whereNotNull('payment_status')->where('user_id', $user->id);
+            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->whereNotNull('payment_status')->where('user_id', $user->id);
 
             if ($serviceSlug) {
                 if($serviceSlug === 'law-firm-services'){
@@ -611,7 +611,7 @@ class UserController extends Controller
             ],200);
     }
 
-   public function reportProblem(Request $request)
+    public function reportProblem(Request $request)
     {
         $lang           = $request->header('lang') ?? env('APP_LOCALE','en');
         $validator = Validator::make($request->all(), [
@@ -741,7 +741,7 @@ class UserController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['positions','residency_status'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['training_positions','residency_status'])->get()->keyBy('slug');
 
         $response   = [];
         $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
@@ -762,6 +762,11 @@ class UserController extends Controller
                     'value' => $option->getTranslation('name',$lang),
                 ];
             });
+        }
+
+        if(isset($response['training_positions'])){
+            $response['positions'] = $response['training_positions'];
+            unset($response['training_positions']);
         }
 
         $ads = getActiveAd('training_requests', 'mobile');
@@ -859,5 +864,25 @@ class UserController extends Controller
             'status'    => true,
             'message'   => __('messages.training_request_submit_success'),
         ], 200);
+    }
+
+    public function updateOnlineStatus(Request $request)
+    {
+        $request->validate([
+            'is_online' => 'required',
+        ]);
+
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $user->is_online = $request->is_online;
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => __('frontend.online_status_updated'),
+            'data' => [
+                'is_online' => $user->is_online
+            ]
+        ]);
     }
 }
