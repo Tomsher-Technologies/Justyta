@@ -137,7 +137,7 @@ class LawyerController extends Controller
                             'case_stage' => $con->consultation?->caseStage?->getTranslation('name', $lang),
                             'language' => $con->consultation?->languageValue?->getTranslation('name', $lang),
                             'duration' => $con->consultation?->duration,
-                            'date' => $con->consultation?->assigned_at
+                            'date' => $con->consultation?->created_at,
                         ];
             });
 
