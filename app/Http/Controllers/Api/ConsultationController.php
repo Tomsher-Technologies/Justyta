@@ -228,8 +228,7 @@ class ConsultationController extends Controller
             $consultation->lawyer_id = $lawyerId;
             $consultation->save();
 
-            // Zoom meeting creation
-            $zoom = new \App\Services\ZoomService();
+            $zoom    = new \App\Services\ZoomService();
             $meeting = $zoom->createMeeting(
                 "Consultation #{$consultation->id}",
                 now()->addMinutes(1)->toIso8601String(),
@@ -237,9 +236,13 @@ class ConsultationController extends Controller
             );
 
             $consultation->zoom_meeting_id = $meeting['id'];
-            $consultation->zoom_join_url   = $meeting['join_url'];
-            $consultation->zoom_start_url  = $meeting['start_url'];
+            $consultation->zoom_join_url   = $meeting['join_url'];  // For user
+            $consultation->zoom_start_url  = $meeting['start_url']; // For lawyer
             $consultation->save();
+
+            // Generate SDK signature for mobile app
+            $sdkService = new \App\Services\ZoomSdkService();
+            $signature  = $sdkService->generateSignature($consultation->zoom_meeting_id, 0);
 
             $consultation->lawyer->update(['is_busy' => 1]);
 
@@ -248,15 +251,26 @@ class ConsultationController extends Controller
                 'message' => 'Call accepted, Zoom meeting initialized',
                 'data'=> [
                     'consultation_id' => $consultation->id,
-                    'zoom_meeting_id' => $consultation->zoom_meeting_id,
-                    'zoom_join_url' => $consultation->zoom_join_url,
-                    'zoom_start_url' => $consultation->zoom_start_url
+                    'meeting'        => [
+                        'id'           => $consultation->zoom_meeting_id,
+                        'topic'        => "Consultation #{$consultation->id}",
+                        'duration'     => $consultation->duration,
+                        'start_time'   => now()->addMinutes(1)->toIso8601String(),
+                        'join_url'     => $consultation->zoom_join_url,
+                        'start_url'    => $consultation->zoom_start_url,
+                        'sdk'          => [
+                            'signature'   => $signature,
+                            'sdkKey'      => env('ZOOM_SDK_KEY'),
+                            'meetingNumber'=> $consultation->zoom_meeting_id,
+                            'role'        => 0, // participant role
+                        ]
+                    ]
                 ]],200);
         }
 
         $nextLawyer = findBestFitLawyer($consultation);
         if($nextLawyer){
-            assignLawyer($consultation, $nextLawyer);
+            assignLawyer($consultation, $nextLawyer->id);
             return response()->json(['status'=> false, 'message'=>'Lawyer rejected, next lawyer assigned']);
         }else{
             $consultation->status = 'rejected';
