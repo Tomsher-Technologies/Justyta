@@ -166,6 +166,8 @@ class LawyerController extends Controller
             'years_of_experience' => $lawyer->yearsExperienceOption?->getTranslation('name', $lang),
             'working_hours' => $lawyer->working_hours ?? null,
             'profile_photo' => asset(getUploadedImage($lawyer->profile_photo)),
+            'specialities' => $lawyer->specialities?->map(fn($s) => $s->dropdownOption?->getName())->filter()->implode(', '),
+            'languages' => $lawyer->languages?->map(fn($l) => $l->dropdownOption?->getName())->filter()->implode(', '),
             'documents' => [
                 'emirate_id_front' => asset(getUploadedImage($lawyer->emirate_id_front)),
                 'emirate_id_back' => asset(getUploadedImage($lawyer->emirate_id_back)),
