@@ -235,7 +235,7 @@ class ConsultationController extends Controller
 
             $signature = generateZoomSignature($meetingNumber, 1);
 
-            $consultation->lawyer->update(['is_busy' => 1]);
+            // $consultation->lawyer->update(['is_busy' => 1]);
 
             return response()->json([
                 'status' => true,
