@@ -228,21 +228,12 @@ class ConsultationController extends Controller
             $consultation->lawyer_id = $lawyerId;
             $consultation->save();
 
-            $zoom    = new \App\Services\ZoomService();
-            $meeting = $zoom->createMeeting(
-                "Consultation #{$consultation->id}",
-                now()->addMinutes(1)->toIso8601String(),
-                $consultation->duration
-            );
+            $meetingNumber = "Consultation #{$consultation->id}";
 
-            $consultation->zoom_meeting_id = $meeting['id'];
-            $consultation->zoom_join_url   = $meeting['join_url'];  // For user
-            $consultation->zoom_start_url  = $meeting['start_url']; // For lawyer
+            $consultation->zoom_meeting_id = $meetingNumber;
             $consultation->save();
 
-            // Generate SDK signature for mobile app
-            $sdkService = new \App\Services\ZoomSdkService();
-            $signature  = $sdkService->generateSignature($consultation->zoom_meeting_id, 0);
+            $signature = generateZoomSignature($meetingNumber, 1);
 
             $consultation->lawyer->update(['is_busy' => 1]);
 
@@ -251,20 +242,11 @@ class ConsultationController extends Controller
                 'message' => 'Call accepted, Zoom meeting initialized',
                 'data'=> [
                     'consultation_id' => $consultation->id,
-                    'meeting'        => [
-                        'id'           => $consultation->zoom_meeting_id,
-                        'topic'        => "Consultation #{$consultation->id}",
-                        'duration'     => $consultation->duration,
-                        'start_time'   => now()->addMinutes(1)->toIso8601String(),
-                        'join_url'     => $consultation->zoom_join_url,
-                        'start_url'    => $consultation->zoom_start_url,
-                        'sdk'          => [
-                            'signature'   => $signature,
-                            'sdkKey'      => env('ZOOM_SDK_KEY'),
-                            'meetingNumber'=> $consultation->zoom_meeting_id,
-                            'role'        => 0, // participant role
-                        ]
-                    ]
+                    'meeting_number' => $meetingNumber,
+                    'password'       => '',
+                    'role'           => 1,
+                    'sdk_key'        => config('services.zoom.sdk_key'),
+                    'signature'      => $signature,
                 ]],200);
         }
 
@@ -293,6 +275,9 @@ class ConsultationController extends Controller
 
         $consultation = Consultation::where('id',$consultationId)->where('user_id', $userId)
                                         ->where('status', 'accepted')->first();
+        $meetingNumber = $consultation->zoom_meeting_id ?? null;
+
+        $signature = generateZoomSignature($meetingNumber, 0);
 
         if (!$consultation) {
             return response()->json([
@@ -307,8 +292,11 @@ class ConsultationController extends Controller
                 'consultation_id' => $consultation->id ?? null,
                 'status' => $consultation->status ?? null,
                 'lawyer_id' => $consultation->lawyer_id ?? null,
-                'zoom_join_url' => $consultation->zoom_join_url ?? null,
-                'zoom_start_url' => $consultation->zoom_start_url ?? null
+                'meeting_number' => $meetingNumber,
+                'password'       => '',
+                'role'           => 0,
+                'sdk_key'        => config('services.zoom.sdk_key'),
+                'signature'      => $signature,
             ],
         ], 200);
     }
