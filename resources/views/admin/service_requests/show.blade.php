@@ -204,7 +204,7 @@
                                                     @php $isImage = Str::endsWith($item, ['.png', '.jpg', '.jpeg', '.webp']); @endphp
                                                     <div class="col-6 col-lg-4 mb-2">
                                                         @if($isImage)
-                                                            <a href="{{ $item }}" data-lightbox="gallery" data-title="Image {{ $index + 1 }}">
+                                                            <a href="{{ $item }}" data-lightbox="gallery" data-title="Image {{ $index + 1 }} <a href='{{ $item }}' download class='lb-download'>Download</a>">
                                                                 <img src="{{ $item }}" class="img-fluid rounded border" style="max-height: 150px;" alt="Image {{ $index + 1 }}">
                                                             </a>
                                                         @else
@@ -223,7 +223,7 @@
                                                     @endphp
                                                     {{ implode(', ', $decodedValue) }}
                                                 @else
-                                                    {{ $value }}
+                                                    {{ ucwords($value) ?? $value }}
                                                 @endif
                                             </div>
                                         @endif
@@ -247,6 +247,24 @@
             height: 42px !important;
             border: 1px solid #c6d0dc !important;
         }    
+        .lb-download {
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 15px;
+            padding: 8px 10px;
+            background: #f8f8f8;
+            border-radius: 20px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            color: #333 !important;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .lb-download:hover {
+            background: #e0e0e0;
+        }
     </style>
 @endsection
 
@@ -261,6 +279,37 @@
             'wrapAround'        : true,
             'disableScrolling'  : true
         });
+
+        // document.addEventListener("DOMContentLoaded", function () {
+        //     // Watch for when Lightbox markup gets added
+        //     const observer = new MutationObserver(function () {
+        //         const lbData = document.querySelector(".lb-closeContainer");
+
+        //         if (lbData && !document.querySelector(".lb-download")) {
+        //             let btn = document.createElement("a");
+        //             btn.classList.add("lb-download");
+        //             btn.innerText = "⬇ Download";
+
+        //             btn.addEventListener("click", function (e) {
+        //                 e.preventDefault();
+        //                 let img = document.querySelector(".lb-image");
+        //                 if (img) {
+        //                     let link = document.createElement("a");
+        //                     link.href = img.src;
+        //                     link.download = img.src.split("/").pop();
+        //                     link.click();
+        //                 }
+        //             });
+
+        //             lbData.appendChild(btn);
+        //         }
+        //     });
+
+        //     observer.observe(document.body, { childList: true, subtree: true });
+        // });
+
+
+
 
         $(document).ready(function() {
             $.ajaxSetup({
