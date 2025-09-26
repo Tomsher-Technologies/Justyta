@@ -223,7 +223,7 @@
                                                     @endphp
                                                     {{ implode(', ', $decodedValue) }}
                                                 @else
-                                                    {{ $value }}
+                                                    {{ ucwords($value) ?? $value }}
                                                 @endif
                                             </div>
                                         @endif

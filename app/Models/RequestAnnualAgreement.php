@@ -58,16 +58,16 @@ class RequestAnnualAgreement extends Model
 
     public function caseTypes()
     {
-        return DropdownOption::whereIn('id', $this->case_type ?? []);
+        return CaseType::whereIn('id', $this->case_type ?? []);
     }
 
     public function getCaseTypeNamesAttribute()
     {
         $lang = app()->getLocale(); 
-        return DropdownOption::whereIn('id', $this->case_type ?? [])
+        return CaseType::whereIn('id', $this->case_type ?? [])
             ->get()
             ->map(function ($item) use ($lang) {
-                return $item->getTranslation('name', $lang);
+                return $item->getTranslation('title', $lang);
             });
     }
 }

@@ -42,7 +42,7 @@ class RequestCourtCase extends Model
 
     public function caseType()
     {
-        return $this->belongsTo(DropdownOption::class, 'case_type');
+        return $this->belongsTo(CaseType::class, 'case_type');
     }
 
     public function youRepresent()
