@@ -104,6 +104,24 @@ use Carbon\Carbon;
         return $caseTypes;
     }
 
+    function getCaseTypesValue($litigation_type, $litigation_place, $lang = 'en')
+    {
+        $caseTypes = CaseType::where('litigation_type', $litigation_type)
+                ->where('litigation_place', $litigation_place)
+                ->where('status', 1)
+                ->orderBy('sort_order')
+                ->get();
+        
+        $caseTypes = $caseTypes->map( function ($caseType) use ($lang) {
+            return [
+                'id' => $caseType->id,
+                'value' => $caseType->getTranslation('title', $lang),
+            ];
+        });
+
+        return $caseTypes;
+    }
+
     function getRequestTypes($litigation_type, $litigation_place, $lang = 'en')
     {
         $requestTypes = RequestType::where('litigation_type', $litigation_type)
@@ -537,8 +555,8 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'litigation_place'      => $model->litigation_place,
                 'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
                 'case_type'             => $model->caseType?->getTranslation('title',$lang) ?? NULL,
-                'request_type'          => $model->requestType?->getTranslation('name',$lang) ?? NULL,
-                'request_title'         => $model->requestTitle?->getTranslation('name',$lang) ?? NULL,
+                'request_type'          => $model->requestType?->getTranslation('title',$lang) ?? NULL,
+                'request_title'         => $model->requestTitle?->getTranslation('title',$lang) ?? NULL,
                 'case_number'           => $model->case_number,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
@@ -609,7 +627,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'applicant_type'        => $model->applicant_type,
                 'litigation_type'       => $model->litigation_type,
                 'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'case_type'             => $model->caseType?->getTranslation('name',$lang) ?? NULL,
+                'case_type'             => $model->caseType?->getTranslation('title',$lang) ?? NULL,
                 'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
                 'about_case'            => $model->about_case,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),

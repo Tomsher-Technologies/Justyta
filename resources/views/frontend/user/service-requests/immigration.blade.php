@@ -29,7 +29,7 @@
                         <label for="current_position" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.current_position') }}<span class="text-red-500">*</span></label>
                         <select id="current_position" data-url="{{ url('user/get-sub-contract-types') }}" name="position" class="select2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             <option value="">{{ __('frontend.choose_option') }}</option>
-                            @foreach ($dropdownData['immigation_positions'] as $ert)
+                            @foreach ($dropdownData['immigration_positions'] as $ert)
                                 <option value="{{ $ert['id'] }}"  {{ (old('current_position') == $ert['id']) ? 'selected' : '' }}>{{ $ert['value'] }}</option>
                             @endforeach
                         </select>
@@ -308,7 +308,9 @@
                     }
                 }
                 return true;
-            }, "File size must be less than {0}KB");
+            }, function (param, element) {
+                return "File size must be less than " + (param / 1024) + " MB";
+            });
 
             $("#immigrationForm").validate({
                 ignore: [],
@@ -326,27 +328,27 @@
                     "cv[]": {
                         required: true,
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "photo[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     },
                     "certificates[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 1024
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     },
                     "passport[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     },
                     "account_statement[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 1024
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     }
                 },
                 messages: {
