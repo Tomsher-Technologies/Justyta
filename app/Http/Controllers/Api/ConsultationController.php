@@ -228,12 +228,12 @@ class ConsultationController extends Controller
             $consultation->lawyer_id = $lawyerId;
             $consultation->save();
 
-            $meetingNumber = "Consultation #{$consultation->id}";
+            $meetingNumber = "Consultation-{$consultation->id}";
 
             $consultation->zoom_meeting_id = $meetingNumber;
             $consultation->save();
 
-            $signature = generateZoomSignature($meetingNumber, 1);
+            $signature = generateZoomSignature($meetingNumber, $lawyerId, 1);
 
             // $consultation->lawyer->update(['is_busy' => 1]);
 
@@ -277,7 +277,7 @@ class ConsultationController extends Controller
                                         ->where('status', 'accepted')->first();
         $meetingNumber = $consultation->zoom_meeting_id ?? null;
 
-        $signature = generateZoomSignature($meetingNumber, 0);
+        $signature = generateZoomSignature($meetingNumber, $userId, 0);
 
         if (!$consultation) {
             return response()->json([
