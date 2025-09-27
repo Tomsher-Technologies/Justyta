@@ -67,9 +67,7 @@
                         <label for="emirate" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.emirate') }}<span class="text-red-500">*</span></label>
                         <select id="emirate" name="emirate_id" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             <option value="">{{ __('frontend.select_emirate') }}</option>
-                            @foreach ($dropdownData['emirates'] as $emirate)
-                                <option value="{{ $emirate['id'] }}" {{ old('emirate_id') == $emirate['id'] ? 'selected' : '' }}>{{ $emirate['value'] }}</option>
-                            @endforeach
+                            
                         </select>
                         @error('emirate_id')
                             <span class="text-red-500">{{ $message }}</span>
@@ -80,9 +78,7 @@
                         <label for="case_type" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.case_type') }}<span class="text-red-500">*</span></label>
                         <select id="case_type" name="case_type" class="select2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             <option value="">{{ __('frontend.choose_option') }}</option>
-                            @foreach ($dropdownData['case_type'] as $casetype)
-                                <option value="{{ $casetype['id'] }}"  {{ (old('case_type') == $casetype['id']) ? 'selected' : '' }}>{{ $casetype['value'] }}</option>
-                            @endforeach
+                            
                         </select>
                         @error('case_type')
                             <span class="text-red-500">{{ $message }}</span>
@@ -201,10 +197,8 @@
                     </div>
 
                     <div>
-                        @if ($dropdownData['payment']['total_amount']  != 0)
-                             <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]">{{ __('frontend.AED') }} {{ $dropdownData['payment']['total_amount'] ?? 0 }}</span></div>
-
-                        @endif
+                        <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]">{{ __('frontend.AED') }} 
+                            <span id="total_amount">{{ $dropdownData['payment']['total_amount'] ?? 0 }}</span></span></div>
                        
                         <button type="submit" class="text-white bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md w-full px-8 py-4 text-center transition-colors duration-200 uppercase cursor-pointer">
                             {{ __('frontend.submit') }}
@@ -397,15 +391,19 @@
             });
 
 
-            function loadRequestTypes(litigationPlace) {
+            function loadRequestTypes() {
+
+                let litigationType = $("input[name='litigation_type']:checked").val();
+                let litigationPlace = $("input[name='litigation_place']:checked").val();
+                
                 $('#request_type').html('<option value="">{{ __("frontend.choose_option") }}</option>');
                 $('#request_title').html('<option value="">{{ __("frontend.choose_option") }}</option>');
 
-                if (litigationPlace) {
+                if (litigationPlace && litigationType) {
                     $.ajax({
                         url: '{{ route("get.request.types") }}',
                         type: 'POST',
-                        data: { litigation_place: litigationPlace },
+                        data: { litigation_place: litigationPlace, litigation_type: litigationType },
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         },
@@ -413,7 +411,7 @@
                             if (response.status) {
                                 let options = '<option value="">{{ __("frontend.choose_option") }}</option>';
                                 response.data.forEach(function (item) {
-                                    options += `<option value="${item.id}">${item.value}</option>`;
+                                    options += `<option value="${item.id}">${item.title}</option>`;
                                 });
                                 $('#request_type').html(options);
                             }
@@ -422,15 +420,14 @@
                 }
             }
 
-            function loadRequestTitles(requestType, litigationPlace) {
+            function loadRequestTitles(requestType) {
                 $('#request_title').html('<option value="">{{ __("frontend.choose_option") }}</option>');
 
-                if (requestType && litigationPlace) {
+                if (requestType) {
                     $.ajax({
                         url: '{{ route("get.request.titles") }}',
                         type: 'POST',
                         data: {
-                            litigation_place: litigationPlace,
                             request_type: requestType,
                         },
                         headers: {
@@ -440,7 +437,7 @@
                             if (response.status) {
                                 let options = '<option value="">{{ __("frontend.choose_option") }}</option>';
                                 response.data.forEach(function (item) {
-                                    options += `<option value="${item.id}">${item.value}</option>`;
+                                    options += `<option value="${item.id}">${item.title}</option>`;
                                 });
                                 $('#request_title').html(options);
                             }
@@ -449,21 +446,102 @@
                 }
             }
 
-            const defaultLitigation = $('input[name="litigation_place"]:checked').val();
-            if (defaultLitigation) {
-                loadRequestTypes(defaultLitigation);
-            }
+            loadRequestTypes();
 
-            $('input[name="litigation_place"]').on('change', function () {
-                loadRequestTypes($(this).val());
+            $('input[name="litigation_place"], input[name="litigation_type"]').on('change', function () {
+                loadRequestTypes();
             });
 
             $('#request_type').on('change', function () {
-                const litigationPlace = $('input[name="litigation_place"]:checked').val();
                 const requestType = $(this).val();
-                loadRequestTitles(requestType, litigationPlace);
+                loadRequestTitles(requestType);
             });
-          
+
+            // Emirate & Case Type
+            function loadLitigationData() {
+                let litigationType = $("input[name='litigation_type']:checked").val();
+                let litigationPlace = $("input[name='litigation_place']:checked").val();
+
+                if (!litigationType || !litigationPlace) {
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('user.emirates') }}",
+                    type: "GET",
+                    data: {
+                        litigation_type: litigationType,
+                        litigation_place: litigationPlace,
+                        service: 'request-submission',
+                    },
+                    success: function (response) {
+                        let emirateSelect = $("#emirate");
+                        emirateSelect.empty();
+                        emirateSelect.append('<option value="">{{ __("frontend.choose_option") }}</option>');
+                        let emirateData = response.data.emirates;
+
+                        $.each(emirateData, function (key, emirate) {
+                            emirateSelect.append(
+                                `<option value="${emirate.id}">${emirate.value}</option>`
+                            );
+                        });
+
+                        let caseTypeSelect = $("#case_type");
+                        caseTypeSelect.empty();
+                        caseTypeSelect.append('<option value="">{{ __("frontend.choose_option") }}</option>');
+                        let caseTypeData = response.data.caseTypes;
+
+                        $.each(caseTypeData, function (key, caseType) {
+                            caseTypeSelect.append(
+                                `<option value="${caseType.id}">${caseType.title}</option>`
+                            );
+                        });
+                    },
+                    error: function (xhr) {
+                        console.error("Error fetching emirates:", xhr.responseText);
+                    }
+                });
+            }
+
+            $("input[name='litigation_type'], input[name='litigation_place']").on(
+                "change",
+                loadLitigationData
+            );
+
+            loadLitigationData();
+
+            function getPricing() {
+                let litigationType = $("input[name='litigation_type']:checked").val();
+                let litigationPlace = $("input[name='litigation_place']:checked").val();
+                let requestType = $("#request_type").val();
+                let requestTitle = $("#request_title").val();
+                let caseType = $("#case_type").val();
+
+                $.ajax({
+                    url: "{{ route('user.request-submission-price') }}",
+                    type: "GET",
+                    data: {
+                        litigation_type: litigationType,
+                        litigation_place: litigationPlace,
+                        request_type: requestType,
+                        request_title: requestTitle,
+                        case_type: caseType 
+                    },
+                    success: function (response) {
+                        console.log(response);
+                        $("#total_amount").text(response.data.total);
+                    },
+                    error: function (xhr) {
+                        console.error("Error fetching emirates:", xhr.responseText);
+                    }
+                });
+            }
+                
+            $("input[name='litigation_type'], input[name='litigation_place']").on("change", getPricing);
+
+            $("#request_type, #request_title, #case_type").on("change", function () {
+                getPricing();
+            });
         });
     </script>
 @endsection

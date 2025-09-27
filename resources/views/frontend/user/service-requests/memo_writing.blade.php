@@ -47,9 +47,7 @@
                         <label for="emirate" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.emirate') }}<span class="text-red-500">*</span></label>
                         <select id="emirate" name="emirate_id" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             <option value="">{{ __('frontend.select_emirate') }}</option>
-                            @foreach ($dropdownData['emirates'] as $emirate)
-                                <option value="{{ $emirate['id'] }}" {{ old('emirate_id') == $emirate['id'] ? 'selected' : '' }}>{{ $emirate['value'] }}</option>
-                            @endforeach
+                            
                         </select>
                         @error('emirate_id')
                             <span class="text-red-500">{{ $message }}</span>
@@ -65,9 +63,7 @@
                         <label for="case_type" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.case_type') }}<span class="text-red-500">*</span></label>
                         <select id="case_type" name="case_type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             <option value="">{{ __('frontend.choose_option') }}</option>
-                            @foreach ($dropdownData['case_type'] as $casetype)
-                                <option value="{{ $casetype['id'] }}"  {{ (old('case_type') == $casetype['id']) ? 'selected' : '' }}>{{ $casetype['value'] }}</option>
-                            @endforeach
+                            
                         </select>
                         @error('case_type')
                             <span class="text-red-500">{{ $message }}</span>
@@ -252,7 +248,9 @@
                     }
                 }
                 return true;
-            }, "File size must be less than {0}KB");
+            }, function (param, element) {
+                return "File size must be less than " + (param / 1024) + " MB";
+            });
 
             $("#courtCaseForm").validate({
                 ignore: [],
@@ -267,17 +265,17 @@
                     "documents[]": {
                         required: true,
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "eid[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     },
                     "trade_license[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     }
                 },
                 messages: {
@@ -336,6 +334,47 @@
                 }
             });
 
+            function loadEmiratesCaseTypes(litigationType) {
+                $.ajax({
+                    url: "{{ route('user.emirates') }}",
+                    type: "GET",
+                    data: { litigation_type: litigationType, service: 'memo-writing' },
+                    success: function (response) {
+                        let $emirate = $("#emirate");
+                        $emirate.empty();
+                        $emirate.append('<option value="">{{ __("frontend.choose_option") }}</option>');
+
+                        let emirateData = response.data.emirates;
+                        $.each(emirateData, function (index, item) {
+                            $emirate.append('<option value="' + item.id + '">' + item.value + '</option>');
+                        });
+
+                        let caseType = $("#case_type");
+                        caseType.empty();
+                        caseType.append('<option value="">{{ __("frontend.choose_option") }}</option>');
+
+                        let caseTypeData = response.data.caseTypes;
+                        $.each(caseTypeData, function (index, item) {
+                            caseType.append('<option value="' + item.id + '">' + item.title + '</option>');
+                        });
+
+                    },
+                    error: function (xhr) {
+                        console.error("Error fetching emirates:", xhr.responseText);
+                    }
+                });
+            }
+
+            $("input[name='litigation_type']").on("change", function () {
+                if ($(this).is(":checked")) {
+                    loadEmiratesCaseTypes($(this).val());
+                }
+            });
+
+            let defaultChecked = $("input[name='litigation_type']:checked").val();
+            if (defaultChecked) {
+                loadEmiratesCaseTypes(defaultChecked);
+            }
           
         });
     </script>

@@ -286,7 +286,9 @@
                     }
                 }
                 return true;
-            }, "File size must be less than {0}KB");
+            }, function (param, element) {
+                return "File size must be less than " + (param / 1024) + " MB";
+            });
 
             $("#poaForm").validate({
                 ignore: [],
@@ -305,17 +307,17 @@
                     
                     "authorized_passport[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 500
+                        fileSize: 102400
                     },
                     "appointer_id[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     },
                     "authorized_id[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     }
                 },
                 messages: {

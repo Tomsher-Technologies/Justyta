@@ -38,6 +38,7 @@ use App\Models\RequestLegalTranslation;
 use App\Models\DefaultTranslatorAssignment;
 use App\Models\TranslatorLanguageRate;
 use App\Models\RequestLastWill;
+use App\Models\RequestSubmissionPricing;
 use App\Models\TranslationAssignmentHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -52,6 +53,71 @@ use Carbon\Carbon;
 
 class ServiceRequestController extends Controller
 {
+    public function getEmirates(Request $request){
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en');  
+
+        $litigation_type   = $request->litigation_type ?? NULL;
+        $litigation_place   = $request->litigation_place ?? NULL;
+        $service            = $request->service ?? NULL;
+
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) use ($service, $litigation_type) {
+                        $q->where('slug', $service)->where('status', 1);
+                        if (in_array($service, ['court-case-submission', 'criminal-complaint', 'expert-report', 'memo-writing', 'online-live-consultancy', 'request-submission'])) {
+                            if ($litigation_type === 'federal') {
+                                $q->where('is_federal', 1);
+                            } elseif ($litigation_type === 'local') {
+                                $q->where('is_local', 1);
+                            }
+                        }
+                    })->get();
+
+        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
+                return [
+                    'id'    => $emirate->id,
+                    'value' => $emirate->getTranslation('name',$lang),
+                ];
+        });
+
+        if(in_array($service, ['court-case-submission', 'memo-writing','online-live-consultancy','annual-retainer-agreement'])) {
+            $litigation_place = 'court';
+        }elseif($service == 'criminal-complaint') {
+            $litigation_place = 'public_prosecution';
+        }
+
+        $response['caseTypes'] = [];
+        if($litigation_place){
+            $response['caseTypes'] = getCaseTypes($litigation_type, $litigation_place, $lang);
+        }
+        
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => $response,
+        ], 200);
+    }
+
+    public function getCaseTypes(Request $request){
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en');
+
+        $litigation_type   = $request->litigation_type ?? NULL;
+        $litigation_place   = $request->litigation_place ?? NULL;
+        $service            = $request->service ?? NULL;
+
+        if(in_array($service, ['court-case-submission', 'memo-writing'])) {
+            $litigation_place = 'court';
+        }else{
+            $litigation_place = 'public_prosecution';
+        }
+
+        $caseTypes = getCaseTypes($litigation_type, $litigation_place, $lang);
+
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => $caseTypes,
+        ], 200);
+
+    }
 
     public function getAnnualAgreementPrice(Request $request){
         $lang           = $request->header('lang') ?? env('APP_LOCALE','en');  
@@ -107,70 +173,35 @@ class ServiceRequestController extends Controller
     public function getRequestTypes(Request $request){
         $lang               = app()->getLocale() ?? env('APP_LOCALE','en'); 
         $litigation_place   = $request->litigation_place ?? NULL;
-        $requestTypes       = [];
-        if(trim(strtolower($litigation_place)) === 'court'){
-            $requestTypes = CourtRequest::with('translations')->where('status', 1)
-                            ->whereNull('parent_id')
-                            ->orderBy('sort_order')
-                            ->get();
-        }elseif(trim(strtolower($litigation_place)) === 'public_prosecution'){
-            $requestTypes = PublicProsecution::with('translations')->where('status', 1)
-                            ->whereNull('parent_id')
-                            ->orderBy('sort_order')
-                            ->get();
+        $litigation_type    = $request->litigation_type ?? NULL;    
+
+        if ($litigation_type === NULL || $litigation_place === NULL) {
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.fill_all_fields'),
+                'data'      => [],
+            ], 200);
         }
 
-        $response = [];
-        if(!empty($requestTypes)){
-            $response = $requestTypes->map(function ($type) use ($lang, $litigation_place) {    
-                return [
-                    'id'                => $type->id,
-                    'litigation_place'  => $litigation_place,
-                    'value'             => $type->getTranslation('name', $lang),
-                ];
-            });
-        }
+        $requestTypes = getRequestTypes($litigation_type, $litigation_place, $lang);
 
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
-            'data'      => $response,
+            'data'      => $requestTypes,
         ], 200);
     }
     
     public function getRequestTitles(Request $request){
         $lang               = app()->getLocale() ?? env('APP_LOCALE','en'); 
-        $litigation_place   = $request->litigation_place ?? NULL;
         $request_type       = $request->request_type ?? NULL;
 
-        $requestTypes       = [];
-        if(trim(strtolower($litigation_place)) === 'court'){
-            $requestTypes = CourtRequest::with('translations')->where('status', 1)
-                            ->where('parent_id', $request_type)
-                            ->orderBy('sort_order')
-                            ->get();
-        }elseif(trim(strtolower($litigation_place)) === 'public_prosecution'){
-            $requestTypes = PublicProsecution::with('translations')->where('status', 1)
-                            ->where('parent_id', $request_type)
-                            ->orderBy('sort_order')
-                            ->get();
-        }
-
-        $response = [];
-        if(!empty($requestTypes)){
-            $response = $requestTypes->map(function ($type) use ($lang, $litigation_place) {    
-                return [
-                    'id'                => $type->id,
-                    'litigation_place'  => $litigation_place,
-                    'value'             => $type->getTranslation('name', $lang),
-                ];
-            });
-        }
+        $requestTitles = getRequestTitles($request_type, $lang);
 
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
-            'data'      => $response,
+            'data'      => $requestTitles,
         ], 200);
     }
 
@@ -332,7 +363,7 @@ class ServiceRequestController extends Controller
                                     'options.translations' => function ($q) use ($lang) {
                                         $q->whereIn('language_code', [$lang, 'en']);
                                     }
-                                ])->whereIn('slug', ['case_type', 'you_represent'])->get()->keyBy('slug');
+                                ])->whereIn('slug', ['you_represent'])->get()->keyBy('slug');
 
                 foreach ($dropdowns as $slug => $dropdown) {
                     $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -342,8 +373,6 @@ class ServiceRequestController extends Controller
                         ];
                     });
                 }
-
-                $dropdownData['emirates'] = $emirates;
 
                 return view('frontend.user.service-requests.court_case', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
@@ -355,7 +384,7 @@ class ServiceRequestController extends Controller
                                     'options.translations' => function ($q) use ($lang) {
                                         $q->whereIn('language_code', [$lang, 'en']);
                                     }
-                                ])->whereIn('slug', ['case_type', 'you_represent'])->get()->keyBy('slug');
+                                ])->whereIn('slug', ['you_represent'])->get()->keyBy('slug');
 
                 foreach ($dropdowns as $slug => $dropdown) {
                     $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -365,8 +394,7 @@ class ServiceRequestController extends Controller
                         ];
                     });
                 }
-                $dropdownData['emirates'] = $emirates;
-
+               
                 return view('frontend.user.service-requests.criminal_complaint', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
             case 'power-of-attorney':
@@ -388,7 +416,16 @@ class ServiceRequestController extends Controller
                     });
                 }
 
-                $dropdownData['emirates'] = $emirates;
+                $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'power-of-attorney')->where('status', 1);
+                    })->get();
+
+                $dropdownData['emirates'] = $emirates->map(function ($emirate) use($lang) {
+                        return [
+                            'id'    => $emirate->id,
+                            'value' => $emirate->getTranslation('name',$lang),
+                        ];
+                });
                 
                 return view('frontend.user.service-requests.power_of_attorney', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
@@ -411,7 +448,16 @@ class ServiceRequestController extends Controller
                         ];
                     });
                 }
-                $dropdownData['emirates'] = $emirates;
+                $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                                $q->where('slug', 'last-will-and-testament')->where('status', 1);
+                            })->get();
+
+                $dropdownData['emirates'] = $emirates->map(function ($emirate) use($lang) {
+                        return [
+                            'id'    => $emirate->id,
+                            'value' => $emirate->getTranslation('name',$lang),
+                        ];
+                });
 
                 $countries = Country::where('status',1)->orderBy('id')->get();
 
@@ -498,7 +544,16 @@ class ServiceRequestController extends Controller
                     });
                 }
 
-                $dropdownData['emirates'] = $emirates;
+                $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'contract-drafting')->where('status', 1);
+                    })->get();
+
+                $dropdownData['emirates'] = $emirates->map(function ($emirate) use($lang) {
+                        return [
+                            'id'    => $emirate->id,
+                            'value' => $emirate->getTranslation('name',$lang),
+                        ];
+                });
 
                 $contractTypes = ContractType::where('status',1)->whereNull('parent_id')->orderBy('sort_order')->get();
 
@@ -529,7 +584,16 @@ class ServiceRequestController extends Controller
                     });
                 }
 
-                $dropdownData['emirates'] = $emirates;
+                $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                                $q->where('slug', 'company-setup')->where('status', 1);
+                            })->get();
+
+                $dropdownData['emirates'] = $emirates->map(function ($emirate) use($lang) {
+                        return [
+                            'id'    => $emirate->id,
+                            'value' => $emirate->getTranslation('name',$lang),
+                        ];
+                });
 
                 $licenseTypes = LicenseType::where('status',1)->whereNull('parent_id')->orderBy('sort_order')->get();
 
@@ -590,7 +654,16 @@ class ServiceRequestController extends Controller
                     });
                 }
 
-                $dropdownData['emirates'] = $emirates;
+                $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                                $q->where('slug', 'debts-collection')->where('status', 1);
+                            })->get();
+
+                $dropdownData['emirates'] = $emirates->map(function ($emirate) use($lang) {
+                        return [
+                            'id'    => $emirate->id,
+                            'value' => $emirate->getTranslation('name',$lang),
+                        ];
+                });
 
                 return view('frontend.user.service-requests.debts_collection', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
                 
@@ -617,20 +690,11 @@ class ServiceRequestController extends Controller
                     });
                 }
 
-                $dropdownData['emirates'] = $emirates;
-
                 $form_info = getPageDynamicContent('request_submission_forminfo', $lang);
 
                 $dropdownData['form_info'] = $form_info;
 
                 $service    = Service::where('slug', 'request-submission')->firstOrFail();
-
-                $dropdownData['payment'] = [
-                    'service_fee'       => $service->service_fee ?? 0,
-                    'govt_fee'          => $service->govt_fee ?? 0,
-                    'tax'               => $service->tax ?? 0,
-                    'total_amount'      => $service->total_amount ?? 0
-                ];
 
                 return view('frontend.user.service-requests.request_submission', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
@@ -680,7 +744,7 @@ class ServiceRequestController extends Controller
                                 'options.translations' => function ($q) use ($lang) {
                                     $q->whereIn('language_code', [$lang, 'en']);
                                 }
-                            ])->whereIn('slug', ['industries','no_of_employees','case_type'])->get()->keyBy('slug');
+                            ])->whereIn('slug', ['industries','no_of_employees'])->get()->keyBy('slug');
                 
                 foreach ($dropdowns as $slug => $dropdown) {
                     $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -691,7 +755,18 @@ class ServiceRequestController extends Controller
                     });
                 }
 
-                $dropdownData['emirates'] = $emirates;
+                $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                                $q->where('slug', 'annual-retainer-agreement')->where('status', 1);
+                            })->get();
+
+                $dropdownData['emirates'] = $emirates->map(function ($emirate) use($lang) {
+                        return [
+                            'id'    => $emirate->id,
+                            'value' => $emirate->getTranslation('name',$lang),
+                        ];
+                });
+
+                $dropdownData['case_type'] = getCaseTypesValue('local', 'court', $lang);
 
                 $licenseTypes = LicenseType::where('status',1)->whereNull('parent_id')->orderBy('sort_order')->get();
 
@@ -790,10 +865,10 @@ class ServiceRequestController extends Controller
             'documents'         => 'nullable|array',
             'eid'               => 'required|array',
             'trade_license'     => 'required_if:applicant_type,company|array',
-            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'litigation_type.required'  => __('messages.litigation_type_required'),
@@ -830,9 +905,9 @@ class ServiceRequestController extends Controller
             'user_id'           => $user->id,
             'service_id'        => $service->id,
             'service_slug'      => 'court-case-submission',
-            'request_success'   => 1,
             'reference_code'    => $referenceCode,
             'source'            => 'web',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
@@ -901,10 +976,10 @@ class ServiceRequestController extends Controller
             'documents'         => 'required|array',
             'eid'               => 'required|array',
             'trade_license'     => 'required_if:applicant_type,company|array',
-            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'litigation_type.required'  => __('messages.litigation_type_required'),
@@ -1012,7 +1087,7 @@ class ServiceRequestController extends Controller
             'you_represent'     => 'required',
             'full_name'         => 'required',
             'eid'               => 'required|array',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'testament_place.required'  => __('messages.testament_place_required'),
             'nationality.required'      => __('messages.nationality_required'),
@@ -1163,9 +1238,9 @@ class ServiceRequestController extends Controller
             'documents'         => 'nullable|array',
             'eid'               => 'required|array',
             'trade_license'     => 'required_if:applicant_type,company|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'debt_type.required'        => __('messages.debt_type_required'),
@@ -1267,9 +1342,9 @@ class ServiceRequestController extends Controller
             'documents'         => 'required|array',
             'eid'               => 'required|array',
             'trade_license'     => 'required_if:applicant_type,company|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'litigation_type.required'  => __('messages.litigation_type_required'),
@@ -1342,12 +1417,9 @@ class ServiceRequestController extends Controller
             
             if ($request->hasFile($inputName)) {
                 $files = $request->file($inputName);
-
-                
                 if (!is_array($files)) {
                     $files = [$files];
                 }
-
                 foreach ($files as $file) {
                     $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
                     $filename       = $requestFolder.$uniqueName;
@@ -1404,7 +1476,6 @@ class ServiceRequestController extends Controller
         return view('frontend.user.service-requests.request_success', ['data' => $response, 'lang' => $lang]);
     }
 
-
     public function requestPowerOfAttorney(Request $request){
         $validator = Validator::make($request->all(), [
             'applicant_type'        => 'required',
@@ -1421,9 +1492,9 @@ class ServiceRequestController extends Controller
             'authorized_passport'   => 'nullable|array',
             'appointer_id'          => 'required|array',
             'authorized_id'         => 'required|array',
-            'authorized_passport.*' => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'appointer_id.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'authorized_id.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'authorized_passport.*' => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'appointer_id.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'authorized_id.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'       => __('messages.applicant_type_required'),
             'appointer_name.required'       => __('messages.appointer_name_required'),
@@ -1544,9 +1615,9 @@ class ServiceRequestController extends Controller
             'documents'         => 'nullable|array',
             'eid'               => 'required|array',
             'trade_license'     => 'required_if:applicant_type,company|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'       => __('messages.applicant_type_required'),
             'contract_type.required'        => __('messages.contract_type_required'),
@@ -1658,7 +1729,7 @@ class ServiceRequestController extends Controller
             'mobile'            => 'required',
             'email'             => 'required',
             'documents'         => 'nullable|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'zone.required'             => __('messages.zone_required'),
@@ -1893,11 +1964,11 @@ class ServiceRequestController extends Controller
             'passport'              => 'required|array',
             'photo'                 => 'required|array',
             'account_statement'     => 'required|array',
-            'cv.*'                  => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'certificates.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'account_statement.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'passport.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'photo.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'cv.*'                  => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'certificates.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'account_statement.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'passport.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'photo.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'preferred_country.required'    => __('messages.preferred_country_required'),
             'position.required'             => __('messages.position_required'),
@@ -2050,10 +2121,10 @@ class ServiceRequestController extends Controller
             'documents'         => 'nullable|array',
             'eid'               => 'required|array',
             'trade_license'     => 'required_if:applicant_type,company|array',
-            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'litigation_type.required'  => __('messages.litigation_type_required'),
@@ -2103,14 +2174,14 @@ class ServiceRequestController extends Controller
         $requestSubmission = RequestRequestSubmission::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'applicant_type'        => $request->input('applicant_type'),
-            'litigation_type'       => $request->input('litigation_type'),
-            'litigation_place'      => $request->input('litigation_place'),
-            'emirate_id'            => $request->input('emirate_id'),
-            'case_type'             => $request->input('case_type'),
-            'request_type'          => $request->input('request_type'),
-            'request_title'         => $request->input('request_title'),
-            'case_number'           => $request->input('case_number'),
+            'applicant_type'        => $request->input('applicant_type') ?? NULL,
+            'litigation_type'       => $request->input('litigation_type') ?? NULL,
+            'litigation_place'      => $request->input('litigation_place') ?? NULL,
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'case_type'             => $request->input('case_type') ?? NULL,
+            'request_type'          => $request->input('request_type') ?? NULL,
+            'request_title'         => $request->input('request_title') ?? NULL,
+            'case_number'           => $request->input('case_number') ?? NULL,
             'memo'                  => [],
             'documents'             => [],
             'eid'                   => [],
@@ -2147,7 +2218,18 @@ class ServiceRequestController extends Controller
 
         $requestSubmission->update($filePaths);
 
-        $total_amount = $service->total_amount ?? 0;
+        $base = RequestSubmissionPricing::where('litigation_type', $request->input('litigation_type'))
+                                    ->where('litigation_place', $request->input('litigation_place'))
+                                    ->where('case_type_id', $request->input('case_type'))
+                                    ->where('request_type_id', $request->input('request_type'))
+                                    ->where('request_title_id', $request->input('request_title'))
+                                    ->where('status', 1)
+                                    ->first();
+
+        $total_amount = (float)($base->total_amount ?? 0);
+
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
         
         if($total_amount != 0){
             $customer = [
@@ -2163,10 +2245,10 @@ class ServiceRequestController extends Controller
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
                     'payment_reference' => $payment['reference'] ?? null,
-                    'amount' => $service->total_amount,
-                    'service_fee' => $service->service_fee,
-                    'govt_fee' => $service->govt_fee,
-                    'tax' => $service->tax,
+                    'amount' => (float)($base->total_amount ?? 0),
+                    'service_fee' => (float)($base->admin_fee ?? 0),
+                    'govt_fee' => (float)($base->govt_fee ?? 0),
+                    'tax' => (float)($base->vat ?? 0),
                 ]);
                 return redirect()->away($payment['_links']['payment']['href']);
             }
@@ -2625,6 +2707,12 @@ class ServiceRequestController extends Controller
                 $installment->status = 'paid';
                 $installment->save();              
             }
+
+            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest));
+
+            $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+            Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
+
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         }else{
             $pageData = getPageDynamicContent('request_payment_failed',$lang);
@@ -2636,6 +2724,12 @@ class ServiceRequestController extends Controller
                     'payment_response' => $data,
                 ]);
                 $referenceCode = $serviceRequest->reference_code;
+
+                Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest));
+
+                $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+                Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
+
                 return response()->json([
                     'status' => true,
                     'message' => $pageData['content'],
@@ -2688,12 +2782,6 @@ class ServiceRequestController extends Controller
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         }
 
-        
-        Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
-
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
-        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
-        
         return redirect()->route('user.dashboard')->with('error', 'Payment failed or cancelled.');
     }
 
@@ -2736,5 +2824,44 @@ class ServiceRequestController extends Controller
 
     }
 
-    
+     public function getRequestSubmissionPrice(Request $request){
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        
+        $litigation_type    = $request->query('litigation_type') ?? NULL;
+        $litigation_place   = $request->query('litigation_place') ?? NULL;
+        $case_type          = $request->query('case_type') ?? NULL;
+        $request_type       = $request->query('request_type') ?? NULL;
+        $request_title      = $request->query('request_title') ?? NULL;
+
+        if ($litigation_type === NULL || $litigation_place === NULL || $case_type === NULL || $request_type === NULL || $request_title === NULL) {
+            return response()->json([
+                'status'    => true,
+                'message'   => 'Success',
+                'data'      => [
+                                'admin_fee' => 0,
+                                'govt_fee' => 0,
+                                'tax'       => 0,
+                                'total'     => 0,
+                            ]
+            ], 200);
+        }
+
+         $base = RequestSubmissionPricing::where('litigation_type', $litigation_type)
+                                    ->where('litigation_place', $litigation_place)
+                                    ->where('case_type_id', $case_type)
+                                    ->where('request_type_id', $request_type)
+                                    ->where('request_title_id', $request_title)
+                                    ->where('status', 1)
+                                    ->first();
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'admin_fee' => (float)($base->admin_fee ?? 0),
+                            'govt_fee' => (float)($base->govt_fee ?? 0),
+                            'tax'       => (float)($base->vat ?? 0),
+                            'total'     => (float)($base->total_amount ?? 0),
+                        ]
+        ], 200);
+    }
 }

@@ -195,39 +195,42 @@
                             <h5 class="mb-4 text-secondary font-weight-bold">Service Request Details</h5>
                             <div class="row">
                                 @foreach($dataService['service_details'] as $key => $value)
-                                    <div class="col-md-6 mb-4">
-                                        <strong class="d-block mb-1 text-muted">{{ $fieldLabels[$key] ?? ucwords(str_replace('_', ' ', $key)) }}</strong>
+                                    @if($key != 'lawfirm_id')
+                                        <div class="col-md-6 mb-4">
+                                            <strong class="d-block mb-1 text-muted">{{ $fieldLabels[$key] ?? ucwords(str_replace('_', ' ', $key)) }}</strong>
 
-                                        @if(is_array($value))
-                                            <div class="row">
-                                                @foreach($value as $index => $item)
-                                                    @php $isImage = Str::endsWith($item, ['.png', '.jpg', '.jpeg', '.webp']); @endphp
-                                                    <div class="col-6 col-lg-4 mb-2">
-                                                        @if($isImage)
-                                                            <a href="{{ $item }}" data-lightbox="gallery" data-title="Image {{ $index + 1 }} <a href='{{ $item }}' download class='lb-download'>Download</a>">
-                                                                <img src="{{ $item }}" class="img-fluid rounded border" style="max-height: 150px;" alt="Image {{ $index + 1 }}">
-                                                            </a>
-                                                        @else
-                                                            <a href="{{ $item }}" class="btn btn-sm btn-outline-primary w-100" target="_blank">
-                                                                <i class="fas fa-file-download mr-1"></i>Download
-                                                            </a>
-                                                        @endif
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <div class="p-2 rounded border">
-                                                @if (Str::startsWith($value, '[') && Str::endsWith($value, ']'))
-                                                    @php
-                                                        $decodedValue = json_decode($value, true);
-                                                    @endphp
-                                                    {{ implode(', ', $decodedValue) }}
-                                                @else
-                                                    {{ ucwords($value) ?? $value }}
-                                                @endif
-                                            </div>
-                                        @endif
-                                    </div>
+                                            @if(is_array($value))
+                                                <div class="row">
+                                                    @foreach($value as $index => $item)
+                                                        @php $isImage = Str::endsWith($item, ['.png', '.jpg', '.jpeg', '.webp']); @endphp
+                                                        <div class="col-6 col-lg-4 mb-2">
+                                                            @if($isImage)
+                                                                <a href="{{ $item }}" data-lightbox="gallery" data-title="Image {{ $index + 1 }} <a href='{{ $item }}' download class='lb-download'>Download</a>">
+                                                                    <img src="{{ $item }}" class="img-fluid rounded border" style="max-height: 150px;" alt="Image {{ $index + 1 }}">
+                                                                </a>
+                                                            @else
+                                                                <a href="{{ $item }}" class="btn btn-sm btn-outline-primary w-100" target="_blank">
+                                                                    <i class="fas fa-file-download mr-1"></i>Download
+                                                                </a>
+                                                            @endif
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <div class="p-2 rounded border">
+                                                    @if (Str::startsWith($value, '[') && Str::endsWith($value, ']'))
+                                                        @php
+                                                            $decodedValue = json_decode($value, true);
+                                                        @endphp
+                                                        {{ implode(', ', $decodedValue) }}
+                                                    @else
+                                                        {!! ucwords($value) ?? $value !!}
+                                                    @endif
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    
                                 @endforeach
                             </div>
                         </div>

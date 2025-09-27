@@ -114,6 +114,9 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/get-sub-contract-types/{id}', [ServiceRequestController::class, 'getSubContractTypes'])->name('user.sub.contract.types');
     Route::get('/get-license-activities/{id}', [ServiceRequestController::class, 'getLicenseActivities'])->name('user.license.activities');
     Route::get('/get-zones/{id}', [ServiceRequestController::class, 'getZones'])->name('user.zones');
+    Route::get('/emirates', [ServiceRequestController::class, 'getEmirates'])->name('user.emirates');
+    Route::get('/case-types', [ServiceRequestController::class, 'getCaseTypes'])->name('user.case-types');
+    Route::get('/request-submission-price', [ServiceRequestController::class, 'getRequestSubmissionPrice'])->name('user.request-submission-price');
 
     // Payment call back
     Route::get('/payment-callback/{order_id}', [ServiceRequestController::class, 'paymentSuccess'])->name('user.web-payment.callback');
