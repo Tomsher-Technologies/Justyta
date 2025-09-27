@@ -25,22 +25,33 @@ use Illuminate\Support\Facades\DB;
 use Firebase\JWT\JWT;
 use Carbon\Carbon;
 
-    function generateZoomSignature($meetingNumber, $role = 0)
+    function generateZoomSignature($meetingNumber, $userId, $role = 0)
     {
         $sdkKey    = config('services.zoom.sdk_key');
         $sdkSecret = config('services.zoom.sdk_secret');
 
-        $iat = time();
-        $exp = $iat + 2 * 60; // valid for 2 minutes
+        // $iat = time();
+        // $exp = $iat + 2 * 60; // valid for 2 minutes
+
+        // $payload = [
+        //     'sdkKey'   => $sdkKey,
+        //     'mn'       => (string)$meetingNumber,
+        //     'role'     => $role,
+        //     'iat'      => $iat,
+        //     'exp'      => $exp,
+        //     'tokenExp' => $exp,
+        // ];
 
         $payload = [
-            'sdkKey'   => $sdkKey,
-            'mn'       => (string)$meetingNumber,
-            'role'     => $role,
-            'iat'      => $iat,
-            'exp'      => $exp,
-            'tokenExp' => $exp,
+            "app_key" => $sdkKey,
+            "tpc" => $meetingNumber,          // session name (e.g. Consultation-67, must not contain spaces)
+            "role_type" => $role,       // 1 = host (lawyer), 0 = participant (user)
+            "user_identity" => (string)$userId, 
+            "iat" => time(),
+            "exp" => time() + 60 * 60,      // valid for 1 hour
+            "version" => 1
         ];
+
 
         return JWT::encode($payload, $sdkSecret, 'HS256');
     }
