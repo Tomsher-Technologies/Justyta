@@ -1938,10 +1938,16 @@ class ServiceRequestController extends Controller
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
             
-            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
+            $serviceSlug = $service_request->service_slug;
+            $requestId   = $service_request->id;
 
-            $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
-            Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
+            $serviceReq = \App\Models\RequestExpertReport::where('service_request_id', $serviceRequest->id)->first();
+            $serviceReqId = $serviceReq->id;
+
+            $serviceReq->delete();
+
+            deleteRequestFolder('expert_report', $serviceReqId);
+            $service_request->delete();
 
             return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
         }
@@ -2097,10 +2103,16 @@ class ServiceRequestController extends Controller
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
             
-            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
+            $serviceSlug = $service_request->service_slug;
+            $requestId   = $service_request->id;
 
-            $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
-            Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
+            $serviceReq = \App\Models\RequestImmigration::where('service_request_id', $serviceRequest->id)->first();
+            $serviceReqId = $serviceReq->id;
+
+            $serviceReq->delete();
+
+            deleteRequestFolder('immigration', $serviceReqId);
+            $service_request->delete();
 
             return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
         }
@@ -2256,12 +2268,17 @@ class ServiceRequestController extends Controller
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
             
-            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
+            $serviceSlug = $service_request->service_slug;
+            $requestId   = $service_request->id;
 
-            $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
-            Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
+            $serviceReq = \App\Models\RequestRequestSubmission::where('service_request_id', $serviceRequest->id)->first();
+            $serviceReqId = $serviceReq->id;
 
-            return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+            $serviceReq->delete();
+
+            deleteRequestFolder('request_submission', $serviceReqId);
+            $service_request->delete();
+            return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($service_request->id)]);
         }
     }
 
@@ -2551,10 +2568,16 @@ class ServiceRequestController extends Controller
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
             
-            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
+            $serviceSlug = $service_request->service_slug;
+            $requestId   = $service_request->id;
 
-            $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
-            Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
+            $serviceReq = \App\Models\RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
+            $serviceReqId = $serviceReq->id;
+
+            $serviceReq->delete();
+
+            deleteRequestFolder('annual_retainer_agreement', $serviceReqId);
+            $service_request->delete();
 
             return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
         }
@@ -2730,14 +2753,7 @@ class ServiceRequestController extends Controller
                 $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
                 Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
 
-                return response()->json([
-                    'status' => true,
-                    'message' => $pageData['content'],
-                    'data' => [
-                            'reference' => $referenceCode ?? '',
-                            'message'   => $pageData['content']
-                            ]
-                ], 200);
+               
             }else{
 
                 $serviceSlug = $serviceRequest->service_slug;
@@ -2770,14 +2786,7 @@ class ServiceRequestController extends Controller
                 $serviceRequest->delete();
             
                 $referenceCode = '';
-                return response()->json([
-                    'status' => false,
-                    'message' => $pageData['content'],
-                    'data' => [
-                            'reference' => $referenceCode ?? '',
-                            'message'   => $pageData['content']
-                            ]
-                ], 200);
+               
             }
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         }
