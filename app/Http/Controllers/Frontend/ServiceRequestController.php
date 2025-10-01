@@ -1450,7 +1450,7 @@ class ServiceRequestController extends Controller
 
         $service = ServiceRequest::find($requestId);
 
-        if(!empty($service)){
+        if($service->request_success == 1){
             $pageData = getPageDynamicContent('request_success',$lang);
             $response = [
                 'reference' => $service->reference_code ?? '',
