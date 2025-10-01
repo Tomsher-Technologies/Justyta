@@ -1941,7 +1941,7 @@ class ServiceRequestController extends Controller
             $serviceSlug = $service_request->service_slug;
             $requestId   = $service_request->id;
 
-            $serviceReq = \App\Models\RequestExpertReport::where('service_request_id', $serviceRequest->id)->first();
+            $serviceReq = \App\Models\RequestExpertReport::where('service_request_id', $service_request->id)->first();
             $serviceReqId = $serviceReq->id;
 
             $serviceReq->delete();
@@ -2106,7 +2106,7 @@ class ServiceRequestController extends Controller
             $serviceSlug = $service_request->service_slug;
             $requestId   = $service_request->id;
 
-            $serviceReq = \App\Models\RequestImmigration::where('service_request_id', $serviceRequest->id)->first();
+            $serviceReq = \App\Models\RequestImmigration::where('service_request_id', $service_request->id)->first();
             $serviceReqId = $serviceReq->id;
 
             $serviceReq->delete();
@@ -2271,7 +2271,7 @@ class ServiceRequestController extends Controller
             $serviceSlug = $service_request->service_slug;
             $requestId   = $service_request->id;
 
-            $serviceReq = \App\Models\RequestRequestSubmission::where('service_request_id', $serviceRequest->id)->first();
+            $serviceReq = \App\Models\RequestRequestSubmission::where('service_request_id', $service_request->id)->first();
             $serviceReqId = $serviceReq->id;
 
             $serviceReq->delete();
@@ -2571,7 +2571,7 @@ class ServiceRequestController extends Controller
             $serviceSlug = $service_request->service_slug;
             $requestId   = $service_request->id;
 
-            $serviceReq = \App\Models\RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
+            $serviceReq = \App\Models\RequestAnnualAgreement::where('service_request_id', $service_request->id)->first();
             $serviceReqId = $serviceReq->id;
 
             $serviceReq->delete();
