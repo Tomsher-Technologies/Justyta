@@ -1444,18 +1444,29 @@ class ServiceRequestController extends Controller
 
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
 
-        $pageData = getPageDynamicContent('request_success',$lang);
+        
 
         $requestId = $reqid ? base64_decode($reqid) : '';
 
         $service = ServiceRequest::find($requestId);
 
-        $response = [
-            'reference' => $service->reference_code ?? '',
-            'message'   => $pageData['content']
-        ];
-        
-        return view('frontend.user.service-requests.request_success', ['data' => $response, 'lang' => $lang]);
+        if(!empty($service)){
+            $pageData = getPageDynamicContent('request_success',$lang);
+            $response = [
+                'reference' => $service->reference_code ?? '',
+                'message'   => $pageData['content']
+            ];
+            
+            return view('frontend.user.service-requests.request_success', ['data' => $response, 'lang' => $lang]);
+        }else{
+            $pageData = getPageDynamicContent('request_failed',$lang);
+            $response = [
+                'reference' => '',
+                'message'   => $pageData['content']
+            ];
+            
+            return view('frontend.user.service-requests.request_failed', ['data' => $response, 'lang' => $lang]);
+        }
     }
 
     public function requestPaymentSuccess(Request $request, $reqid){
