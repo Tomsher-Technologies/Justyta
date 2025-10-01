@@ -1443,13 +1443,10 @@ class ServiceRequestController extends Controller
     public function requestSuccess(Request $request, $reqid){
 
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
-
-        
-
         $requestId = $reqid ? base64_decode($reqid) : '';
 
         $service = ServiceRequest::find($requestId);
-
+        
         if($service->request_success == 1){
             $pageData = getPageDynamicContent('request_success',$lang);
             $response = [
@@ -1478,13 +1475,24 @@ class ServiceRequestController extends Controller
         $requestId = $reqid ? base64_decode($reqid) : '';
 
         $service = ServiceRequest::find($requestId);
-
-        $response = [
-            'reference' => $service->reference_code ?? '',
-            'message'   => $pageData['content']
-        ];
         
-        return view('frontend.user.service-requests.request_success', ['data' => $response, 'lang' => $lang]);
+        if(!empty($service)){
+            $pageData = getPageDynamicContent('request_payment_success',$lang);
+            $response = [
+                'reference' => $service->reference_code ?? '',
+                'message'   => $pageData['content']
+            ];
+            
+            return view('frontend.user.service-requests.request_success', ['data' => $response, 'lang' => $lang]);
+        }else{
+            $pageData = getPageDynamicContent('request_payment_failed',$lang);
+            $response = [
+                'reference' => '',
+                'message'   => $pageData['content']
+            ];
+            
+            return view('frontend.user.service-requests.request_failed', ['data' => $response, 'lang' => $lang]);
+        }
     }
 
     public function requestPowerOfAttorney(Request $request){
