@@ -52,6 +52,7 @@ class ConsultationController extends Controller
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
 
+        $total_amount = 0;
         if($total_amount > 0) {
             $customer = [
                 'email' => $user->email,
@@ -86,11 +87,47 @@ class ConsultationController extends Controller
                 ], 200);
             }
         }else{
+            // return response()->json([
+            //     'status'    => false,
+            //     'message'   => __('frontend.request_submit_failed'),
+            //     'data'      => json_encode($payment),
+            // ], 200);
+
+            $consultationId = $consultation->id;
+            $servicePayment = ConsultationPayment::where('consultation_id', $consultationId)
+                                                ->first();
+
+            if ($servicePayment) {
+                $servicePayment->update(['status' => 'completed']);
+            }
+
+            $consultation = Consultation::findOrFail($consultationId);
+            $consultation->status = 'waiting_lawyer';
+            $consultation->save();
+
+            if($consultation->consultant_type == 'vip'){
+                assignLawyer($consultation, $consultation->lawyer_id);
+            }else{
+                $lawyer = findBestFitLawyer($consultation);
+                if(!$lawyer){
+                    return response()->json(['status' => false,'message'=> __('frontend.no_lawyer_available')],200);
+                }
+                assignLawyer($consultation, $lawyer->id);
+            }
+
+            $pageData = getPageDynamicContent('consultancy_payment_success',$lang);
+            $waitingMessage = getPageDynamicContent('consultancy_waiting_page',$lang);
+
             return response()->json([
-                'status'    => false,
-                'message'   => __('frontend.request_submit_failed'),
-                'data'      => json_encode($payment),
-            ], 200);
+                'status' => true,
+                'message'=> $pageData['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                'data' => [
+                    'consultation_id' => $consultation->id ?? null,
+                    'ref_code' => $consultation->ref_code ?? null,
+                    'success_message' => $pageData['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                    'waiting_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                ]
+            ],200);
         }
     }
 

@@ -435,7 +435,7 @@ class UserController extends Controller
 
         $request->session()->put('service_last_url', url()->full());
 
-        $query = ServiceRequest::with('user', 'service')->where('user_id', auth()->id());
+        $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', auth()->id());
 
         if ($serviceSlug) {
             if($serviceSlug === 'law-firm-services'){
@@ -483,6 +483,7 @@ class UserController extends Controller
 
         $query = ServiceRequest::with('user', 'service')
                         ->where('status', 'pending')
+                        ->where('request_success', 1)
                         ->where('user_id', auth()->id());
 
         if ($serviceSlug) {
@@ -531,6 +532,7 @@ class UserController extends Controller
 
         $query = ServiceRequest::with('user', 'service')
                         ->whereNotNull('payment_status')
+                        ->where('request_success', 1)
                         ->where('user_id', auth()->id());
 
         if ($serviceSlug) {
@@ -772,7 +774,6 @@ class UserController extends Controller
 
         $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
         $keyword    = $request->get('q');
-;
         $services = Service::where('status', 1)
                     ->whereNotIn('slug',['law-firm-services'])
                     ->whereHas('translations', function ($query) use ($keyword) {
