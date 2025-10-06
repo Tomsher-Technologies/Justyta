@@ -338,7 +338,7 @@ return [
     'lawyer_assigned_waiting_response' => 'Lawyer assigned, waiting for response',
     'online_status_updated' => 'Status updated successfully',
     'rejected_no_lawyer_available' => 'Lawyer rejected, no other lawyer available',
-    '' => '',
+    'completion_hours' => 'Completion Hours',
     '' => '',
     '' => '',
     '' => '',

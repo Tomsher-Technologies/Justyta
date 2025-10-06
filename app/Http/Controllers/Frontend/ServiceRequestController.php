@@ -11,6 +11,7 @@ use App\Models\Country;
 use App\Models\ContractType;
 use App\Models\LicenseType;
 use App\Models\FreeZone;
+use App\Models\ExpertReportPricing;
 use App\Models\ConsultationDuration;
 use App\Models\Vendor;
 use App\Models\AnnualRetainerBaseFee;
@@ -258,9 +259,13 @@ class ServiceRequestController extends Controller
 
      public function calculateTranslationPrice(Request $request)
     {
-        $from   = $request->from_language_id;
-        $to     = $request->to_language_id;
-        $pages  = $request->no_of_pages;
+        $from           = $request->from_language_id;
+        $to             = $request->to_language_id;
+        $pages          = $request->no_of_pages;
+        $priority       = $request->priority ?? null;
+        $doc_type       = $request->doc_type;
+        $subdoc_type    = $request->doc_sub_type;
+        $receive_by     = $request->receive_by ?? null;
 
         $assignment = DefaultTranslatorAssignment::where([
             'from_language_id' => $from,
@@ -274,11 +279,17 @@ class ServiceRequestController extends Controller
             ], 200);
         }
 
-        $rate = TranslatorLanguageRate::where([
-            'translator_id'     => $assignment->translator_id,
-            'from_language_id'  => $from,
-            'to_language_id'    => $to,
-        ])->first();
+        $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
+                                            $q->where('priority_type', $priority)
+                                            ->where('delivery_type', $receive_by);
+                                        }])
+                                        ->where('translator_id', $assignment->translator_id)
+                                        ->where('from_language_id', $from)
+                                        ->where('to_language_id', $to)
+                                        ->where('doc_type_id', $doc_type)
+                                        ->where('doc_subtype_id', $subdoc_type)
+                                        ->where('status', 1)
+                                        ->first();
 
         if (!$rate) {
             return response()->json([
@@ -287,17 +298,49 @@ class ServiceRequestController extends Controller
             ], 200);
         }
 
-        $totalAmount = $rate->total_amount * $pages;
-        $totalHours  = $rate->hours_per_page * $pages;
+        if ($priority === 'normal') {
+            if ($pages <= 10) {
+                $totalHours = $rate->normal_hours_1_10;
+            } elseif ($pages <= 20) {
+                $totalHours = $rate->normal_hours_11_20;
+            } elseif ($pages <= 30) {
+                $totalHours = $rate->normal_hours_21_30;
+            } elseif ($pages <= 50) {
+                $totalHours = $rate->normal_hours_31_50;
+            } else {
+                $totalHours = $rate->normal_hours_above_50;
+            }
+        } else {
+            if ($pages <= 10) {
+                $totalHours = $rate->urgent_hours_1_10;
+            } elseif ($pages <= 20) {
+                $totalHours = $rate->urgent_hours_11_20;
+            } elseif ($pages <= 30) {
+                $totalHours = $rate->urgent_hours_21_30;
+            } elseif ($pages <= 50) {
+                $totalHours = $rate->urgent_hours_31_50;
+            } else {
+                $totalHours = $rate->urgent_hours_above_50;
+            }
+        }
+
+        $delivery = $rate->deliveries->first();
+        
+        $admin_amount = $delivery->admin_amount * $pages;
+        $translator_amount = $delivery->translator_amount * $pages;
+
+        $totalAmountNoTax = ($admin_amount + $translator_amount + $delivery->delivery_amount);
+
+        $tax = ($totalAmountNoTax/100) * 5;
+
+        $totalAmount = $totalAmountNoTax + $tax;
 
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
             'data'      => [
                             'total_amount'      => $totalAmount,
-                            'total_hours'       => $totalHours,
-                            'amount_per_page'   => $rate->total_amount,
-                            'hours_per_page'    => $rate->hours_per_page 
+                            'total_hours'       => $totalHours
                         ]
         ],200);
     }
@@ -1847,9 +1890,9 @@ class ServiceRequestController extends Controller
             'documents'                 => 'required|array',
             'eid'                       => 'required|array',
             'trade_license'             => 'required_if:applicant_type,company|array',
-            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'                     => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'                     => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'           => __('messages.applicant_type_required'),
             'applicant_place.required'          => __('messages.applicant_place_required'),
@@ -1930,8 +1973,16 @@ class ServiceRequestController extends Controller
         }
 
         $expertReport->update($filePaths);
-        $total_amount = $service->total_amount ?? 0;
+        $base = ExpertReportPricing::where('litigation_type', $request->input('applicant_place'))
+                                    ->where('expert_report_type_id', $request->input('expert_report_type'))
+                                    ->where('language_id', $request->input('expert_report_language'))
+                                    ->where('status', 1)
+                                    ->first();
+
+        $total_amount = (float)($base->total ?? 0);
         
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
         if($total_amount != 0){
             $customer = [
                 'email' => $user->email,
@@ -1946,10 +1997,10 @@ class ServiceRequestController extends Controller
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
                     'payment_reference' => $payment['reference'] ?? null,
-                    'amount' => $service->total_amount,
-                    'service_fee' => $service->service_fee,
-                    'govt_fee' => $service->govt_fee,
-                    'tax' => $service->tax,
+                    'amount' => (float)($base->total ?? 0),
+                    'service_fee' => (float)($base->admin_fee ?? 0),
+                    'govt_fee' => 0,
+                    'tax' => (float)($base->vat ?? 0),
                 ]);
                 return redirect()->away($payment['_links']['payment']['href']);
             }
@@ -1968,7 +2019,7 @@ class ServiceRequestController extends Controller
             deleteRequestFolder('expert_report', $serviceReqId);
             $service_request->delete();
 
-            return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+            return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($service_request->id)]);
         }
     }
 
@@ -2315,10 +2366,10 @@ class ServiceRequestController extends Controller
             'documents'                 => 'required|array',
             'additional_documents'      => 'nullable|array',
             'trade_license'             => 'nullable|array',
-            'memo.*'                    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:2048',
-            'additional_documents.*'    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:2048',
-            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'memo.*'                    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'additional_documents.*'    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'priority_level.required'       => __('messages.priority_level_required'),
             'document_language.required'    => __('messages.document_language_required'),
@@ -2413,26 +2464,83 @@ class ServiceRequestController extends Controller
         $from           = $request->input('document_language');
         $to             = $request->input('translation_language');
         $pages          = $request->input('no_of_pages') ?? 0;
-        $totalAmount    = 0;
+         $priority       = $request->priority_level ?? null;
+        $doc_type       = $request->document_type;
+        $subdoc_type    = $request->document_sub_type;
+        $receive_by     = $request->receive_by ?? null;
+        $totalAmount  = $totalHours  = 0;
 
         $assignment = DefaultTranslatorAssignment::where([
-                                    'from_language_id' => $from,
-                                    'to_language_id'   => $to,
-                                ])->first();
+                            'from_language_id' => $from,
+                            'to_language_id'   => $to,
+                        ])->first();
 
         if ($assignment) {
-            $rate = TranslatorLanguageRate::where([
-                                            'translator_id'     => $assignment->translator_id,
-                                            'from_language_id'  => $from,
-                                            'to_language_id'    => $to,
-                                        ])->first();
+            $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
+                                            $q->where('priority_type', $priority)
+                                            ->where('delivery_type', $receive_by);
+                                        }])
+                                        ->where('translator_id', $assignment->translator_id)
+                                        ->where('from_language_id', $from)
+                                        ->where('to_language_id', $to)
+                                        ->where('doc_type_id', $doc_type)
+                                        ->where('doc_subtype_id', $subdoc_type)
+                                        ->where('status', 1)
+                                        ->first();
 
             if ($rate) {
-                $totalAmount = $rate->total_amount * $pages;
+                if ($priority === 'normal') {
+                    if ($pages <= 10) {
+                        $totalHours = $rate->normal_hours_1_10;
+                    } elseif ($pages <= 20) {
+                        $totalHours = $rate->normal_hours_11_20;
+                    } elseif ($pages <= 30) {
+                        $totalHours = $rate->normal_hours_21_30;
+                    } elseif ($pages <= 50) {
+                        $totalHours = $rate->normal_hours_31_50;
+                    } else {
+                        $totalHours = $rate->normal_hours_above_50;
+                    }
+                } else {
+                    if ($pages <= 10) {
+                        $totalHours = $rate->urgent_hours_1_10;
+                    } elseif ($pages <= 20) {
+                        $totalHours = $rate->urgent_hours_11_20;
+                    } elseif ($pages <= 30) {
+                        $totalHours = $rate->urgent_hours_21_30;
+                    } elseif ($pages <= 50) {
+                        $totalHours = $rate->urgent_hours_31_50;
+                    } else {
+                        $totalHours = $rate->urgent_hours_above_50;
+                    }
+                }
+
+                $delivery = $rate->deliveries->first();
+                $admin_amount = $delivery->admin_amount * $pages;
+                $translator_amount = $delivery->translator_amount * $pages;
+
+                $totalAmountNoTax = ($admin_amount + $translator_amount + $delivery->delivery_amount);
+
+                $tax = ($totalAmountNoTax/100) * 5;
+
+                $totalAmount = $totalAmountNoTax + $tax;
+                
+
+                $legalTranslation->update([
+                    'admin_amount' => $admin_amount,
+                    'translator_amount' => $translator_amount,
+                    'delivery_amount' => $delivery->delivery_amount,
+                    'tax' => $tax,
+                    'total_amount' => $totalAmount,
+                    'hours_per_page' => $totalHours
+                ]);
             }
         }
+        $total_amount = $totalAmount ?? 0;
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
 
-        if($totalAmount != 0){
+        if($total_amount != 0){
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
@@ -2441,13 +2549,13 @@ class ServiceRequestController extends Controller
 
             $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
-            $payment = createWebOrder($customer, $totalAmount, env('APP_CURRENCY','AED'), $orderReference);
+            $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY','AED'), $orderReference);
 
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
                     'payment_reference' => $payment['reference'] ?? null,
-                    'amount' => $totalAmount,
-                    'service_fee' => $totalAmount,
+                    'amount' => $total_amount,
+                    'service_fee' => $total_amount,
                     'govt_fee' => 0,
                     'tax' => 0,
                 ]);
@@ -2457,12 +2565,17 @@ class ServiceRequestController extends Controller
             return redirect()->back()->with('error', 'Failed to initiate payment');
         }else{
             
-            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
+            $serviceSlug = $service_request->service_slug;
+            $requestId   = $service_request->id;
 
-            $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
-            Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
+            $serviceReq = \App\Models\RequestLegalTranslation::where('service_request_id', $service_request->id)->first();
+            $serviceReqId = $serviceReq->id;
 
-            return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+            $serviceReq->delete();
+
+            deleteRequestFolder('legal_translation', $serviceReqId);
+            $service_request->delete();
+            return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($service_request->id)]);
         }
     }
 
@@ -2889,6 +3002,41 @@ class ServiceRequestController extends Controller
                             'govt_fee' => (float)($base->govt_fee ?? 0),
                             'tax'       => (float)($base->vat ?? 0),
                             'total'     => (float)($base->total_amount ?? 0),
+                        ]
+        ], 200);
+    }
+
+    public function getExpertReportPrice(Request $request){
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        
+        $litigation_type    = $request->query('litigation_type') ?? NULL;
+        $report_type        = $request->query('report_type') ?? NULL;
+        $report_language    = $request->query('report_language') ?? NULL;
+
+        if ($litigation_type === NULL || $report_type === NULL || $report_language === NULL) {
+            return response()->json([
+                'status'    => true,
+                'message'   => 'Success',
+                'data'      => [
+                                'admin_fee' => 0,
+                                'tax'       => 0,
+                                'total'     => 0,
+                            ]
+            ], 200);
+        }
+
+        $base = ExpertReportPricing::where('litigation_type', $litigation_type)
+                                    ->where('expert_report_type_id', $report_type)
+                                    ->where('language_id', $report_language)
+                                    ->where('status', 1)
+                                    ->first();
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'admin_fee' => (float)($base->admin_fee ?? 0),
+                            'tax'       => (float)($base->vat ?? 0),
+                            'total'     => (float)($base->total ?? 0),
                         ]
         ], 200);
     }
