@@ -2856,13 +2856,13 @@ class ServiceController extends Controller
         $legalTranslation = RequestLegalTranslation::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'priority_level'        => $request->input('priority_level'),
-            'document_language'     => $request->input('document_language'),
-            'translation_language'  => $request->input('translation_language'),
-            'document_type'         => $request->input('document_type'),
-            'document_sub_type'     => $request->input('document_sub_type'),
-            'receive_by'            => $request->input('receive_by'),
-            'no_of_pages'           => $request->input('no_of_pages'),
+            'priority_level'        => $request->input('priority_level') ?? NULL,
+            'document_language'     => $request->input('document_language') ?? NULL,
+            'translation_language'  => $request->input('translation_language') ?? NULL,
+            'document_type'         => $request->input('document_type') ?? NULL,
+            'document_sub_type'     => $request->input('document_sub_type') ?? NULL,
+            'receive_by'            => $request->input('receive_by') ?? NULL,
+            'no_of_pages'           => $request->input('no_of_pages') ?? NULL,
             'memo'                  => [],
             'documents'             => [],
             'additional_documents'  => [],
@@ -2913,6 +2913,7 @@ class ServiceController extends Controller
                             'from_language_id' => $from,
                             'to_language_id'   => $to,
                         ])->first();
+        
         if ($assignment) {
             $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
                                             $q->where('priority_type', $priority)
@@ -2992,10 +2993,10 @@ class ServiceController extends Controller
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
                     'payment_reference' => $payment['reference'] ?? null,
-                    'amount' => $service->total_amount,
-                    'service_fee' => $service->service_fee,
-                    'govt_fee' => $service->govt_fee,
-                    'tax' => $service->tax,
+                    'amount' => $total_amount ?? 0,
+                    'service_fee' => $total_amount ?? 0,
+                    'govt_fee' => 0,
+                    'tax' => 0,
                 ]);
 
                 return response()->json([
