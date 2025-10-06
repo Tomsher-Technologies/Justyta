@@ -11,6 +11,7 @@ use App\Models\Country;
 use App\Models\ContractType;
 use App\Models\LicenseType;
 use App\Models\FreeZone;
+use App\Models\ExpertReportPricing;
 use App\Models\ConsultationDuration;
 use App\Models\Vendor;
 use App\Models\AnnualRetainerBaseFee;
@@ -1847,9 +1848,9 @@ class ServiceRequestController extends Controller
             'documents'                 => 'required|array',
             'eid'                       => 'required|array',
             'trade_license'             => 'required_if:applicant_type,company|array',
-            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'                     => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'                     => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'           => __('messages.applicant_type_required'),
             'applicant_place.required'          => __('messages.applicant_place_required'),
@@ -1930,8 +1931,16 @@ class ServiceRequestController extends Controller
         }
 
         $expertReport->update($filePaths);
-        $total_amount = $service->total_amount ?? 0;
+        $base = ExpertReportPricing::where('litigation_type', $request->input('applicant_place'))
+                                    ->where('expert_report_type_id', $request->input('expert_report_type'))
+                                    ->where('language_id', $request->input('expert_report_language'))
+                                    ->where('status', 1)
+                                    ->first();
+
+        $total_amount = (float)($base->total ?? 0);
         
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
         if($total_amount != 0){
             $customer = [
                 'email' => $user->email,
@@ -1946,10 +1955,10 @@ class ServiceRequestController extends Controller
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
                     'payment_reference' => $payment['reference'] ?? null,
-                    'amount' => $service->total_amount,
-                    'service_fee' => $service->service_fee,
-                    'govt_fee' => $service->govt_fee,
-                    'tax' => $service->tax,
+                    'amount' => (float)($base->total ?? 0),
+                    'service_fee' => (float)($base->admin_fee ?? 0),
+                    'govt_fee' => 0,
+                    'tax' => (float)($base->vat ?? 0),
                 ]);
                 return redirect()->away($payment['_links']['payment']['href']);
             }
@@ -1968,7 +1977,7 @@ class ServiceRequestController extends Controller
             deleteRequestFolder('expert_report', $serviceReqId);
             $service_request->delete();
 
-            return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+            return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($service_request->id)]);
         }
     }
 
@@ -2889,6 +2898,41 @@ class ServiceRequestController extends Controller
                             'govt_fee' => (float)($base->govt_fee ?? 0),
                             'tax'       => (float)($base->vat ?? 0),
                             'total'     => (float)($base->total_amount ?? 0),
+                        ]
+        ], 200);
+    }
+
+    public function getExpertReportPrice(Request $request){
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        
+        $litigation_type    = $request->query('litigation_type') ?? NULL;
+        $report_type        = $request->query('report_type') ?? NULL;
+        $report_language    = $request->query('report_language') ?? NULL;
+
+        if ($litigation_type === NULL || $report_type === NULL || $report_language === NULL) {
+            return response()->json([
+                'status'    => true,
+                'message'   => 'Success',
+                'data'      => [
+                                'admin_fee' => 0,
+                                'tax'       => 0,
+                                'total'     => 0,
+                            ]
+            ], 200);
+        }
+
+        $base = ExpertReportPricing::where('litigation_type', $litigation_type)
+                                    ->where('expert_report_type_id', $report_type)
+                                    ->where('language_id', $report_language)
+                                    ->where('status', 1)
+                                    ->first();
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'admin_fee' => (float)($base->admin_fee ?? 0),
+                            'tax'       => (float)($base->vat ?? 0),
+                            'total'     => (float)($base->total ?? 0),
                         ]
         ], 200);
     }

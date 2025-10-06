@@ -117,6 +117,7 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/emirates', [ServiceRequestController::class, 'getEmirates'])->name('user.emirates');
     Route::get('/case-types', [ServiceRequestController::class, 'getCaseTypes'])->name('user.case-types');
     Route::get('/request-submission-price', [ServiceRequestController::class, 'getRequestSubmissionPrice'])->name('user.request-submission-price');
+    Route::get('/expert-report-price', [ServiceRequestController::class, 'getExpertReportPrice'])->name('user.expert-report-price');
 
     // Payment call back
     Route::get('/payment-callback/{order_id}', [ServiceRequestController::class, 'paymentSuccess'])->name('user.web-payment.callback');
