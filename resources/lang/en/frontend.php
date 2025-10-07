@@ -339,7 +339,7 @@ return [
     'online_status_updated' => 'Status updated successfully',
     'rejected_no_lawyer_available' => 'Lawyer rejected, no other lawyer available',
     'completion_hours' => 'Completion Hours',
-    '' => '',
+    'job_post_limit_reached' => 'Job post limit based on your membership plan has reached.',
     '' => '',
     '' => '',
     '' => '',

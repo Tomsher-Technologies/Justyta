@@ -68,7 +68,12 @@ class VendorJobPostController extends Controller
     public function create()
     {
         $languages = Language::where('status', 1)->orderBy('id')->get();
-        return view('frontend.vendor.jobs.create',compact('languages'));
+        if (isVendorCanCreateJobs()) {
+            return view('frontend.vendor.jobs.create',compact('languages'));
+        }else{
+            session()->flash('error', __('frontend.job_post_limit_reached'));
+            return redirect()->route('jobs.index');
+        }
     }
 
     public function store(Request $request)
