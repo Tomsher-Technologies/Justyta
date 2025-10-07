@@ -81,7 +81,7 @@ Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType
     Route::get('/my-account', [TranslatorController::class, 'account'])->name('translator.my-account');
 
     //Service Requests
-    // Route::get('/service-request/{slug}', [ServiceRequestController::class, 'showForm'])->name('service.request.form');
+    Route::get('/service-request/{slug}', [TranslatorController::class, 'showServiceRequest'])->name('translator.service.details');
 
     //Notifications
     Route::get('/notifications', [TranslatorController::class, 'notifications'])->name('translator.notifications.index');

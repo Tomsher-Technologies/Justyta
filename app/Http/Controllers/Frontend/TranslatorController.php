@@ -165,4 +165,10 @@ class TranslatorController extends Controller
         $user   = Auth::guard('frontend')->user();
         return view('frontend.translator.account', compact('user'));
     }
+
+    public function showServiceRequest()
+    {
+
+        return view('frontend.translator.service-requests.service-details');
+    }
 }

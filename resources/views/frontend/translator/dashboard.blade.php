@@ -156,7 +156,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
 
-        
+
         <div class="lg:col-span-2 bg-white rounded-lg p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-medium text-gray-900">
@@ -249,7 +249,7 @@
                             <td class="px-6 py-4">{{ $request['no_of_pages'] }}</td>
                             <td class="px-6 py-4">{{ ucfirst($request['status']) }}</td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('service-request-details', $request['service_request_id']) }}"
+                                <a href="{{ route('translator.service.details', $request['service_request_id']) }}"
                                     class="flex items-center gap-0.5">
                                     <svg class="w-6 h-6 text-[#4D4D4D]" aria-hidden="true"
                                         xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
