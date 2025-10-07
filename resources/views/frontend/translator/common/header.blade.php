@@ -62,7 +62,7 @@
         </button>
         <div id="userDropdown"
             class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow p-6 w-64 !translate-x-[238px] !translate-y-[50px]">
-            <a href="{{ route('user.my-account') }}" class="flex items-center justify-between w-full border-b">
+            <a href="{{ route('translator.my-account') }}" class="flex items-center justify-between w-full border-b">
                 <div class="pb-4">
                     <h3 class="text-[#353434] text-lg mb-0 leading-none">
                         {{ Auth::guard('frontend')->user()->name ?? null }}
@@ -85,7 +85,7 @@
             </a>
             <ul class="py-2 text-sm text-gray-700 mb-0" aria-labelledby="userDropdownButton">
                 <li>
-                    <a href="{{ route('user.notifications.index') }}" class="flex items-center gap-2 py-2">
+                    <a href="{{ route('translator.notifications.index') }}" class="flex items-center gap-2 py-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 28 30"
                             fill="none">
                             <path
@@ -101,8 +101,8 @@
                         <span>{{ __('frontend.notifications') }}</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('user.service.pending') }}" class="flex items-center gap-2 py-2">
+                {{-- <li>
+                    <a href="{{ route('translator.service.pending') }}" class="flex items-center gap-2 py-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 27 29"
                             fill="none">
                             <path
@@ -118,7 +118,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('user.service.history') }}" class="flex items-center gap-2 py-2">
+                    <a href="{{ route('translator.service.history') }}" class="flex items-center gap-2 py-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 30 30"
                             fill="none">
                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -129,7 +129,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('user.service.payment') }}" class="flex items-center gap-2 py-2">
+                    <a href="{{ route('translator.service.payment') }}" class="flex items-center gap-2 py-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 31 23"
                             fill="none">
                             <path
@@ -138,7 +138,7 @@
                         </svg>
                         <span>{{ __('frontend.payment_history') }}</span>
                     </a>
-                </li>
+                </li> --}}
                 <li>
                     <a href="#" class="flex items-center gap-2 py-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 29 34"

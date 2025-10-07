@@ -8,7 +8,7 @@
         <div class="bg-white rounded-lg p-6 flex justify-between items-start space-x-4 border border-[#FFE9B1] h-full">
             <div>
                 <h3 class="text-black text-md">{{ __('frontend.total_translations') }}</h3>
-                <h4 class="font-semibold text-[24px]">60</h4>
+                <h4 class="font-semibold text-[24px]">{{ $totalTranslations }}</h4>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" width="38" height="45" viewBox="0 0 38 45" fill="none">
                 <g clip-path="url(#clip0_926_15308)">
@@ -29,7 +29,7 @@
         <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
             <div>
                 <h3 class="text-black text-md">{{ __('frontend.completed_translations') }}</h3>
-                <h4 class="font-semibold text-[24px]">25</h4>
+                <h4 class="font-semibold text-[24px]">{{ $completedTranslations }}</h4>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" width="65" height="65" viewBox="0 0 35 35" fill="none">
                 <g clip-path="url(#clip0_390_9523)">
@@ -56,7 +56,7 @@
         <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
             <div>
                 <h3 class="text-black text-md">{{ __('frontend.pending_translations') }}</h3>
-                <h4 class="font-semibold text-[24px]">15</h4>
+                <h4 class="font-semibold text-[24px]">{{ $pendingTranslations }}</h4>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" width="65" height="65" viewBox="0 0 35 35" fill="none">
                 <g clip-path="url(#clip0_390_9539)">
@@ -86,7 +86,7 @@
         <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
             <div>
                 <h3 class="text-black text-md">{{ __('frontend.in_progress_translations') }}</h3>
-                <h4 class="font-semibold text-[24px]">12</h4>
+                <h4 class="font-semibold text-[24px]">{{ $inProgressTranslations }}</h4>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 40 40" fill="none">
                 <g clip-path="url(#clip0_926_15361)">
@@ -110,7 +110,8 @@
         <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
             <div>
                 <h3 class="text-black text-md">{{ __('frontend.total_income_for_month') }}</h3>
-                <h4 class="font-semibold text-[24px]">18</h4>
+                <h4 class="font-semibold text-[24px]">{{ __('frontend.AED') }} {{ number_format($currentMonthIncome, 2) }}
+                </h4>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" width="61" height="62" viewBox="0 0 31 32" fill="none">
                 <g clip-path="url(#clip0_1077_18204)">
@@ -133,8 +134,8 @@
         </div>
         <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
             <div>
-                <h3 class="text-black text-md">{{ __('frontend.total_income_for_month') }}</h3>
-                <h4 class="font-semibold text-[24px]">AED 10,000</h4>
+                <h3 class="text-black text-md">{{ __('frontend.total_income') }}</h3>
+                <h4 class="font-semibold text-[24px]">{{ __('frontend.AED') }} {{ number_format($totalIncome, 2) }}</h4>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" width="74" height="71" viewBox="0 0 44 41" fill="none">
                 <path
@@ -173,23 +174,29 @@
                 <a href="#" class="text-[#B9A572]">{{ __('frontend.clear_all') }}</a>
             </div>
 
-            <div class="flex items-center justify-between border-b pb-3 mb-3">
-                <div>
-                    <h4 class="text-[#3B3A3A] text-[16px] font-medium mb-0 leading-none">
-                        {{ __('frontend.document_expiry_alert') }}
-                    </h4>
-                    <span class="text-[#7B7B7B] text-xs">{{ __('frontend.ref_no') }}: #12345</span>
-                </div>
+            @forelse($notifications as $notification)
+                <div class="flex items-center justify-between border-b pb-3 mb-3">
+                    <div>
+                        <h4 class="text-[#3B3A3A] text-[16px] font-medium mb-0 leading-none">
+                            {{ $notification['message'] }}
+                        </h4>
+                        <span class="text-[#7B7B7B] text-xs">{{ $notification['time'] }}</span>
+                    </div>
 
-                <a href="#">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25"
-                        fill="none">
-                        <path
-                            d="M3.37402 6.55859H21.374M19.374 6.55859V20.5586C19.374 21.5586 18.374 22.5586 17.374 22.5586H7.37402C6.37402 22.5586 5.37402 21.5586 5.37402 20.5586V6.55859M8.37402 6.55859V4.55859C8.37402 3.55859 9.37402 2.55859 10.374 2.55859H14.374C15.374 2.55859 16.374 3.55859 16.374 4.55859V6.55859M10.374 11.5586V17.5586M14.374 11.5586V17.5586"
-                            stroke="#C9C9C9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </a>
-            </div>
+                    <a href="#">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25"
+                            fill="none">
+                            <path
+                                d="M3.37402 6.55859H21.374M19.374 6.55859V20.5586C19.374 21.5586 18.374 22.5586 17.374 22.5586H7.37402C6.37402 22.5586 5.37402 21.5586 5.37402 20.5586V6.55859M8.37402 6.55859V4.55859C8.37402 3.55859 9.37402 2.55859 10.374 2.55859H14.374C15.374 2.55859 16.374 3.55859 16.374 4.55859V6.55859M10.374 11.5586V17.5586M14.374 11.5586V17.5586"
+                                stroke="#C9C9C9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </a>
+                </div>
+            @empty
+                <div class="text-center py-4 text-gray-500">
+                    {{ __('frontend.no_notifications') }}
+                </div>
+            @endforelse
 
         </div>
     </div>
@@ -226,28 +233,36 @@
                     </tr>
                 </thead>
                 <tbody>
-                    
-                    <tr class="border-b text-[#4D4D4D]">
-                        <td scope="row" class="px-6 py-4">REF-001234</td>
-                        <td class="px-6 py-4">2025-05-21 10:30 AM</td>
-                        <td class="px-6 py-4">English</td>
-                        <td class="px-6 py-4">Arabic</td>
-                        <td class="px-6 py-4">6</td>
-                        <td class="px-6 py-4">Under Review</td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="flex items-center gap-0.5">
-                                <svg class="w-6 h-6 text-[##4D4D4D]" aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-width="1.7"
-                                        d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z" />
-                                    <path stroke="currentColor" stroke-width="1.7"
-                                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                </svg>
-                                <span>View</span>
-                            </a>
-                        </td>
-                    </tr>
+
+                    @forelse($serviceRequests as $request)
+                        <tr class="border-b text-[#4D4D4D]">
+                            <td scope="row" class="px-6 py-4">{{ $request['reference_code'] }}</td>
+                            <td class="px-6 py-4">{{ $request['date_time'] }}</td>
+                            <td class="px-6 py-4">{{ $request['document_language'] }}</td>
+                            <td class="px-6 py-4">{{ $request['translation_language'] }}</td>
+                            <td class="px-6 py-4">{{ $request['no_of_pages'] }}</td>
+                            <td class="px-6 py-4">{{ ucfirst($request['status']) }}</td>
+                            <td class="px-6 py-4">
+                                <a href="{{ route('service-request-details', $request['service_request_id']) }}"
+                                    class="flex items-center gap-0.5">
+                                    <svg class="w-6 h-6 text-[#4D4D4D]" aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                        viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-width="1.7"
+                                            d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z" />
+                                        <path stroke="currentColor" stroke-width="1.7"
+                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    </svg>
+                                    <span>View</span>
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">No translation requests found
+                            </td>
+                        </tr>
+                    @endforelse
 
                 </tbody>
             </table>

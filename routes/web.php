@@ -78,6 +78,15 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
 
 Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {
     Route::get('/dashboard', [TranslatorController::class, 'dashboard'])->name('translator.dashboard');
+    Route::get('/my-account', [TranslatorController::class, 'account'])->name('translator.my-account');
+
+    //Service Requests
+    // Route::get('/service-request/{slug}', [ServiceRequestController::class, 'showForm'])->name('service.request.form');
+
+    //Notifications
+    Route::get('/notifications', [TranslatorController::class, 'notifications'])->name('translator.notifications.index');
+    Route::post('/notifications/clear', [TranslatorController::class, 'clearAllNotifications'])->name('translator.notifications.clear');
+    Route::post('/notifications/delete-selected', [TranslatorController::class, 'deleteSelectedNotifications'])->name('translator.notifications.delete.selected');
 });
 
 Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'])->group(function () {
