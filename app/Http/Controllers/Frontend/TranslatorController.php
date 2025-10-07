@@ -166,9 +166,58 @@ class TranslatorController extends Controller
         return view('frontend.translator.account', compact('user'));
     }
 
-    public function showServiceRequest()
-    {
 
-        return view('frontend.translator.service-requests.service-details');
+    public function showServiceRequest($id)
+    {
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
+        $user = Auth::guard('frontend')->user();
+        $translatorId = $user->translator?->id;
+
+        $serviceRequest = ServiceRequest::with('service')->findOrFail($id);
+
+        $relation = getServiceRelationName($serviceRequest->service_slug);
+
+        if (!$relation || !$serviceRequest->relationLoaded($relation)) {
+            $serviceRequest->load($relation);
+        }
+
+        $serviceDetails = $serviceRequest->$relation;
+
+        // dd($serviceRequest);
+        // dd($serviceRequest);
+
+        if (!$serviceDetails) {
+            return redirect()->back()->with('error', __('frontend.no_details_found'));
+        }
+
+        $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
+
+        $details = [
+            'id'                => $serviceRequest->id,
+            'service_slug'      => $serviceRequest->service_slug,
+            'service_name'      => $serviceRequest->service->getTranslation('title', $lang),
+            'reference_code'    => $serviceRequest->reference_code,
+            'status'            => $serviceRequest->status ?? "",
+            'payment_status'    => $serviceRequest->payment_status,
+            'payment_reference' => $serviceRequest->payment_reference,
+            'amount'            => $serviceRequest->amount,
+            'submitted_at'      => $serviceRequest->submitted_at,
+            'priority'          => $serviceDetails?->priority_level ?? "",
+            'receive_by'        => $serviceRequest?->receive_by ?? 'Email',
+            'translation_language' => $serviceDetails->translationLanguage?->name ?? 'N/A',
+            'document_language'    => $serviceDetails->documentLanguage?->name ?? 'N/A',
+            'created_at'        => ($serviceRequest?->created_at?->format('Y-m-d h:i A')) ?? 'N/A',
+            'document_type'     => $serviceDetails?->documentType->name ?? 'N/A',
+            'document_title'    => $serviceRequest?->title ?? 'N/A',
+            'sub_document_type' => $serviceRequest?->documentSubType ?? 'N/A',
+            'no_of_pages'          => $serviceDetails->no_of_pages ?? 'N/A',
+            'service_details'   => $translatedData,
+        ];
+
+        // dd($details);
+
+        return view('frontend.translator.service-requests.service-details', compact(
+            'details',
+        ));
     }
 }
