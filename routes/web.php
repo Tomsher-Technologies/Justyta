@@ -4,11 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\Auth\AuthController;
 use App\Http\Controllers\Frontend\ServiceRequestController;
+use App\Http\Controllers\Frontend\TranslatorController;
 use App\Http\Controllers\Frontend\UserController;
 use App\Http\Controllers\Frontend\VendorHomeController;
 use App\Http\Controllers\Frontend\VendorJobPostController;
 
-require __DIR__.'/admin.php';
+require __DIR__ . '/admin.php';
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 
@@ -76,16 +77,14 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
 });
 
 Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {
-    Route::get('/dashboard', function () {
-        return 'Translator Dashboard';
-    })->name('translator.dashboard');
+    Route::get('/dashboard', [TranslatorController::class, 'dashboard'])->name('translator.dashboard');
 });
 
 Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'userDashboard'])->name('user.dashboard');
 
     Route::get('/services', [HomeController::class, 'services'])->name('user.services');
-    
+
     // Service Requests
     Route::get('/service-request/{slug}', [ServiceRequestController::class, 'showForm'])->name('service.request.form');
     Route::post('/court-case-request', [ServiceRequestController::class, 'requestCourtCase'])->name('service.court-case-request');
@@ -94,14 +93,14 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::post('/escrow-account-request', [ServiceRequestController::class, 'requestEscrowAccount'])->name('service.escrow-account-request');
     Route::post('/debts-collection-request', [ServiceRequestController::class, 'requestDebtsCollection'])->name('service.debts-collection-request');
     Route::post('/memo-writing-request', [ServiceRequestController::class, 'requestMemoWriting'])->name('service.memo-writing-request');
-    Route::post('/power-of-attorney-request', [ServiceRequestController::class, 'requestPowerOfAttorney'])->name('service.power-of-attorney-request');   
-    Route::post('/contract-drafting-request', [ServiceRequestController::class, 'requestContractDrafting'])->name('service.contract-drafting-request');    
-    Route::post('/company-setup-request', [ServiceRequestController::class, 'requestCompanySetup'])->name('service.company-setup-request');    
-    Route::post('/expert-report-request', [ServiceRequestController::class, 'requestExpertReport'])->name('service.expert-report-request');  
-    Route::post('/immigration-request', [ServiceRequestController::class, 'requestImmigration'])->name('service.immigration-request'); 
-    Route::post('/request-submission-request', [ServiceRequestController::class, 'requestRequestSubmission'])->name('service.request-submission-request');   
-    Route::post('/legal-translation-request', [ServiceRequestController::class, 'requestLegalTranslation'])->name('service.legal-translation-request'); 
-    Route::post('/annual-agreement-request', [ServiceRequestController::class, 'requestAnnualAgreement'])->name('service.annual-agreement-request');  
+    Route::post('/power-of-attorney-request', [ServiceRequestController::class, 'requestPowerOfAttorney'])->name('service.power-of-attorney-request');
+    Route::post('/contract-drafting-request', [ServiceRequestController::class, 'requestContractDrafting'])->name('service.contract-drafting-request');
+    Route::post('/company-setup-request', [ServiceRequestController::class, 'requestCompanySetup'])->name('service.company-setup-request');
+    Route::post('/expert-report-request', [ServiceRequestController::class, 'requestExpertReport'])->name('service.expert-report-request');
+    Route::post('/immigration-request', [ServiceRequestController::class, 'requestImmigration'])->name('service.immigration-request');
+    Route::post('/request-submission-request', [ServiceRequestController::class, 'requestRequestSubmission'])->name('service.request-submission-request');
+    Route::post('/legal-translation-request', [ServiceRequestController::class, 'requestLegalTranslation'])->name('service.legal-translation-request');
+    Route::post('/annual-agreement-request', [ServiceRequestController::class, 'requestAnnualAgreement'])->name('service.annual-agreement-request');
 
     // Get sub dropdowns and general links related to service requests
     Route::post('/get-request-types', [ServiceRequestController::class, 'getRequestTypes'])->name('get.request.types');
@@ -158,7 +157,6 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::post('/notifications/delete-selected', [UserController::class, 'deleteSelectedNotifications'])->name('user.notifications.delete.selected');
 
     Route::get('/search-services', [UserController::class, 'searchService'])->name('user.search.services');
-
 });
 
 
