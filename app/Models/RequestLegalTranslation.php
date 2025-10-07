@@ -51,7 +51,7 @@ class RequestLegalTranslation extends Model
 
     public function assignedTranslator()
     {
-        return $this->belongsTo(User::class, 'assigned_translator_id');
+        return $this->belongsTo(Translator::class, 'assigned_translator_id');
     }
 
     public function assignmentHistories()
