@@ -18,7 +18,7 @@ class TranslatorController extends Controller
         $lang = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $services = \App\Models\Service::with('translations')->get();
 
-        $legalTranslationRequests = RequestLegalTranslation::where('assigned_translator_id', $translatorId)
+        $legalTranslationRequests = RequestLegalTranslation::where('assigned_translator_id', Auth::guard('frontend')->user()->translator?->id)
             ->with(['serviceRequest', 'documentLanguage', 'translationLanguage'])
             ->get();
 
@@ -39,7 +39,7 @@ class TranslatorController extends Controller
         $currentMonthIncome = $legalTranslationRequests->filter(function ($item) {
             return $item->serviceRequest &&
                 $item->serviceRequest->paid_at &&
-                $item->serviceRequest->paid_at->isCurrentMonth() &&
+                Carbon::parse($item->serviceRequest->paid_at)->isCurrentMonth() &&
                 in_array($item->serviceRequest->status, ['completed', 'delivered']);
         })->sum('translator_amount');
 
