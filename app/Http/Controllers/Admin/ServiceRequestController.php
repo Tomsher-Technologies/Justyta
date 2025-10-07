@@ -55,8 +55,47 @@ class ServiceRequestController extends Controller
        
         $this->middleware('permission:manage_service_requests',  ['only' => ['index','destroy']]);
         $this->middleware('permission:view_service_requests',  ['only' => ['index','show']]);
-        $this->middleware('permission:change_request_status',  ['only' => ['updateRequestStatus']]);
+        $this->middleware('permission:change_request_status',  ['only' => ['updateRequestStatus','updatePaymentStatus','updateInstallmentStatus','assignServiceLawfirm']]);
         $this->middleware('permission:export_service_requests',  ['only' => ['export']]);
+
+        $this->middleware('permission:manage_translation_requests',  ['only' => ['indexTranslation']]);
+        $this->middleware('permission:view_translation_requests',  ['only' => ['indexTranslation','showTranslation']]);
+        $this->middleware('permission:change_translation_request_status',  ['only' => ['updateTranslationRequestStatus','updateTranslationPaymentStatus']]);
+    }
+
+    public function indexTranslation (Request $request)
+    {
+        $request->session()->put('translation_service_request_last_url', url()->full());
+
+        $query = ServiceRequest::with('service')
+                    ->where('request_success', 1)
+                    ->whereIn('service_slug',['legal-translation']); 
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->payment_status);
+        }
+
+        if ($request->filled('daterange')) {
+            $dates = explode(' to ', $request->daterange);
+            if (count($dates) === 2) {
+                $query->whereBetween('submitted_at', [
+                    Carbon::parse($dates[0])->startOfDay(),
+                    Carbon::parse($dates[1])->endOfDay()
+                ]);
+            }
+        }
+
+        if ($request->filled('keyword')) {
+            $query->where('reference_code', 'like', '%' . $request->keyword . '%');
+        }
+
+        $serviceRequests = $query->orderByDesc('id')->paginate(30);
+
+        return view('admin.translation_requests.index', compact('serviceRequests'));
     }
 
     public function index (Request $request)

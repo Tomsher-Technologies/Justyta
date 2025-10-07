@@ -6,9 +6,11 @@ use App\Models\EnquiryStatus;
 use App\Models\Service;
 use App\Models\Page;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Models\VendorSubscription;
 use App\Models\Lawyer;
 use App\Models\CaseType;
+use App\Models\JobPost;
 use App\Models\RequestType;
 use App\Models\RequestTitle;
 use App\Models\UserOnlineLog;
@@ -1081,3 +1083,64 @@ function createWebPlanOrder($customer, float $amount, string $currency = 'AED', 
         return $lawyer;
     }
 
+    function isVendorCanCreateLawyers()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        $vendor = Vendor::with('currentSubscription')
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$vendor) {
+            return false;
+        }
+
+        $subscription = $vendor->currentSubscription;
+
+        if (!$subscription || !$subscription->member_count) {
+            return false;
+        }
+
+        if ($subscription->subscription_end && now()->gt($subscription->subscription_end)) {
+            return false;
+        }
+
+        $lawyerCount = Lawyer::where('lawfirm_id', $vendor->id)->count();
+
+        return $lawyerCount < $subscription->member_count;
+    }
+
+    function isVendorCanCreateJobs()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        $vendor = Vendor::with('currentSubscription')
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$vendor) {
+            return false;
+        }
+
+        $subscription = $vendor->currentSubscription;
+
+        if (!$subscription || !$subscription->job_post_count) {
+            return false;
+        }
+
+        if ($subscription->subscription_end && now()->gt($subscription->subscription_end)) {
+            return false;
+        }
+
+        $jobCount = JobPost::where('user_id', $vendor->id)->count();
+
+        return $jobCount < $subscription->job_post_count;
+    }

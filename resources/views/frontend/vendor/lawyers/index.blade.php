@@ -4,9 +4,12 @@
 <div class="bg-white rounded-2xl  p-8 pb-12">
     <div class="flex justify-between items-center mb-8 border-b pb-5">
         <h2 class="text-xl font-semibold text-gray-800">{{ __('frontend.lawyers') }}</h2>
-        <a href="{{ route('vendor.create.lawyers') }}" class="text-white bg-[#07683B] rounded-full py-2.5 px-6">
-            {{ __('frontend.create_lawyer') }}
-        </a>
+
+        @if (isVendorCanCreateLawyers())
+            <a href="{{ route('vendor.create.lawyers') }}" class="text-white bg-[#07683B] rounded-full py-2.5 px-6">
+                {{ __('frontend.create_lawyer') }}
+            </a>
+        @endif
     </div>
     <form method="GET" id="filterForm" action="{{ route('vendor.lawyers') }}" autocomplete="off">
         <div class="grid grid-cols-1 md:grid-cols-12 items-end gap-4 mb-8">

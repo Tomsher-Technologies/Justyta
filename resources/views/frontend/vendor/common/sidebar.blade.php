@@ -43,7 +43,7 @@
             </li>
 
             <li class="flex items-center gap-2">
-                <a href="{{ route('user.service.history') }}" class="contents {{ areActiveWebRoutes(['user.service.history','user.service.history.details']) }}">
+                <a href="#" class="contents {{ areActiveWebRoutes(['user.service.history','user.service.history.details']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"
                         fill="none">
                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -55,7 +55,7 @@
             </li>
 
             <li class="flex items-center gap-2">
-                <a href="{{ route('user.service.payment') }}" class="contents {{ areActiveWebRoutes(['user.service.payment','user.service.payment.details']) }}">
+                <a href="#" class="contents {{ areActiveWebRoutes(['user.service.payment','user.service.payment.details']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="31" height="23" viewBox="0 0 31 23"
                         fill="none">
                         <path
@@ -67,7 +67,7 @@
             </li>
 
             <li class="flex items-center gap-2">
-                <a href="{{ route('user.notifications.index') }}" class="contents {{ areActiveWebRoutes(['user.notifications.index']) }}">
+                <a href="#" class="contents {{ areActiveWebRoutes(['user.notifications.index']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="30" viewBox="0 0 28 30"
                         fill="none">
                         <path
@@ -93,7 +93,7 @@
                 </a>
             </li>
 
-            <li class="flex items-center gap-2">
+            {{-- <li class="flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"
                     fill="none">
                     <path
@@ -107,7 +107,7 @@
                         fill="#1C1C1C" />
                 </svg>
                 <span class="text-[#1C1C1C] text-[18px]">{{ __('frontend.reports') }}</span>
-            </li>
+            </li> --}}
             
         </ul>
     </div>
