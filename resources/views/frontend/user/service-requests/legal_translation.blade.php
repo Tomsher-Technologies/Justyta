@@ -187,6 +187,7 @@
                     </div>
 
                     <div>
+                        <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.completion_hours') }} <span class="font-semibold text-xl text-[#07683B]" id="translation_completion_hours">0</span></div>
                        <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]" id="translation_price_result">{{ __('frontend.AED') }} 0.00</span></div>
                        
                         <button type="submit" id="submit_button" class="text-white bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md w-full px-8 py-4 text-center transition-colors duration-200 uppercase cursor-pointer">
@@ -413,13 +414,31 @@
             if (oldSelectedDocType) {
                 $('#document_type').trigger('change');
             }
+            $("input[name='priority_level']").on("change", function () {
+                if ($(this).is(":checked")) {
+                    calculateTranslationPrice();
+                }
+            });
+
+            $("input[name='receive_by']").on("change", function () {
+                if ($(this).is(":checked")) {
+                    calculateTranslationPrice();
+                }
+            });
+
+            $('#document_language, #translation_language,#document_type,#document_sub_type').on('change', calculateTranslationPrice);
+            $('input[name="no_of_pages"]').on('input', calculateTranslationPrice);
 
             function calculateTranslationPrice() {
+                let priority = $("input[name='priority_level']:checked").val();
                 let from_language_id = $('#document_language').val();
                 let to_language_id = $('#translation_language').val();
                 let no_of_pages = $('input[name="no_of_pages"]').val();
+                let doc_type = $('#document_type').val();
+                let doc_sub_type = $('#document_sub_type').val();
+                let receive_by = $("input[name='receive_by']:checked").val();
 
-                if (from_language_id && to_language_id && no_of_pages) {
+                if (from_language_id && to_language_id && no_of_pages && doc_type && doc_sub_type && receive_by) {
                     $.ajax({
                         url: "{{ route('user.calculate-translation-price') }}", 
                         type: 'POST',
@@ -427,18 +446,25 @@
                             from_language_id: from_language_id,
                             to_language_id: to_language_id,
                             no_of_pages: no_of_pages,
+                            doc_type: doc_type,
+                            doc_sub_type: doc_sub_type,
+                            receive_by: receive_by,
+                            priority: priority,
                             _token: '{{ csrf_token() }}'
                         },
                         beforeSend: function () {
                             $('#submit_button').prop('disabled', true);
                             $('#translation_price_result').html(`<span class="text-gray-500 text-sm">Calculating...</span>`);
+                            $('#translation_completion_hours').html(0);
                         },
                         success: function (res) {
                             if (res.status) {
                                 $('#translation_price_result').html(`{{ __('frontend.AED') }} ${res.data.total_amount.toFixed(2)}`);
+                                $('#translation_completion_hours').html(res.data.total_hours);
                                 $('#submit_button').prop('disabled', false); 
                             } else {
                                 $('#translation_price_result').html(`<p class="text-red-500">${res.message}</p>`);
+                                $('#translation_completion_hours').html(0);
                                 $('#submit_button').prop('disabled', true); 
                             }
                         },
@@ -450,8 +476,7 @@
                 }
             }
 
-            $('#document_language, #translation_language').on('change', calculateTranslationPrice);
-            $('input[name="no_of_pages"]').on('input', calculateTranslationPrice);
+            
         });
     </script>
 @endsection

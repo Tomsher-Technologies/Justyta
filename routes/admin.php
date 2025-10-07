@@ -207,6 +207,11 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::post('/service-requests/installments/update-status', [ServiceRequestController::class, 'updateInstallmentStatus'])->name('update.installment.status');
     Route::post('/service-requests/assign-lawfirm', [ServiceRequestController::class, 'assignServiceLawfirm'])->name('assign-service-lawfirm');
 
+    //Legal Translation Requests
+    Route::get('/legal-translation-requests', [ServiceRequestController::class, 'indexTranslation'])->name('legal-translation-requests.index');
+    Route::get('/translation-requests/export', [ServiceRequestController::class, 'exportLegalTranslationRequests'])->name('legal-translation-requests.export');
+    Route::get('/translation-request-details/{id}', [ServiceRequestController::class, 'showTranslationRequest'])->name('translation-request-details');
+
     //Training requests
     Route::get('/training-requests', [FeedbackController::class, 'trainingRequests'])->name('training-requests.index');
    

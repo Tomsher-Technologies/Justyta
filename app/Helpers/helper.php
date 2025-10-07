@@ -6,11 +6,14 @@ use App\Models\EnquiryStatus;
 use App\Models\Service;
 use App\Models\Page;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Models\VendorSubscription;
 use App\Models\Lawyer;
 use App\Models\CaseType;
+use App\Models\JobPost;
 use App\Models\RequestType;
 use App\Models\RequestTitle;
+use App\Models\UserOnlineLog;
 use App\Models\ConsultationAssignment;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
@@ -21,7 +24,80 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Firebase\JWT\JWT;
+use Carbon\Carbon;
 
+    function generateZoomSignature($meetingNumber, $userId, $role = 0)
+    {
+        $sdkKey    = config('services.zoom.sdk_key');
+        $sdkSecret = config('services.zoom.sdk_secret');
+
+        // $iat = time();
+        // $exp = $iat + 2 * 60; // valid for 2 minutes
+
+        // $payload = [
+        //     'sdkKey'   => $sdkKey,
+        //     'mn'       => (string)$meetingNumber,
+        //     'role'     => $role,
+        //     'iat'      => $iat,
+        //     'exp'      => $exp,
+        //     'tokenExp' => $exp,
+        // ];
+
+        $payload = [
+            "app_key" => $sdkKey,
+            "tpc" => $meetingNumber,          // session name (e.g. Consultation-67, must not contain spaces)
+            "role_type" => $role,       // 1 = host (lawyer), 0 = participant (user)
+            "user_identity" => (string)$userId, 
+            "iat" => time(),
+            "exp" => time() + 60 * 60,      // valid for 1 hour
+            "version" => 1
+        ];
+
+
+        return JWT::encode($payload, $sdkSecret, 'HS256');
+    }
+
+    function getTodaysActiveHours($userId)
+    {
+        $tz = config('app.timezone');
+        $todayStart = Carbon::now($tz)->startOfDay();
+        $todayEnd   = Carbon::now($tz)->endOfDay();
+
+        $logs = UserOnlineLog::where('user_id', $userId)
+                    ->whereBetween('created_at', [$todayStart, $todayEnd])
+                    ->orderBy('created_at', 'asc')
+                    ->get();
+
+
+        $totalSeconds = 0;
+        $onlineAt = null;
+
+        foreach ($logs as $key => $log) {
+            $logTime = Carbon::parse($log->created_at, $tz);
+
+            if ($log->status == 1) {
+                if (!$onlineAt) {
+                    $onlineAt = $logTime;
+                }
+            } else {
+                if ($onlineAt) {
+                    $diff = $onlineAt->diffInSeconds($logTime);
+                    $totalSeconds += max($diff, 0);
+                    $onlineAt = null;
+                }
+            }
+        }
+
+        if ($onlineAt) {
+            $diff = $onlineAt->diffInSeconds(Carbon::now($tz));
+            $totalSeconds += max($diff, 0);
+        }
+
+        $hours = round($totalSeconds / 3600, 2);
+
+        return $hours;
+    }
 
     function getCaseTypes($litigation_type, $litigation_place, $lang = 'en')
     {
@@ -35,6 +111,24 @@ use Illuminate\Support\Facades\DB;
             return [
                 'id' => $caseType->id,
                 'title' => $caseType->getTranslation('title', $lang),
+            ];
+        });
+
+        return $caseTypes;
+    }
+
+    function getCaseTypesValue($litigation_type, $litigation_place, $lang = 'en')
+    {
+        $caseTypes = CaseType::where('litigation_type', $litigation_type)
+                ->where('litigation_place', $litigation_place)
+                ->where('status', 1)
+                ->orderBy('sort_order')
+                ->get();
+        
+        $caseTypes = $caseTypes->map( function ($caseType) use ($lang) {
+            return [
+                'id' => $caseType->id,
+                'value' => $caseType->getTranslation('title', $lang),
             ];
         });
 
@@ -473,9 +567,9 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'litigation_type'       => $model->litigation_type,
                 'litigation_place'      => $model->litigation_place,
                 'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'case_type'             => $model->caseType?->getTranslation('name',$lang) ?? NULL,
-                'request_type'          => $model->requestType?->getTranslation('name',$lang) ?? NULL,
-                'request_title'         => $model->requestTitle?->getTranslation('name',$lang) ?? NULL,
+                'case_type'             => $model->caseType?->getTranslation('title',$lang) ?? NULL,
+                'request_type'          => $model->requestType?->getTranslation('title',$lang) ?? NULL,
+                'request_title'         => $model->requestTitle?->getTranslation('title',$lang) ?? NULL,
                 'case_number'           => $model->case_number,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
@@ -533,7 +627,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'applicant_type'        => $model->applicant_type,
                 'litigation_type'       => $model->litigation_type,
                 'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'case_type'             => $model->caseType?->getTranslation('name',$lang) ?? NULL,
+                'case_type'             => $model->caseType?->getTranslation('title',$lang) ?? NULL,
                 'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
                 'about_case'            => $model->about_case,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
@@ -546,7 +640,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'applicant_type'        => $model->applicant_type,
                 'litigation_type'       => $model->litigation_type,
                 'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'case_type'             => $model->caseType?->getTranslation('name',$lang) ?? NULL,
+                'case_type'             => $model->caseType?->getTranslation('title',$lang) ?? NULL,
                 'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
                 'about_case'            => $model->about_case,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
@@ -587,7 +681,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'applicant_type'        => $model->applicant_type,
                 'litigation_type'       => $model->litigation_type,
                 'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'case_type'             => $model->caseType?->getTranslation('name',$lang) ?? NULL,
+                'case_type'             => $model->caseType?->getTranslation('title',$lang) ?? NULL,
                 'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
                 'full_name'             => $model->full_name,
                 'about_case'            => $model->about_case,
@@ -989,3 +1083,64 @@ function createWebPlanOrder($customer, float $amount, string $currency = 'AED', 
         return $lawyer;
     }
 
+    function isVendorCanCreateLawyers()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        $vendor = Vendor::with('currentSubscription')
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$vendor) {
+            return false;
+        }
+
+        $subscription = $vendor->currentSubscription;
+
+        if (!$subscription || !$subscription->member_count) {
+            return false;
+        }
+
+        if ($subscription->subscription_end && now()->gt($subscription->subscription_end)) {
+            return false;
+        }
+
+        $lawyerCount = Lawyer::where('lawfirm_id', $vendor->id)->count();
+
+        return $lawyerCount < $subscription->member_count;
+    }
+
+    function isVendorCanCreateJobs()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        $vendor = Vendor::with('currentSubscription')
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$vendor) {
+            return false;
+        }
+
+        $subscription = $vendor->currentSubscription;
+
+        if (!$subscription || !$subscription->job_post_count) {
+            return false;
+        }
+
+        if ($subscription->subscription_end && now()->gt($subscription->subscription_end)) {
+            return false;
+        }
+
+        $jobCount = JobPost::where('user_id', $vendor->id)->count();
+
+        return $jobCount < $subscription->job_post_count;
+    }

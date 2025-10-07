@@ -32,11 +32,11 @@
                         <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('frontend.applicant_place')  }}<span class="text-red-500">*</span></label>
                         <div class="flex items-center space-x-4">
                             <div class="flex items-center">
-                                <input id="applicant-local" type="radio" value="local" name="applicant_place" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500" {{ (old('applicant_place', 'local') == 'local') ? 'checked' : '' }} />
+                                <input id="applicant-local" type="radio" value="local" name="applicant_place" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 applicant_place" {{ (old('applicant_place', 'local') == 'local') ? 'checked' : '' }} />
                                 <label for="applicant-local" class="ms-2 text-sm text-gray-900">{{ __('frontend.local')  }}</label>
                             </div>
                             <div class="flex items-center">
-                                <input id="applicant-federal" type="radio" value="federal" name="applicant_place" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"  {{ (old('applicant_place') == 'federal') ? 'checked' : '' }}/>
+                                <input id="applicant-federal" type="radio" value="federal" name="applicant_place" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 applicant_place"  {{ (old('applicant_place') == 'federal') ? 'checked' : '' }}/>
                                 <label for="applicant-federal" class="ms-2 text-sm text-gray-900">{{ __('frontend.federal')  }}</label>
                             </div>
                         </div>
@@ -148,10 +148,7 @@
                     </div>
 
                     <div>
-                         @if ($dropdownData['payment']['total_amount']  != 0)
-                             <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]">{{ __('frontend.AED') }} {{ $dropdownData['payment']['total_amount'] ?? 0 }}</span></div>
-
-                        @endif
+                        <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]" id="price_result_div">{{ __('frontend.AED') }} <span id="price_result">0.00</span></span></div>
                        
 
                         <button type="submit" class="text-white bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md w-full px-8 py-4 text-center transition-colors duration-200 uppercase cursor-pointer">
@@ -253,7 +250,9 @@
                     }
                 }
                 return true;
-            }, "File size must be less than {0}KB");
+            }, function (param, element) {
+                return "File size must be less than " + (param / 1024) + " MB";
+            });
 
             $("#expertReportForm").validate({
                 ignore: [],
@@ -266,17 +265,19 @@
                     "documents[]": {
                         required: true,
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "eid[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     },
                     "trade_license[]": {
-                        required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        required: function (element) {
+                            return $('input[name="applicant_type"]:checked').val() === 'company';
+                        },
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     }
                 },
                 messages: {
@@ -333,6 +334,67 @@
                 }
             });
 
+            let defaultChecked = $("input[name='applicant_place']:checked").val();
+            if (defaultChecked) {
+                loadEmirates(defaultChecked);
+            }
+
+            $("input[name='applicant_place']").on("change", function () {
+                if ($(this).is(":checked")) {
+                    loadEmirates($(this).val());
+                }
+            });
+
+            function loadEmirates(applicant_place) {
+                $.ajax({
+                    url: "{{ route('user.emirates') }}",
+                    type: "GET",
+                    data: { litigation_type: applicant_place, service: 'expert-report' },
+                    success: function (response) {
+                        let $emirate = $("#emirate");
+                        $emirate.empty();
+                        $emirate.append('<option value="">{{ __("frontend.choose_option") }}</option>');
+
+                        let emirateData = response.data.emirates;
+                        $.each(emirateData, function (index, item) {
+                            $emirate.append('<option value="' + item.id + '">' + item.value + '</option>');
+                        });
+                    },
+                    error: function (xhr) {
+                        console.error("Error fetching emirates:", xhr.responseText);
+                    }
+                });
+            }
+            $('.applicant_place, #expert_report_type, #expert_report_language').on('change', fetchPrice);
+
+            function fetchPrice() {
+                const litigation_type = $('input[name="applicant_place"]:checked').val();
+                const report_type = $('#expert_report_type').val();
+                const report_language = $('#expert_report_language').val();
+
+                if (!litigation_type || !report_type || !report_language) {
+                    $('#price_result').html(0);
+                    return;
+                }
+
+                $.ajax({
+                    url: '{{ route("user.expert-report-price") }}',
+                    type: 'GET',
+                    data: { litigation_type, report_type, report_language },
+                    success: function (res) {
+                        if (res.status) {
+                            const data = res.data;
+                           
+                            $('#price_result').html(data.total);
+                        } else {
+                            $('#price_result').html(0);
+                        }
+                    },
+                    error: function () {
+                        $('#price_result').html(0);
+                    }
+                });
+            }
         });
     </script>
 @endsection

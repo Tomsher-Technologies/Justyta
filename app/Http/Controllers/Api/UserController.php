@@ -13,6 +13,7 @@ use App\Models\TrainingRequest;
 use App\Models\AnnualAgreementInstallment;
 use App\Models\Emirate;
 use App\Models\Service;
+use App\Models\UserOnlineLog;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -874,9 +875,17 @@ class UserController extends Controller
 
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
         $user       = $request->user();
-        $user->is_online = $request->is_online;
-        $user->save();
 
+        if ($user->is_online != $request->is_online) {
+            $user->is_online = $request->is_online;
+            $user->save();
+
+            UserOnlineLog::create([
+                'user_id' => $user->id,
+                'status'  => $request->is_online
+            ]);
+        }
+        
         return response()->json([
             'status' => true,
             'message' => __('frontend.online_status_updated'),

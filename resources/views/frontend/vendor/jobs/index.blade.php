@@ -4,7 +4,9 @@
 <div class="bg-white rounded-lg p-6">
     <div class="flex items-center justify-between">
         <h2 class="text-xl font-medium text-gray-900">{{ __('frontend.jobs') }}</h2>
-        <a href="{{ route('jobs.create') }}" class="bg-[#07683B] text-white px-6 py-2.5 text-center rounded-full">{{ __('frontend.add_job') }}</a>
+        @if (isVendorCanCreateJobs())
+            <a href="{{ route('jobs.create') }}" class="bg-[#07683B] text-white px-6 py-2.5 text-center rounded-full">{{ __('frontend.add_job') }}</a>
+        @endif
     </div>
 
     <hr class="my-4 border-[#DFDFDF]" />

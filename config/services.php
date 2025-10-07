@@ -19,6 +19,8 @@ return [
         'client_id'     => env('ZOOM_CLIENT_ID'),
         'client_secret' => env('ZOOM_CLIENT_SECRET'),
         'webhook_secret'  => env('ZOOM_WEBHOOK_SECRET'),
+        'sdk_key'       => env('ZOOM_SDK_KEY'),
+        'sdk_secret'    => env('ZOOM_SDK_SECRET'),
     ],
 
     'postmark' => [

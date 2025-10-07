@@ -1,4 +1,4 @@
-@extends('layouts.admin_default', ['title' => 'Service Requests'])
+@extends('layouts.admin_default', ['title' => 'Legal Translation Requests'])
 
 @section('content')
     <div class="container-fluid">
@@ -11,11 +11,11 @@
                             <label class="col-form-label color-dark fw-500 align-center">Request Status</label>
                             <select id="statusSelect" class="form-control ip-gray radius-xs b-deep px-15" data-id="{{ $dataService['id'] }}">
                                 @php
-                                    $statuses = ['pending', 'ongoing', 'completed', 'rejected'];
+                                    $statuses = ['pending','under_review', 'ongoing', 'completed', 'rejected'];
                                 @endphp
                                 @foreach($statuses as $status)
                                     <option value="{{ $status }}" {{ $dataService['status'] === $status ? 'selected' : '' }}>
-                                        {{ ucfirst($status) }}
+                                        {{ ucwords(str_replace('_', ' ', $status)) ?? ucfirst($status) }}
                                     </option>
                                 @endforeach
                             </select>
@@ -37,21 +37,9 @@
                             </div>
                         @endif
 
-                        @if($dataService['service_slug'] === 'annual-retainer-agreement')
-                            <div class='col-sm-6'>
-                                <label class="col-form-label color-dark fw-500 align-center">Assign Law firm</label>
-                                <select id="lawfirmSelect" name="lawfirm" class="select2 form-control ip-gray radius-xs b-deep px-15 " data-id="{{ $dataService['id'] }}">
-                                    <option value="">{{ __('frontend.choose_option') }}</option>
-                                    @foreach ($dataService['law_firms'] as $lawfirm)
-                                        <option value="{{ $lawfirm['id'] }}"  {{ ($dataService['service_details']['lawfirm_id'] == $lawfirm['id']) ? 'selected' : '' }}>{{ $lawfirm['value'] }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        @endif
-                        
                     </div>
                     <div class="col-md-3" style="text-align: -webkit-right;">
-                        <a href="{{ Session::has('service_request_last_url') ? Session::get('service_request_last_url') : route('service-requests.index') }}" class="btn btn-sm btn-primary">← Back</a>
+                        <a href="{{ Session::has('translation_service_request_last_url') ? Session::get('translation_service_request_last_url') : route('legal-translation-requests.index') }}" class="btn btn-sm btn-primary">← Back</a>
                     </div>
                 </div>
             </div>
@@ -117,57 +105,9 @@
                                             </div>
                                         @endif
 
-                                        @if(isset($dataService['installments']) && $dataService['installments']->isNotEmpty())
-                                            <div class="col-md-12 mt-4">
-                                                <h5 class="text-md font-semibold mb-3">{{ __('Installment Details') }}</h5>
-                                                <div class="overflow-x-auto">
-                                                    <table class="min-w-full bg-white border border-gray-200 rounded shadow">
-                                                        <thead class="bg-gray-100 text-gray-700 text-sm">
-                                                            <tr>
-                                                                <th class="px-4 py-2 border">{{ __('Installment No') }}</th>
-                                                                <th class="px-4 py-2 border">{{ __('Amount') }}</th>
-                                                                <th class="px-4 py-2 border">{{ __('Current Status') }}</th>
-                                                                <th class="px-4 py-2 border">{{ __('Change Status') }}</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @foreach($dataService['installments'] as $installment)
-                                                                <tr>
-                                                                    <td class="px-4 py-2 border text-center">{{ $installment['installment_no'] }}</td>
-                                                                    <td class="px-4 py-2 border text-center">AED {{ number_format($installment['amount'], 2) }}</td>
-                                                                    <td class="px-4 py-2 border text-center">
-                                                                        @php
-                                                                            $statusColor = match($installment['status']) {
-                                                                                'paid' => 'badge-success',
-                                                                                'pending' => 'badge-warning',
-                                                                                'failed' => 'badge-danger',
-                                                                                default => 'bg-gray-100 text-gray-700'
-                                                                            };
-                                                                        @endphp
-                                                                        <span class="badge px-3 py-1 rounded-full text-sm font-medium {{ $statusColor }}">
-                                                                            {{ ucfirst($installment['status']) }}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td class="px-4 py-2 border text-center">
-                                                                        <select class="border rounded px-2 py-1 text-sm change-status"
-                                                                                data-id="{{ $installment['id'] }}"
-                                                                                data-current="{{ $installment['status'] }}">
-                                                                            <option value="pending" {{ $installment['status'] == 'pending' ? 'selected' : '' }}>Pending</option>
-                                                                            <option value="paid" {{ $installment['status'] == 'paid' ? 'selected' : '' }}>Paid</option>
-                                                        
-                                                                        </select>
-                                                                    </td>
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        @endif
+                                        <div class="col-md-6 mb-2"><strong>Translator : </strong> {{ $dataService['translator'] }}</div>
 
                                     </div>
-
-                                  
 
                                 </div>
                                 <div class="col-sm-4">
@@ -185,9 +125,6 @@
                             </div>
                         </div>
                     </div>
-
-
-                    
 
                     {{-- Service Details --}}
                     <div class="card shadow-sm border-light">

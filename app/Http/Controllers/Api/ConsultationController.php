@@ -52,6 +52,7 @@ class ConsultationController extends Controller
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
 
+        $total_amount = 0;
         if($total_amount > 0) {
             $customer = [
                 'email' => $user->email,
@@ -86,11 +87,47 @@ class ConsultationController extends Controller
                 ], 200);
             }
         }else{
+            // return response()->json([
+            //     'status'    => false,
+            //     'message'   => __('frontend.request_submit_failed'),
+            //     'data'      => json_encode($payment),
+            // ], 200);
+
+            $consultationId = $consultation->id;
+            $servicePayment = ConsultationPayment::where('consultation_id', $consultationId)
+                                                ->first();
+
+            if ($servicePayment) {
+                $servicePayment->update(['status' => 'completed']);
+            }
+
+            $consultation = Consultation::findOrFail($consultationId);
+            $consultation->status = 'waiting_lawyer';
+            $consultation->save();
+
+            if($consultation->consultant_type == 'vip'){
+                assignLawyer($consultation, $consultation->lawyer_id);
+            }else{
+                $lawyer = findBestFitLawyer($consultation);
+                if(!$lawyer){
+                    return response()->json(['status' => false,'message'=> __('frontend.no_lawyer_available')],200);
+                }
+                assignLawyer($consultation, $lawyer->id);
+            }
+
+            $pageData = getPageDynamicContent('consultancy_payment_success',$lang);
+            $waitingMessage = getPageDynamicContent('consultancy_waiting_page',$lang);
+
             return response()->json([
-                'status'    => false,
-                'message'   => __('frontend.request_submit_failed'),
-                'data'      => json_encode($payment),
-            ], 200);
+                'status' => true,
+                'message'=> $pageData['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                'data' => [
+                    'consultation_id' => $consultation->id ?? null,
+                    'ref_code' => $consultation->ref_code ?? null,
+                    'success_message' => $pageData['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                    'waiting_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                ]
+            ],200);
         }
     }
 
@@ -228,35 +265,31 @@ class ConsultationController extends Controller
             $consultation->lawyer_id = $lawyerId;
             $consultation->save();
 
-            // Zoom meeting creation
-            $zoom = new \App\Services\ZoomService();
-            $meeting = $zoom->createMeeting(
-                "Consultation #{$consultation->id}",
-                now()->addMinutes(1)->toIso8601String(),
-                $consultation->duration
-            );
+            $meetingNumber = "Consultation-{$consultation->id}";
 
-            $consultation->zoom_meeting_id = $meeting['id'];
-            $consultation->zoom_join_url   = $meeting['join_url'];
-            $consultation->zoom_start_url  = $meeting['start_url'];
+            $consultation->zoom_meeting_id = $meetingNumber;
             $consultation->save();
 
-            $consultation->lawyer->update(['is_busy' => 1]);
+            $signature = generateZoomSignature($meetingNumber, $lawyerId, 1);
+
+            // $consultation->lawyer->update(['is_busy' => 1]);
 
             return response()->json([
                 'status' => true,
                 'message' => 'Call accepted, Zoom meeting initialized',
                 'data'=> [
                     'consultation_id' => $consultation->id,
-                    'zoom_meeting_id' => $consultation->zoom_meeting_id,
-                    'zoom_join_url' => $consultation->zoom_join_url,
-                    'zoom_start_url' => $consultation->zoom_start_url
+                    'meeting_number' => $meetingNumber,
+                    'password'       => '',
+                    'role'           => 1,
+                    'sdk_key'        => config('services.zoom.sdk_key'),
+                    'signature'      => $signature,
                 ]],200);
         }
 
         $nextLawyer = findBestFitLawyer($consultation);
         if($nextLawyer){
-            assignLawyer($consultation, $nextLawyer);
+            assignLawyer($consultation, $nextLawyer->id);
             return response()->json(['status'=> false, 'message'=>'Lawyer rejected, next lawyer assigned']);
         }else{
             $consultation->status = 'rejected';
@@ -279,6 +312,9 @@ class ConsultationController extends Controller
 
         $consultation = Consultation::where('id',$consultationId)->where('user_id', $userId)
                                         ->where('status', 'accepted')->first();
+        $meetingNumber = $consultation->zoom_meeting_id ?? null;
+
+        $signature = generateZoomSignature($meetingNumber, $userId, 0);
 
         if (!$consultation) {
             return response()->json([
@@ -293,8 +329,11 @@ class ConsultationController extends Controller
                 'consultation_id' => $consultation->id ?? null,
                 'status' => $consultation->status ?? null,
                 'lawyer_id' => $consultation->lawyer_id ?? null,
-                'zoom_join_url' => $consultation->zoom_join_url ?? null,
-                'zoom_start_url' => $consultation->zoom_start_url ?? null
+                'meeting_number' => $meetingNumber,
+                'password'       => '',
+                'role'           => 0,
+                'sdk_key'        => config('services.zoom.sdk_key'),
+                'signature'      => $signature,
             ],
         ], 200);
     }
