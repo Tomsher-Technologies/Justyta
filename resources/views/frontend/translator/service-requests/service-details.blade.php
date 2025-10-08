@@ -64,7 +64,7 @@
                         <span class="font-semibold text-[#23222B]">{{ __('frontend.status') }}</span>
                         <div class="mt-2 mb-6">
                             <span id="status-badge"
-                                class="bg-[#EDE5CF] text-[#B9A572] rounded-full px-6 py-2 font-medium text-base">{{ ucfirst($details['status']) }}</span>
+                                class="bg-[#EDE5CF] text-[#B9A572] rounded-full px-6 py-2 font-medium text-base">{{ isset($details['status']) ? __('frontend.' . $details['status']) : '' }}</span>
                         </div>
                     </div>
 
@@ -303,19 +303,20 @@
                                 statusBadge.textContent = data.new_status;
                             }
 
-                            alert('Status updated successfully!');
+                            alert('{{ __('frontend.updated_successfully') }}');
 
                             const modal = document.getElementById('default-modal');
                             modal.classList.add('hidden');
 
                             location.reload();
                         } else {
-                            alert('Error: ' + (data.message || 'Failed to update status'));
+                            alert('Error: ' + (data.message ||
+                                '{{ __('frontend.failed_to_update') }}'));
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('An error occurred while updating the status: ' + error.message);
+                        alert('{{ __('frontend.failed_to_update') }}: ' + error.message);
                     })
                     .finally(() => {
                         this.textContent = originalText;

@@ -372,6 +372,10 @@ return [
     "task_ongoing" => 'Task is currently ongoing.',
     "updating" => 'Updating',
     "same_status_error" => 'Please select a different status. The new status cannot be the same as the current status.',
+    "same_status_error" => 'Please select a different status. The new status cannot be the same as the current status.',
+    "updated_successfully" => "Updated successfully!",
+    "failed_to_update" => "Failed to update",
+
 
 
 ];
