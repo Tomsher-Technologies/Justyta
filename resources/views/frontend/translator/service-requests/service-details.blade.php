@@ -176,14 +176,17 @@
                         <div class="mb-2 flex items-center">
                             <input id="supporting-docs" type="checkbox"
                                 class="w-5 h-5 border-gray-300 rounded focus:ring-green-700" />
-                            <label for="supporting-docs" class="ml-2 text-lg text-[#23222B]">{{ __('frontend.supporting_documents') }}</label>
+                            <label for="supporting-docs"
+                                class="ml-2 text-lg text-[#23222B]">{{ __('frontend.supporting_documents') }}</label>
                         </div>
                         <div class="mb-6 flex items-center">
                             <input id="supporting-docs-any" type="checkbox" checked
                                 class="w-5 h-5 border-gray-300 rounded focus:ring-green-700" />
-                            <label for="supporting-docs-any" class="ml-2 text-lg text-[#23222B]">{{ __('frontend.supporting_documents_any') }}</label>
+                            <label for="supporting-docs-any"
+                                class="ml-2 text-lg text-[#23222B]">{{ __('frontend.supporting_documents_any') }}</label>
                         </div>
-                        <label for="case-type" class="block text-sm font-medium text-gray-700 mb-2 block">{{ __('frontend.reason') }}</label>
+                        <label for="case-type"
+                            class="block text-sm font-medium text-gray-700 mb-2 block">{{ __('frontend.reason') }}</label>
                         <textarea id="reason" rows="4"
                             class="w-full border border-[#DFDFDF] rounded-lg px-4 py-3 mb-8 focus:outline-none focus:ring-2 focus:ring-green-700"
                             placeholder="{{ __('frontend.type_here') }}"></textarea>
@@ -194,7 +197,8 @@
                     </div>
 
                     <div id="completed" class="status-section hidden">
-                        <label for="case-type" class="block text-sm font-medium text-gray-700 mb-2 block">{{ __('frontend.upload_files') }}</label>
+                        <label for="case-type"
+                            class="block text-sm font-medium text-gray-700 mb-2 block">{{ __('frontend.upload_files') }}</label>
                         <div class="flex gap-4 mb-6">
                             <input
                                 class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
@@ -251,12 +255,13 @@
         document.querySelectorAll('.update-status-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const status = document.getElementById('status-select').value;
-                
+
                 if (status === currentStatus) {
-                    alert('Please select a different status. The new status cannot be the same as the current status.');
-                    return; 
+                    alert(
+                        '{{ __('frontend.same_status_error') }}');
+                    return;
                 }
-                
+
                 let reason = '';
 
                 if (status === 'rejected') {
@@ -267,7 +272,7 @@
                 }
 
                 const originalText = this.textContent;
-                this.textContent = 'Updating...';
+                this.textContent = '{{ __('frontend.updating') }}';
                 this.disabled = true;
 
                 fetch(`/translator/service-request/${serviceRequestId}/update-status`, {
