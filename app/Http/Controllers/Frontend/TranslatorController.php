@@ -160,6 +160,53 @@ class TranslatorController extends Controller
         ];
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,under_review,ongoing,completed,rejected',
+            'reason' => 'nullable|string',
+        ]);
+
+        $user = Auth::guard('frontend')->user();
+        $translatorId = $user->translator?->id;
+
+        if (!$translatorId) {
+            return response()->json(['success' => false, 'message' => 'Translator not found'], 403);
+        }
+
+        $serviceRequest = ServiceRequest::findOrFail($id);
+
+        $relation = getServiceRelationName($serviceRequest->service_slug);
+        
+        if ($relation) {
+            $serviceDetails = $serviceRequest->$relation;
+            if ($serviceDetails && $serviceDetails->assigned_translator_id != $translatorId) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized to update status for this request'], 403);
+            }
+        }
+
+        $serviceRequest->status = $request->status;
+        $serviceRequest->save();
+
+        \App\Models\ServiceRequestTimeline::create([
+            'service_request_id' => $serviceRequest->id,
+            'service_slug' => $serviceRequest->service_slug,
+            'status' => $request->status,
+            'note' => $request->reason ?? '',
+            'changed_by' => $user->id,
+            'meta' => [
+                'updated_by' => 'translator',
+                'translator_id' => $translatorId
+            ]
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status updated successfully',
+            'new_status' => ucfirst($request->status)
+        ]);
+    }
+
     public function account()
     {
         $user   = Auth::guard('frontend')->user();
