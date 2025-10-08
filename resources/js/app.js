@@ -1,13 +1,16 @@
 // Import Flowbite components
 import 'flowbite';
+import moment from "moment";
 
 import { Fancybox } from "@fancyapps/ui";
 import "@fancyapps/ui/dist/fancybox/fancybox.css";
-// Bootstrap or custom setup
 import './bootstrap';
 import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
+
+window.moment = moment;
+window.jQuery.moment = moment;
 
 Alpine.start();
 
@@ -15,6 +18,8 @@ import tinymce from 'tinymce/tinymce';
 import 'tinymce/icons/default';
 import 'tinymce/themes/silver';
 import 'tinymce/models/dom/model';
+
+import "daterangepicker/daterangepicker.css";
 
 // Plugins
 import 'tinymce/plugins/link';
@@ -33,9 +38,9 @@ import 'toastr/build/toastr.min.css'
 window.toastr = toastr
 
 Fancybox.bind("[data-fancybox]", {
-  animated: true,
-  dragToClose: false,
-  groupAll: true,
+    animated: true,
+    dragToClose: false,
+    groupAll: true,
 });
 
 toastr.options = {
@@ -50,45 +55,81 @@ toastr.options = {
     hideMethod: "fadeOut"
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    const { default: daterangepicker } = await import("daterangepicker");
 
-    document.querySelectorAll('.tinymce-editor').forEach(function(el) {
-          tinymce.init({
-              target: el,
-              directionality: el.getAttribute('dir') === 'rtl' ? 'rtl' : 'ltr',
-              height: 400,
-              license_key: 'gpl',
-              toolbar: 'undo redo | bold italic underline removeformat | alignleft aligncenter alignright | link | bullist numlist | outdent indent | blockquote | table | code preview',
-              plugins: 'preview directionality code lists link table advlist',
-              menubar: true,
-              branding: false,
-              statusbar: true,
-              base_url: '/tinymce', // we'll map this path
-              suffix: '.min',
+    $(".date-range").each(function () {
+        var $this = $(this);
 
-              setup: function (editor) {
-                  editor.on('change', function () {
-                      editor.save(); // Update textarea value
-                  });
-              },
-          });
+        var ranges = {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+        };
 
-      });
+        $this.daterangepicker({
+            timePicker: false,
+            autoUpdateInput: false,
+            locale: {
+                format: 'YYYY-MM-DD',
+                cancelLabel: 'Clear',
+                direction: $('html').attr('dir') === 'rtl' ? 'rtl' : 'ltr'
+            },
+            ranges: ranges,
+            opens: $('html').attr('dir') === 'rtl' ? 'left' : 'right',
+            drops: 'down',
+        });
+
+        $this.on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+        });
+
+        $this.on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+        });
+    });
+
+
+    document.querySelectorAll('.tinymce-editor').forEach(function (el) {
+        tinymce.init({
+            target: el,
+            directionality: el.getAttribute('dir') === 'rtl' ? 'rtl' : 'ltr',
+            height: 400,
+            license_key: 'gpl',
+            toolbar: 'undo redo | bold italic underline removeformat | alignleft aligncenter alignright | link | bullist numlist | outdent indent | blockquote | table | code preview',
+            plugins: 'preview directionality code lists link table advlist',
+            menubar: true,
+            branding: false,
+            statusbar: true,
+            base_url: '/tinymce', // we'll map this path
+            suffix: '.min',
+
+            setup: function (editor) {
+                editor.on('change', function () {
+                    editor.save(); // Update textarea value
+                });
+            },
+        });
+
+    });
 
     // tinymce.init({
-        // selector: '.tinymce-editor',
-        // license_key: 'gpl',
-        // plugins: 'link image code table lists autoresize',
-        // toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image table | code',
-        // height: 400,
-        // menubar: false,
-        // branding: false,
-        // setup: function (editor) {
-        //     editor.on('change', function () {
-        //         editor.save(); // Update textarea value
-        //     });
-        // },
+    // selector: '.tinymce-editor',
+    // license_key: 'gpl',
+    // plugins: 'link image code table lists autoresize',
+    // toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image table | code',
+    // height: 400,
+    // menubar: false,
+    // branding: false,
+    // setup: function (editor) {
+    //     editor.on('change', function () {
+    //         editor.save(); // Update textarea value
+    //     });
+    // },
 
-        
+
     // });
 });

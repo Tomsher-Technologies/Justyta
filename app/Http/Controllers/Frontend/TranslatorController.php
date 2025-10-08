@@ -8,15 +8,78 @@ use App\Models\ServiceRequest;
 use App\Models\RequestLegalTranslation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class TranslatorController extends Controller
 {
 
-    public function serviceRequestsIndex()
+    public function serviceRequestsIndex(Request $request)
     {
-        $legalTranslationRequests = RequestLegalTranslation::where('assigned_translator_id', Auth::guard('frontend')->user()->translator?->id)
-            ->with(['serviceRequest', 'documentLanguage', 'translationLanguage'])
-            ->get();
+        $query = RequestLegalTranslation::where('assigned_translator_id', Auth::guard('frontend')->user()->translator?->id)
+            ->with(['serviceRequest', 'documentLanguage', 'translationLanguage']);
+
+        if ($request->filled('search')) {
+            $search = $request->string('search')->toString();
+
+            $query->where(function ($q) use ($search) {
+                $q->where('no_of_pages', 'LIKE', "%{$search}%");
+
+                $q->orWhereHas('serviceRequest', function ($sq) use ($search) {
+                    $sq->where('reference_code', 'LIKE', "%{$search}%")
+                        ->orWhere('status', 'LIKE', "%{$search}%"); 
+                });
+
+                $q->orWhereHas('documentLanguage', function ($lq) use ($search) {
+                    $lq->where('name', 'LIKE', "%{$search}%");
+                });
+
+                $q->orWhereHas('translationLanguage', function ($lq) use ($search) {
+                    $lq->where('name', 'LIKE', "%{$search}%");
+                });
+            });
+        }
+
+        if ($request->filled('date_range') && !empty($request->date_range)) {
+            $dateRange = $request->date_range;
+            $dateRange = explode(' - ', $dateRange); 
+            
+            if (count($dateRange) == 2) {
+                $date1 = trim($dateRange[0]);
+                $date2 = trim($dateRange[1]);
+                
+                $dateFromParsed = \Carbon\Carbon::createFromFormat('Y-m-d', $date1);
+                $dateToParsed = \Carbon\Carbon::createFromFormat('Y-m-d', $date2);
+                
+                if ($dateFromParsed && $dateToParsed) {
+                    $dateFrom = $dateFromParsed->startOfDay();
+                    $dateTo = $dateToParsed->endOfDay();
+                    
+                    $query->whereHas('serviceRequest', function ($q) use ($dateFrom, $dateTo) {
+                        $q->whereBetween('created_at', [$dateFrom, $dateTo]);
+                    });
+                }
+            }
+        }
+
+        if ($request->has('language') && !empty($request->language) && $request->language !== 'all') {
+            $language = $request->language;
+            $query->where(function ($q) use ($language) {
+                $q->whereHas('documentLanguage', function ($subQ) use ($language) {
+                    $subQ->where('name', 'LIKE', "%{$language}%");
+                })->orWhereHas('translationLanguage', function ($subQ) use ($language) {
+                    $subQ->where('name', 'LIKE', "%{$language}%");
+                });
+            });
+        }
+
+        if ($request->has('status') && !empty($request->status) && $request->status !== 'all') {
+            $status = $request->status;
+            $query->whereHas('serviceRequest', function ($q) use ($status) {
+                $q->where('status', $status);
+            });
+        }
+
+        $legalTranslationRequests = $query->get();
 
         $serviceRequests = $legalTranslationRequests
             ->sortByDesc(function ($item) {
@@ -35,9 +98,26 @@ class TranslatorController extends Controller
                 ];
             });
 
+        $allLanguages = $this->getAllLanguages();
+
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $perPage = 3;
+        $currentItems = $serviceRequests->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        $serviceRequests = new LengthAwarePaginator($currentItems, $serviceRequests->count(), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
+            'pageName' => 'page',
+        ]);
+
         return view('frontend.translator.service-requests.index', compact(
-            'serviceRequests'
+            'serviceRequests',
+            'allLanguages'
         ));
+    }
+
+    private function getAllLanguages()
+    {
+        $allLanguages = \App\Models\TranslationLanguage::select('name')->distinct()->get();
+        return $allLanguages;
     }
 
     public function dashboard()

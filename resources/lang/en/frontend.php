@@ -372,10 +372,21 @@ return [
     "task_ongoing" => 'Task is currently ongoing.',
     "updating" => 'Updating',
     "same_status_error" => 'Please select a different status. The new status cannot be the same as the current status.',
-    "same_status_error" => 'Please select a different status. The new status cannot be the same as the current status.',
     "updated_successfully" => "Updated successfully!",
     "failed_to_update" => "Failed to update",
 
 
 
+    "service_requests" => 'Service Requests', 
+    "search_here" => 'Search here', 
+    "date_from_and_to" => 'Date From and To', 
+    "languages" => 'Languages', 
+    "select_status" => 'Select Status', 
+    "filter" => 'Filter', 
+    "ref_no" => 'Ref. No', 
+    "date_and_time" => 'Date and Time', 
+    "document_language" => 'Document Language', 
+    "translation_language" => 'Translation Language', 
+    "no_of_pages" => 'No.Of Pages', 
+    "select_lawyer" => 'Select lawyer',
 ];
