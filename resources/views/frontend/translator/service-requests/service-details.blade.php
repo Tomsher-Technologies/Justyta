@@ -246,9 +246,17 @@
 
         document.addEventListener("DOMContentLoaded", showSelectedSection);
 
+        const currentStatus = "{{ $details['status'] }}";
+
         document.querySelectorAll('.update-status-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const status = document.getElementById('status-select').value;
+                
+                if (status === currentStatus) {
+                    alert('Please select a different status. The new status cannot be the same as the current status.');
+                    return; 
+                }
+                
                 let reason = '';
 
                 if (status === 'rejected') {
