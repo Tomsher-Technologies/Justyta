@@ -350,4 +350,10 @@ return [
     'new_request_translation' => 'New Request Translation',
     'date_time' => 'Date and Time',
     'no_of_page' => 'No.Of Pages',
+    'recent_consultations' => "Recent Consultations",
+    "update_status" => "Update Status",
+    "document_title" => "Document Title",
+    "type_of_document" => "Type Of Document",
+    "sub_document_type" => "Sub Document Type",
+    "view" => 'View'
 ];

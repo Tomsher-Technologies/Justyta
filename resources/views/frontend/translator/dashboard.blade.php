@@ -259,13 +259,14 @@
                                         <path stroke="currentColor" stroke-width="1.7"
                                             d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                     </svg>
-                                    <span>View</span>
+                                    <span>{{ __('frontend.view') }}</span>
                                 </a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">No translation requests found
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                {{ __('frontend.no_details_found') }}
                             </td>
                         </tr>
                     @endforelse
