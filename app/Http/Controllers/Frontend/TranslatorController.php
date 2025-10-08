@@ -25,28 +25,28 @@ class TranslatorController extends Controller
         $totalTranslations = $legalTranslationRequests->count();
 
         $completedTranslations = $legalTranslationRequests->filter(function ($item) {
-            return $item->serviceRequest && in_array($item->serviceRequest->status, ['completed', 'delivered']);
+            return $item->serviceRequest && in_array($item->serviceRequest->status, ['completed']);
         })->count();
 
         $pendingTranslations = $legalTranslationRequests->filter(function ($item) {
-            return $item->serviceRequest && in_array($item->serviceRequest->status, ['pending', 'processing']);
+            return $item->serviceRequest && in_array($item->serviceRequest->status, ['pending']);
         })->count();
 
         $inProgressTranslations = $legalTranslationRequests->filter(function ($item) {
-            return $item->serviceRequest && in_array($item->serviceRequest->status, ['in_progress', 'review']);
+            return $item->serviceRequest && in_array($item->serviceRequest->status, ['under_review', 'ongoing']);
         })->count();
 
         $currentMonthIncome = $legalTranslationRequests->filter(function ($item) {
             return $item->serviceRequest &&
                 $item->serviceRequest->paid_at &&
-                Carbon::parse($item->serviceRequest->paid_at)->isCurrentMonth() &&
-                in_array($item->serviceRequest->status, ['completed', 'delivered']);
+                Carbon::parse($item->serviceRequest->paid_at)->isCurrentMonth();
+                // && in_array($item->serviceRequest->status, ['completed']);
         })->sum('translator_amount');
 
         $totalIncome = $legalTranslationRequests->filter(function ($item) {
             return $item->serviceRequest &&
-                $item->serviceRequest->paid_at &&
-                in_array($item->serviceRequest->status, ['completed', 'delivered']);
+                $item->serviceRequest->paid_at; 
+                // && in_array($item->serviceRequest->status, ['completed']);
         })->sum('translator_amount');
 
         $serviceRequests = $legalTranslationRequests
@@ -234,7 +234,9 @@ class TranslatorController extends Controller
             return redirect()->back()->with('error', __('frontend.no_details_found'));
         }
 
-        $timeline = getFormattedTimeline($serviceRequest);
+        $timeline = getFullStatusHistory($serviceRequest);
+
+        // dd($timeline);
 
         $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
 

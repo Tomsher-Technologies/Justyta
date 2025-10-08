@@ -1128,3 +1128,30 @@ function getFormattedTimeline(ServiceRequest $serviceRequest, ?array $labels = n
 
     return $timeline;
 }
+
+
+function getFullStatusHistory(ServiceRequest $serviceRequest): array
+{
+    $histories = $serviceRequest->statusHistories
+        ->sortBy('created_at')
+        ->values();
+
+    return $histories->map(function ($h) {
+        $key = is_string($h->status)
+            ? $h->status
+            : ($h->status->value ?? (string) $h->status);
+
+        $label = $h->label
+            ?? ucfirst(str_replace('_', ' ', (string) $key));
+
+        return [
+            'key'        => $key,
+            'label'      => $label,
+            'date'       => $h?->created_at?->format('M d, Y H:i'),
+            'note'       => $h?->note,
+            'changed_by' => $h?->modifiedBy?->name,
+            'id'         => $h?->id,          
+            'raw_date'   => $h?->created_at,  
+        ];
+    })->all();
+}

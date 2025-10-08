@@ -108,14 +108,14 @@
                     <ol class="relative border-l-2 border-[#DFDFDF] ml-3 mt-8">
                         @foreach ($timeline as $step)
                             @php
-                                $isCompleted = $step['completed'];
+                                $isCompleted = true;
                                 $dotClasses = $isCompleted
                                     ? 'bg-[#EDE5CF] border-[#C7B07A]'
                                     : 'bg-[#DFDFDF] border-[#DFDFDF]';
                                 $textClasses = $isCompleted ? 'text-[#B9A572]' : 'text-[#C7C7C7]';
                             @endphp
 
-                            <li class="mb-8 ml-6">
+                            <li class="mb-3 ml-6">
                                 <span
                                     class="absolute -left-3 flex items-center justify-center w-4 h-4 rounded-full border-2 {{ $dotClasses }}"></span>
                                 <h3 class="font-semibold {{ $textClasses }} text-lg">
@@ -131,7 +131,7 @@
                 </div>
                 <div class="flex justify-end mt-16">
                     <button class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-10 py-3 transition">
-                        Download
+                        {{ __('frontend.download') }}
                     </button>
                 </div>
             </div>
@@ -142,9 +142,7 @@
     <div id="default-modal" tabindex="-1" aria-hidden="true"
         class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative p-4 w-full max-w-2xl max-h-full">
-            <!-- Modal content -->
             <div class="relative bg-white rounded-lg shadow-sm">
-                <!-- Modal header -->
                 <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200">
                     <h3 class="text-xl font-semibold text-gray-900">Change Status</h3>
                     <button type="button"
@@ -158,7 +156,6 @@
                         <span class="sr-only">Close modal</span>
                     </button>
                 </div>
-                <!-- Modal body -->
                 <div class="bg-white rounded-2xl p-8 w-full">
                     <div class="flex gap-4 mb-6">
                         <select id="status-select"
@@ -232,7 +229,7 @@
     <script>
         const selectEl = document.getElementById("status-select");
         const sections = document.querySelectorAll(".status-section");
-        const serviceRequestId = {{ $details['id'] }}; 
+        const serviceRequestId = {{ $details['id'] }};
 
         function showSelectedSection() {
             const selected = selectEl.value;
@@ -248,7 +245,7 @@
         }
 
         selectEl.addEventListener("change", showSelectedSection);
-        
+
         document.addEventListener("DOMContentLoaded", showSelectedSection);
 
         document.querySelectorAll('.update-status-btn').forEach(button => {
@@ -287,11 +284,11 @@
                         return response.json();
                     })
                     .then(data => {
-                        console.log("data",data);
-                        
+                        console.log("data", data);
+
                         if (data.success) {
                             const statusBadge = document.getElementById('status-badge');
-                            if(statusBadge) {
+                            if (statusBadge) {
                                 statusBadge.textContent = data.new_status;
                             }
 

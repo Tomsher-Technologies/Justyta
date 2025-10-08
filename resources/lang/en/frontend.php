@@ -355,5 +355,7 @@ return [
     "document_title" => "Document Title",
     "type_of_document" => "Type Of Document",
     "sub_document_type" => "Sub Document Type",
-    "view" => 'View'
+    "view" => 'View',
+    "download" => 'Download',
+
 ];
