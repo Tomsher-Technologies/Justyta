@@ -173,7 +173,7 @@ class TranslatorController extends Controller
         $user = Auth::guard('frontend')->user();
         $translatorId = $user->translator?->id;
 
-        $serviceRequest = ServiceRequest::with('service')->findOrFail($id);
+        $serviceRequest = ServiceRequest::with('service', 'statusHistories')->findOrFail($id);
 
         $relation = getServiceRelationName($serviceRequest->service_slug);
 
@@ -183,12 +183,11 @@ class TranslatorController extends Controller
 
         $serviceDetails = $serviceRequest->$relation;
 
-        // dd($serviceRequest);
-        // dd($serviceRequest);
-
         if (!$serviceDetails) {
             return redirect()->back()->with('error', __('frontend.no_details_found'));
         }
+
+        $timeline = getFormattedTimeline($serviceRequest);
 
         $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
 
@@ -212,6 +211,7 @@ class TranslatorController extends Controller
             'sub_document_type' => $serviceRequest?->documentSubType ?? 'N/A',
             'no_of_pages'          => $serviceDetails->no_of_pages ?? 'N/A',
             'service_details'   => $translatedData,
+            'timeline'          => $timeline,
         ];
 
         // dd($details);

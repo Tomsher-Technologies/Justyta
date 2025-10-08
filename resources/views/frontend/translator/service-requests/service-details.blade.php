@@ -103,47 +103,31 @@
                 </div>
 
                 <div class="mt-8">
-                    <ol class="relative border-l-2 border-[#DFDFDF] ml-3">
-                        <li class="mb-8 ml-6">
-                            <span
-                                class="absolute -left-3 flex items-center justify-center w-4 h-4 bg-[#EDE5CF] rounded-full border-2 border-[#C7B07A]"></span>
-                            <h3 class="font-semibold text-[#B9A572] text-lg">
-                                Submitted
-                            </h3>
-                            <time class="block text-sm text-[#B9A572]">May 25, 2025</time>
-                        </li>
-                        <li class="mb-8 ml-6">
-                            <span
-                                class="absolute -left-3 flex items-center justify-center w-4 h-4 bg-[#EDE5CF] rounded-full border-2 border-[#C7B07A]"></span>
-                            <h3 class="font-semibold text-[#B9A572] text-lg">
-                                Under Review
-                            </h3>
-                            <time class="block text-sm text-[#B9A572]">May 24, 2025</time>
-                        </li>
-                        <li class="mb-8 ml-6">
-                            <span
-                                class="absolute -left-3 flex items-center justify-center w-4 h-4 bg-[#EDE5CF] rounded-full border-2 border-[#C7B07A]"></span>
-                            <h3 class="font-semibold text-[#B9A572] text-lg">
-                                Rejected
-                            </h3>
-                            <time class="block text-sm text-[#B9A572]">May 23, 2025</time>
-                        </li>
-                        <li class="mb-8 ml-6">
-                            <span
-                                class="absolute -left-3 flex items-center justify-center w-4 h-4 bg-[#EDE5CF] rounded-full border-2 border-[#C7B07A]"></span>
-                            <h3 class="font-semibold text-[#B9A572] text-lg">
-                                In Progress
-                            </h3>
-                            <time class="block text-sm text-[#B9A572]">May 22, 2025</time>
-                        </li>
-                        <li class="ml-6">
-                            <span
-                                class="absolute -left-3 flex items-center justify-center w-4 h-4 bg-[#DFDFDF] rounded-full border-2 border-[#DFDFDF]"></span>
-                            <h3 class="font-semibold text-[#C7C7C7] text-lg">
-                                Completed
-                            </h3>
-                        </li>
+                    @php $timeline = $details['timeline'] ?? []; @endphp
+
+                    <ol class="relative border-l-2 border-[#DFDFDF] ml-3 mt-8">
+                        @foreach ($timeline as $step)
+                            @php
+                                $isCompleted = $step['completed'];
+                                $dotClasses = $isCompleted
+                                    ? 'bg-[#EDE5CF] border-[#C7B07A]'
+                                    : 'bg-[#DFDFDF] border-[#DFDFDF]';
+                                $textClasses = $isCompleted ? 'text-[#B9A572]' : 'text-[#C7C7C7]';
+                            @endphp
+
+                            <li class="mb-8 ml-6">
+                                <span
+                                    class="absolute -left-3 flex items-center justify-center w-4 h-4 rounded-full border-2 {{ $dotClasses }}"></span>
+                                <h3 class="font-semibold {{ $textClasses }} text-lg">
+                                    {{ $step['label'] }}
+                                </h3>
+                                @if ($isCompleted && !empty($step['date']))
+                                    <time class="block text-sm text-[#B9A572]">{{ $step['date'] }}</time>
+                                @endif
+                            </li>
+                        @endforeach
                     </ol>
+
                 </div>
                 <div class="flex justify-end mt-16">
                     <button class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-10 py-3 transition">
