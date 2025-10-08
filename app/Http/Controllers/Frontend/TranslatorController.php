@@ -11,6 +11,35 @@ use Illuminate\Support\Carbon;
 
 class TranslatorController extends Controller
 {
+
+    public function serviceRequestsIndex()
+    {
+        $legalTranslationRequests = RequestLegalTranslation::where('assigned_translator_id', Auth::guard('frontend')->user()->translator?->id)
+            ->with(['serviceRequest', 'documentLanguage', 'translationLanguage'])
+            ->get();
+
+        $serviceRequests = $legalTranslationRequests
+            ->sortByDesc(function ($item) {
+                return $item->serviceRequest ? $item->serviceRequest->created_at : $item->created_at;
+            })
+            ->map(function ($item) {
+                $serviceRequest = $item->serviceRequest;
+                return [
+                    'reference_code' => $serviceRequest ? $serviceRequest->reference_code : 'N/A',
+                    'date_time' => $serviceRequest ? $serviceRequest->created_at->format('Y-m-d H:i A') : $item->created_at->format('Y-m-d H:i A'),
+                    'document_language' => $item->documentLanguage ? $item->documentLanguage->name : 'N/A',
+                    'translation_language' => $item->translationLanguage ? $item->translationLanguage->name : 'N/A',
+                    'no_of_pages' => $item->no_of_pages ?? 'N/A',
+                    'status' => $serviceRequest ? $serviceRequest->status : 'N/A',
+                    'service_request_id' => $serviceRequest ? $serviceRequest->id : null
+                ];
+            });
+
+        return view('frontend.translator.service-requests.index', compact(
+            'serviceRequests'
+        ));
+    }
+
     public function dashboard()
     {
         $translatorId = Auth::id();
@@ -40,13 +69,13 @@ class TranslatorController extends Controller
             return $item->serviceRequest &&
                 $item->serviceRequest->paid_at &&
                 Carbon::parse($item->serviceRequest->paid_at)->isCurrentMonth();
-                // && in_array($item->serviceRequest->status, ['completed']);
+            // && in_array($item->serviceRequest->status, ['completed']);
         })->sum('translator_amount');
 
         $totalIncome = $legalTranslationRequests->filter(function ($item) {
             return $item->serviceRequest &&
-                $item->serviceRequest->paid_at; 
-                // && in_array($item->serviceRequest->status, ['completed']);
+                $item->serviceRequest->paid_at;
+            // && in_array($item->serviceRequest->status, ['completed']);
         })->sum('translator_amount');
 
         $serviceRequests = $legalTranslationRequests
@@ -160,7 +189,7 @@ class TranslatorController extends Controller
         ];
     }
 
-    public function updateStatus(Request $request, $id)
+    public function updateServiceRequestStatus(Request $request, $id)
     {
         $request->validate([
             'status' => 'required|in:pending,under_review,ongoing,completed,rejected',
@@ -177,7 +206,7 @@ class TranslatorController extends Controller
         $serviceRequest = ServiceRequest::findOrFail($id);
 
         $relation = getServiceRelationName($serviceRequest->service_slug);
-        
+
         if ($relation) {
             $serviceDetails = $serviceRequest->$relation;
             if ($serviceDetails && $serviceDetails->assigned_translator_id != $translatorId) {

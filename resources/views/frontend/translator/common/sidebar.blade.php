@@ -6,7 +6,7 @@
 
             <li class="flex items-center gap-2">
                 <a href="{{ route('translator.dashboard') }}"
-                    class="contents {{ areActiveWebRoutes(['user.dashboard', 'service.request.form', 'user.request-success', 'user.payment-request-success', 'user-report-problem', 'user-rate-us', 'user-training-request', 'user.job.details', 'user-lawfirm-jobs', 'user.job.details.apply']) }}">
+                    class="contents {{ areActiveWebRoutes(['user.dashboard']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="33" viewBox="0 0 32 33"
                         fill="none">
                         <path
@@ -26,11 +26,9 @@
                 </a>
             </li>
 
-
-
             <li class="flex items-center gap-2">
-                <a href="{{ route('translator.dashboard') }}"
-                    class="contents {{ areActiveWebRoutes(['user.dashboard', 'service.request.form', 'user.request-success', 'user.payment-request-success', 'user-report-problem', 'user-rate-us', 'user-training-request', 'user.job.details', 'user-lawfirm-jobs', 'user.job.details.apply']) }}">
+                <a href="{{ route('translator.service.index') }}"
+                    class="contents {{ areActiveWebRoutes(['translator.service.index']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="33" height="33" viewBox="0 0 33 33"
                         fill="none">
                         <path
@@ -41,11 +39,9 @@
                 </a>
             </li>
 
-
-
-            <li class="flex items-center gap-2">
+            {{-- <li class="flex items-center gap-2">
                 <a href="{{ route('translator.dashboard') }}"
-                    class="contents {{ areActiveWebRoutes(['user.dashboard', 'service.request.form', 'user.request-success', 'user.payment-request-success', 'user-report-problem', 'user-rate-us', 'user-training-request', 'user.job.details', 'user-lawfirm-jobs', 'user.job.details.apply']) }}">
+                    class="contents {{ areActiveWebRoutes(['translator.dashboard', 'user.job.details.apply']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"
                         fill="none">
                         <path
@@ -57,10 +53,7 @@
                     </svg>
                     <span class="text-[#1C1C1C] text-[18px]">{{ __('frontend.report') }}</span>
                 </a>
-            </li>
-
-
-
+            </li> --}}
 
         </ul>
     </div>

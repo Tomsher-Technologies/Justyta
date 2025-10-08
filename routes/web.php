@@ -82,7 +82,8 @@ Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType
 
     //Service Requests
     Route::get('/service-request/{slug}', [TranslatorController::class, 'showServiceRequest'])->name('translator.service.details');
-    Route::post('/service-request/{id}/update-status', [TranslatorController::class, 'updateStatus'])->name('translator.service.update-status');
+    Route::post('/service-request/{id}/update-status', [TranslatorController::class, 'updateServiceRequestStatus'])->name('translator.service.update-status');
+    Route::get('/service-requests', [TranslatorController::class, 'serviceRequestsIndex'])->name('translator.service.index');
 
     //Notifications
     Route::get('/notifications', [TranslatorController::class, 'notifications'])->name('translator.notifications.index');
