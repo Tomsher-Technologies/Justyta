@@ -144,7 +144,7 @@
         <div class="relative p-4 w-full max-w-2xl max-h-full">
             <div class="relative bg-white rounded-lg shadow-sm">
                 <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200">
-                    <h3 class="text-xl font-semibold text-gray-900">Change Status</h3>
+                    <h3 class="text-xl font-semibold text-gray-900">{{ __('frontend.change_status') }}</h3>
                     <button type="button"
                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
                         data-modal-hide="default-modal">
@@ -160,15 +160,15 @@
                     <div class="flex gap-4 mb-6">
                         <select id="status-select"
                             class="border border-[#DFDFDF] rounded-lg px-4 py-3 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-700">
-                            <option value="pending">Pending</option>
-                            <option value="under_review">Under Review</option>
-                            <option value="ongoing">Ongoing</option>
-                            <option value="completed">Completed</option>
-                            <option value="rejected">Rejected</option>
+                            <option value="pending">{{ __('frontend.pending') }}</option>
+                            <option value="under_review">{{ __('frontend.under_review') }}</option>
+                            <option value="ongoing">{{ __('frontend.ongoing') }}</option>
+                            <option value="completed">{{ __('frontend.completed') }}</option>
+                            <option value="rejected">{{ __('frontend.rejected') }}</option>
                         </select>
                         <button type="button"
                             class="update-status-btn bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-8 py-3 transition">
-                            Update
+                            {{ __('frontend.update') }}
                         </button>
                     </div>
 
@@ -176,48 +176,46 @@
                         <div class="mb-2 flex items-center">
                             <input id="supporting-docs" type="checkbox"
                                 class="w-5 h-5 border-gray-300 rounded focus:ring-green-700" />
-                            <label for="supporting-docs" class="ml-2 text-lg text-[#23222B]">Supporting Documents</label>
+                            <label for="supporting-docs" class="ml-2 text-lg text-[#23222B]">{{ __('frontend.supporting_documents') }}</label>
                         </div>
                         <div class="mb-6 flex items-center">
                             <input id="supporting-docs-any" type="checkbox" checked
                                 class="w-5 h-5 border-gray-300 rounded focus:ring-green-700" />
-                            <label for="supporting-docs-any" class="ml-2 text-lg text-[#23222B]">Supporting Documents if
-                                any</label>
+                            <label for="supporting-docs-any" class="ml-2 text-lg text-[#23222B]">{{ __('frontend.supporting_documents_any') }}</label>
                         </div>
-                        <label for="case-type" class="block text-sm font-medium text-gray-700 mb-2 block">Reason</label>
+                        <label for="case-type" class="block text-sm font-medium text-gray-700 mb-2 block">{{ __('frontend.reason') }}</label>
                         <textarea id="reason" rows="4"
                             class="w-full border border-[#DFDFDF] rounded-lg px-4 py-3 mb-8 focus:outline-none focus:ring-2 focus:ring-green-700"
-                            placeholder="Type here..."></textarea>
+                            placeholder="{{ __('frontend.type_here') }}"></textarea>
                         <button type="button"
                             class="update-status-btn bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-10 py-3 transition">
-                            Update
+                            {{ __('frontend.update') }}
                         </button>
                     </div>
 
                     <div id="completed" class="status-section hidden">
-                        <label for="case-type" class="block text-sm font-medium text-gray-700 mb-2 block">Upload
-                            Files</label>
+                        <label for="case-type" class="block text-sm font-medium text-gray-700 mb-2 block">{{ __('frontend.upload_files') }}</label>
                         <div class="flex gap-4 mb-6">
                             <input
                                 class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
                                 id="file_input" type="file" />
                             <button type="button"
                                 class="update-status-btn bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-8 py-3 transition">
-                                Update
+                                {{ __('frontend.update') }}
                             </button>
                         </div>
                     </div>
 
                     <div id="pending" class="status-section hidden">
-                        <p class="text-gray-700">Task is pending.</p>
+                        <p class="text-gray-700">{{ __('frontend.task_pending') }}</p>
                     </div>
 
                     <div id="under_review" class="status-section hidden">
-                        <p class="text-gray-700">Task is under review.</p>
+                        <p class="text-gray-700">{{ __('frontend.task_under_review') }}</p>
                     </div>
 
                     <div id="ongoing" class="status-section hidden">
-                        <p class="text-gray-700">Task is currently ongoing.</p>
+                        <p class="text-gray-700">{{ __('frontend.task_ongoing') }}</p>
                     </div>
                 </div>
             </div>

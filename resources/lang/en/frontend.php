@@ -357,5 +357,18 @@ return [
     "sub_document_type" => "Sub Document Type",
     "view" => 'View',
     "download" => 'Download',
+    "change_status" => 'Change Status',
+    "pending" => 'Pending',
+    "under_review" => 'Under Review',
+    "ongoing" => 'Ongoing',
+    "completed" => 'Completed',
+    "rejected" => 'Rejected',
+    "update" => 'Update',
+    "supporting_documents_any" => 'Supporting Documents if any',
+    "reason" => 'Reason',
+    "upload_files" => 'Upload Files',
+    "task_pending" => 'Task is pending.',
+    "task_under_review" => 'Task is under review.',
+    "task_ongoing" => 'Task is currently ongoing.',
 
 ];
