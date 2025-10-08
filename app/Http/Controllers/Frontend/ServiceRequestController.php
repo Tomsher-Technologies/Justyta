@@ -40,6 +40,7 @@ use App\Models\DefaultTranslatorAssignment;
 use App\Models\TranslatorLanguageRate;
 use App\Models\RequestLastWill;
 use App\Models\RequestSubmissionPricing;
+use App\Models\ServiceRequestTimeline;
 use App\Models\TranslationAssignmentHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -54,42 +55,43 @@ use Carbon\Carbon;
 
 class ServiceRequestController extends Controller
 {
-    public function getEmirates(Request $request){
-        $lang           = $request->header('lang') ?? env('APP_LOCALE','en');  
+    public function getEmirates(Request $request)
+    {
+        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
 
         $litigation_type   = $request->litigation_type ?? NULL;
         $litigation_place   = $request->litigation_place ?? NULL;
         $service            = $request->service ?? NULL;
 
         $emirates   = Emirate::whereHas('emirate_litigations', function ($q) use ($service, $litigation_type) {
-                        $q->where('slug', $service)->where('status', 1);
-                        if (in_array($service, ['court-case-submission', 'criminal-complaint', 'expert-report', 'memo-writing', 'online-live-consultancy', 'request-submission'])) {
-                            if ($litigation_type === 'federal') {
-                                $q->where('is_federal', 1);
-                            } elseif ($litigation_type === 'local') {
-                                $q->where('is_local', 1);
-                            }
-                        }
-                    })->get();
+            $q->where('slug', $service)->where('status', 1);
+            if (in_array($service, ['court-case-submission', 'criminal-complaint', 'expert-report', 'memo-writing', 'online-live-consultancy', 'request-submission'])) {
+                if ($litigation_type === 'federal') {
+                    $q->where('is_federal', 1);
+                } elseif ($litigation_type === 'local') {
+                    $q->where('is_local', 1);
+                }
+            }
+        })->get();
 
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
+        $response['emirates'] = $emirates->map(function ($emirate) use ($lang) {
+            return [
+                'id'    => $emirate->id,
+                'value' => $emirate->getTranslation('name', $lang),
+            ];
         });
 
-        if(in_array($service, ['court-case-submission', 'memo-writing','online-live-consultancy','annual-retainer-agreement'])) {
+        if (in_array($service, ['court-case-submission', 'memo-writing', 'online-live-consultancy', 'annual-retainer-agreement'])) {
             $litigation_place = 'court';
-        }elseif($service == 'criminal-complaint') {
+        } elseif ($service == 'criminal-complaint') {
             $litigation_place = 'public_prosecution';
         }
 
         $response['caseTypes'] = [];
-        if($litigation_place){
+        if ($litigation_place) {
             $response['caseTypes'] = getCaseTypes($litigation_type, $litigation_place, $lang);
         }
-        
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -97,16 +99,17 @@ class ServiceRequestController extends Controller
         ], 200);
     }
 
-    public function getCaseTypes(Request $request){
-        $lang           = $request->header('lang') ?? env('APP_LOCALE','en');
+    public function getCaseTypes(Request $request)
+    {
+        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
 
         $litigation_type   = $request->litigation_type ?? NULL;
         $litigation_place   = $request->litigation_place ?? NULL;
         $service            = $request->service ?? NULL;
 
-        if(in_array($service, ['court-case-submission', 'memo-writing'])) {
+        if (in_array($service, ['court-case-submission', 'memo-writing'])) {
             $litigation_place = 'court';
-        }else{
+        } else {
             $litigation_place = 'public_prosecution';
         }
 
@@ -117,17 +120,17 @@ class ServiceRequestController extends Controller
             'message'   => 'Success',
             'data'      => $caseTypes,
         ], 200);
-
     }
 
-    public function getAnnualAgreementPrice(Request $request){
-        $lang           = $request->header('lang') ?? env('APP_LOCALE','en');  
-        
+    public function getAnnualAgreementPrice(Request $request)
+    {
+        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
+
         $calls          = $request->query('calls');
         $visits         = $request->query('visits');
         $installments   = $request->query('installments');
 
-        if (!in_array($calls, [1,2,3,4,5]) || !in_array($visits, [0,1,2,3,4]) || !in_array($installments, [1,2,4])) {
+        if (!in_array($calls, [1, 2, 3, 4, 5]) || !in_array($visits, [0, 1, 2, 3, 4]) || !in_array($installments, [1, 2, 4])) {
             return response()->json([
                 'status'    => false,
                 'message'   => __('messages.invalid_combination'),
@@ -135,11 +138,11 @@ class ServiceRequestController extends Controller
         }
 
         $base = AnnualRetainerBaseFee::where('calls_per_month', $calls)
-                                    ->where('visits_per_year', $visits)
-                                    ->first();
+            ->where('visits_per_year', $visits)
+            ->first();
 
         if (!$base) {
-             return response()->json([
+            return response()->json([
                 'status'    => false,
                 'message'   => __('messages.combination_not_found'),
             ], 200);
@@ -148,7 +151,7 @@ class ServiceRequestController extends Controller
         $installment = $base->installments()->where('installments', $installments)->first();
 
         if (!$installment) {
-             return response()->json([
+            return response()->json([
                 'status'    => false,
                 'message'   => __('messages.installment_not_found'),
             ], 200);
@@ -158,23 +161,24 @@ class ServiceRequestController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => [
-                            'calls_per_month'   => $calls,
-                            'visits_per_year'   => $visits,
-                            'installments'      => $installments,
-                            'service_fee'       => $base->service_fee,
-                            'govt_fee'          => $base->govt_fee,
-                            'tax'               => $base->tax,
-                            'base_total'        => $base->base_total,
-                            'extra_percent'     => $installment->extra_percent,
-                            'final_total'       => $installment->final_total,
-                        ]
+                'calls_per_month'   => $calls,
+                'visits_per_year'   => $visits,
+                'installments'      => $installments,
+                'service_fee'       => $base->service_fee,
+                'govt_fee'          => $base->govt_fee,
+                'tax'               => $base->tax,
+                'base_total'        => $base->base_total,
+                'extra_percent'     => $installment->extra_percent,
+                'final_total'       => $installment->final_total,
+            ]
         ], 200);
     }
-    
-    public function getRequestTypes(Request $request){
-        $lang               = app()->getLocale() ?? env('APP_LOCALE','en'); 
+
+    public function getRequestTypes(Request $request)
+    {
+        $lang               = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $litigation_place   = $request->litigation_place ?? NULL;
-        $litigation_type    = $request->litigation_type ?? NULL;    
+        $litigation_type    = $request->litigation_type ?? NULL;
 
         if ($litigation_type === NULL || $litigation_place === NULL) {
             return response()->json([
@@ -192,9 +196,10 @@ class ServiceRequestController extends Controller
             'data'      => $requestTypes,
         ], 200);
     }
-    
-    public function getRequestTitles(Request $request){
-        $lang               = app()->getLocale() ?? env('APP_LOCALE','en'); 
+
+    public function getRequestTitles(Request $request)
+    {
+        $lang               = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $request_type       = $request->request_type ?? NULL;
 
         $requestTitles = getRequestTitles($request_type, $lang);
@@ -206,24 +211,25 @@ class ServiceRequestController extends Controller
         ], 200);
     }
 
-     public function getSubDocumentTypes(Request $request){
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+    public function getSubDocumentTypes(Request $request)
+    {
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
         $doc_type   = $request->document_type ?? NULL;
 
         $docTypes   = [];
-        if($doc_type){
+        if ($doc_type) {
             $docTypes = DocumentType::with('translations')->where('status', 1)
-                            ->where('parent_id', $doc_type)
-                            ->orderBy('sort_order')
-                            ->get();
+                ->where('parent_id', $doc_type)
+                ->orderBy('sort_order')
+                ->get();
         }
 
         $response = [];
-        if(!empty($docTypes)){
-            $response = $docTypes->map(function ($type) use ($lang) {    
+        if (!empty($docTypes)) {
+            $response = $docTypes->map(function ($type) use ($lang) {
                 return [
-                    'id'            => $type->id, 
+                    'id'            => $type->id,
                     'document_type' => $type->parent_id,
                     'value'         => $type->getTranslation('name', $lang),
                 ];
@@ -239,12 +245,12 @@ class ServiceRequestController extends Controller
 
     public function getSubContractTypes($id)
     {
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $parentId   = $id ?? NULL;
         $subTypes   = ContractType::where('status', 1)
-                        ->where('parent_id', $parentId)
-                        ->orderBy('sort_order')
-                        ->get();
+            ->where('parent_id', $parentId)
+            ->orderBy('sort_order')
+            ->get();
 
         $response   = $subTypes->map(function ($subType) use ($lang) {
             return [
@@ -257,7 +263,7 @@ class ServiceRequestController extends Controller
         return response()->json($response);
     }
 
-     public function calculateTranslationPrice(Request $request)
+    public function calculateTranslationPrice(Request $request)
     {
         $from           = $request->from_language_id;
         $to             = $request->to_language_id;
@@ -279,17 +285,17 @@ class ServiceRequestController extends Controller
             ], 200);
         }
 
-        $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
-                                            $q->where('priority_type', $priority)
-                                            ->where('delivery_type', $receive_by);
-                                        }])
-                                        ->where('translator_id', $assignment->translator_id)
-                                        ->where('from_language_id', $from)
-                                        ->where('to_language_id', $to)
-                                        ->where('doc_type_id', $doc_type)
-                                        ->where('doc_subtype_id', $subdoc_type)
-                                        ->where('status', 1)
-                                        ->first();
+        $rate = TranslatorLanguageRate::with(['deliveries' => function ($q) use ($priority, $receive_by) {
+            $q->where('priority_type', $priority)
+                ->where('delivery_type', $receive_by);
+        }])
+            ->where('translator_id', $assignment->translator_id)
+            ->where('from_language_id', $from)
+            ->where('to_language_id', $to)
+            ->where('doc_type_id', $doc_type)
+            ->where('doc_subtype_id', $subdoc_type)
+            ->where('status', 1)
+            ->first();
 
         if (!$rate) {
             return response()->json([
@@ -325,13 +331,13 @@ class ServiceRequestController extends Controller
         }
 
         $delivery = $rate->deliveries->first();
-        
+
         $admin_amount = $delivery->admin_amount * $pages;
         $translator_amount = $delivery->translator_amount * $pages;
 
         $totalAmountNoTax = ($admin_amount + $translator_amount + $delivery->delivery_amount);
 
-        $tax = ($totalAmountNoTax/100) * 5;
+        $tax = ($totalAmountNoTax / 100) * 5;
 
         $totalAmount = $totalAmountNoTax + $tax;
 
@@ -339,20 +345,20 @@ class ServiceRequestController extends Controller
             'status'    => true,
             'message'   => 'Success',
             'data'      => [
-                            'total_amount'      => $totalAmount,
-                            'total_hours'       => $totalHours
-                        ]
-        ],200);
+                'total_amount'      => $totalAmount,
+                'total_hours'       => $totalHours
+            ]
+        ], 200);
     }
 
     public function getLicenseActivities($id)
     {
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $parentId   = $id ?? NULL;
         $subTypes   = LicenseType::where('status', 1)
-                            ->where('parent_id', $parentId)
-                            ->orderBy('sort_order')
-                            ->get();
+            ->where('parent_id', $parentId)
+            ->orderBy('sort_order')
+            ->get();
 
         $response   = $subTypes->map(function ($subType) use ($lang) {
             return [
@@ -365,13 +371,14 @@ class ServiceRequestController extends Controller
         return response()->json($response);
     }
 
-    public function getZones($id){
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+    public function getZones($id)
+    {
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $parentId   = $id ?? NULL;
         $subTypes   = FreeZone::where('status', 1)
-                            ->where('emirate_id', $parentId)
-                            ->orderBy('sort_order')
-                            ->get();
+            ->where('emirate_id', $parentId)
+            ->orderBy('sort_order')
+            ->get();
 
         $response   = $subTypes->map(function ($subType) use ($lang) {
             return [
@@ -386,33 +393,33 @@ class ServiceRequestController extends Controller
 
     public function showForm($slug)
     {
-        $lang           = app()->getLocale() ?? env('APP_LOCALE','en');
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $service        = Service::where('slug', $slug)->firstOrFail();
 
         $dropdownData   = [];
 
         $emirates   = Emirate::where('status', 1)->orderBy('id')->get()
-                            ->map(fn($e) => [
-                                'id' => $e->id,
-                                'value' => $e->getTranslation('name', $lang)
-                            ]);
+            ->map(fn($e) => [
+                'id' => $e->id,
+                'value' => $e->getTranslation('name', $lang)
+            ]);
 
         switch ($slug) {
             case 'court-case-submission':
                 $dropdowns  = Dropdown::with([
-                                    'options' => function ($q) {
-                                        $q->where('status', 'active')->orderBy('sort_order');
-                                    },
-                                    'options.translations' => function ($q) use ($lang) {
-                                        $q->whereIn('language_code', [$lang, 'en']);
-                                    }
-                                ])->whereIn('slug', ['you_represent'])->get()->keyBy('slug');
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['you_represent'])->get()->keyBy('slug');
 
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
@@ -421,113 +428,113 @@ class ServiceRequestController extends Controller
 
             case 'criminal-complaint':
                 $dropdowns  = Dropdown::with([
-                                    'options' => function ($q) {
-                                        $q->where('status', 'active')->orderBy('sort_order');
-                                    },
-                                    'options.translations' => function ($q) use ($lang) {
-                                        $q->whereIn('language_code', [$lang, 'en']);
-                                    }
-                                ])->whereIn('slug', ['you_represent'])->get()->keyBy('slug');
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['you_represent'])->get()->keyBy('slug');
 
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
-               
+
                 return view('frontend.user.service-requests.criminal_complaint', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
             case 'power-of-attorney':
                 $dropdowns  = Dropdown::with([
-                                    'options' => function ($q) {
-                                        $q->where('status', 'active')->orderBy('sort_order');
-                                    },
-                                    'options.translations' => function ($q) use ($lang) {
-                                        $q->whereIn('language_code', [$lang, 'en']);
-                                    }
-                                ])->whereIn('slug', ['poa_type', 'poa_relationships'])->get()->keyBy('slug');
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['poa_type', 'poa_relationships'])->get()->keyBy('slug');
 
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
 
                 $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
-                        $q->where('slug', 'power-of-attorney')->where('status', 1);
-                    })->get();
+                    $q->where('slug', 'power-of-attorney')->where('status', 1);
+                })->get();
 
-                $dropdownData['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                        return [
-                            'id'    => $emirate->id,
-                            'value' => $emirate->getTranslation('name',$lang),
-                        ];
+                $dropdownData['emirates'] = $emirates->map(function ($emirate) use ($lang) {
+                    return [
+                        'id'    => $emirate->id,
+                        'value' => $emirate->getTranslation('name', $lang),
+                    ];
                 });
-                
+
                 return view('frontend.user.service-requests.power_of_attorney', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
             case 'last-will-and-testament':
 
                 $dropdowns  = Dropdown::with([
-                                'options' => function ($q) {
-                                    $q->where('status', 'active')->orderBy('sort_order');
-                                },
-                                'options.translations' => function ($q) use ($lang) {
-                                    $q->whereIn('language_code', [$lang, 'en']);
-                                }
-                            ])->whereIn('slug', ['you_represent','religion'])->get()->keyBy('slug');
-                
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['you_represent', 'religion'])->get()->keyBy('slug');
+
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
                 $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
-                                $q->where('slug', 'last-will-and-testament')->where('status', 1);
-                            })->get();
+                    $q->where('slug', 'last-will-and-testament')->where('status', 1);
+                })->get();
 
-                $dropdownData['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                        return [
-                            'id'    => $emirate->id,
-                            'value' => $emirate->getTranslation('name',$lang),
-                        ];
+                $dropdownData['emirates'] = $emirates->map(function ($emirate) use ($lang) {
+                    return [
+                        'id'    => $emirate->id,
+                        'value' => $emirate->getTranslation('name', $lang),
+                    ];
                 });
 
-                $countries = Country::where('status',1)->orderBy('id')->get();
+                $countries = Country::where('status', 1)->orderBy('id')->get();
 
-                $dropdownData['nationality'] = $countries->map(function ($country) use($lang) {
-                        return [
-                            'id'    => $country->id,
-                            'value' => $country->getTranslation('name',$lang),
-                        ];
+                $dropdownData['nationality'] = $countries->map(function ($country) use ($lang) {
+                    return [
+                        'id'    => $country->id,
+                        'value' => $country->getTranslation('name', $lang),
+                    ];
                 });
 
                 return view('frontend.user.service-requests.last_will', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
-    
+
             case 'memo-writing':
                 $dropdowns  = Dropdown::with([
-                                    'options' => function ($q) {
-                                        $q->where('status', 'active')->orderBy('sort_order');
-                                    },
-                                    'options.translations' => function ($q) use ($lang) {
-                                        $q->whereIn('language_code', [$lang, 'en']);
-                                    }
-                                ])->whereIn('slug', ['case_type', 'you_represent'])->get()->keyBy('slug');
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['case_type', 'you_represent'])->get()->keyBy('slug');
 
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
@@ -535,22 +542,22 @@ class ServiceRequestController extends Controller
                 $dropdownData['emirates'] = $emirates;
 
                 return view('frontend.user.service-requests.memo_writing', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
-                    
+
             case 'expert-report':
                 $dropdowns  = Dropdown::with([
-                                    'options' => function ($q) {
-                                        $q->where('status', 'active')->orderBy('sort_order');
-                                    },
-                                    'options.translations' => function ($q) use ($lang) {
-                                        $q->whereIn('language_code', [$lang, 'en']);
-                                    }
-                                ])->whereIn('slug', ['expert_report_type', 'expert_report_languages'])->get()->keyBy('slug');
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['expert_report_type', 'expert_report_languages'])->get()->keyBy('slug');
 
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
@@ -570,165 +577,165 @@ class ServiceRequestController extends Controller
 
             case 'contract-drafting':
                 $dropdowns  = Dropdown::with([
-                                    'options' => function ($q) {
-                                        $q->where('status', 'active')->orderBy('sort_order');
-                                    },
-                                    'options.translations' => function ($q) use ($lang) {
-                                        $q->whereIn('language_code', [$lang, 'en']);
-                                    }
-                                ])->whereIn('slug', ['contract_languages', 'industries'])->get()->keyBy('slug');
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['contract_languages', 'industries'])->get()->keyBy('slug');
 
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
 
                 $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
-                        $q->where('slug', 'contract-drafting')->where('status', 1);
-                    })->get();
+                    $q->where('slug', 'contract-drafting')->where('status', 1);
+                })->get();
 
-                $dropdownData['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                        return [
-                            'id'    => $emirate->id,
-                            'value' => $emirate->getTranslation('name',$lang),
-                        ];
+                $dropdownData['emirates'] = $emirates->map(function ($emirate) use ($lang) {
+                    return [
+                        'id'    => $emirate->id,
+                        'value' => $emirate->getTranslation('name', $lang),
+                    ];
                 });
 
-                $contractTypes = ContractType::where('status',1)->whereNull('parent_id')->orderBy('sort_order')->get();
+                $contractTypes = ContractType::where('status', 1)->whereNull('parent_id')->orderBy('sort_order')->get();
 
-                $dropdownData['contract_type'] = $contractTypes->map(function ($ctype) use($lang) {
-                        return [
-                            'id'    => $ctype->id,
-                            'value' => $ctype->getTranslation('name',$lang),
-                        ];
+                $dropdownData['contract_type'] = $contractTypes->map(function ($ctype) use ($lang) {
+                    return [
+                        'id'    => $ctype->id,
+                        'value' => $ctype->getTranslation('name', $lang),
+                    ];
                 });
 
                 return view('frontend.user.service-requests.contract_drafting', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
             case 'company-setup':
                 $dropdowns  = Dropdown::with([
-                                    'options' => function ($q) {
-                                        $q->where('status', 'active')->orderBy('sort_order');
-                                    },
-                                    'options.translations' => function ($q) use ($lang) {
-                                        $q->whereIn('language_code', [$lang, 'en']);
-                                    }
-                                ])->whereIn('slug', ['company_type','industries'])->get()->keyBy('slug');
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['company_type', 'industries'])->get()->keyBy('slug');
 
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
 
                 $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
-                                $q->where('slug', 'company-setup')->where('status', 1);
-                            })->get();
+                    $q->where('slug', 'company-setup')->where('status', 1);
+                })->get();
 
-                $dropdownData['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                        return [
-                            'id'    => $emirate->id,
-                            'value' => $emirate->getTranslation('name',$lang),
-                        ];
+                $dropdownData['emirates'] = $emirates->map(function ($emirate) use ($lang) {
+                    return [
+                        'id'    => $emirate->id,
+                        'value' => $emirate->getTranslation('name', $lang),
+                    ];
                 });
 
-                $licenseTypes = LicenseType::where('status',1)->whereNull('parent_id')->orderBy('sort_order')->get();
+                $licenseTypes = LicenseType::where('status', 1)->whereNull('parent_id')->orderBy('sort_order')->get();
 
-                $dropdownData['license_type'] = $licenseTypes->map(function ($ctype) use($lang) {
-                        return [
-                            'id'    => $ctype->id,
-                            'value' => $ctype->getTranslation('name',$lang),
-                        ];
+                $dropdownData['license_type'] = $licenseTypes->map(function ($ctype) use ($lang) {
+                    return [
+                        'id'    => $ctype->id,
+                        'value' => $ctype->getTranslation('name', $lang),
+                    ];
                 });
 
                 return view('frontend.user.service-requests.company_setup', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
             case 'escrow-accounts':
                 $dropdowns  = Dropdown::with([
-                                'options' => function ($q) {
-                                    $q->where('status', 'active')->orderBy('sort_order');
-                                },
-                                'options.translations' => function ($q) use ($lang) {
-                                    $q->whereIn('language_code', [$lang, 'en']);
-                                }
-                            ])->whereIn('slug', ['industries'])->get()->keyBy('slug');
-                
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['industries'])->get()->keyBy('slug');
+
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
 
-                $countries = Country::where('status',1)->orderBy('id')->get();
+                $countries = Country::where('status', 1)->orderBy('id')->get();
 
-                $dropdownData['company_origin'] = $countries->map(function ($country) use($lang) {
-                        return [
-                            'id'    => $country->id,
-                            'value' => $country->getTranslation('name',$lang),
-                        ];
+                $dropdownData['company_origin'] = $countries->map(function ($country) use ($lang) {
+                    return [
+                        'id'    => $country->id,
+                        'value' => $country->getTranslation('name', $lang),
+                    ];
                 });
 
                 return view('frontend.user.service-requests.escrow_account', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
             case 'debts-collection':
                 $dropdowns  = Dropdown::with([
-                                'options' => function ($q) {
-                                    $q->where('status', 'active')->orderBy('sort_order');
-                                },
-                                'options.translations' => function ($q) use ($lang) {
-                                    $q->whereIn('language_code', [$lang, 'en']);
-                                }
-                            ])->whereIn('slug', ['debt_type','debt_category'])->get()->keyBy('slug');
-                
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['debt_type', 'debt_category'])->get()->keyBy('slug');
+
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
 
                 $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
-                                $q->where('slug', 'debts-collection')->where('status', 1);
-                            })->get();
+                    $q->where('slug', 'debts-collection')->where('status', 1);
+                })->get();
 
-                $dropdownData['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                        return [
-                            'id'    => $emirate->id,
-                            'value' => $emirate->getTranslation('name',$lang),
-                        ];
+                $dropdownData['emirates'] = $emirates->map(function ($emirate) use ($lang) {
+                    return [
+                        'id'    => $emirate->id,
+                        'value' => $emirate->getTranslation('name', $lang),
+                    ];
                 });
 
                 return view('frontend.user.service-requests.debts_collection', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
-                
+
             case 'online-live-consultancy':
-                
+
                 break;
 
             case 'request-submission':
                 $dropdowns  = Dropdown::with([
-                                'options' => function ($q) {
-                                    $q->where('status', 'active')->orderBy('sort_order');
-                                },
-                                'options.translations' => function ($q) use ($lang) {
-                                    $q->whereIn('language_code', [$lang, 'en']);
-                                }
-                            ])->whereIn('slug', ['case_type'])->get()->keyBy('slug');
-                
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['case_type'])->get()->keyBy('slug');
+
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
@@ -742,13 +749,13 @@ class ServiceRequestController extends Controller
                 return view('frontend.user.service-requests.request_submission', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
 
             case 'legal-translation':
-                $transLanguages = TranslationLanguage::where('status',1)->orderBy('sort_order')->get();
+                $transLanguages = TranslationLanguage::where('status', 1)->orderBy('sort_order')->get();
 
-                $dropdownData['document_language'] = $transLanguages->map(function ($tlang) use($lang) {
-                        return [
-                            'id'    => $tlang->id,
-                            'value' => $tlang->getTranslation('name',$lang),
-                        ];
+                $dropdownData['document_language'] = $transLanguages->map(function ($tlang) use ($lang) {
+                    return [
+                        'id'    => $tlang->id,
+                        'value' => $tlang->getTranslation('name', $lang),
+                    ];
                 });
 
                 $translationLanguages = $transLanguages->filter(function ($lang) {
@@ -756,22 +763,22 @@ class ServiceRequestController extends Controller
                 });
 
                 $dropdownData['translation_language'] = $translationLanguages->map(function ($tlang) use ($lang) {
-                        return [
-                            'id'    => $tlang->id,
-                            'value' => $tlang->getTranslation('name', $lang),
-                        ];
+                    return [
+                        'id'    => $tlang->id,
+                        'value' => $tlang->getTranslation('name', $lang),
+                    ];
                 })->values();
 
                 $documentTypes = DocumentType::with('translations')->where('status', 1)
-                                    ->whereNull('parent_id')
-                                    ->orderBy('sort_order')
-                                    ->get();
+                    ->whereNull('parent_id')
+                    ->orderBy('sort_order')
+                    ->get();
 
-                $dropdownData['document_type'] = $documentTypes->map(function ($doc) use($lang) {
-                        return [
-                            'id'    => $doc->id,
-                            'value' => $doc->getTranslation('name',$lang),
-                        ];
+                $dropdownData['document_type'] = $documentTypes->map(function ($doc) use ($lang) {
+                    return [
+                        'id'    => $doc->id,
+                        'value' => $doc->getTranslation('name', $lang),
+                    ];
                 });
                 $form_info = getPageDynamicContent('translation_calculator_page', $lang);
 
@@ -781,64 +788,64 @@ class ServiceRequestController extends Controller
 
             case 'annual-retainer-agreement':
                 $dropdowns  = Dropdown::with([
-                                'options' => function ($q) {
-                                    $q->where('status', 'active')->orderBy('sort_order');
-                                },
-                                'options.translations' => function ($q) use ($lang) {
-                                    $q->whereIn('language_code', [$lang, 'en']);
-                                }
-                            ])->whereIn('slug', ['industries','no_of_employees'])->get()->keyBy('slug');
-                
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['industries', 'no_of_employees'])->get()->keyBy('slug');
+
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
 
                 $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
-                                $q->where('slug', 'annual-retainer-agreement')->where('status', 1);
-                            })->get();
+                    $q->where('slug', 'annual-retainer-agreement')->where('status', 1);
+                })->get();
 
-                $dropdownData['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                        return [
-                            'id'    => $emirate->id,
-                            'value' => $emirate->getTranslation('name',$lang),
-                        ];
+                $dropdownData['emirates'] = $emirates->map(function ($emirate) use ($lang) {
+                    return [
+                        'id'    => $emirate->id,
+                        'value' => $emirate->getTranslation('name', $lang),
+                    ];
                 });
 
                 $dropdownData['case_type'] = getCaseTypesValue('local', 'court', $lang);
 
-                $licenseTypes = LicenseType::where('status',1)->whereNull('parent_id')->orderBy('sort_order')->get();
+                $licenseTypes = LicenseType::where('status', 1)->whereNull('parent_id')->orderBy('sort_order')->get();
 
-                $dropdownData['license_type'] = $licenseTypes->map(function ($ctype) use($lang) {
-                        return [
-                            'id'    => $ctype->id,
-                            'value' => $ctype->getTranslation('name',$lang),
-                        ];
+                $dropdownData['license_type'] = $licenseTypes->map(function ($ctype) use ($lang) {
+                    return [
+                        'id'    => $ctype->id,
+                        'value' => $ctype->getTranslation('name', $lang),
+                    ];
                 });
 
-                $dropdownData['calls']          = [1,2,3,4,5];
-                $dropdownData['visits']         = [0,1,2,3,4];
+                $dropdownData['calls']          = [1, 2, 3, 4, 5];
+                $dropdownData['visits']         = [0, 1, 2, 3, 4];
                 $dropdownData['installments']   = [1, 2, 4];
 
                 $lawFirms = Vendor::whereHas('subscriptions', function ($query) {
-                                        $query->where('status', 'active')
-                                            ->whereDate('subscription_end', '>=', Carbon::today());
-                                    })
-                                    ->whereHas('user', function ($query) {
-                                        $query->where('banned', 0);
-                                    })
-                                    ->with(['subscriptions', 'user'])
-                                    ->orderBy('law_firm_name', 'ASC')
-                                    ->get();
+                    $query->where('status', 'active')
+                        ->whereDate('subscription_end', '>=', Carbon::today());
+                })
+                    ->whereHas('user', function ($query) {
+                        $query->where('banned', 0);
+                    })
+                    ->with(['subscriptions', 'user'])
+                    ->orderBy('law_firm_name', 'ASC')
+                    ->get();
 
-                $dropdownData['law_firms'] = $lawFirms->map(function ($lawfirm) use($lang) {
+                $dropdownData['law_firms'] = $lawFirms->map(function ($lawfirm) use ($lang) {
                     return [
                         'id'    => $lawfirm->id,
-                        'value' => $lawfirm->getTranslation('law_firm_name',$lang),
+                        'value' => $lawfirm->getTranslation('law_firm_name', $lang),
                     ];
                 });
                 $form_info = getPageDynamicContent('company_retainership', $lang);
@@ -849,32 +856,32 @@ class ServiceRequestController extends Controller
 
             case 'immigration-requests':
                 $dropdowns  = Dropdown::with([
-                                'options' => function ($q) {
-                                    $q->where('status', 'active')->orderBy('sort_order');
-                                },
-                                'options.translations' => function ($q) use ($lang) {
-                                    $q->whereIn('language_code', [$lang, 'en']);
-                                }
-                            ])->whereIn('slug', ['immigration_positions','residency_status','immigration_type'])->get()->keyBy('slug');
-                
+                    'options' => function ($q) {
+                        $q->where('status', 'active')->orderBy('sort_order');
+                    },
+                    'options.translations' => function ($q) use ($lang) {
+                        $q->whereIn('language_code', [$lang, 'en']);
+                    }
+                ])->whereIn('slug', ['immigration_positions', 'residency_status', 'immigration_type'])->get()->keyBy('slug');
+
                 foreach ($dropdowns as $slug => $dropdown) {
-                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                    $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang) {
                         return [
                             'id'    => $option->id,
-                            'value' => $option->getTranslation('name',$lang),
+                            'value' => $option->getTranslation('name', $lang),
                         ];
                     });
                 }
 
                 $dropdownData['emirates'] = $emirates;
 
-                $countries = Country::where('status',1)->orderBy('id')->get();
+                $countries = Country::where('status', 1)->orderBy('id')->get();
 
-                $dropdownData['nationality'] = $countries->map(function ($country) use($lang) {
-                        return [
-                            'id'    => $country->id,
-                            'value' => $country->getTranslation('name',$lang),
-                        ];
+                $dropdownData['nationality'] = $countries->map(function ($country) use ($lang) {
+                    return [
+                        'id'    => $country->id,
+                        'value' => $country->getTranslation('name', $lang),
+                    ];
                 });
 
                 $service    = Service::where('slug', 'immigration-requests')->firstOrFail();
@@ -891,13 +898,13 @@ class ServiceRequestController extends Controller
                 $dropdownData['form_info'] = $form_info;
 
                 return view('frontend.user.service-requests.immigration', ['service' => $service, 'dropdownData' => $dropdownData, 'lang' => $lang]);
-
         }
 
         abort(404);
     }
 
-    public function requestCourtCase(Request $request){
+    public function requestCourtCase(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'applicant_type'    => 'required',
             'litigation_type'   => 'required',
@@ -938,7 +945,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
         $service    = Service::where('slug', 'court-case-submission')->firstOrFail();
 
@@ -988,8 +995,8 @@ class ServiceRequestController extends Controller
                     $files = [$files];
                 }
                 foreach ($files as $file) {
-                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filename       = $requestFolder.$uniqueName;
+                    $uniqueName     = $inputName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder . $uniqueName;
                     $fileContents   = file_get_contents($file);
                     Storage::disk('public')->put($filename, $fileContents);
                     $filePaths[$columnName][] = Storage::url($filename);
@@ -999,16 +1006,17 @@ class ServiceRequestController extends Controller
 
         $courtCase->update($filePaths);
 
-        
+
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
-        return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
     }
 
-    public function requestCriminalComplaint(Request $request){
+    public function requestCriminalComplaint(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'applicant_type'    => 'required',
             'litigation_type'   => 'required',
@@ -1050,7 +1058,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
         $service    = Service::where('slug', 'criminal-complaint')->firstOrFail();
 
@@ -1100,8 +1108,8 @@ class ServiceRequestController extends Controller
                     $files = [$files];
                 }
                 foreach ($files as $file) {
-                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filename       = $requestFolder.$uniqueName;
+                    $uniqueName     = $inputName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder . $uniqueName;
                     $fileContents   = file_get_contents($file);
                     Storage::disk('public')->put($filename, $fileContents);
                     $filePaths[$columnName][] = Storage::url($filename);
@@ -1111,16 +1119,17 @@ class ServiceRequestController extends Controller
 
         $criminalComplaint->update($filePaths);
 
-        
+
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
-        return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
     }
 
-    public function requestLastWill(Request $request){
+    public function requestLastWill(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'testament_place'   => 'required',
@@ -1148,7 +1157,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
         $service    = Service::where('slug', 'last-will-and-testament')->firstOrFail();
 
@@ -1193,8 +1202,8 @@ class ServiceRequestController extends Controller
                     $files = [$files];
                 }
                 foreach ($files as $file) {
-                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filename       = $requestFolder.$uniqueName;
+                    $uniqueName     = $inputName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder . $uniqueName;
                     $fileContents   = file_get_contents($file);
                     Storage::disk('public')->put($filename, $fileContents);
                     $filePaths[$columnName][] = Storage::url($filename);
@@ -1203,16 +1212,17 @@ class ServiceRequestController extends Controller
         }
 
         $lastWill->update($filePaths);
-        
+
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
-        return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
     }
 
-    public function requestEscrowAccount(Request $request){
+    public function requestEscrowAccount(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'applicant_type'    => 'required',
@@ -1234,7 +1244,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
         $service    = Service::where('slug', 'escrow-accounts')->firstOrFail();
 
@@ -1261,16 +1271,17 @@ class ServiceRequestController extends Controller
             'about_deal'            => $request->input('about_deal') ?? NULL
         ]);
 
-        
+
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
-        return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
     }
 
-    public function requestDebtsCollection(Request $request){
+    public function requestDebtsCollection(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'applicant_type'    => 'required',
@@ -1307,7 +1318,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
         $service    = Service::where('slug', 'debts-collection')->firstOrFail();
 
@@ -1354,8 +1365,8 @@ class ServiceRequestController extends Controller
                     $files = [$files];
                 }
                 foreach ($files as $file) {
-                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filename       = $requestFolder.$uniqueName;
+                    $uniqueName     = $inputName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder . $uniqueName;
                     $fileContents   = file_get_contents($file);
                     Storage::disk('public')->put($filename, $fileContents);
                     $filePaths[$columnName][] = Storage::url($filename);
@@ -1364,16 +1375,17 @@ class ServiceRequestController extends Controller
         }
 
         $debtCollection->update($filePaths);
-        
+
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
-        return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
     }
 
-    public function requestMemoWriting(Request $request){
+    public function requestMemoWriting(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'applicant_type'    => 'required',
@@ -1413,7 +1425,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
         $service    = Service::where('slug', 'memo-writing')->firstOrFail();
 
@@ -1457,15 +1469,15 @@ class ServiceRequestController extends Controller
 
         foreach ($fileFields as $inputName => $columnName) {
             $filePaths[$columnName] = [];
-            
+
             if ($request->hasFile($inputName)) {
                 $files = $request->file($inputName);
                 if (!is_array($files)) {
                     $files = [$files];
                 }
                 foreach ($files as $file) {
-                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filename       = $requestFolder.$uniqueName;
+                    $uniqueName     = $inputName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder . $uniqueName;
                     $fileContents   = file_get_contents($file);
                     Storage::disk('public')->put($filename, $fileContents);
                     $filePaths[$columnName][] = Storage::url($filename);
@@ -1474,71 +1486,74 @@ class ServiceRequestController extends Controller
         }
 
         $memoWriting->update($filePaths);
-        
+
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
-        return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
     }
 
-    public function requestSuccess(Request $request, $reqid){
+    public function requestSuccess(Request $request, $reqid)
+    {
 
-        $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $requestId = $reqid ? base64_decode($reqid) : '';
 
         $service = ServiceRequest::find($requestId);
-        
-        if(!empty($service)){
-            $pageData = getPageDynamicContent('request_success',$lang);
+
+        if (!empty($service)) {
+            $pageData = getPageDynamicContent('request_success', $lang);
             $response = [
                 'reference' => $service->reference_code ?? '',
                 'message'   => $pageData['content']
             ];
-            
+
             return view('frontend.user.service-requests.request_success', ['data' => $response, 'lang' => $lang]);
-        }else{
-            $pageData = getPageDynamicContent('request_failed',$lang);
+        } else {
+            $pageData = getPageDynamicContent('request_failed', $lang);
             $response = [
                 'reference' => '',
                 'message'   => $pageData['content']
             ];
-            
+
             return view('frontend.user.service-requests.request_failed', ['data' => $response, 'lang' => $lang]);
         }
     }
 
-    public function requestPaymentSuccess(Request $request, $reqid){
+    public function requestPaymentSuccess(Request $request, $reqid)
+    {
 
-        $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
-        $pageData = getPageDynamicContent('request_payment_success',$lang);
+        $pageData = getPageDynamicContent('request_payment_success', $lang);
 
         $requestId = $reqid ? base64_decode($reqid) : '';
 
         $service = ServiceRequest::find($requestId);
-        
-        if(!empty($service)){
-            $pageData = getPageDynamicContent('request_payment_success',$lang);
+
+        if (!empty($service)) {
+            $pageData = getPageDynamicContent('request_payment_success', $lang);
             $response = [
                 'reference' => $service->reference_code ?? '',
                 'message'   => $pageData['content']
             ];
-            
+
             return view('frontend.user.service-requests.request_success', ['data' => $response, 'lang' => $lang]);
-        }else{
-            $pageData = getPageDynamicContent('request_payment_failed',$lang);
+        } else {
+            $pageData = getPageDynamicContent('request_payment_failed', $lang);
             $response = [
                 'reference' => '',
                 'message'   => $pageData['content']
             ];
-            
+
             return view('frontend.user.service-requests.request_failed', ['data' => $response, 'lang' => $lang]);
         }
     }
 
-    public function requestPowerOfAttorney(Request $request){
+    public function requestPowerOfAttorney(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'applicant_type'        => 'required',
             'appointer_name'        => 'required',
@@ -1586,7 +1601,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
         $service    = Service::where('slug', 'power-of-attorney')->firstOrFail();
 
@@ -1605,16 +1620,16 @@ class ServiceRequestController extends Controller
         $powerOA = RequestPowerOfAttorney::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'applicant_type'        => $request->input('applicant_type') ?? NULL, 
-            'appointer_name'        => $request->input('appointer_name') ?? NULL, 
-            'id_number'             => $request->input('id_number') ?? NULL, 
-            'appointer_mobile'      => $request->input('appointer_mobile') ?? NULL, 
-            'emirate_id'            => $request->input('emirate_id') ?? NULL, 
-            'poa_type'              => $request->input('poa_type') ?? NULL, 
-            'name_of_authorized'    => $request->input('name_of_authorized') ?? NULL, 
-            'authorized_mobile'     => $request->input('authorized_mobile') ?? NULL, 
-            'id_number_authorized'  => $request->input('id_number_authorized') ?? NULL, 
-            'authorized_address'    => $request->input('authorized_address') ?? NULL, 
+            'applicant_type'        => $request->input('applicant_type') ?? NULL,
+            'appointer_name'        => $request->input('appointer_name') ?? NULL,
+            'id_number'             => $request->input('id_number') ?? NULL,
+            'appointer_mobile'      => $request->input('appointer_mobile') ?? NULL,
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'poa_type'              => $request->input('poa_type') ?? NULL,
+            'name_of_authorized'    => $request->input('name_of_authorized') ?? NULL,
+            'authorized_mobile'     => $request->input('authorized_mobile') ?? NULL,
+            'id_number_authorized'  => $request->input('id_number_authorized') ?? NULL,
+            'authorized_address'    => $request->input('authorized_address') ?? NULL,
             'relationship'          => $request->input('relationship') ?? NULL,
             'appointer_id'          => [],
             'authorized_id'         => [],
@@ -1633,18 +1648,18 @@ class ServiceRequestController extends Controller
 
         foreach ($fileFields as $inputName => $columnName) {
             $filePaths[$columnName] = [];
-            
+
             if ($request->hasFile($inputName)) {
                 $files = $request->file($inputName);
 
-                
+
                 if (!is_array($files)) {
                     $files = [$files];
                 }
 
                 foreach ($files as $file) {
-                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filename       = $requestFolder.$uniqueName;
+                    $uniqueName     = $inputName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder . $uniqueName;
                     $fileContents   = file_get_contents($file);
                     Storage::disk('public')->put($filename, $fileContents);
                     $filePaths[$columnName][] = Storage::url($filename);
@@ -1653,16 +1668,17 @@ class ServiceRequestController extends Controller
         }
 
         $powerOA->update($filePaths);
-        
+
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
-        return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
     }
 
-    public function requestContractDrafting(Request $request){
+    public function requestContractDrafting(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'applicant_type'    => 'required',
@@ -1707,7 +1723,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
         $service    = Service::where('slug', 'contract-drafting')->firstOrFail();
 
@@ -1758,8 +1774,8 @@ class ServiceRequestController extends Controller
                     $files = [$files];
                 }
                 foreach ($files as $file) {
-                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filename       = $requestFolder.$uniqueName;
+                    $uniqueName     = $inputName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder . $uniqueName;
                     $fileContents   = file_get_contents($file);
                     Storage::disk('public')->put($filename, $fileContents);
                     $filePaths[$columnName][] = Storage::url($filename);
@@ -1768,16 +1784,17 @@ class ServiceRequestController extends Controller
         }
 
         $contractDrafting->update($filePaths);
-        
+
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
-        return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
     }
 
-    public function requestCompanySetup(Request $request){
+    public function requestCompanySetup(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'applicant_type'    => 'required',
@@ -1812,7 +1829,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
         $service    = Service::where('slug', 'company-setup')->firstOrFail();
 
@@ -1860,8 +1877,8 @@ class ServiceRequestController extends Controller
                     $files = [$files];
                 }
                 foreach ($files as $file) {
-                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filename       = $requestFolder.$uniqueName;
+                    $uniqueName     = $inputName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder . $uniqueName;
                     $fileContents   = file_get_contents($file);
                     Storage::disk('public')->put($filename, $fileContents);
                     $filePaths[$columnName][] = Storage::url($filename);
@@ -1870,16 +1887,17 @@ class ServiceRequestController extends Controller
         }
 
         $companySetup->update($filePaths);
-        
+
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
-        return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+        return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
     }
 
-    public function requestExpertReport(Request $request){
+    public function requestExpertReport(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'applicant_type'            => 'required',
@@ -1917,7 +1935,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
         $service    = Service::where('slug', 'expert-report')->firstOrFail();
         $referenceCode = ServiceRequest::generateReferenceCode($service);
@@ -1963,8 +1981,8 @@ class ServiceRequestController extends Controller
                     $files = [$files];
                 }
                 foreach ($files as $file) {
-                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filename       = $requestFolder.$uniqueName;
+                    $uniqueName     = $inputName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder . $uniqueName;
                     $fileContents   = file_get_contents($file);
                     Storage::disk('public')->put($filename, $fileContents);
                     $filePaths[$columnName][] = Storage::url($filename);
@@ -1974,25 +1992,25 @@ class ServiceRequestController extends Controller
 
         $expertReport->update($filePaths);
         $base = ExpertReportPricing::where('litigation_type', $request->input('applicant_place'))
-                                    ->where('expert_report_type_id', $request->input('expert_report_type'))
-                                    ->where('language_id', $request->input('expert_report_language'))
-                                    ->where('status', 1)
-                                    ->first();
+            ->where('expert_report_type_id', $request->input('expert_report_type'))
+            ->where('language_id', $request->input('expert_report_language'))
+            ->where('status', 1)
+            ->first();
 
         $total_amount = (float)($base->total ?? 0);
-        
-        $currency = env('APP_CURRENCY','AED');
+
+        $currency = env('APP_CURRENCY', 'AED');
         $payment = [];
-        if($total_amount != 0){
+        if ($total_amount != 0) {
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
                 'phone' => $user->phone
             ];
 
-            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+            $orderReference = $service_request->id . '--' . $service_request->reference_code;
 
-            $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY','AED'), $orderReference);
+            $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY', 'AED'), $orderReference);
 
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
@@ -2006,8 +2024,8 @@ class ServiceRequestController extends Controller
             }
 
             return redirect()->back()->with('error', 'Failed to initiate payment');
-        }else{
-            
+        } else {
+
             $serviceSlug = $service_request->service_slug;
             $requestId   = $service_request->id;
 
@@ -2023,7 +2041,8 @@ class ServiceRequestController extends Controller
         }
     }
 
-    public function requestImmigration(Request $request){
+    public function requestImmigration(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'preferred_country'     => 'required',
@@ -2081,7 +2100,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
 
         $service    = Service::where('slug', 'immigration-requests')->firstOrFail();
@@ -2097,8 +2116,8 @@ class ServiceRequestController extends Controller
         ]);
 
         $immigration = RequestImmigration::create([
-            'service_request_id'    => $service_request->id, 
-            'user_id'               => $user->id, 
+            'service_request_id'    => $service_request->id,
+            'user_id'               => $user->id,
             'preferred_country'     => $request->input('preferred_country') ?? NULL,
             'position'              => $request->input('position') ?? NULL,
             'age'                   => $request->input('age') ?? NULL,
@@ -2135,8 +2154,8 @@ class ServiceRequestController extends Controller
                     $files = [$files];
                 }
                 foreach ($files as $file) {
-                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filename       = $requestFolder.$uniqueName;
+                    $uniqueName     = $inputName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder . $uniqueName;
                     $fileContents   = file_get_contents($file);
                     Storage::disk('public')->put($filename, $fileContents);
                     $filePaths[$columnName][] = Storage::url($filename);
@@ -2147,17 +2166,17 @@ class ServiceRequestController extends Controller
         $immigration->update($filePaths);
 
         $total_amount = $service->total_amount ?? 0;
-        
-        if($total_amount != 0){
+
+        if ($total_amount != 0) {
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
                 'phone' => $user->phone
             ];
 
-            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+            $orderReference = $service_request->id . '--' . $service_request->reference_code;
 
-            $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY','AED'), $orderReference);
+            $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY', 'AED'), $orderReference);
 
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
@@ -2171,8 +2190,8 @@ class ServiceRequestController extends Controller
             }
 
             return redirect()->back()->with('error', 'Failed to initiate payment');
-        }else{
-            
+        } else {
+
             $serviceSlug = $service_request->service_slug;
             $requestId   = $service_request->id;
 
@@ -2184,11 +2203,12 @@ class ServiceRequestController extends Controller
             deleteRequestFolder('immigration', $serviceReqId);
             $service_request->delete();
 
-            return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+            return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
         }
     }
 
-    public function requestRequestSubmission(Request $request){
+    public function requestRequestSubmission(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'applicant_type'    => 'required',
@@ -2236,7 +2256,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
 
         $service    = Service::where('slug', 'request-submission')->firstOrFail();
@@ -2289,8 +2309,8 @@ class ServiceRequestController extends Controller
                     $files = [$files];
                 }
                 foreach ($files as $file) {
-                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filename       = $requestFolder.$uniqueName;
+                    $uniqueName     = $inputName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder . $uniqueName;
                     $fileContents   = file_get_contents($file);
                     Storage::disk('public')->put($filename, $fileContents);
                     $filePaths[$columnName][] = Storage::url($filename);
@@ -2301,28 +2321,28 @@ class ServiceRequestController extends Controller
         $requestSubmission->update($filePaths);
 
         $base = RequestSubmissionPricing::where('litigation_type', $request->input('litigation_type'))
-                                    ->where('litigation_place', $request->input('litigation_place'))
-                                    ->where('case_type_id', $request->input('case_type'))
-                                    ->where('request_type_id', $request->input('request_type'))
-                                    ->where('request_title_id', $request->input('request_title'))
-                                    ->where('status', 1)
-                                    ->first();
+            ->where('litigation_place', $request->input('litigation_place'))
+            ->where('case_type_id', $request->input('case_type'))
+            ->where('request_type_id', $request->input('request_type'))
+            ->where('request_title_id', $request->input('request_title'))
+            ->where('status', 1)
+            ->first();
 
         $total_amount = (float)($base->total_amount ?? 0);
 
-        $currency = env('APP_CURRENCY','AED');
+        $currency = env('APP_CURRENCY', 'AED');
         $payment = [];
-        
-        if($total_amount != 0){
+
+        if ($total_amount != 0) {
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
                 'phone' => $user->phone
             ];
 
-            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+            $orderReference = $service_request->id . '--' . $service_request->reference_code;
 
-            $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY','AED'), $orderReference);
+            $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY', 'AED'), $orderReference);
 
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
@@ -2336,8 +2356,8 @@ class ServiceRequestController extends Controller
             }
 
             return redirect()->back()->with('error', 'Failed to initiate payment');
-        }else{
-            
+        } else {
+
             $serviceSlug = $service_request->service_slug;
             $requestId   = $service_request->id;
 
@@ -2352,7 +2372,8 @@ class ServiceRequestController extends Controller
         }
     }
 
-    public function requestLegalTranslation(Request $request){
+    public function requestLegalTranslation(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'priority_level'            => 'required',
@@ -2398,7 +2419,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
 
         $service    = Service::where('slug', 'legal-translation')->firstOrFail();
@@ -2450,8 +2471,8 @@ class ServiceRequestController extends Controller
                     $files = [$files];
                 }
                 foreach ($files as $file) {
-                    $uniqueName     = $inputName.'_'.uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-                    $filename       = $requestFolder.$uniqueName;
+                    $uniqueName     = $inputName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $filename       = $requestFolder . $uniqueName;
                     $fileContents   = file_get_contents($file);
                     Storage::disk('public')->put($filename, $fileContents);
                     $filePaths[$columnName][] = Storage::url($filename);
@@ -2464,29 +2485,29 @@ class ServiceRequestController extends Controller
         $from           = $request->input('document_language');
         $to             = $request->input('translation_language');
         $pages          = $request->input('no_of_pages') ?? 0;
-         $priority       = $request->priority_level ?? null;
+        $priority       = $request->priority_level ?? null;
         $doc_type       = $request->document_type;
         $subdoc_type    = $request->document_sub_type;
         $receive_by     = $request->receive_by ?? null;
         $totalAmount  = $totalHours  = 0;
 
         $assignment = DefaultTranslatorAssignment::where([
-                            'from_language_id' => $from,
-                            'to_language_id'   => $to,
-                        ])->first();
+            'from_language_id' => $from,
+            'to_language_id'   => $to,
+        ])->first();
 
         if ($assignment) {
-            $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
-                                            $q->where('priority_type', $priority)
-                                            ->where('delivery_type', $receive_by);
-                                        }])
-                                        ->where('translator_id', $assignment->translator_id)
-                                        ->where('from_language_id', $from)
-                                        ->where('to_language_id', $to)
-                                        ->where('doc_type_id', $doc_type)
-                                        ->where('doc_subtype_id', $subdoc_type)
-                                        ->where('status', 1)
-                                        ->first();
+            $rate = TranslatorLanguageRate::with(['deliveries' => function ($q) use ($priority, $receive_by) {
+                $q->where('priority_type', $priority)
+                    ->where('delivery_type', $receive_by);
+            }])
+                ->where('translator_id', $assignment->translator_id)
+                ->where('from_language_id', $from)
+                ->where('to_language_id', $to)
+                ->where('doc_type_id', $doc_type)
+                ->where('doc_subtype_id', $subdoc_type)
+                ->where('status', 1)
+                ->first();
 
             if ($rate) {
                 if ($priority === 'normal') {
@@ -2521,10 +2542,10 @@ class ServiceRequestController extends Controller
 
                 $totalAmountNoTax = ($admin_amount + $translator_amount + $delivery->delivery_amount);
 
-                $tax = ($totalAmountNoTax/100) * 5;
+                $tax = ($totalAmountNoTax / 100) * 5;
 
                 $totalAmount = $totalAmountNoTax + $tax;
-                
+
 
                 $legalTranslation->update([
                     'admin_amount' => $admin_amount,
@@ -2537,19 +2558,19 @@ class ServiceRequestController extends Controller
             }
         }
         $total_amount = $totalAmount ?? 0;
-        $currency = env('APP_CURRENCY','AED');
+        $currency = env('APP_CURRENCY', 'AED');
         $payment = [];
 
-        if($total_amount != 0){
+        if ($total_amount != 0) {
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
                 'phone' => $user->phone
             ];
 
-            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+            $orderReference = $service_request->id . '--' . $service_request->reference_code;
 
-            $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY','AED'), $orderReference);
+            $payment = createWebOrder($customer, $total_amount, env('APP_CURRENCY', 'AED'), $orderReference);
 
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
@@ -2563,8 +2584,8 @@ class ServiceRequestController extends Controller
             }
 
             return redirect()->back()->with('error', 'Failed to initiate payment');
-        }else{
-            
+        } else {
+
             $serviceSlug = $service_request->service_slug;
             $requestId   = $service_request->id;
 
@@ -2579,7 +2600,8 @@ class ServiceRequestController extends Controller
         }
     }
 
-    public function requestAnnualAgreement(Request $request){
+    public function requestAnnualAgreement(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'company_name'      => 'required',
@@ -2611,7 +2633,7 @@ class ServiceRequestController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = Auth::guard('frontend')->user();
 
         $service    = Service::where('slug', 'annual-retainer-agreement')->firstOrFail();
@@ -2636,11 +2658,11 @@ class ServiceRequestController extends Controller
         $installments   = $request->input('no_of_installment') ?? 1;
 
         $base = AnnualRetainerBaseFee::where('calls_per_month', $calls)
-                                    ->where('visits_per_year', $visits)
-                                    ->first();
-        
+            ->where('visits_per_year', $visits)
+            ->first();
 
-        if($base){
+
+        if ($base) {
             $installment = $base->installments()->where('installments', $installments)->first();
         }
 
@@ -2664,7 +2686,7 @@ class ServiceRequestController extends Controller
             'final_total'           => $finalTotal
         ]);
 
-        if($amountToBePaidNow != 0){
+        if ($amountToBePaidNow != 0) {
 
             for ($i = 1; $i <= $installments; $i++) {
                 AnnualAgreementInstallment::create([
@@ -2682,9 +2704,9 @@ class ServiceRequestController extends Controller
                 'phone' => $user->phone
             ];
 
-            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+            $orderReference = $service_request->id . '--' . $service_request->reference_code;
 
-            $payment = createWebOrder($customer, $amountToBePaidNow, env('APP_CURRENCY','AED'), $orderReference);
+            $payment = createWebOrder($customer, $amountToBePaidNow, env('APP_CURRENCY', 'AED'), $orderReference);
 
             if (isset($payment['_links']['payment']['href'])) {
                 $service_request->update([
@@ -2698,8 +2720,8 @@ class ServiceRequestController extends Controller
             }
 
             return redirect()->back()->with('error', 'Failed to initiate payment');
-        }else{
-            
+        } else {
+
             $serviceSlug = $service_request->service_slug;
             $requestId   = $service_request->id;
 
@@ -2711,11 +2733,11 @@ class ServiceRequestController extends Controller
             deleteRequestFolder('annual_retainer_agreement', $serviceReqId);
             $service_request->delete();
 
-            return redirect()->route('user.request-success',['reqid' => base64_encode($service_request->id)]);
+            return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
         }
     }
 
-    public function paymentSuccess(Request $request) 
+    public function paymentSuccess(Request $request)
     {
         $paymentReference = $request->query('ref') ?? NULL;
         $token = getAccessToken();
@@ -2725,30 +2747,30 @@ class ServiceRequestController extends Controller
 
         $response = Http::withToken($token)->get("{$baseUrl}/transactions/outlets/" . $outletRef . "/orders/{$paymentReference}");
         $data = $response->json();
-      
+
         $orderRef = $data['merchantOrderReference'] ?? NULL;
         $serviceData = explode('--', $orderRef);
 
         $serviceRequestId = $serviceData[0];
         $serviceRequestCode = $serviceData[1];
-        
+
         $status = $data['_embedded']['payment'][0]['state'] ?? null;
         $paid_amount = $data['_embedded']['payment'][0]['amount']['value'] ?? 0;
 
-        $paidAmount = ($paid_amount != 0) ? $paid_amount/100 : 0;
+        $paidAmount = ($paid_amount != 0) ? $paid_amount / 100 : 0;
         $serviceRequest = ServiceRequest::findOrFail($serviceRequestId);
 
         if ($status === 'PURCHASED' || $status === 'CAPTURED') {
-            if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+            if ($serviceRequest->service_slug === 'annual-retainer-agreement') {
                 $annualRequest = RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
-                if($annualRequest->no_of_installment != 1){
+                if ($annualRequest->no_of_installment != 1) {
                     $serviceRequest->update([
                         'payment_status' => 'partial',
                         'payment_response' => $data,
                         'request_success'   => 1,
                         'paid_at' => date('Y-m-d h:i:s')
                     ]);
-                }else{
+                } else {
                     $serviceRequest->update([
                         'payment_status' => 'success',
                         'request_success'   => 1,
@@ -2756,8 +2778,7 @@ class ServiceRequestController extends Controller
                         'paid_at' => date('Y-m-d h:i:s')
                     ]);
                 }
-
-            }else{
+            } else {
                 $serviceRequest->update([
                     'payment_status' => 'success',
                     'request_success'   => 1,
@@ -2765,8 +2786,8 @@ class ServiceRequestController extends Controller
                     'paid_at' => date('Y-m-d h:i:s')
                 ]);
             }
-  
-            if($serviceRequest->service_slug === 'legal-translation'){
+
+            if ($serviceRequest->service_slug === 'legal-translation') {
                 $legalTranslation = requestLegalTranslation::where('service_request_id', $serviceRequest->id)->first();
 
                 $from = $legalTranslation->document_language;
@@ -2778,22 +2799,22 @@ class ServiceRequestController extends Controller
                 $subdoc_type = $legalTranslation->document_sub_type;
 
                 $assignment = DefaultTranslatorAssignment::where([
-                                    'from_language_id' => $from,
-                                    'to_language_id'   => $to,
-                                ])->first();
+                    'from_language_id' => $from,
+                    'to_language_id'   => $to,
+                ])->first();
 
                 if ($assignment) {
-                    $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
-                                            $q->where('priority_type', $priority)
-                                            ->where('delivery_type', $receive_by);
-                                        }])
-                                        ->where('translator_id', $assignment->translator_id)
-                                        ->where('from_language_id', $from)
-                                        ->where('to_language_id', $to)
-                                        ->where('doc_type_id', $doc_type)
-                                        ->where('doc_subtype_id', $subdoc_type)
-                                        ->where('status', 1)
-                                        ->first();
+                    $rate = TranslatorLanguageRate::with(['deliveries' => function ($q) use ($priority, $receive_by) {
+                        $q->where('priority_type', $priority)
+                            ->where('delivery_type', $receive_by);
+                    }])
+                        ->where('translator_id', $assignment->translator_id)
+                        ->where('from_language_id', $from)
+                        ->where('to_language_id', $to)
+                        ->where('doc_type_id', $doc_type)
+                        ->where('doc_subtype_id', $subdoc_type)
+                        ->where('status', 1)
+                        ->first();
 
                     if ($rate) {
                         $totalHours = 0;
@@ -2829,7 +2850,7 @@ class ServiceRequestController extends Controller
 
                         $totalAmountNoTax = ($admin_amount + $translator_amount + $delivery->delivery_amount);
 
-                        $tax = ($totalAmountNoTax/100) * 5;
+                        $tax = ($totalAmountNoTax / 100) * 5;
 
                         $totalAmount = $totalAmountNoTax + $tax;
 
@@ -2851,28 +2872,34 @@ class ServiceRequestController extends Controller
                     }
                 }
             }
-  
-            if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+
+            if ($serviceRequest->service_slug === 'annual-retainer-agreement') {
                 $annualRequest = RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
                 $annualRequest->amount_paid = $paidAmount;
                 $annualRequest->save();
 
                 $installment = AnnualAgreementInstallment::where('service_request_id', $serviceRequest->id)
-                                    ->where('installment_no', 1)->first();
+                    ->where('installment_no', 1)->first();
                 $installment->status = 'paid';
-                $installment->save();              
+                $installment->save();
             }
+
+            ServiceRequestTimeline::create([
+                'service_request_id'    => $serviceRequest->id,
+                'service_slug'  => $serviceRequest->service_slug,
+                'status'             => "pending",
+            ]);
 
             Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest));
 
-            $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+            $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
             Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
 
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
-        }else{
-            $pageData = getPageDynamicContent('request_payment_failed',$lang);
-            
-            if($serviceRequest->service_slug === 'expert-report'){
+        } else {
+            $pageData = getPageDynamicContent('request_payment_failed', $lang);
+
+            if ($serviceRequest->service_slug === 'expert-report') {
                 $serviceRequest->update([
                     'payment_status' => 'failed',
                     'request_success'   => 1,
@@ -2882,11 +2909,9 @@ class ServiceRequestController extends Controller
 
                 Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest));
 
-                $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+                $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
                 Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
-
-               
-            }else{
+            } else {
 
                 $serviceSlug = $serviceRequest->service_slug;
                 $requestId   = $serviceRequest->id;
@@ -2916,9 +2941,8 @@ class ServiceRequestController extends Controller
                     deleteRequestFolder($filePath[$serviceSlug], $serviceReqId);
                 }
                 $serviceRequest->delete();
-            
+
                 $referenceCode = '';
-               
             }
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         }
@@ -2926,8 +2950,9 @@ class ServiceRequestController extends Controller
         return redirect()->route('user.dashboard')->with('error', 'Payment failed or cancelled.');
     }
 
-    public function paymentCancel(Request $request){
-        $ref = $request->get('ref'); 
+    public function paymentCancel(Request $request)
+    {
+        $ref = $request->get('ref');
 
         $serviceRequest = ServiceRequest::where('payment_reference', $ref)->first();
 
@@ -2962,12 +2987,12 @@ class ServiceRequestController extends Controller
         }
 
         return redirect()->route('user.dashboard')->with('error', __('frontend.request_cancelled'));
-
     }
 
-     public function getRequestSubmissionPrice(Request $request){
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
-        
+    public function getRequestSubmissionPrice(Request $request)
+    {
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
+
         $litigation_type    = $request->query('litigation_type') ?? NULL;
         $litigation_place   = $request->query('litigation_place') ?? NULL;
         $case_type          = $request->query('case_type') ?? NULL;
@@ -2979,36 +3004,37 @@ class ServiceRequestController extends Controller
                 'status'    => true,
                 'message'   => 'Success',
                 'data'      => [
-                                'admin_fee' => 0,
-                                'govt_fee' => 0,
-                                'tax'       => 0,
-                                'total'     => 0,
-                            ]
+                    'admin_fee' => 0,
+                    'govt_fee' => 0,
+                    'tax'       => 0,
+                    'total'     => 0,
+                ]
             ], 200);
         }
 
-         $base = RequestSubmissionPricing::where('litigation_type', $litigation_type)
-                                    ->where('litigation_place', $litigation_place)
-                                    ->where('case_type_id', $case_type)
-                                    ->where('request_type_id', $request_type)
-                                    ->where('request_title_id', $request_title)
-                                    ->where('status', 1)
-                                    ->first();
+        $base = RequestSubmissionPricing::where('litigation_type', $litigation_type)
+            ->where('litigation_place', $litigation_place)
+            ->where('case_type_id', $case_type)
+            ->where('request_type_id', $request_type)
+            ->where('request_title_id', $request_title)
+            ->where('status', 1)
+            ->first();
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
             'data'      => [
-                            'admin_fee' => (float)($base->admin_fee ?? 0),
-                            'govt_fee' => (float)($base->govt_fee ?? 0),
-                            'tax'       => (float)($base->vat ?? 0),
-                            'total'     => (float)($base->total_amount ?? 0),
-                        ]
+                'admin_fee' => (float)($base->admin_fee ?? 0),
+                'govt_fee' => (float)($base->govt_fee ?? 0),
+                'tax'       => (float)($base->vat ?? 0),
+                'total'     => (float)($base->total_amount ?? 0),
+            ]
         ], 200);
     }
 
-    public function getExpertReportPrice(Request $request){
-        $lang       = app()->getLocale() ?? env('APP_LOCALE','en'); 
-        
+    public function getExpertReportPrice(Request $request)
+    {
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
+
         $litigation_type    = $request->query('litigation_type') ?? NULL;
         $report_type        = $request->query('report_type') ?? NULL;
         $report_language    = $request->query('report_language') ?? NULL;
@@ -3018,26 +3044,26 @@ class ServiceRequestController extends Controller
                 'status'    => true,
                 'message'   => 'Success',
                 'data'      => [
-                                'admin_fee' => 0,
-                                'tax'       => 0,
-                                'total'     => 0,
-                            ]
+                    'admin_fee' => 0,
+                    'tax'       => 0,
+                    'total'     => 0,
+                ]
             ], 200);
         }
 
         $base = ExpertReportPricing::where('litigation_type', $litigation_type)
-                                    ->where('expert_report_type_id', $report_type)
-                                    ->where('language_id', $report_language)
-                                    ->where('status', 1)
-                                    ->first();
+            ->where('expert_report_type_id', $report_type)
+            ->where('language_id', $report_language)
+            ->where('status', 1)
+            ->first();
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
             'data'      => [
-                            'admin_fee' => (float)($base->admin_fee ?? 0),
-                            'tax'       => (float)($base->vat ?? 0),
-                            'total'     => (float)($base->total ?? 0),
-                        ]
+                'admin_fee' => (float)($base->admin_fee ?? 0),
+                'tax'       => (float)($base->vat ?? 0),
+                'total'     => (float)($base->total ?? 0),
+            ]
         ], 200);
     }
 }
