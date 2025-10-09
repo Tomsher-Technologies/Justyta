@@ -21,10 +21,6 @@
                     <span class="font-medium">{{ $details['reference_code'] }}</span>
                 </div>
                 <div class="flex">
-                    <span class="w-56 text-[#23222B]">{{ __('frontend.document_title') }} :</span>
-                    <span class="font-medium">{{ $details['document_title'] }}</span>
-                </div>
-                <div class="flex">
                     <span class="w-56 text-[#23222B]">{{ __('frontend.type_of_document') }} :</span>
                     <span class="font-medium">{{ $details['document_type'] }}</span>
                 </div>
@@ -54,7 +50,7 @@
                 </div>
                 <div class="flex">
                     <span class="w-56 text-[#23222B]">{{ __('frontend.receive_by') }} :</span>
-                    <span class="font-medium">{{ $details['receive_by'] }}</span>
+                    <span class="font-medium">{{ ucfirst($details['receive_by']) }}</span>
                 </div>
             </div>
 

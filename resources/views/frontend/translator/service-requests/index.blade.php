@@ -35,7 +35,8 @@
                         class="block mb-2 text-sm font-medium text-gray-900">{{ __('frontend.language_pairs') }}</label>
                     <select name="language_pair" id="language_pair"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
-                        <option value="all" {{ request('language_pair') == 'all' || !request('language_pair') ? 'selected' : '' }}>
+                        <option value="all"
+                            {{ request('language_pair') == 'all' || !request('language_pair') ? 'selected' : '' }}>
                             {{ __('frontend.all') }}</option>
                         @if (isset($languagePairs))
                             @foreach ($languagePairs as $pair)
@@ -121,7 +122,7 @@
                                     {{ $request['status'] === 'completed' ? 'bg-green-100 text-green-800' : '' }}
                                     {{ $request['status'] === 'rejected' ? 'bg-red-100 text-red-800' : '' }}
                                     {{ in_array($request['status'], ['pending', 'under_review', 'ongoing', 'completed', 'rejected']) ? '' : 'bg-gray-100 text-gray-800' }}">
-                                        {{ __($request['status']) }}
+                                        {{ __('frontend.' . $request['status']) }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
