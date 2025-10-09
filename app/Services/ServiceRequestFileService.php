@@ -40,24 +40,13 @@ class ServiceRequestFileService
         $serviceRequest->update(['completed_files' => $completedFiles]);
     }
 
-    public function download($id, $translatorId = null)
+    public function download($id)
     {
-        if (!$translatorId) {
-            $user = Auth::guard('frontend')->user();
-            $translatorId = $user->translator?->id;
-        }
-
-        if (!$translatorId) {
-            abort(403, __('frontend.unauthorized'));
-        }
-
         $serviceRequest = ServiceRequest::with('service', 'statusHistories')->findOrFail($id);
 
         if ($serviceRequest->status !== 'completed') {
             abort(403, __('frontend.download_not_allowed'));
         }
-
-        $this->verifyTranslatorAccess($serviceRequest, $translatorId);
 
         $completedFiles = $serviceRequest->completed_files ?? [];
 
@@ -70,18 +59,6 @@ class ServiceRequestFileService
         }
 
         return $this->downloadMultipleFiles($serviceRequest, $completedFiles);
-    }
-
-    protected function verifyTranslatorAccess($serviceRequest, $translatorId)
-    {
-        $relation = getServiceRelationName($serviceRequest->service_slug);
-
-        if ($relation) {
-            $serviceDetails = $serviceRequest->$relation;
-            if ($serviceDetails && $serviceDetails->assigned_translator_id != $translatorId) {
-                abort(403, __('frontend.unauthorized'));
-            }
-        }
     }
 
     protected function downloadSingleFile($fileUrl)

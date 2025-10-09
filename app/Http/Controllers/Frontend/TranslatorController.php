@@ -485,7 +485,21 @@ class TranslatorController extends Controller
         $user = Auth::guard('frontend')->user();
         $translatorId = $user->translator?->id;
 
-        if (!$translatorId) {
+        $serviceRequest = ServiceRequest::findOrFail($id);
+
+        $relation = getServiceRelationName($serviceRequest->service_slug);
+
+        if (!$relation || !$serviceRequest->relationLoaded($relation)) {
+            $serviceRequest->load($relation);
+        }
+
+        $serviceDetails = $serviceRequest->$relation;
+
+        if (!$serviceDetails) {
+            return redirect()->back()->with('error', __('frontend.no_details_found'));
+        }
+
+        if ($serviceDetails->assigned_translator_id  !== $translatorId) {
             abort(403, __('frontend.unauthorized'));
         }
 

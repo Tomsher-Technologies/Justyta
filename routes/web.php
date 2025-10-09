@@ -159,6 +159,8 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/service-pending-details/{id}', [UserController::class, 'getServiceHistoryDetails'])->name('user.service.pending.details');
     Route::get('/service-payment-details/{id}', [UserController::class, 'getServiceHistoryDetails'])->name('user.service.payment.details');
 
+    Route::get('/service-request/{id}/download', [UserController::class, 'downloadServiceCompletedFiles'])->name('user.service-request.download');
+
     Route::get('/my-account', [UserController::class, 'account'])->name('user.my-account');
     Route::post('/user-profile', [UserController::class, 'updateProfile'])->name('user.update.profile');
     Route::delete('/account/delete', [UserController::class, 'deleteAccount'])->name('user.delete.account');
