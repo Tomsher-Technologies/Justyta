@@ -1,6 +1,22 @@
 @extends('layouts.web_translator', ['title' => 'Service Request Details'])
 
 @section('content')
+
+    @php
+        $statusClass = [
+            'pending' => '!bg-[#bdbdbdb5] !text-[#444444] dark:bg-gray-800 dark:text-gray-300',
+            'ongoing' => '!bg-[#ffdb82] !text-[#000000] dark:bg-yellow-900 dark:text-yellow-300',
+            'completed' => '!bg-[#42e1428c] !text-[#1B5E20] dark:bg-green-900 dark:text-green-300',
+            'rejected' => '!bg-[#fca6a6a1] !text-[#B71C1C] dark:bg-red-900 dark:text-red-300',
+        ];
+        $paymentStatus = [
+            'pending' => '!bg-[#ea1616] !text-[#fff] dark:bg-gray-800 dark:text-gray-300',
+            'success' => '!bg-[#008000] !text-[#fff] dark:bg-green-900 dark:text-green-300',
+            'failed' => '!bg-[#ea1616] !text-[#fff] dark:bg-red-900 dark:text-red-300',
+            'partial' => '!bg-[#ffdb82] !text-[#000000] dark:bg-yellow-900 dark:text-yellow-300',
+        ];
+    @endphp
+
     <div class="bg-white rounded-lg p-6">
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-medium text-gray-900 mb-4">
@@ -15,43 +31,70 @@
         <hr class="my-4 border-[#DFDFDF]" />
 
         <div class="grid grid-cols-2 gap-8">
-            <div class="space-y-6 text-[18px]">
-                <div class="flex">
-                    <span class="w-56 text-[#23222B]">{{ __('frontend.ref_no') }} :</span>
-                    <span class="font-medium">{{ $details['reference_code'] }}</span>
+            <div class="space-y-6">
+                <div class="flex items-center">
+                    <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.application_reference_number') }}</p>
+                    <p class="basis-3/5 text-gray-800">{{ $details['reference_code'] }}</p>
                 </div>
-                <div class="flex">
-                    <span class="w-56 text-[#23222B]">{{ __('frontend.type_of_document') }} :</span>
-                    <span class="font-medium">{{ $details['document_type'] }}</span>
+
+                <div class="flex items-center">
+                    <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.service') }}</p>
+                    <p class="basis-3/5 text-gray-800">{{ $details['service_name'] }}</p>
                 </div>
-                <div class="flex">
-                    <span class="w-56 text-[#23222B]">{{ __('frontend.sub_document_type') }} :</span>
-                    <span class="font-medium">{{ $details['sub_document_type'] }}</span>
+                <div class="flex items-center">
+                    <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.submitted_date') }}</p>
+                    <p class="basis-3/5 text-gray-800">
+                        {{ date('d M, Y h:i A', strtotime($details['submitted_at'])) }}
+                    </p>
                 </div>
-                <div class="flex">
-                    <span class="w-56 text-[#23222B]">{{ __('frontend.no_of_page') }} :</span>
-                    <span class="font-medium">{{ $details['no_of_pages'] }}</span>
-                </div>
-                <div class="flex">
-                    <span class="w-56 text-[#23222B]">{{ __('frontend.date_time') }} :</span>
-                    <span class="font-medium">{{ $details['created_at'] }}</span>
-                </div>
-                <div class="flex">
-                    <span class="w-56 text-[#23222B]">{{ __('frontend.document_language') }} :</span>
-                    <span class="font-medium">{{ $details['document_language'] }}</span>
-                </div>
-                <div class="flex">
-                    <span class="w-56 text-[#23222B]">{{ __('frontend.translation_language') }} :</span>
-                    <span class="font-medium">{{ $details['translation_language'] }}</span>
-                </div>
-                <div class="flex">
-                    <span class="w-56 text-[#23222B]">{{ __('frontend.priority_level') }} :</span>
-                    <span class="font-medium">{{ ucfirst($details['priority']) }}</span>
-                </div>
-                <div class="flex">
-                    <span class="w-56 text-[#23222B]">{{ __('frontend.receive_by') }} :</span>
-                    <span class="font-medium">{{ ucfirst($details['receive_by']) }}</span>
-                </div>
+
+                @php
+                    $status = strtolower($details['status']);
+                    $payStatus = strtolower($details['payment_status']);
+                @endphp
+
+
+                @if ($details['payment_status'] != null)
+                    <div class="flex items-center">
+                        <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.amount') }}</p>
+                        <p class="basis-3/5 text-gray-800">{{ __('frontend.AED') }}
+                            {{ number_format($details['amount'], 2) }}</p>
+                    </div>
+
+                    <div class="flex items-center">
+                        <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.payment_status') }}</p>
+                        <p class="basis-3/5 text-gray-800">
+                            <span
+                                class="{{ $paymentStatus[$payStatus] ?? '!bg-gray-200 !text-gray-700' }} text-xs font-medium px-4 py-1 rounded-full ml-2">
+                                @if ($payStatus == 'success')
+                                    {{ __('frontend.paid') }}
+                                @elseif ($payStatus == 'partial')
+                                    {{ __('frontend.partial') }}
+                                @else
+                                    {{ __('frontend.un_paid') }}
+                                @endif
+                            </span>
+                        </p>
+                    </div>
+                @endif
+
+                @foreach ($details['service_details'] as $key => $value)
+                    @if (!is_array($value))
+                        <div class="flex ">
+                            <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.' . $key) }}</p>
+                            <p class="basis-3/5 text-gray-800">
+                                @if (Str::startsWith($value, '[') && Str::endsWith($value, ']'))
+                                    @php
+                                        $decodedValue = json_decode($value, true);
+                                    @endphp
+                                    {{ implode(', ', $decodedValue) }}
+                                @else
+                                    {{ ucwords($value) }}
+                                @endif
+                            </p>
+                        </div>
+                    @endif
+                @endforeach
             </div>
 
             <div class="pl-8 border-l border-[#DFDFDF] flex flex-col justify-between">
@@ -59,8 +102,10 @@
                     <div>
                         <span class="font-semibold text-[#23222B]">{{ __('frontend.status') }}</span>
                         <div class="mt-2 mb-6">
-                            <span id="status-badge"
-                                class="bg-[#EDE5CF] text-[#B9A572] rounded-full px-6 py-2 font-medium text-base">{{ isset($details['status']) ? __('frontend.' . $details['status']) : '' }}</span>
+                            <span
+                                class="{{ $statusClass[$status] ?? '!bg-gray-200 !text-gray-700' }} text-xs font-medium px-5 py-2 rounded-full ml-2">
+                                {{ ucfirst($status) }}
+                            </span>
                         </div>
                     </div>
 
@@ -228,7 +273,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    
+
     <script>
         const selectEl = document.getElementById("status-select");
         const sections = document.querySelectorAll(".status-section");

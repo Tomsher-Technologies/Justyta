@@ -315,13 +315,9 @@ class TranslatorController extends Controller
             'created_at'        => ($serviceRequest?->created_at?->format('Y-m-d h:i A')) ?? 'N/A',
             'document_title'    => $serviceRequest?->title ?? 'N/A',
             'sub_document_type' => $serviceRequest?->documentSubType->name ?? 'N/A',
+            'payment_status'    => $serviceRequest->payment_status,
+            'amount'            => $serviceRequest->amount,
             'service_details'   => $translatedData,
-            'document_type'     => $serviceDetails?->documentType->name ?? 'N/A',
-            'priority'          => $serviceDetails?->priority_level ?? "",
-            'translation_language' => $serviceDetails->translationLanguage?->name ?? 'N/A',
-            'document_language' => $serviceDetails->documentLanguage?->name ?? 'N/A',
-            'no_of_pages'       => $serviceDetails->no_of_pages ?? 'N/A',
-            'receive_by'        => $serviceDetails?->receive_by ?? '',
             'timeline'          => $timeline,
         ];
 
