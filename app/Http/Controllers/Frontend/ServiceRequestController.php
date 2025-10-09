@@ -2808,7 +2808,7 @@ class ServiceRequestController extends Controller
                 $userToNotify = User::find()->where('translator_id', $assignment->translator_id);
 
                 if ($userToNotify) {
-                    $userToNotify->notify(new ServiceRequestStatusChanged($serviceRequest));
+                    $userToNotify->notify(new ServiceRequestSubmitted($serviceRequest));
                 }
 
                 if ($assignment) {
