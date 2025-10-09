@@ -316,6 +316,7 @@ class TranslatorController extends Controller
         ]);
     }
 
+
     public function account()
     {
         $user   = Auth::guard('frontend')->user();
@@ -478,5 +479,74 @@ class TranslatorController extends Controller
             'notifications' => $notifications,
             'paginatedNot'  => $paginatedNot,
         ];
+    }
+
+    public function downloadServiceRequest($id)
+    {
+        $user = Auth::guard('frontend')->user();
+        $translatorId = $user->translator?->id;
+
+        if (!$translatorId) {
+            abort(403, __('frontend.unauthorized'));
+        }
+
+        $serviceRequest = ServiceRequest::with('service', 'statusHistories')->findOrFail($id);
+
+        if ($serviceRequest->status !== 'completed') {
+            abort(403, __('frontend.download_not_allowed'));
+        }
+
+        $relation = getServiceRelationName($serviceRequest->service_slug);
+
+        if ($relation) {
+            $serviceDetails = $serviceRequest->$relation;
+            if ($serviceDetails && $serviceDetails->assigned_translator_id != $translatorId) {
+                abort(403, __('frontend.unauthorized'));
+            }
+        }
+
+        $completedFiles = $serviceRequest->completed_files ?? [];
+
+        if (empty($completedFiles)) {
+            abort(404, __('frontend.no_files_available'));
+        }
+
+        if (count($completedFiles) === 1) {
+            $fileUrl = $completedFiles[0];
+
+            $storagePath = str_replace('/storage/', 'public/', $fileUrl);
+            $fullPath = storage_path("app/{$storagePath}");
+
+            if (file_exists($fullPath)) {
+                return response()->download($fullPath);
+            } else {
+                abort(404, __('frontend.file_not_found'));
+            }
+        }
+
+        $zipFileName = "completed_service_{$serviceRequest->id}.zip";
+        $zipPath = storage_path("app/temp/{$zipFileName}");
+
+        if (!file_exists(storage_path("app/temp"))) {
+            mkdir(storage_path("app/temp"), 0755, true);
+        }
+
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
+            foreach ($completedFiles as $index => $fileUrl) {
+                $storagePath = str_replace('/storage/', 'public/', $fileUrl);
+                $fullPath = storage_path("app/{$storagePath}");
+                $fileName = basename($fileUrl);
+
+                if (file_exists($fullPath)) {
+                    $zip->addFile($fullPath, $fileName);
+                }
+            }
+            $zip->close();
+
+            return response()->download($zipPath)->deleteFileAfterSend(true);
+        } else {
+            abort(500, 'Could not create archive');
+        }
     }
 }

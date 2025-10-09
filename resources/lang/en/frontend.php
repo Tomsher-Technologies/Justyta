@@ -389,5 +389,9 @@ return [
     "language_pairs" => 'Language Pairs',
     "no_of_translations" => 'No. of translations',
     "translations" => "Translations",
-    "status_completed_no_change" => "Status has already been completed."
+    "status_completed_no_change" => "Status has already been completed.",
+    "download_not_allowed" => "Download not allowed",
+    "unauthorized" => "Unauthorized",
+    "no_files_available" => "No files available",
+    "file_not_found" => "File not found"
 ];
