@@ -166,6 +166,67 @@
                         </div>
                     @endif
 
+                    <div class="flex justify-end mt-16">
+                        @if ($dataService['status'] === 'completed')
+                            <a href="{{ route('user.service-request.download', ['id' => $dataService['id']]) }}"
+                                class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-10 py-3 transition flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                {{ __('frontend.download') }}
+                            </a>
+                        @elseif ($dataService['status'] === 'rejected')
+                            <div class="w-[500px] text-center mx-auto bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                                    {{ __('frontend.reupload') . ' ' . __('frontend.documents') }}</h3>
+
+                                @if (isset($dataService['rejection_meta']['rejection_details']))
+                                    @php
+                                        $rejectionDetails = $dataService['rejection_meta']['rejection_details'];
+                                    @endphp
+
+                                    <form id="reupload-form" enctype="multipart/form-data" class="space-y-4">
+                                        @csrf
+
+                                        @if (isset($rejectionDetails['supporting_docs']) && $rejectionDetails['supporting_docs'])
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    {{ __('frontend.supporting_documents') }} *
+                                                </label>
+                                                <input type="file" name="supporting_docs"
+                                                    class=" text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-700 file:text-white hover:file:bg-green-800"
+                                                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+                                            </div>
+                                        @endif
+
+                                        @if (isset($rejectionDetails['supporting_docs_any']) && $rejectionDetails['supporting_docs_any'])
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    {{ __('frontend.supporting_documents_any') }} *
+                                                </label>
+                                                <input type="file" name="supporting_docs_any"
+                                                    class=" text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-700 file:text-white hover:file:bg-green-800"
+                                                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+                                            </div>
+                                        @endif
+
+                                        <div class="pt-4">
+                                            <button type="button" id="reupload-submit-btn"
+                                                class="w-full bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-4 py-2 transition">
+                                                {{ __('frontend.reupload') }}
+                                            </button>
+                                        </div>
+                                    </form>
+                                @else
+                                    <p class="text-gray-500">{{ __('frontend.no_specific_requirements') }}</p>
+                                @endif
+                            </div>
+
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -203,69 +264,40 @@
                     @endforeach
                 </div>
 
-                <div class="flex justify-end mt-16">
-                    @if ($dataService['status'] === 'completed')
-                        <a href="{{ route('user.service-request.download', ['id' => $dataService['id']]) }}"
-                            class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-10 py-3 transition flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            {{ __('frontend.download') }}
-                        </a>
-                    @elseif ($dataService['status'] === 'rejected')
-                        <div class="w-full">
-                            <h3 class="text-lg font-medium text-gray-800 mb-4">
-                                {{ __('frontend.reupload') . ' ' . __('frontend.documents') }}</h3>
+                <div class="mt-8">
+                    @php
+                        $timeline = $dataService['timeline'] ?? [];
+                    @endphp
 
-                            @if (isset($dataService['rejection_meta']['rejection_details']))
-                                @php
-                                    $rejectionDetails = $dataService['rejection_meta']['rejection_details'];
-                                @endphp
+                    <ol class="relative border-l-2 border-[#DFDFDF] ml-3 mt-8">
+                        @foreach ($timeline as $step)
+                            @php
+                                $isCompleted = true;
+                                $isRejectedStatus = strtolower($step['label']) == 'rejected' ? true : false;
 
-                                <form id="reupload-form" enctype="multipart/form-data">
-                                    @csrf
+                                $dotClasses = $isCompleted
+                                    ? 'bg-[#EDE5CF] border-[#C7B07A]'
+                                    : 'bg-[#DFDFDF] border-[#DFDFDF]';
+                                $textClasses = $isCompleted ? 'text-[#B9A572]' : 'text-[#C7C7C7]';
+                            @endphp
 
-                                    @if (isset($rejectionDetails['supporting_docs']) && $rejectionDetails['supporting_docs'])
-                                        <div class="mb-4">
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                                {{ __('frontend.supporting_documents') }} *
-                                            </label>
-                                            <input type="file" name="supporting_docs"
-                                                class="w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-700 file:text-white hover:file:bg-green-800"
-                                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
-                                        </div>
+                            <li class="mb-3 ml-6">
+                                <span
+                                    class="absolute -left-3 flex items-center justify-center w-4 h-4 rounded-full border-2 {{ $dotClasses }}"></span>
+                                <h3 class="font-semibold {{ $textClasses }} text-lg">
+                                    {{ $step['label'] }} @if ($isRejectedStatus && isset($step['meta']['rejection_details']['reason']))
+                                        - <span
+                                            class="text-sm">({{ $step['meta']['rejection_details']['reason'] }})</span>
                                     @endif
-
-                                    @if (isset($rejectionDetails['supporting_docs_any']) && $rejectionDetails['supporting_docs_any'])
-                                        <div class="mb-4">
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                                {{ __('frontend.supporting_documents_any') }} *
-                                            </label>
-                                            <input type="file" name="supporting_docs_any"
-                                                class="w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-700 file:text-white hover:file:bg-green-800"
-                                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
-                                        </div>
-                                    @endif
-
-                                    <button type="button" id="reupload-submit-btn"
-                                        class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-10 py-3 transition">
-                                        {{ __('frontend.reupload') }}
-                                    </button>
-                                </form>
-                            @else
-                                <p class="text-gray-600">{{ __('frontend.no_specific_requirements') }}</p>
-                            @endif
-                        </div>
-                    @endif
+                                </h3>
+                                @if ($isCompleted && !empty($step['date']))
+                                    <time class="block text-sm text-[#B9A572]">{{ $step['date'] }}</time>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ol>
                 </div>
-
             </div>
-
-
-
         </div>
     </div>
 

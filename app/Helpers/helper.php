@@ -1145,13 +1145,15 @@ function getFullStatusHistory(ServiceRequest $serviceRequest): array
             ?? ucfirst(str_replace('_', ' ', (string) $key));
 
         return [
+            ...$h->toArray(),
             'key'        => $key,
             'label'      => $label,
             'date'       => $h?->created_at?->format('M d, Y H:i'),
             'note'       => $h?->note,
             'changed_by' => $h?->modifiedBy?->name,
-            'id'         => $h?->id,          
-            'raw_date'   => $h?->created_at,  
+            'id'         => $h?->id,
+            'raw_date'   => $h?->created_at,
         ];
+        
     })->all();
 }

@@ -604,6 +604,8 @@ class UserController extends Controller
 
         $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
 
+        $timeline = getFullStatusHistory($serviceRequest);
+
         $installments = [];
 
         $dataService = [
@@ -618,6 +620,7 @@ class UserController extends Controller
             'submitted_at'      => $serviceRequest->submitted_at,
             'completed_files'   => $serviceRequest->completed_files,
             'service_details'   => $translatedData,
+            'timeline'          => $timeline
         ];
 
         if ($serviceRequest->status === 'rejected') {

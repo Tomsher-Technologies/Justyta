@@ -30,7 +30,7 @@
             @else
                 <button class="bg-gray-400 text-white font-medium rounded-full px-8 py-2 transition cursor-not-allowed"
                     disabled>
-                    Status Completed - No Changes Allowed
+                    {{ __('frontend.status_completed_no_change') }}
                 </button>
             @endif
         </div>
@@ -157,6 +157,8 @@
                         @foreach ($timeline as $step)
                             @php
                                 $isCompleted = true;
+                                $isRejectedStatus = strtolower($step['label']) == 'rejected' ? true : false;
+
                                 $dotClasses = $isCompleted
                                     ? 'bg-[#EDE5CF] border-[#C7B07A]'
                                     : 'bg-[#DFDFDF] border-[#DFDFDF]';
@@ -167,7 +169,9 @@
                                 <span
                                     class="absolute -left-3 flex items-center justify-center w-4 h-4 rounded-full border-2 {{ $dotClasses }}"></span>
                                 <h3 class="font-semibold {{ $textClasses }} text-lg">
-                                    {{ $step['label'] }}
+                                    {{ $step['label'] }} @if ($isRejectedStatus && isset($step['meta']['rejection_details']['reason']))
+                                        - <span class="text-sm">({{ $step['meta']['rejection_details']['reason'] }})</span>
+                                    @endif
                                 </h3>
                                 @if ($isCompleted && !empty($step['date']))
                                     <time class="block text-sm text-[#B9A572]">{{ $step['date'] }}</time>
@@ -175,8 +179,8 @@
                             </li>
                         @endforeach
                     </ol>
-
                 </div>
+
                 <div class="flex justify-end mt-16">
                     @if ($details['status'] === 'completed')
                         <a href="{{ route('translator.service-request.download', ['id' => $details['id']]) }}"
