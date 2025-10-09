@@ -28,7 +28,7 @@ class RequestLegalTranslation extends Model
         'translator_amount',
         'total_amount',
         'delivery_amount',
-        'tax'
+        'tax',
     ];
 
     protected $casts = [

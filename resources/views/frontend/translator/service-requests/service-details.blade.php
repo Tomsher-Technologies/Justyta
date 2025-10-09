@@ -240,7 +240,7 @@
                     <div id="completed" class="status-section hidden">
                         <label for="case-type"
                             class="block text-sm font-medium text-gray-700 mb-2 block">{{ __('frontend.upload_files') }}</label>
-                        <div class="flex gap-4 mb-6">
+                        <div class="flex flex-col gap-4 mb-6">
                             <input
                                 class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
                                 id="file_input" type="file" />
@@ -269,11 +269,6 @@
 @endsection
 
 @section('script')
-    <!-- Toastr CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <!-- Toastr JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
     <script>
         const selectEl = document.getElementById("status-select");
         const sections = document.querySelectorAll(".status-section");
@@ -307,12 +302,29 @@
                     return;
                 }
 
-                let reason = '';
+                const formData = new FormData();
+                formData.append('status', status);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
                 if (status === 'rejected') {
                     const reasonElement = document.getElementById('reason');
                     if (reasonElement) {
-                        reason = reasonElement.value;
+                        formData.append('reason', reasonElement.value);
+                    }
+
+                    const supportingDocs = document.getElementById('supporting-docs');
+                    const supportingDocsAny = document.getElementById('supporting-docs-any');
+                    formData.append('supporting_docs', supportingDocs ? supportingDocs.checked : false);
+                    formData.append('supporting_docs_any', supportingDocsAny ? supportingDocsAny.checked : false);
+                }
+
+                if (status === 'completed') {
+                    const fileInput = document.getElementById('file_input');
+                    if (fileInput && fileInput.files[0]) {
+                        formData.append('file', fileInput.files[0]);
+                    } else {
+                        toastr.error('{{ __('frontend.please_select_file_to_upload') }}');
+                        return;
                     }
                 }
 
@@ -322,16 +334,7 @@
 
                 fetch(`/translator/service-request/${serviceRequestId}/update-status`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content'),
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            status: status,
-                            reason: reason
-                        })
+                        body: formData
                     })
                     .then(response => {
                         if (!response.ok) {

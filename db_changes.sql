@@ -56,3 +56,5 @@ ALTER TABLE `service_request_timelines` CHANGE `status` `status` ENUM('pending',
 alter table service_request_timelines add COLUMN service_slug VARCHAR(255) after service_request_id;
 
 ALTER TABLE `service_request_timelines` CHANGE `status` `status` ENUM('pending','under_review','ongoing','completed','rejected') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '\'pending\',\'under_review\',\'ongoing\',\'completed\',\'rejected\''; 
+
+alter table service_requests add column completed_files text DEFAULT null;

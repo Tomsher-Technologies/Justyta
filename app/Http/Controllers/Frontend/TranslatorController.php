@@ -9,6 +9,7 @@ use App\Models\RequestLegalTranslation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 
 class TranslatorController extends Controller
 {
@@ -224,10 +225,26 @@ class TranslatorController extends Controller
 
     public function updateServiceRequestStatus(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:pending,under_review,ongoing,completed,rejected',
-            'reason' => 'nullable|string',
+        $request->merge([
+            'supporting_docs' => filter_var($request->input('supporting_docs'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false,
+            'supporting_docs_any' => filter_var($request->input('supporting_docs_any'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false,
         ]);
+
+        try {
+            $validatedData = $request->validate([
+                'status' => 'required|in:pending,under_review,ongoing,completed,rejected',
+                'reason' => 'nullable|string',
+                'file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+                'supporting_docs' => 'boolean',
+                'supporting_docs_any' => 'boolean',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        }
 
         $user = Auth::guard('frontend')->user();
         $translatorId = $user->translator?->id;
@@ -250,16 +267,51 @@ class TranslatorController extends Controller
         $serviceRequest->status = $request->status;
         $serviceRequest->save();
 
+        $uploadedFileUrl = null;
+        if ($request->hasFile('file') && $request->status === 'completed') {
+            $file = $request->file('file');
+            $uniqueName = 'completed_file_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $filename = "uploads/{$serviceRequest->service_slug}/{$serviceRequest->id}/" . $uniqueName;
+            $fileContents = file_get_contents($file);
+            Storage::disk('public')->put($filename, $fileContents);
+            $uploadedFileUrl = Storage::url($filename);
+
+            if ($serviceRequest) {
+                $completedFiles = $serviceRequest->completed_files ?? [];
+                if (!is_array($completedFiles)) {
+                    $completedFiles = [];
+                }
+                $completedFiles[] = $uploadedFileUrl;
+                $serviceRequest->update(['completed_files' => $completedFiles]);
+            }
+        }
+
+        $meta = [
+            'updated_by' => 'translator',
+            'translator_id' => $translatorId
+        ];
+
+        if ($request->status === 'rejected') {
+            $meta['rejection_details'] = [
+                'supporting_docs' => $request->boolean('supporting_docs', false),
+                'supporting_docs_any' => $request->boolean('supporting_docs_any', false), 
+                'reason' => $request->reason ?? ''
+            ];
+        }
+
+        if ($request->status === 'completed' && $uploadedFileUrl) {
+            $meta['completion_details'] = [
+                'file_path' => $uploadedFileUrl
+            ];
+        }
+
         \App\Models\ServiceRequestTimeline::create([
             'service_request_id' => $serviceRequest->id,
             'service_slug' => $serviceRequest->service_slug,
             'status' => $request->status,
             'note' => $request->reason ?? '',
             'changed_by' => $user->id,
-            'meta' => [
-                'updated_by' => 'translator',
-                'translator_id' => $translatorId
-            ]
+            'meta' => $meta
         ]);
 
         return response()->json([

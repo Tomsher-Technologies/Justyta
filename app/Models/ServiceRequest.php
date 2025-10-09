@@ -28,11 +28,13 @@ class ServiceRequest extends Model
         'payment_response',
         'submitted_at',
         'source',
-        'request_success'
+        'request_success',
+        'completed_files',
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
+        'completed_files' => 'array',
     ];
 
 
