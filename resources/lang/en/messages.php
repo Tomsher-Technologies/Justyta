@@ -243,7 +243,7 @@ return [
     'doc_type_required' => 'Document type is required.',
     'subdoc_type_required' => 'Subdocument type is required.',
     'receive_by_required' => 'Receive by is required.',
-    '' => '',
+    'status_changed' => 'has been updated to status',
     '' => '',
     '' => '',
     '' => '',

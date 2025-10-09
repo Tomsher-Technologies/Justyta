@@ -42,6 +42,7 @@ use App\Models\RequestLastWill;
 use App\Models\RequestSubmissionPricing;
 use App\Models\ServiceRequestTimeline;
 use App\Models\TranslationAssignmentHistory;
+use App\Notifications\ServiceRequestStatusChanged;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -2803,6 +2804,12 @@ class ServiceRequestController extends Controller
                     'from_language_id' => $from,
                     'to_language_id'   => $to,
                 ])->first();
+
+                $userToNotify = User::find()->where('translator_id', $assignment->translator_id);
+
+                if ($userToNotify) {
+                    $userToNotify->notify(new ServiceRequestStatusChanged($serviceRequest));
+                }
 
                 if ($assignment) {
                     $rate = TranslatorLanguageRate::with(['deliveries' => function ($q) use ($priority, $receive_by) {

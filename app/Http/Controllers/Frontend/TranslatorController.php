@@ -6,11 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ServiceRequest;
 use App\Models\RequestLegalTranslation;
+use App\Models\User;
+use App\Notifications\RequestStatusUpdates;
+use App\Notifications\ServiceRequestStatusChanged;
 use App\Services\ServiceRequestDownloadService;
 use App\Services\ServiceRequestFileService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -298,7 +302,7 @@ class TranslatorController extends Controller
             'supporting_docs' => filter_var($request->input('supporting_docs'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false,
             'supporting_docs_any' => filter_var($request->input('supporting_docs_any'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false,
         ]);
-        
+
 
         $validator = Validator::make($request->all(), [
             'status' => 'required|in:pending,under_review,ongoing,completed,rejected',
@@ -316,7 +320,7 @@ class TranslatorController extends Controller
 
         $validator->after(function ($validator) use ($request) {
             if ($request->status === 'rejected') {
-                if (!$request['supporting_docs'] && !$request['supporting_docs_any'] ) {
+                if (!$request['supporting_docs'] && !$request['supporting_docs_any']) {
                     $validator->errors()->add(
                         'supporting_docs',
                         __('frontend.at_least_one_document_required')
@@ -386,6 +390,14 @@ class TranslatorController extends Controller
             'changed_by' => $user->id,
             'meta' => $meta
         ]);
+
+        if (in_array($request->status, ['completed', 'rejected'])) {
+            $userToNotify = User::find($serviceRequest->user_id);
+
+            if ($userToNotify) {
+                $userToNotify->notify(new ServiceRequestStatusChanged($serviceRequest));
+            }
+        }
 
         return response()->json([
             'success' => true,
