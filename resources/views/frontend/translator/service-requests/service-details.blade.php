@@ -224,6 +224,11 @@
 @endsection
 
 @section('script')
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
     <script>
         const selectEl = document.getElementById("status-select");
         const sections = document.querySelectorAll(".status-section");
@@ -253,8 +258,7 @@
                 const status = document.getElementById('status-select').value;
 
                 if (status === currentStatus) {
-                    alert(
-                        '{{ __('frontend.same_status_error') }}');
+                    toastr.error('{{ __('frontend.same_status_error') }}');
                     return;
                 }
 
@@ -291,28 +295,25 @@
                         return response.json();
                     })
                     .then(data => {
-                        console.log("data", data);
-
                         if (data.success) {
                             const statusBadge = document.getElementById('status-badge');
                             if (statusBadge) {
                                 statusBadge.textContent = data.new_status;
                             }
 
-                            alert('{{ __('frontend.updated_successfully') }}');
+                            toastr.success('{{ __('frontend.updated_successfully') }}');
 
                             const modal = document.getElementById('default-modal');
                             modal.classList.add('hidden');
 
                             location.reload();
                         } else {
-                            alert('Error: ' + (data.message ||
-                                '{{ __('frontend.failed_to_update') }}'));
+                            toastr.error(data.message || '{{ __('frontend.failed_to_update') }}');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('{{ __('frontend.failed_to_update') }}: ' + error.message);
+                        toastr.error('{{ __('frontend.failed_to_update') }}: ' + error.message);
                     })
                     .finally(() => {
                         this.textContent = originalText;
