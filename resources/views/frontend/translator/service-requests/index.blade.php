@@ -8,7 +8,7 @@
 
         <form method="GET" action="{{ route('translator.service.index') }}" class="mb-8">
             <div class="grid grid-cols-1 md:grid-cols-12 items-end gap-4">
-                <div class="relative col-span-5">
+                <div class="relative col-span-3">
                     <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                         <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -66,9 +66,13 @@
                             {{ __('frontend.rejected') }}</option>
                     </select>
                 </div>
-                <div class="col-span-1">
+                <div class="col-span-2">
                     <button type="submit"
                         class="bg-[#07683B] text-white h-[50px] w-full px-6 py-3.5 text-center rounded-lg block">{{ __('frontend.filter') }}</button>
+                </div>
+                <div class="col-span-1">
+                    <a href="{{ route('translator.service.index') }}"
+                        class="bg-white text-[#07683B]  border-2 h-[50px] w-full px-6 py-3.5 text-center rounded-lg block">{{ __('frontend.reset') }}</a>
                 </div>
             </div>
         </form>
