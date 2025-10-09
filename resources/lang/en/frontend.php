@@ -408,4 +408,15 @@ return [
     'supporting_docs_any_must_be_file' => 'Additional documents must be a valid file.',
     'supporting_docs_any_invalid_type' => 'Additional documents must be PDF, JPG, JPEG, PNG, DOC, or DOCX.',
     'supporting_docs_any_too_large' => 'Additional documents must not exceed 10MB.',
+
+    'rejection_reason' => "Rejection Reason",
+
+    'status_required' => 'Status is required.',
+    'status_invalid' => 'Invalid status selected.',
+
+    'reason_required_when_rejected' => 'Reason is required when rejecting the request.',
+    'reason_must_be_text' => 'Reason must be text.',
+
+    'file_invalid_type' => 'File must be of type: PDF, DOC, DOCX, JPG, JPEG, or PNG.',
+    'file_too_large' => 'File size must not exceed 10MB.',
 ];

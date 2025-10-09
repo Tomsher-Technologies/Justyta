@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class TranslatorController extends Controller
 {
@@ -297,22 +298,42 @@ class TranslatorController extends Controller
             'supporting_docs' => filter_var($request->input('supporting_docs'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false,
             'supporting_docs_any' => filter_var($request->input('supporting_docs_any'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false,
         ]);
+        
 
-        try {
-            $validatedData = $request->validate([
-                'status' => 'required|in:pending,under_review,ongoing,completed,rejected',
-                'reason' => 'nullable|string',
-                'file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
-                'supporting_docs' => 'boolean',
-                'supporting_docs_any' => 'boolean',
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:pending,under_review,ongoing,completed,rejected',
+            'reason' => 'required_if:status,rejected|nullable|string',
+            'file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            'supporting_docs' => 'nullable',
+            'supporting_docs_any' => 'nullable',
+        ], [
+            'status.required' => __('frontend.status_required'),
+            'status.in' => __('frontend.status_invalid'),
+            'reason.required_if' => __('frontend.reason_required_when_rejected'),
+            'file.mimes' => __('frontend.file_invalid_type'),
+            'file.max' => __('frontend.file_too_large'),
+        ]);
+
+        $validator->after(function ($validator) use ($request) {
+            if ($request->status === 'rejected') {
+                if (!$request['supporting_docs'] && !$request['supporting_docs_any'] ) {
+                    $validator->errors()->add(
+                        'supporting_docs',
+                        __('frontend.at_least_one_document_required')
+                    );
+                }
+            }
+        });
+
+        if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
+                'message' => __('frontend.validation_failed'),
+                'errors' => $validator->errors()
             ], 422);
         }
+
+        $validatedData = $validator->validated();
 
         $user = Auth::guard('frontend')->user();
         $translatorId = $user->translator?->id;
