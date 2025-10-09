@@ -15,6 +15,12 @@ class TranslatorController extends Controller
 
     public function serviceRequestsIndex(Request $request)
     {
+        $translator = Auth::guard('frontend')->user()->translator;
+
+        if ($translator) {
+            $translator->load('languageRates.fromLanguage', 'languageRates.toLanguage');
+        }
+
         $query = RequestLegalTranslation::where('assigned_translator_id', Auth::guard('frontend')->user()->translator?->id)
             ->with(['serviceRequest', 'documentLanguage', 'translationLanguage']);
 
@@ -26,7 +32,7 @@ class TranslatorController extends Controller
 
                 $q->orWhereHas('serviceRequest', function ($sq) use ($search) {
                     $sq->where('reference_code', 'LIKE', "%{$search}%")
-                        ->orWhere('status', 'LIKE', "%{$search}%"); 
+                        ->orWhere('status', 'LIKE', "%{$search}%");
                 });
 
                 $q->orWhereHas('documentLanguage', function ($lq) use ($search) {
@@ -41,19 +47,19 @@ class TranslatorController extends Controller
 
         if ($request->filled('date_range') && !empty($request->date_range)) {
             $dateRange = $request->date_range;
-            $dateRange = explode(' - ', $dateRange); 
-            
+            $dateRange = explode(' - ', $dateRange);
+
             if (count($dateRange) == 2) {
                 $date1 = trim($dateRange[0]);
                 $date2 = trim($dateRange[1]);
-                
+
                 $dateFromParsed = \Carbon\Carbon::createFromFormat('Y-m-d', $date1);
                 $dateToParsed = \Carbon\Carbon::createFromFormat('Y-m-d', $date2);
-                
+
                 if ($dateFromParsed && $dateToParsed) {
                     $dateFrom = $dateFromParsed->startOfDay();
                     $dateTo = $dateToParsed->endOfDay();
-                    
+
                     $query->whereHas('serviceRequest', function ($q) use ($dateFrom, $dateTo) {
                         $q->whereBetween('created_at', [$dateFrom, $dateTo]);
                     });
@@ -61,15 +67,19 @@ class TranslatorController extends Controller
             }
         }
 
-        if ($request->has('language') && !empty($request->language) && $request->language !== 'all') {
-            $language = $request->language;
-            $query->where(function ($q) use ($language) {
-                $q->whereHas('documentLanguage', function ($subQ) use ($language) {
-                    $subQ->where('name', 'LIKE', "%{$language}%");
-                })->orWhereHas('translationLanguage', function ($subQ) use ($language) {
-                    $subQ->where('name', 'LIKE', "%{$language}%");
+        if ($request->has('language_pair') && !empty($request->language_pair) && $request->language_pair !== 'all') {
+            $languagePair = $request->language_pair;
+            $parts = explode(' - ', $languagePair);
+            if (count($parts) == 2) {
+                $fromLanguage = $parts[0];
+                $toLanguage = $parts[1];
+
+                $query->whereHas('documentLanguage', function ($subQ) use ($fromLanguage) {
+                    $subQ->where('name', 'LIKE', "%{$fromLanguage}%");
+                })->whereHas('translationLanguage', function ($subQ) use ($toLanguage) {
+                    $subQ->where('name', 'LIKE', "%{$toLanguage}%");
                 });
-            });
+            }
         }
 
         if ($request->has('status') && !empty($request->status) && $request->status !== 'all') {
@@ -98,7 +108,7 @@ class TranslatorController extends Controller
                 ];
             });
 
-        $allLanguages = $this->getAllLanguages();
+        $languagePairs = $this->getTranslatorLanguagePairs();
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = 10;
@@ -110,14 +120,8 @@ class TranslatorController extends Controller
 
         return view('frontend.translator.service-requests.index', compact(
             'serviceRequests',
-            'allLanguages'
+            'languagePairs'
         ));
-    }
-
-    private function getAllLanguages()
-    {
-        $allLanguages = \App\Models\TranslationLanguage::select('name')->distinct()->get();
-        return $allLanguages;
     }
 
     public function dashboard()
@@ -345,8 +349,6 @@ class TranslatorController extends Controller
 
         $timeline = getFullStatusHistory($serviceRequest);
 
-        // dd($timeline);
-
         $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
 
         $details = [
@@ -372,10 +374,37 @@ class TranslatorController extends Controller
             'timeline'          => $timeline,
         ];
 
-        // dd($details);
-
         return view('frontend.translator.service-requests.service-details', compact(
             'details',
         ));
+    }
+
+    private function getTranslatorLanguagePairs()
+    {
+        $translator = Auth::guard('frontend')->user()->translator;
+
+        if (!$translator) {
+            return collect([]);
+        }
+
+        $translator->load('languageRates.fromLanguage', 'languageRates.toLanguage');
+
+        $languagePairs = $translator->languageRates
+            ->map(function ($rate) {
+                $from = $rate->fromLanguage ? $rate->fromLanguage->name : 'N/A';
+                $to = $rate->toLanguage ? $rate->toLanguage->name : 'N/A';
+                return [
+                    'from' => $from,
+                    'to' => $to,
+                    'combined' => $from . ' - ' . $to
+                ];
+            })
+            ->unique('combined')
+            ->filter(function ($pair) {
+                return $pair['from'] !== 'N/A' && $pair['to'] !== 'N/A';
+            })
+            ->values();
+
+        return $languagePairs;
     }
 }

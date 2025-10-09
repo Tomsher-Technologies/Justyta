@@ -31,17 +31,17 @@
 
                 </div>
                 <div class="col-span-2">
-                    <label for="language"
-                        class="block mb-2 text-sm font-medium text-gray-900">{{ __('frontend.languages') }}</label>
-                    <select name="language" id="language"
+                    <label for="language_pair"
+                        class="block mb-2 text-sm font-medium text-gray-900">{{ __('frontend.language_pairs') }}</label>
+                    <select name="language_pair" id="language_pair"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
-                        <option value="all" {{ request('language') == 'all' || !request('language') ? 'selected' : '' }}>
+                        <option value="all" {{ request('language_pair') == 'all' || !request('language_pair') ? 'selected' : '' }}>
                             {{ __('frontend.all') }}</option>
-                        @if (isset($allLanguages))
-                            @foreach ($allLanguages as $language)
-                                <option value="{{ $language->name }}"
-                                    {{ request('language') == $language->name ? 'selected' : '' }}>
-                                    {{ $language->name }}
+                        @if (isset($languagePairs))
+                            @foreach ($languagePairs as $pair)
+                                <option value="{{ $pair['combined'] }}"
+                                    {{ request('language_pair') == $pair['combined'] ? 'selected' : '' }}>
+                                    {{ $pair['combined'] }}
                                 </option>
                             @endforeach
                         @endif

@@ -377,16 +377,16 @@ return [
 
 
 
-    "service_requests" => 'Service Requests', 
-    "search_here" => 'Search here', 
-    "date_from_and_to" => 'Date From and To', 
-    "languages" => 'Languages', 
-    "select_status" => 'Select Status', 
-    "filter" => 'Filter', 
-    "ref_no" => 'Ref. No', 
-    "date_and_time" => 'Date and Time', 
-    "document_language" => 'Document Language', 
-    "translation_language" => 'Translation Language', 
-    "no_of_pages" => 'No.Of Pages', 
-    "select_lawyer" => 'Select lawyer',
+    "service_requests" => 'Service Requests',
+    "search_here" => 'Search here',
+    "date_from_and_to" => 'Date From and To',
+    "languages" => 'Languages',
+    "select_status" => 'Select Status',
+    "filter" => 'Filter',
+    "ref_no" => 'Ref. No',
+    "date_and_time" => 'Date and Time',
+    "document_language" => 'Document Language',
+    "translation_language" => 'Translation Language',
+    "no_of_pages" => 'No.Of Pages',
+    "language_pairs" => 'Language Pairs',
 ];
