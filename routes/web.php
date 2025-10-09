@@ -83,7 +83,7 @@ Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType
     //Service Requests
     Route::get('/service-request/{id}', [TranslatorController::class, 'showServiceRequest'])->name('translator.service.details');
     Route::post('/service-request/{id}/update-status', [TranslatorController::class, 'updateServiceRequestStatus'])->name('translator.service.update-status');
-    Route::get('/service-request/{id}/download', [TranslatorController::class, 'downloadServiceRequest'])->name('translator.service-request.download');
+    Route::get('/service-request/{id}/download', [TranslatorController::class, 'downloadServiceCompletedFiles'])->name('translator.service-request.download');
     Route::get('/service-requests', [TranslatorController::class, 'serviceRequestsIndex'])->name('translator.service.index');
 
     //Notifications

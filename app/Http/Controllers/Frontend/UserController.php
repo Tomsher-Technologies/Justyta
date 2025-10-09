@@ -590,7 +590,7 @@ class UserController extends Controller
         $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
 
         $installments = [];
-        
+
         $dataService = [
             'id'                => $serviceRequest->id,
             'service_slug'      => $serviceRequest->service_slug,
@@ -601,6 +601,7 @@ class UserController extends Controller
             'payment_reference' => $serviceRequest->payment_reference,
             'amount'            => $serviceRequest->amount,
             'submitted_at'      => $serviceRequest->submitted_at,
+            'completed_files'   => $serviceRequest->completed_files,
             'service_details'   => $translatedData,
         ];
 

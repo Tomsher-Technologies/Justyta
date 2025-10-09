@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ServiceRequest;
 use App\Models\RequestLegalTranslation;
+use App\Services\ServiceRequestDownloadService;
+use App\Services\ServiceRequestFileService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -13,6 +15,14 @@ use Illuminate\Support\Facades\Storage;
 
 class TranslatorController extends Controller
 {
+
+    protected $fileService;
+
+    public function __construct(ServiceRequestFileService $fileService)
+    {
+        $this->fileService = $fileService;
+    }
+
 
     public function dashboard()
     {
@@ -223,6 +233,64 @@ class TranslatorController extends Controller
         ));
     }
 
+
+
+    public function account()
+    {
+        $user   = Auth::guard('frontend')->user();
+        return view('frontend.translator.account', compact('user'));
+    }
+
+
+    public function showServiceRequest($id)
+    {
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
+        $user = Auth::guard('frontend')->user();
+        $translatorId = $user->translator?->id;
+
+        $serviceRequest = ServiceRequest::with('service', 'statusHistories')->findOrFail($id);
+
+        $relation = getServiceRelationName($serviceRequest->service_slug);
+
+        if (!$relation || !$serviceRequest->relationLoaded($relation)) {
+            $serviceRequest->load($relation);
+        }
+
+        $serviceDetails = $serviceRequest->$relation;
+
+        if (!$serviceDetails) {
+            return redirect()->back()->with('error', __('frontend.no_details_found'));
+        }
+
+        $timeline = getFullStatusHistory($serviceRequest);
+
+        $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
+
+        $details = [
+            'id'                => $serviceRequest->id,
+            'service_slug'      => $serviceRequest->service_slug,
+            'service_name'      => $serviceRequest->service->getTranslation('title', $lang),
+            'reference_code'    => $serviceRequest->reference_code,
+            'status'            => $serviceRequest->status ?? "",
+            'payment_status'    => $serviceRequest->payment_status,
+            'payment_reference' => $serviceRequest->payment_reference,
+            'amount'            => $serviceRequest->amount,
+            'submitted_at'      => $serviceRequest->submitted_at,
+            'created_at'        => ($serviceRequest?->created_at?->format('Y-m-d h:i A')) ?? 'N/A',
+            'document_title'    => $serviceRequest?->title ?? 'N/A',
+            'sub_document_type' => $serviceRequest?->documentSubType->name ?? 'N/A',
+            'payment_status'    => $serviceRequest->payment_status,
+            'amount'            => $serviceRequest->amount,
+            'service_details'   => $translatedData,
+            'timeline'          => $timeline,
+        ];
+
+        return view('frontend.translator.service-requests.service-details', compact(
+            'details',
+        ));
+    }
+
+
     public function updateServiceRequestStatus(Request $request, $id)
     {
         $request->merge([
@@ -264,21 +332,10 @@ class TranslatorController extends Controller
 
         $uploadedFileUrl = null;
         if ($request->hasFile('file') && $request->status === 'completed') {
-            $file = $request->file('file');
-            $uniqueName = 'completed_file_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $filename = "uploads/{$serviceRequest->service_slug}/{$serviceRequest->id}/" . $uniqueName;
-            $fileContents = file_get_contents($file);
-            Storage::disk('public')->put($filename, $fileContents);
-            $uploadedFileUrl = Storage::url($filename);
-
-            if ($serviceRequest) {
-                $completedFiles = $serviceRequest->completed_files ?? [];
-                if (!is_array($completedFiles)) {
-                    $completedFiles = [];
-                }
-                $completedFiles[] = $uploadedFileUrl;
-                $serviceRequest->update(['completed_files' => $completedFiles]);
-            }
+            $uploadedFileUrl = $this->fileService->uploadCompletedFile(
+                $serviceRequest,
+                $request->file('file')
+            );
         }
 
         $meta = [
@@ -314,64 +371,6 @@ class TranslatorController extends Controller
             'message' => 'Status updated successfully',
             'new_status' => ucfirst($request->status)
         ]);
-    }
-
-
-    public function account()
-    {
-        $user   = Auth::guard('frontend')->user();
-        return view('frontend.translator.account', compact('user'));
-    }
-
-
-    public function showServiceRequest($id)
-    {
-        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
-        $user = Auth::guard('frontend')->user();
-        $translatorId = $user->translator?->id;
-
-        $serviceRequest = ServiceRequest::with('service', 'statusHistories')->findOrFail($id);
-
-        $relation = getServiceRelationName($serviceRequest->service_slug);
-
-        if (!$relation || !$serviceRequest->relationLoaded($relation)) {
-            $serviceRequest->load($relation);
-        }
-
-        $serviceDetails = $serviceRequest->$relation;
-
-        if (!$serviceDetails) {
-            return redirect()->back()->with('error', __('frontend.no_details_found'));
-        }
-
-        $timeline = getFullStatusHistory($serviceRequest);
-
-        $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
-
-        // dd($serviceDetails);
-
-        $details = [
-            'id'                => $serviceRequest->id,
-            'service_slug'      => $serviceRequest->service_slug,
-            'service_name'      => $serviceRequest->service->getTranslation('title', $lang),
-            'reference_code'    => $serviceRequest->reference_code,
-            'status'            => $serviceRequest->status ?? "",
-            'payment_status'    => $serviceRequest->payment_status,
-            'payment_reference' => $serviceRequest->payment_reference,
-            'amount'            => $serviceRequest->amount,
-            'submitted_at'      => $serviceRequest->submitted_at,
-            'created_at'        => ($serviceRequest?->created_at?->format('Y-m-d h:i A')) ?? 'N/A',
-            'document_title'    => $serviceRequest?->title ?? 'N/A',
-            'sub_document_type' => $serviceRequest?->documentSubType->name ?? 'N/A',
-            'payment_status'    => $serviceRequest->payment_status,
-            'amount'            => $serviceRequest->amount,
-            'service_details'   => $translatedData,
-            'timeline'          => $timeline,
-        ];
-
-        return view('frontend.translator.service-requests.service-details', compact(
-            'details',
-        ));
     }
 
     private function getTranslatorLanguagePairs()
@@ -481,7 +480,7 @@ class TranslatorController extends Controller
         ];
     }
 
-    public function downloadServiceRequest($id)
+    public function downloadServiceCompletedFiles($id)
     {
         $user = Auth::guard('frontend')->user();
         $translatorId = $user->translator?->id;
@@ -490,63 +489,6 @@ class TranslatorController extends Controller
             abort(403, __('frontend.unauthorized'));
         }
 
-        $serviceRequest = ServiceRequest::with('service', 'statusHistories')->findOrFail($id);
-
-        if ($serviceRequest->status !== 'completed') {
-            abort(403, __('frontend.download_not_allowed'));
-        }
-
-        $relation = getServiceRelationName($serviceRequest->service_slug);
-
-        if ($relation) {
-            $serviceDetails = $serviceRequest->$relation;
-            if ($serviceDetails && $serviceDetails->assigned_translator_id != $translatorId) {
-                abort(403, __('frontend.unauthorized'));
-            }
-        }
-
-        $completedFiles = $serviceRequest->completed_files ?? [];
-
-        if (empty($completedFiles)) {
-            abort(404, __('frontend.no_files_available'));
-        }
-
-        if (count($completedFiles) === 1) {
-            $fileUrl = $completedFiles[0];
-
-            $storagePath = str_replace('/storage/', 'public/', $fileUrl);
-            $fullPath = storage_path("app/{$storagePath}");
-
-            if (file_exists($fullPath)) {
-                return response()->download($fullPath);
-            } else {
-                abort(404, __('frontend.file_not_found'));
-            }
-        }
-
-        $zipFileName = "completed_service_{$serviceRequest->id}.zip";
-        $zipPath = storage_path("app/temp/{$zipFileName}");
-
-        if (!file_exists(storage_path("app/temp"))) {
-            mkdir(storage_path("app/temp"), 0755, true);
-        }
-
-        $zip = new \ZipArchive();
-        if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === TRUE) {
-            foreach ($completedFiles as $index => $fileUrl) {
-                $storagePath = str_replace('/storage/', 'public/', $fileUrl);
-                $fullPath = storage_path("app/{$storagePath}");
-                $fileName = basename($fileUrl);
-
-                if (file_exists($fullPath)) {
-                    $zip->addFile($fullPath, $fileName);
-                }
-            }
-            $zip->close();
-
-            return response()->download($zipPath)->deleteFileAfterSend(true);
-        } else {
-            abort(500, 'Could not create archive');
-        }
+        return $this->fileService->download($id);
     }
 }
