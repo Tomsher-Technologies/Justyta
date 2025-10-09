@@ -33,6 +33,9 @@ import 'tinymce/skins/ui/oxide/skin.css';
 import 'tinymce/skins/content/default/content.css';
 import 'tinymce/skins/content/default/content.min.css';
 
+import Highcharts from "highcharts";
+window.Highcharts = Highcharts;
+
 import toastr from 'toastr'
 import 'toastr/build/toastr.min.css'
 window.toastr = toastr

@@ -389,4 +389,6 @@ return [
     "translation_language" => 'Translation Language',
     "no_of_pages" => 'No.Of Pages',
     "language_pairs" => 'Language Pairs',
+    "no_of_translations" => 'No. of translations',
+    "translations" => "Translations"
 ];

@@ -41,15 +41,40 @@ class TranslatorController extends Controller
         $currentMonthIncome = $legalTranslationRequests->filter(function ($item) {
             return $item->serviceRequest &&
                 $item->serviceRequest->paid_at &&
-                Carbon::parse($item->serviceRequest->paid_at)->isCurrentMonth();
-            // && in_array($item->serviceRequest->status, ['completed']);
+                Carbon::parse($item->serviceRequest->paid_at)->isCurrentMonth()
+                && in_array($item->serviceRequest->status, ['completed']);
         })->sum('translator_amount');
 
         $totalIncome = $legalTranslationRequests->filter(function ($item) {
             return $item->serviceRequest &&
-                $item->serviceRequest->paid_at;
-            // && in_array($item->serviceRequest->status, ['completed']);
+                $item->serviceRequest->paid_at
+                && in_array($item->serviceRequest->status, ['completed']);
         })->sum('translator_amount');
+
+        $currentYear = Carbon::now()->year;
+        $year = request()->get('consultation_year', $currentYear);
+
+        $monthlyTranslations = RequestLegalTranslation::where('assigned_translator_id', Auth::guard('frontend')->user()->translator?->id)
+            ->whereHas('serviceRequest', function ($query) use ($year) {
+                $query->whereYear('created_at', $year);
+            })
+            ->with(['serviceRequest'])
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->serviceRequest ? Carbon::parse($item->serviceRequest->created_at)->format('m') : null;
+            })
+            ->map(function ($group) {
+                return $group->count();
+            })
+            ->toArray();
+
+
+        $monthlyData = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $month = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $monthlyData[$month] = $monthlyTranslations[$month] ?? 0;
+        }
+
 
         $serviceRequests = $legalTranslationRequests
             ->sortByDesc(function ($item) {
@@ -80,7 +105,9 @@ class TranslatorController extends Controller
             'currentMonthIncome',
             'serviceRequests',
             'totalIncome',
-            'notifications'
+            'notifications',
+            'monthlyData',
+            'year'
         ));
     }
 

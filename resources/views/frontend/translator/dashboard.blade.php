@@ -160,16 +160,17 @@
         <div class="lg:col-span-2 bg-white rounded-lg p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-medium text-gray-900">
-                    {{ __('frontend.no_of_consultations') }}
+                    {{ __('frontend.no_of_translations') }}
                 </h2>
                 <select id="consultation-year"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
-                    <option selected>2024</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
+                    <option value="2025" {{ $year == '2025' ? 'selected' : '' }}>2025</option>
+                    <option value="2024" {{ $year == '2024' ? 'selected' : '' }}>2024</option>
+                    <option value="2023" {{ $year == '2023' ? 'selected' : '' }}>2023</option>
+                    <option value="2022" {{ $year == '2022' ? 'selected' : '' }}>2022</option>
                 </select>
             </div>
-            <canvas id="consultationChart" class="w-full h-72"></canvas>
+            <div id="consultationChart" class="w-full h-72"></div>
         </div>
 
 
@@ -275,4 +276,177 @@
             </table>
         </div>
     </div>
+@endsection
+@section('script')
+    <script>
+        const monthNames = [
+            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ];
+
+        const monthlyData = @json($monthlyData);
+
+        const chartData = [{
+                name: 'Jan',
+                y: monthlyData['01'],
+                color: '#FFE9B1'
+            },
+            {
+                name: 'Feb',
+                y: monthlyData['02'],
+                color: '#FFE9B1'
+            },
+            {
+                name: 'Mar',
+                y: monthlyData['03'],
+                color: '#FFE9B1'
+            },
+            {
+                name: 'Apr',
+                y: monthlyData['04'],
+                color: '#FFE9B1'
+            },
+            {
+                name: 'May',
+                y: monthlyData['05'],
+                color: '#FFE9B1'
+            },
+            {
+                name: 'Jun',
+                y: monthlyData['06'],
+                color: '#FFE9B1'
+            },
+            {
+                name: 'Jul',
+                y: monthlyData['07'],
+                color: '#FFE9B1'
+            },
+            {
+                name: 'Aug',
+                y: monthlyData['08'],
+                color: '#FFE9B1'
+            },
+            {
+                name: 'Sep',
+                y: monthlyData['09'],
+                color: '#FFE9B1'
+            },
+            {
+                name: 'Oct',
+                y: monthlyData['10'],
+                color: '#FFE9B1'
+            },
+            {
+                name: 'Nov',
+                y: monthlyData['11'],
+                color: '#FFE9B1'
+            },
+            {
+                name: 'Dec',
+                y: monthlyData['12'],
+                color: '#FFE9B1'
+            }
+        ];
+
+        function initializeChart() {
+            Highcharts.chart('consultationChart', {
+                chart: {
+                    type: 'column',
+                    backgroundColor: '#FFFFFF',
+                    style: {
+                        fontFamily: 'inherit'
+                    }
+                },
+                title: {
+                    text: '',
+                    align: 'left'
+                },
+                xAxis: {
+                    type: 'category',
+                    labels: {
+                        style: {
+                            fontSize: '13px',
+                            color: '#666666'
+                        }
+                    },
+                    lineColor: '#E5E5E5',
+                    tickColor: '#E5E5E5'
+                },
+                yAxis: {
+                    title: {
+                        text: ''
+                    },
+                    min: 0,
+                    allowDecimals: false,
+                    showFirstLabel: false,
+                    gridLineColor: '#F5F5F5',
+                    labels: {
+                        style: {
+                            fontSize: '13px',
+                            color: '#666666'
+                        }
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                plotOptions: {
+                    column: {
+                        borderRadius: 8,
+                        pointPadding: 0.1,
+                        groupPadding: 0.1,
+                        borderWidth: 0,
+                        states: {
+                            hover: {
+                                color: '#B9A572',
+                                brightness: 0
+                            },
+                            inactive: {
+                                opacity: 1
+                            }
+                        },
+                        dataLabels: {
+                            enabled: true,
+                            inside: true,
+                            verticalAlign: 'top',
+                            y: -20,
+                            formatter: function() {
+                                return (this.y != 0) ? this.y : null;
+                            },
+                            style: {
+                                fontSize: '12px',
+                                fontWeight: 'normal',
+                                color: '#666666',
+                                textOutline: 'none'
+                            }
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#FFFFFF',
+                    borderColor: '#B9A572',
+                    borderRadius: 8,
+                    style: {
+                        color: '#333333'
+                    },
+                    headerFormat: '<span style="font-size:11px; font-weight:bold">{point.key}</span><br>',
+                    pointFormat: '<span>{{ __('frontend.translations') }}:</span> <b>{point.y}</b>'
+                },
+                series: [{
+                    name: '{{ __('frontend.translations') }}',
+                    data: chartData
+                }],
+                credits: {
+                    enabled: false
+                }
+            });
+        }
+
+        document.getElementById('consultation-year').addEventListener('change', function() {
+            const selectedYear = this.value;
+            window.location.href = `?consultation_year=${selectedYear}`;
+        });
+
+        document.addEventListener("DOMContentLoaded", initializeChart);
+    </script>
 @endsection
