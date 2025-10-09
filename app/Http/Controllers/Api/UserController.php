@@ -189,7 +189,7 @@ class UserController extends Controller
                     'message'   => __($notification->data['message'], [
                                         'service'   => $serviceName,
                                         'reference' => $data['reference_code'],
-                                        'status' => __('messages.'.$data['status'] ?? ''),
+                                        // 'status' => __('messages.'.$data['status'] ?? ''),
                                     ]),
                     'time'      => $notification->created_at->format('h:i A'), 
                 ];
