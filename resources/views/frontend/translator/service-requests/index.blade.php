@@ -27,7 +27,7 @@
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5 date-range"
                         id="date_range" name="date_range" placeholder="{{ 'date' }}" data-time-picker="false"
                         data-format="YYYY-MM-DD" data-separator=" - " autocomplete="off"
-                        value="{{ request('date_range') ?? now()->format('Y-m-d') . ' - ' . now()->format('Y-m-d') }}">
+                        value="{{ request('date_range') ? request('date_range') : '' }}">
 
                 </div>
                 <div class="col-span-2">

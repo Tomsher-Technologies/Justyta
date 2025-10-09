@@ -101,7 +101,7 @@ class TranslatorController extends Controller
         $allLanguages = $this->getAllLanguages();
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 3;
+        $perPage = 10;
         $currentItems = $serviceRequests->slice(($currentPage - 1) * $perPage, $perPage)->values();
         $serviceRequests = new LengthAwarePaginator($currentItems, $serviceRequests->count(), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
