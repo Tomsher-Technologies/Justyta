@@ -22,10 +22,16 @@
             <h2 class="text-xl font-medium text-gray-900 mb-4">
                 {{ __('frontend.recent_consultations') }}
             </h2>
+            @if($details['status'] !== 'completed')
             <button class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-full px-8 py-2 transition"
                 data-modal-target="default-modal" data-modal-toggle="default-modal">
                 {{ __('frontend.update_status') }}
             </button>
+            @else
+            <button class="bg-gray-400 text-white font-medium rounded-full px-8 py-2 transition cursor-not-allowed" disabled>
+                Status Completed - No Changes Allowed
+            </button>
+            @endif
         </div>
 
         <hr class="my-4 border-[#DFDFDF]" />
@@ -296,6 +302,11 @@
         document.querySelectorAll('.update-status-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const status = document.getElementById('status-select').value;
+
+                if (currentStatus === 'completed' && status !== 'completed') {
+                    toastr.error('{{ __('frontend.cannot_change_completed_status') }}');
+                    return;
+                }
 
                 if (status === currentStatus) {
                     toastr.error('{{ __('frontend.same_status_error') }}');

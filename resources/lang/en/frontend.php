@@ -375,8 +375,6 @@ return [
     "updated_successfully" => "Updated successfully!",
     "failed_to_update" => "Failed to update",
 
-
-
     "service_requests" => 'Service Requests',
     "search_here" => 'Search here',
     "date_from_and_to" => 'Date From and To',
@@ -390,5 +388,6 @@ return [
     "no_of_pages" => 'No.Of Pages',
     "language_pairs" => 'Language Pairs',
     "no_of_translations" => 'No. of translations',
-    "translations" => "Translations"
+    "translations" => "Translations",
+    "status_completed_no_change" => "Status has already been completed."
 ];

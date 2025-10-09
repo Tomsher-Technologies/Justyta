@@ -255,13 +255,8 @@ class TranslatorController extends Controller
 
         $serviceRequest = ServiceRequest::findOrFail($id);
 
-        $relation = getServiceRelationName($serviceRequest->service_slug);
-
-        if ($relation) {
-            $serviceDetails = $serviceRequest->$relation;
-            if ($serviceDetails && $serviceDetails->assigned_translator_id != $translatorId) {
-                return response()->json(['success' => false, 'message' => 'Unauthorized to update status for this request'], 403);
-            }
+        if ($serviceRequest->status === 'completed') {
+            return response()->json(['success' => false, 'message' => __('frontend.status_completed_no_change')], 400);
         }
 
         $serviceRequest->status = $request->status;
@@ -294,7 +289,7 @@ class TranslatorController extends Controller
         if ($request->status === 'rejected') {
             $meta['rejection_details'] = [
                 'supporting_docs' => $request->boolean('supporting_docs', false),
-                'supporting_docs_any' => $request->boolean('supporting_docs_any', false), 
+                'supporting_docs_any' => $request->boolean('supporting_docs_any', false),
                 'reason' => $request->reason ?? ''
             ];
         }
