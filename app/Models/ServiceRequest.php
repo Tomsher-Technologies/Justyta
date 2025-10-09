@@ -150,4 +150,12 @@ class ServiceRequest extends Model
     {
         return $this->statusHistories()->value('status');
     }
+
+    public function getLatestRejectionDetails()
+    {
+        return $this->statusHistories()
+            ->where('status', 'rejected')
+            ->latest('id')
+            ->first();
+    }
 }

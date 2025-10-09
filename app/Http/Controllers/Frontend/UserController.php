@@ -588,7 +588,7 @@ class UserController extends Controller
     {
         $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $id             = base64_decode($id);
-        $serviceRequest = ServiceRequest::with('service')->findOrFail($id);
+        $serviceRequest = ServiceRequest::with('service', 'statusHistories')->findOrFail($id);
 
         $relation = getServiceRelationName($serviceRequest->service_slug);
 
@@ -619,6 +619,13 @@ class UserController extends Controller
             'completed_files'   => $serviceRequest->completed_files,
             'service_details'   => $translatedData,
         ];
+
+        if ($serviceRequest->status === 'rejected') {
+            $rejectionDetails = $serviceRequest->getLatestRejectionDetails();
+            if ($rejectionDetails) {
+                $dataService['rejection_meta'] = $rejectionDetails->meta;
+            }
+        }
 
         if ($serviceRequest->service_slug === 'annual-retainer-agreement') {
             $installmentAnnual = AnnualAgreementInstallment::where('service_request_id', $serviceRequest->id)->get();

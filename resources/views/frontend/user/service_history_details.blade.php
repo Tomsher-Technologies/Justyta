@@ -191,6 +191,55 @@
                             </svg>
                             {{ __('frontend.download') }}
                         </a>
+                    @elseif ($dataService['status'] === 'rejected')
+                        <div class="w-full">
+                            <h3 class="text-lg font-medium text-gray-800 mb-4">
+                                {{ __('frontend.reupload') . ' ' . __('frontend.documents') }}</h3>
+
+                            @if (isset($dataService['rejection_meta']['rejection_details']))
+                                @php
+                                    $rejectionDetails = $dataService['rejection_meta']['rejection_details'];
+                                @endphp
+
+                                <div class="flex flex-col mb-5">
+                                    <span>{{ __('frontend.rejection_details') }}</span>
+                                    <span class="text-sm">{{ $rejectionDetails['reason'] }}</span>
+                                </div>
+
+                                <form id="reupload-form" enctype="multipart/form-data">
+                                    @csrf
+
+                                    @if (isset($rejectionDetails['supporting_docs']) && $rejectionDetails['supporting_docs'])
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ __('frontend.supporting_documents') }} *
+                                            </label>
+                                            <input type="file" name="supporting_docs"
+                                                class="w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-700 file:text-white hover:file:bg-green-800"
+                                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+                                        </div>
+                                    @endif
+
+                                    @if (isset($rejectionDetails['supporting_docs_any']) && $rejectionDetails['supporting_docs_any'])
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                {{ __('frontend.supporting_documents_any') }} *
+                                            </label>
+                                            <input type="file" name="supporting_docs_any"
+                                                class="w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-700 file:text-white hover:file:bg-green-800"
+                                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+                                        </div>
+                                    @endif
+
+                                    <button type="button" id="reupload-submit-btn"
+                                        class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-10 py-3 transition">
+                                        {{ __('frontend.reupload') }}
+                                    </button>
+                                </form>
+                            @else
+                                <p class="text-gray-600">{{ __('frontend.no_specific_requirements') }}</p>
+                            @endif
+                        </div>
                     @endif
                 </div>
 
@@ -203,6 +252,61 @@
 
 
 
+@endsection
+
+@section('script')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const reuploadBtn = document.getElementById('reupload-submit-btn');
+
+            if (reuploadBtn) {
+                reuploadBtn.addEventListener('click', function() {
+                    const form = document.getElementById('reupload-form');
+                    const formData = new FormData(form);
+
+                    const serviceId = {{ $dataService['id'] }};
+
+                    reuploadBtn.innerHTML = '{{ __('frontend.uploading') }}...';
+                    reuploadBtn.disabled = true;
+
+                    fetch(`/user/service-request/${serviceId}/re-upload`, {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                toastr.success(data.message);
+
+                                location.reload();
+                            } else {
+
+                                if (data.errors) {
+                                    Object.keys(data.errors).forEach(field => {
+                                        data.errors[field].forEach(errorMessage => {
+                                            toastr.error(errorMessage);
+                                        });
+                                    });
+                                    return;
+                                }
+
+                                toastr.error(data.message || '{{ __('frontend.upload_failed') }}');
+                            }
+                        })
+                        .catch(error => {
+
+
+                            console.error('Error:', error);
+                            toastr.error('{{ __('frontend.upload_failed') }}');
+                        })
+                        .finally(() => {
+                            reuploadBtn.innerHTML = '{{ __('frontend.reupload') }}';
+                            reuploadBtn.disabled = false;
+                        });
+                });
+            }
+        });
+    </script>
 @endsection
 
 

@@ -22,15 +22,16 @@
             <h2 class="text-xl font-medium text-gray-900 mb-4">
                 {{ __('frontend.recent_consultations') }}
             </h2>
-            @if($details['status'] !== 'completed')
-            <button class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-full px-8 py-2 transition"
-                data-modal-target="default-modal" data-modal-toggle="default-modal">
-                {{ __('frontend.update_status') }}
-            </button>
+            @if ($details['status'] !== 'completed')
+                <button class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-full px-8 py-2 transition"
+                    data-modal-target="default-modal" data-modal-toggle="default-modal">
+                    {{ __('frontend.update_status') }}
+                </button>
             @else
-            <button class="bg-gray-400 text-white font-medium rounded-full px-8 py-2 transition cursor-not-allowed" disabled>
-                Status Completed - No Changes Allowed
-            </button>
+                <button class="bg-gray-400 text-white font-medium rounded-full px-8 py-2 transition cursor-not-allowed"
+                    disabled>
+                    Status Completed - No Changes Allowed
+                </button>
             @endif
         </div>
 
@@ -177,10 +178,14 @@
 
                 </div>
                 <div class="flex justify-end mt-16">
-                    @if($details['status'] === 'completed')
-                        <a href="{{ route('translator.service-request.download', ['id' => $details['id']]) }}" class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-10 py-3 transition flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    @if ($details['status'] === 'completed')
+                        <a href="{{ route('translator.service-request.download', ['id' => $details['id']]) }}"
+                            class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-10 py-3 transition flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
                             </svg>
                             {{ __('frontend.download') }}
                         </a>
@@ -298,6 +303,21 @@
             }
         }
 
+        function clearAllFields() {
+            const supportingDocs = document.getElementById('supporting-docs');
+            const supportingDocsAny = document.getElementById('supporting-docs-any');
+            const reasonTextarea = document.getElementById('reason');
+
+            if (supportingDocs) supportingDocs.checked = false;
+            if (supportingDocsAny) supportingDocsAny.checked = false;
+            if (reasonTextarea) reasonTextarea.value = '';
+
+            const fileInput = document.getElementById('file_input');
+            if (fileInput) fileInput.value = '';
+
+            if (selectEl) selectEl.selectedIndex = 0;
+        }
+
         selectEl.addEventListener("change", showSelectedSection);
 
         document.addEventListener("DOMContentLoaded", showSelectedSection);
@@ -320,7 +340,8 @@
 
                 const formData = new FormData();
                 formData.append('status', status);
-                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute(
+                    'content'));
 
                 if (status === 'rejected') {
                     const reasonElement = document.getElementById('reason');
@@ -331,7 +352,8 @@
                     const supportingDocs = document.getElementById('supporting-docs');
                     const supportingDocsAny = document.getElementById('supporting-docs-any');
                     formData.append('supporting_docs', supportingDocs ? supportingDocs.checked : false);
-                    formData.append('supporting_docs_any', supportingDocsAny ? supportingDocsAny.checked : false);
+                    formData.append('supporting_docs_any', supportingDocsAny ? supportingDocsAny.checked :
+                        false);
                 }
 
                 if (status === 'completed') {
@@ -370,8 +392,19 @@
                             const modal = document.getElementById('default-modal');
                             modal.classList.add('hidden');
 
-                            location.reload();
+                            clearAllFields();
+
+                            window.location.reload();
                         } else {
+                            if (data.errors) {
+                                Object.keys(data.errors).forEach(field => {
+                                    data.errors[field].forEach(errorMessage => {
+                                        toastr.error(errorMessage);
+                                    });
+                                });
+                                return;
+                            }
+
                             toastr.error(data.message || '{{ __('frontend.failed_to_update') }}');
                         }
                     })

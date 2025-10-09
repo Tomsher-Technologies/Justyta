@@ -160,6 +160,7 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/service-payment-details/{id}', [UserController::class, 'getServiceHistoryDetails'])->name('user.service.payment.details');
 
     Route::get('/service-request/{id}/download', [UserController::class, 'downloadServiceCompletedFiles'])->name('user.service-request.download');
+    Route::post('/service-request/{id}/re-upload', [ServiceRequestController::class, 'reUploadAfterRejection'])->name('user.service-request.re-upload');
 
     Route::get('/my-account', [UserController::class, 'account'])->name('user.my-account');
     Route::post('/user-profile', [UserController::class, 'updateProfile'])->name('user.update.profile');

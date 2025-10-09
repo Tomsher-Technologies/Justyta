@@ -393,5 +393,19 @@ return [
     "download_not_allowed" => "Download not allowed",
     "unauthorized" => "Unauthorized",
     "no_files_available" => "No files available",
-    "file_not_found" => "File not found"
+    "file_not_found" => "File not found",
+    "status_not_rejected" => "Status is not rejected",
+    "rejection_details" => "Rejection Details",
+    "documents" => "documents",
+    "reupload" => "Reupload",
+    'validation_failed' => 'Validation failed. Please check your submission.',
+    'at_least_one_file_required' => 'Please upload at least one document (either Supporting Documents or Additional Documents).',
+
+    'supporting_docs_must_be_file' => 'Supporting documents must be a valid file.',
+    'supporting_docs_invalid_type' => 'Supporting documents must be PDF, JPG, JPEG, PNG, DOC, or DOCX.',
+    'supporting_docs_too_large' => 'Supporting documents must not exceed 10MB.',
+
+    'supporting_docs_any_must_be_file' => 'Additional documents must be a valid file.',
+    'supporting_docs_any_invalid_type' => 'Additional documents must be PDF, JPG, JPEG, PNG, DOC, or DOCX.',
+    'supporting_docs_any_too_large' => 'Additional documents must not exceed 10MB.',
 ];
