@@ -242,6 +242,7 @@
                 currentConsultation = null;
             });
 
+            const consultationId = null;
             // Accept
             document.getElementById('acceptBtn').addEventListener('click', async () => {
                 if(!currentConsultation) return;
@@ -253,6 +254,8 @@
                 const data = await res.json();
                 if(data.status){
                     document.getElementById('incomingPopup').classList.add('hidden');
+
+                    consultationId = currentConsultation.consultation_id;
                     startZoomVideo(data.data, '{{ addslashes(auth()->user()->name) }}');
                 }
             });
@@ -352,20 +355,23 @@
                             remoteVideoElement.style.border = "2px solid green";
                             container.appendChild(remoteVideoElement);
 
-                            await stream.attachVideo(lawyerUser.userId, remoteVideoElement);
+                            const userInfo = client.getUser(lawyerUser.userId);
+                            if (userInfo?.bVideoOn) {
+                                await stream.attachVideo(lawyerUser.userId, remoteVideoElement);
 
-                            // ✅ Update consultation status
-                            await fetch(`{{ route('user.consultation.status.update') }}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    consultation_id: consultationId,
-                                    status: 'in_progress'
-                                })
-                            });
+                                // ✅ Update consultation status
+                                await fetch(`{{ route('user.consultation.status.update') }}`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    },
+                                    body: JSON.stringify({
+                                        consultation_id: consultationId,
+                                        status: 'in_progress'
+                                    })
+                                });
+                            }
                         }
                     }
 
@@ -468,7 +474,7 @@
                 } catch (error) {
                     console.error("Zoom SDK Error:", error);
                     alert(`Failed to start Zoom meeting: ${error.message || 'Unknown error'}`);
-            }
+                }
             };
         });
 
