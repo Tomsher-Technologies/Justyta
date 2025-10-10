@@ -6,6 +6,7 @@ use App\Http\Controllers\Frontend\Auth\AuthController;
 use App\Http\Controllers\Frontend\ServiceRequestController;
 use App\Http\Controllers\Frontend\UserController;
 use App\Http\Controllers\Frontend\VendorHomeController;
+use App\Http\Controllers\Frontend\LawyerController;
 use App\Http\Controllers\Frontend\VendorJobPostController;
 
 require __DIR__.'/admin.php';
@@ -38,13 +39,17 @@ Route::post('/set-new-password', [AuthController::class, 'submitNewPassword'])->
 
 Route::get('success-payment', [ServiceRequestController::class, 'paymentSuccess'])->name('successPayment');
 Route::get('cancel-payment', [ServiceRequestController::class, 'paymentCancel'])->name('cancelPayment');
+Route::get('success-consultation-payment', [ServiceRequestController::class, 'consultationPaymentSuccess'])->name('consultationSuccessPayment');
+Route::get('cancel-consultation-payment', [ServiceRequestController::class, 'consultationPaymentCancel'])->name('consultationCancelPayment');
 Route::post('network-webhook', [ServiceRequestController::class, 'networkWebhook'])->name('network-webhook');
 
 // Protected Dashboards
 Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:lawyer'])->group(function () {
-    Route::get('/dashboard', function () {
-        return 'Lawyer Dashboard';
-    })->name('lawyer.dashboard');
+    Route::get('/dashboard', [LawyerController::class, 'lawyerDashboard'])->name('lawyer.dashboard');
+
+    Route::get('/lawyer/video', [LawyerController::class, 'lawyerDashboard'])->name('web.lawyer.video');
+    Route::get('/web/lawyer/poll', [LawyerController::class, 'poll'])->name('web.lawyer.poll');
+    Route::post('/web/lawyer/response', [LawyerController::class, 'lawyerResponse'])->name('web.lawyer.response');
 });
 
 Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:vendor'])->group(function () {
@@ -84,6 +89,10 @@ Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType
 Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'userDashboard'])->name('user.dashboard');
 
+    // Online Video Call
+    Route::get('/user/video', [HomeController::class, 'userDashboard'])->name('web.user.video');
+    Route::get('/web/user/check-consultation', [HomeController::class, 'checkUserConsultationStatus'])->name('web.user.check');
+
     Route::get('/services', [HomeController::class, 'services'])->name('user.services');
     
     // Service Requests
@@ -103,6 +112,9 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::post('/legal-translation-request', [ServiceRequestController::class, 'requestLegalTranslation'])->name('service.legal-translation-request'); 
     Route::post('/annual-agreement-request', [ServiceRequestController::class, 'requestAnnualAgreement'])->name('service.annual-agreement-request');  
 
+    Route::get('/online-live-consultancy', [ServiceRequestController::class, 'showConsultationForm'])->name('service.online.consultation');
+    Route::post('/request-consultation', [ServiceRequestController::class,'requestConsultation'])->name('service.request.consultation');
+
     // Get sub dropdowns and general links related to service requests
     Route::post('/get-request-types', [ServiceRequestController::class, 'getRequestTypes'])->name('get.request.types');
     Route::post('/get-request-titles', [ServiceRequestController::class, 'getRequestTitles'])->name('get.request.titles');
@@ -118,6 +130,15 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/case-types', [ServiceRequestController::class, 'getCaseTypes'])->name('user.case-types');
     Route::get('/request-submission-price', [ServiceRequestController::class, 'getRequestSubmissionPrice'])->name('user.request-submission-price');
     Route::get('/expert-report-price', [ServiceRequestController::class, 'getExpertReportPrice'])->name('user.expert-report-price');
+    Route::get('/online-consultation-price', [ServiceRequestController::class, 'getOnlineConsultationPrice'])->name('user.consultation-fee');
+
+    // Payment call back Online Consultation
+    Route::get('/consultation-payment-success/{id}', [ServiceRequestController::class, 'consultationWaitingLawyer'])->name('user.consultation-payment.success');
+    Route::get('/consultation-payment-cancel', [ServiceRequestController::class, 'consultationPaymentCancel'])->name('user.consultation-payment.cancel');
+    Route::get('/consultation-payment-failed', [ServiceRequestController::class, 'consultationRequestFailed'])->name('user.payment-consultation-failed');
+    Route::post('/consultation/update-status', [ServiceRequestController::class, 'updateConsultationStatus'])
+    ->name('user.consultation.status.update');
+
 
     // Payment call back
     Route::get('/payment-callback/{order_id}', [ServiceRequestController::class, 'paymentSuccess'])->name('user.web-payment.callback');

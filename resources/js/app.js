@@ -11,6 +11,10 @@ window.Alpine = Alpine;
 
 Alpine.start();
 
+import ZoomVideo from "@zoom/videosdk";
+
+window.ZoomVideo = ZoomVideo;
+
 import tinymce from 'tinymce/tinymce';
 import 'tinymce/icons/default';
 import 'tinymce/themes/silver';
@@ -92,3 +96,42 @@ document.addEventListener('DOMContentLoaded', () => {
         
     // });
 });
+
+// window.startZoomVideo = async function (data, username) {
+ 
+//     const client = ZoomVideo.createClient();
+//     await client.init("en-US", "CDN");
+
+//     // ✅ Correct join order
+//     await client.join(data.meeting_number, data.signature, username, '');
+
+//     const stream = client.getMediaStream();
+//     await stream.startVideo();
+
+//     const container = document.getElementById('videoContainer');
+//     container.innerHTML = ''; // clear previous video
+
+//     const videoElement = document.createElement("video");
+//     videoElement.id = "self-video";
+//     videoElement.autoplay = true;
+//     videoElement.muted = true;
+//     videoElement.playsInline = true;
+//     videoElement.style.width = "400px";
+//     videoElement.style.height = "300px";
+
+//     container.appendChild(videoElement);
+
+//     const userId = client.getCurrentUserInfo().userId;
+//     await stream.attachVideo(userId, videoElement); // ✅ Correct self-view method
+
+//     document.getElementById('videoArea').classList.remove('hidden');
+
+//     document.getElementById('leaveBtn').addEventListener('click', async () => {
+//         await stream.stopVideo();
+//         await stream.stopAudio();
+//         await client.leave();
+//         document.getElementById('videoArea').classList.add('hidden');
+//     });
+// };
+
+

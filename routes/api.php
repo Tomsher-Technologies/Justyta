@@ -141,6 +141,7 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/consultations', [ConsultationController::class,'store']);
         Route::get('/consultations/{id}', [ConsultationController::class,'show']);
         Route::get('/consultation/payment-success', [ConsultationController::class,'paymentSuccess']);
+        Route::get('/consultation/payment-cancel', [ConsultationController::class, 'paymentCancel']);
         Route::get('/consultation/user-poll', [ConsultationController::class, 'checkUserConsultationStatus']);
 
         Route::post('/consultations/{id}/extend', [ConsultationController::class,'extendZoom']);
