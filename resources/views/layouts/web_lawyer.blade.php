@@ -256,7 +256,10 @@
                     document.getElementById('incomingPopup').classList.add('hidden');
 
                     consultationId = currentConsultation.consultation_id;
-                    startZoomVideo(data.data, '{{ addslashes(auth()->user()->name) }}');
+                    setTimeout(() => {
+                        startZoomVideo(data.data, '{{ addslashes(auth()->user()->name) }}');
+                    }, 3000);
+                    
                 }
             });
 
