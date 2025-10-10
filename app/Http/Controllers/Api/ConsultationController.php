@@ -106,26 +106,23 @@ class ConsultationController extends Controller
             //     'data'      => json_encode($payment),
             // ], 200);
 
-            $consultationId = $consultation->id;
-            $servicePayment = ConsultationPayment::where('consultation_id', $consultationId)
-                                                ->first();
-
-            if ($servicePayment) {
-                $servicePayment->update(['status' => 'completed']);
-            }
-
-            $consultation = Consultation::findOrFail($consultationId);
-            $consultation->status = 'waiting_lawyer';
-            $consultation->save();
-
-            if($consultation->consultant_type == 'vip'){
+            $consultation->refresh();
+           
+            if ($consultation->lawyer_id) {
                 assignLawyer($consultation, $consultation->lawyer_id);
-            }else{
+                $consultation->status = 'waiting_lawyer';
+                $consultation->save();
+            } else {
+                // Backup case: find a lawyer again if not reserved
                 $lawyer = findBestFitLawyer($consultation);
-                if(!$lawyer){
-                    return response()->json(['status' => false,'message'=> __('frontend.no_lawyer_available')],200);
+                if ($lawyer) {
+                    assignLawyer($consultation, $lawyer->id);
+                    $consultation->status = 'waiting_lawyer';
+                    $consultation->save();
+                } else {
+                    $consultation->status = 'no_lawyer_available';
+                    $consultation->save();
                 }
-                assignLawyer($consultation, $lawyer->id);
             }
 
             $pageData = getPageDynamicContent('consultancy_payment_success',$lang);
