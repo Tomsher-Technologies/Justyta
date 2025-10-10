@@ -196,7 +196,7 @@
                 });
 
                 // Handle remote user leaving
-                client.on('user-removed', (payload) => {
+                client.on('user-removed', async (payload) => {
                     const remoteUserId = payload.userId;
                     console.log("Remote user left:", remoteUserId);
                     const remoteVideoElement = document.getElementById(`video-${remoteUserId}`);
