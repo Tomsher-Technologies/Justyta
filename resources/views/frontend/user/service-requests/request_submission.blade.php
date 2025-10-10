@@ -191,9 +191,9 @@
                         </h2>
 
                         <hr class="my-5" />
-                        <p class="text-gray-600 text-sm leading-relaxed">
+                        <div class="text-gray-600 text-sm leading-relaxed">
                             {!! $service->getTranslation('description', $lang) !!}
-                        </p>
+                        </div>
                     </div>
 
                     <div>

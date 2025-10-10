@@ -925,6 +925,44 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
     return $response->json(); // returns _id, reference, _links etc.
 }
 
+function createConsultationWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+{
+    
+    $accessToken = getAccessToken();
+    if (!$accessToken) return null;
+
+    $baseUrl = config('services.ngenius.base_url');
+    $outletRef = config('services.ngenius.outlet_ref');
+
+    $payload = [
+        'action' => 'PURCHASE',
+        'amount' => [
+            'currencyCode' => $currency,
+            'value' => intval($amount * 100), // AED 10.00 => 1000
+        ],
+        'merchantOrderReference' => $orderReference,
+        'merchantAttributes' => [
+            'merchantOrderReference' => $orderReference,
+            'redirectUrl' => route('consultationSuccessPayment'),
+            'cancelUrl'   => route('consultationCancelPayment')
+        ],
+        'emailAddress' => $customer['email'],
+        
+    ];
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $accessToken,
+        'Accept' => 'application/vnd.ni-payment.v2+json',
+        'Content-Type' => 'application/vnd.ni-payment.v2+json',
+    ])->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", $payload);
+
+    if (!$response->successful()) {
+        Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
+        return null;
+    }
+    return $response->json(); // returns _id, reference, _links etc.
+}
+
 function deleteRequestFolder(string $serviceSlug, int $requestId): void
 {
     $folderPath = "uploads/{$serviceSlug}/{$requestId}";
@@ -1082,6 +1120,30 @@ function createWebPlanOrder($customer, float $amount, string $currency = 'AED', 
 
         return $lawyer;
     }
+
+    function reserveLawyer($lawyerId, $consultationId)
+    {
+        $lawyer = \App\Models\Lawyer::find($lawyerId);
+        if ($lawyer) {
+            $lawyer->update(['is_busy' => 1]);
+
+            $consultation = \App\Models\Consultation::find($consultationId);
+            if ($consultation) {
+                $consultation->update(['lawyer_id' => $lawyerId, 'status' => 'reserved']);
+            }
+        }
+    }
+
+    function unreserveLawyer($lawyerId)
+    {
+        if ($lawyerId) {
+            $lawyer = \App\Models\Lawyer::find($lawyerId);
+            if ($lawyer) {
+                $lawyer->update(['is_busy' => 0]);
+            }
+        }
+    }
+
 
     function isVendorCanCreateLawyers()
     {
