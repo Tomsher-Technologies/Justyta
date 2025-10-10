@@ -174,8 +174,11 @@
 
                 // Handle remote participants
                 client.on('user-added', async (payload) => {
-                    const remoteUserId = payload.userId;
+                    const remoteUser = payload.user || payload;
+                    const remoteUserId = remoteUser.userId;
                     console.log("Remote user joined:", remoteUserId);
+
+                    if (!remoteUserId) return;
 
                     const remoteVideoElement = document.createElement("video");
                     remoteVideoElement.id = `video-${remoteUserId}`;
@@ -197,8 +200,12 @@
 
                 // Handle remote user leaving
                 client.on('user-removed', async (payload) => {
-                    const remoteUserId = payload.userId;
+                    const remoteUser = payload.user || payload;
+                    const remoteUserId = remoteUser.userId;
                     console.log("Remote user left:", remoteUserId);
+
+                    if (!remoteUserId) return;
+                    
                     const remoteVideoElement = document.getElementById(`video-${remoteUserId}`);
                     if (remoteVideoElement) {
                         remoteVideoElement.remove();
