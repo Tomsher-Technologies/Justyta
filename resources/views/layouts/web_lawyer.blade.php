@@ -288,206 +288,157 @@
                 }
             }
 
-            window.startZoomVideo = async function (data, username) {
-                // Verify camera access
-                if (!(await checkCameraAccess())) {
-                    return;
-                }
+           window.startZoomVideo = async function(data, username) {
+    // Verify camera access
+    if (!(await checkCameraAccess())) return;
 
-                let client;
+    let client;
+    try {
+        console.log("Meeting details:", data);
+
+        // Initialize Zoom Video SDK
+        client = ZoomVideo.createClient();
+        await client.init("en-US", "Global", { debug: true });
+        console.log("Zoom client initialized");
+
+        // Join the meeting
+        await client.join(data.meeting_number, data.signature, username, '');
+        const currentUser = client.getCurrentUserInfo();
+        console.log("Joined meeting:", currentUser);
+
+        const stream = client.getMediaStream();
+
+        // Clear video container
+        const container = document.getElementById('videoContainer');
+        if (!container) throw new Error("Video container not found");
+        container.innerHTML = '';
+
+        // ----- Self-video -----
+        const selfVideo = document.createElement("video");
+        selfVideo.id = "self-video";
+        selfVideo.autoplay = true;
+        selfVideo.muted = true;
+        selfVideo.playsInline = true;
+        selfVideo.style.width = "400px";
+        selfVideo.style.height = "300px";
+        selfVideo.style.border = "2px solid blue";
+        container.appendChild(selfVideo);
+
+        await stream.startVideo({ videoElement: selfVideo });
+        console.log("Self video started");
+
+        // ----- Attach existing remote users -----
+        const currentUserId = currentUser.userId;
+        client.getAllUser().forEach(async u => {
+            if (u.userId !== currentUserId) {
+                attachRemoteVideo(u.userId, u.displayName);
+            }
+        });
+
+        // ----- Event: new user joins -----
+        client.on('user-added', payload => {
+            const remoteUser = payload.user || payload;
+            console.log("Remote user joined:", remoteUser);
+            attachRemoteVideo(remoteUser.userId, remoteUser.displayName);
+        });
+
+        // ----- Event: user leaves -----
+        client.on('user-removed', async payload => {
+            const remoteUser = payload.user || payload;
+            const videoEl = document.getElementById(`video-${remoteUser.userId}`);
+            if (videoEl) videoEl.remove();
+
+            // Update status to completed
+            await fetch(`{{ route('consultation.status.update') }}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ consultation_id: consultationId, status: 'completed' })
+            });
+        });
+
+        // ----- Leave meeting -----
+        const leaveBtn = document.getElementById('leaveBtn');
+        if (leaveBtn) {
+            leaveBtn.addEventListener('click', async () => {
                 try {
-                    // Check SharedArrayBuffer support
-                    const isSharedArrayBufferSupported = typeof SharedArrayBuffer === 'function';
-                    console.log("SharedArrayBuffer supported:", isSharedArrayBufferSupported);
-                    
-                    console.log("Meeting details:", data);
-
-                    // Initialize Zoom Video SDK
-                    client = ZoomVideo.createClient();
-                    await client.init("en-US", "Global", { debug: true });
-                    console.log("Zoom client initialized");
-
-                    // Join the meeting
-                    await client.join(data.meeting_number, data.signature, username, '');
-                    console.log("Joined meeting, userId:", client.getCurrentUserInfo().userId);
-
-                    const stream = client.getMediaStream();
-
-                    // --- Start of Corrected Section ---
-
-                    // Clear and prepare video container
-                    const container = document.getElementById('videoContainer');
-                    if (!container) {
-                        throw new Error("Video container not found");
-                    }
+                    await stream.stopVideo();
+                    await stream.stopAudio();
+                    await client.leave();
                     container.innerHTML = '';
-
-                    // Create and configure self video element FIRST
-                    const selfVideoElement = document.createElement("video");
-                    selfVideoElement.id = "self-video";
-                    selfVideoElement.autoplay = true;
-                    selfVideoElement.muted = true;
-                    selfVideoElement.playsInline = true;
-                    selfVideoElement.style.width = "400px";
-                    selfVideoElement.style.height = "300px";
-                    selfVideoElement.style.border = "2px solid blue"; // Debugging border
-                    container.appendChild(selfVideoElement);
-
-                    // Verify video element
-                    console.log("Self video element created:", selfVideoElement);
-
-                    // 💡 *THE FIX:* Start video and render the self-view in one step
-                    await stream.startVideo({ videoElement: selfVideoElement });
-                    console.log("Video stream started and attached to self-view element");
-
-                    const existingUsers = client.getAllUser();
-                    console.log("Existing participants:", existingUsers);
-
-                    // If lawyer already joined before user
-                    if (existingUsers.length > 1) {
-                        const lawyerUser = existingUsers.find(u => u.userId !== client.getCurrentUserInfo().userId);
-                        if (lawyerUser) {
-                            console.log("Lawyer already in meeting:", lawyerUser.userId);
-
-                            const remoteVideoElement = document.createElement("video");
-                            remoteVideoElement.id = `video-${lawyerUser.userId}`;
-                            remoteVideoElement.autoplay = true;
-                            remoteVideoElement.playsInline = true;
-                            remoteVideoElement.style.width = "400px";
-                            remoteVideoElement.style.height = "300px";
-                            remoteVideoElement.style.border = "2px solid green";
-                            container.appendChild(remoteVideoElement);
-
-                            const userInfo = client.getUser(lawyerUser.userId);
-                            if (userInfo?.bVideoOn) {
-                                await stream.attachVideo(lawyerUser.userId, remoteVideoElement);
-
-                                // ✅ Update consultation status
-                                await fetch(`{{ route('consultation.status.update') }}`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                    },
-                                    body: JSON.stringify({
-                                        consultation_id: consultationId,
-                                        status: 'in_progress'
-                                    })
-                                });
-                            }
-                        }
-                    }
-
-                    // Handle remote participants
-                    client.on('user-added', async (payload) => {
-
-                        console.log("User addeddddddddddddddddddddd:" +payload );
-                        console.log(payload);
-                        const remoteUser = payload.user || payload;
-                        const remoteUserId = remoteUser.userId;
-                        console.log("Remote user joined:", remoteUserId);
-
-                        if (!remoteUserId) return;
-
-                        const remoteVideoElement = document.createElement("video");
-                        remoteVideoElement.id = `video-${remoteUserId}`;
-                        remoteVideoElement.autoplay = true;
-                        remoteVideoElement.playsInline = true;
-                        remoteVideoElement.style.width = "400px";
-                        remoteVideoElement.style.height = "300px";
-                        remoteVideoElement.style.border = "2px solid green"; // Debugging border
-                        container.appendChild(remoteVideoElement);
-
-                        try {
-                            // This is correct for remote users
-                            await stream.attachVideo(remoteUserId, remoteVideoElement);
-                            console.log(`Remote video attached for user ${remoteUserId}`);
-
-                            await fetch(`{{ route('consultation.status.update') }}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    consultation_id: consultationId,
-                                    status: 'in_progress'
-                                })
-                            });
-                        } catch (err) {
-                            console.error(`Failed to attach remote video for ${remoteUserId}:`, err);
-                        }
-                    });
-
-                    // Handle remote user leaving
-                    client.on('user-removed', async (payload) => {
-                        const remoteUser = payload.user || payload;
-                        const remoteUserId = remoteUser.userId;
-                        console.log("Remote user left:", remoteUserId);
-
-                        if (!remoteUserId) return;
-                        const remoteVideoElement = document.getElementById(`video-${remoteUserId}`);
-                        if (remoteVideoElement) {
-                            remoteVideoElement.remove();
-                        }
-                        await fetch(`{{ route('consultation.status.update') }}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                consultation_id: consultationId,
-                                status: 'completed'
-                            })
-                        });
-                    });
-
-                    // Show video area
                     const videoArea = document.getElementById('videoArea');
-                    if (videoArea) {
-                        videoArea.classList.remove('hidden');
-                    } else {
-                        console.error("Video area element not found");
-                    }
+                    if (videoArea) videoArea.classList.add('hidden');
 
-                    // Handle leave meeting
-                    const leaveBtn = document.getElementById('leaveBtn');
-                    if (leaveBtn) {
-                        leaveBtn.addEventListener('click', async () => {
-                            try {
-                                await stream.stopVideo();
-                                await stream.stopAudio();
-                                await client.leave();
-                                console.log("Left meeting");
-                                if (videoArea) {
-                                    videoArea.classList.add('hidden');
-                                }
-                                container.innerHTML = ''; // Clear videos
+                    await fetch(`{{ route('consultation.status.update') }}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ consultation_id: consultationId, status: 'completed' })
+                    });
+                } catch (err) {
+                    console.error("Error leaving meeting:", err);
+                }
+            });
+        }
 
-                                await fetch(`{{ route('consultation.status.update') }}`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                    },
-                                    body: JSON.stringify({
-                                        consultation_id: consultationId,
-                                        status: 'completed'
-                                    })
-                                });
-                            } catch (err) {
-                                console.error("Error leaving meeting:", err);
-                            }
-                        });
-                    } else {
-                        console.error("Leave button not found");
-                    }
-                } catch (error) {
-                    console.error("Zoom SDK Error:", error);
-                    alert(`Failed to start Zoom meeting: ${error.message || 'Unknown error'}`);
+        // ----- Show video area -----
+        const videoArea = document.getElementById('videoArea');
+        if (videoArea) videoArea.classList.remove('hidden');
+
+        // ===== Helper: attach remote video =====
+        async function attachRemoteVideo(remoteUserId, displayName) {
+            if (!remoteUserId) return;
+
+            // Create video element
+            const remoteVideo = document.createElement("video");
+            remoteVideo.id = `video-${remoteUserId}`;
+            remoteVideo.autoplay = true;
+            remoteVideo.playsInline = true;
+            remoteVideo.style.width = "400px";
+            remoteVideo.style.height = "300px";
+            remoteVideo.style.border = "2px solid green";
+            container.appendChild(remoteVideo);
+
+            const attach = async () => {
+                try {
+                    await stream.attachVideo(remoteUserId, remoteVideo);
+                    console.log(`Remote video attached for ${displayName}`);
+
+                    // Update consultation status
+                    await fetch(`{{ route('consultation.status.update') }}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ consultation_id: consultationId, status: 'in_progress' })
+                    });
+                } catch (err) {
+                    console.error(`Failed to attach remote video for ${displayName}:`, err);
                 }
             };
+
+            // Attach immediately
+            attach();
+
+            // Listen for remote user starting video later
+            client.on('user-video-started', payload => {
+                if (payload.userId === remoteUserId) {
+                    attach();
+                }
+            });
+        }
+
+    } catch (error) {
+        console.error("Zoom SDK Error:", error);
+        alert(`Failed to start Zoom meeting: ${error.message || 'Unknown error'}`);
+    }
+};
+
         });
 
        
