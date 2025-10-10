@@ -1163,18 +1163,7 @@ class ServiceRequestController extends Controller
         return view('frontend.user.service-requests.consultation_failed', compact('pageData'));
     }
 
-    public function updateConsultationStatus(Request $request)
-    {
-        $consultation = Consultation::find($request->consultation_id);
-        if ($consultation) {
-            $consultation->status = $request->status;
-            $consultation->save();
-
-            return response()->json(['status' => true]);
-        }
-
-        return response()->json(['status' => false], 404);
-    }
+    
 
 
 

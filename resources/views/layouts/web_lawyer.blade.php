@@ -360,7 +360,7 @@
                                 await stream.attachVideo(lawyerUser.userId, remoteVideoElement);
 
                                 // ✅ Update consultation status
-                                await fetch(`{{ route('user.consultation.status.update') }}`, {
+                                await fetch(`{{ route('consultation.status.update') }}`, {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -394,7 +394,7 @@
                             await stream.attachVideo(remoteUserId, remoteVideoElement);
                             console.log(`Remote video attached for user ${remoteUserId}`);
 
-                            await fetch(`{{ route('user.consultation.status.update') }}`, {
+                            await fetch(`{{ route('consultation.status.update') }}`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -418,7 +418,7 @@
                         if (remoteVideoElement) {
                             remoteVideoElement.remove();
                         }
-                        await fetch(`{{ route('user.consultation.status.update') }}`, {
+                        await fetch(`{{ route('consultation.status.update') }}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -453,7 +453,7 @@
                                 }
                                 container.innerHTML = ''; // Clear videos
 
-                                await fetch(`{{ route('user.consultation.status.update') }}`, {
+                                await fetch(`{{ route('consultation.status.update') }}`, {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
