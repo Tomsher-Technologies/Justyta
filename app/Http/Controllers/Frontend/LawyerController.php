@@ -107,4 +107,17 @@ class LawyerController extends Controller
         return response()->json(['status'=>false,'message'=>'Lawyer rejected consultation']);
     }
 
+    public function updateConsultationStatus(Request $request)
+    {
+        $consultation = Consultation::find($request->consultation_id);
+        if ($consultation) {
+            $consultation->status = $request->status;
+            $consultation->save();
+
+            return response()->json(['status' => true]);
+        }
+
+        return response()->json(['status' => false], 404);
+    }
+
 }
