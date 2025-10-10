@@ -380,6 +380,8 @@
 
                     // Handle remote participants
                     client.on('user-added', async (payload) => {
+
+                        console.log("User addeddddddddddddddddddddd:", payload);
                         const remoteUser = payload.user || payload;
                         const remoteUserId = remoteUser.userId;
                         console.log("Remote user joined:", remoteUserId);
