@@ -242,7 +242,7 @@
                 currentConsultation = null;
             });
 
-            const consultationId = null;
+            let consultationId = null;
             // Accept
             document.getElementById('acceptBtn').addEventListener('click', async () => {
                 if(!currentConsultation) return;
