@@ -114,6 +114,7 @@ class LawyerController extends Controller
             $consultation->status = $request->status;
             $consultation->save();
 
+            unreserveLawyer($consultation->lawyer_id);
             return response()->json(['status' => true]);
         }
 
