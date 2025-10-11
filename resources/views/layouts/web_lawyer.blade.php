@@ -491,287 +491,311 @@
 
 
             // Global variable to store consultation ID
-            let consultationId = null; 
+let consultationId = null; 
 
-            /**
-             * Utility function to check for camera access permissions.
-             * @returns {Promise<boolean>}
-             */
-            async function checkCameraAccess() {
+// Define a constant for Zoom Video SDK's VIEW_MODE.Contain. 
+// This ensures the video fills the container while maintaining aspect ratio.
+const VIEW_MODE_CONTAIN = 2; 
+
+/**
+ * Utility function to check for camera access permissions.
+ * @returns {Promise<boolean>}
+ */
+async function checkCameraAccess() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        // Stop the tracks immediately after checking access
+        stream.getTracks().forEach(track => track.stop());
+        return true;
+    } catch (e) {
+        console.error("Camera access denied or failed:", e);
+        displayMessage("Please allow camera and microphone access to start the consultation.");
+        return false;
+    }
+}
+
+/**
+ * Displays a non-alert message to the user.
+ */
+function displayMessage(message) {
+    const container = document.getElementById('videoContainer');
+    let messageDiv = document.getElementById('statusMessage');
+    
+    if (!container) {
+        console.error("Cannot display message: videoContainer not found.");
+        return;
+    }
+
+    if (!messageDiv) {
+        messageDiv = document.createElement('div');
+        messageDiv.id = 'statusMessage';
+        // Basic styling for visibility (adjust these classes for your CSS framework)
+        messageDiv.className = 'text-red-600 font-semibold p-4 border border-red-300 rounded-lg bg-red-50 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 shadow-lg z-50';
+        container.appendChild(messageDiv);
+    }
+    
+    messageDiv.textContent = message;
+    
+    // Hide after 5 seconds
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.remove();
+        }
+    }, 5000);
+}
+
+
+// Event listener for accepting the consultation
+document.getElementById('acceptBtn').addEventListener('click', async () => {
+    // Assuming 'currentConsultation' is a globally available object set before this call.
+    if(!currentConsultation) return; 
+    
+    const res = await fetch("{{ route('web.lawyer.response') }}", {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
+        body: JSON.stringify({consultation_id: currentConsultation.consultation_id, action:'accept'})
+    });
+    const data = await res.json();
+    
+    if(data.status){
+        document.getElementById('incomingPopup').classList.add('hidden');
+        
+        // Set the global consultationId for status updates later
+        consultationId = currentConsultation.consultation_id; 
+
+        // Wait a few seconds before starting the video to allow time for the client to join
+        setTimeout(() => {
+            // Note: Ensure the ZoomVideo SDK is loaded via a <script> tag earlier in your HTML.
+            window.startZoomVideo(data.data, '{{ addslashes(auth()->user()->name) }}');
+        }, 3000); 
+    }
+});
+
+
+/**
+ * Initiates the Zoom video consultation.
+ * @param {object} data Meeting details (meeting_number, signature).
+ * @param {string} username Current user's display name.
+ */
+window.startZoomVideo = async function (data, username) {
+    let client;
+    const container = document.getElementById('videoContainer');
+    const videoArea = document.getElementById('videoArea');
+
+    // 1. Verify camera access
+    if (!(await checkCameraAccess())) {
+        return;
+    }
+
+    try {
+        console.log("Meeting details:", data);
+
+        // 2. Initialize Zoom Video SDK
+        // IMPORTANT: Ensure 'ZoomVideo' is globally available from the Zoom SDK script tag.
+        client = ZoomVideo.createClient();
+        await client.init("en-US", "Global", { debug: true });
+        console.log("Zoom client initialized");
+
+        // 3. Join the meeting
+        await client.join(data.meeting_number, data.signature, username, '');
+        const currentUserId = client.getCurrentUserInfo().userId;
+        console.log("Joined meeting, userId:", currentUserId);
+
+        const stream = client.getMediaStream();
+
+        // 4. Clear and prepare video container
+        if (!container) {
+            throw new Error("Video container not found");
+        }
+        container.innerHTML = '';
+        
+        // **IMPORTANT:** Ensure the video container has a layout (e.g., flex) and dimensions
+        // so the video wrappers can render side-by-side correctly.
+        container.className = 'flex justify-center items-center h-[500px] w-full p-4'; 
+
+        
+        /**
+         * Function to create the video element wrapper (DIV) for rendering.
+         * @param {number} userId The user ID
+         * @param {boolean} isSelf Whether this is the local user's view
+         * @returns {HTMLElement} The created video wrapper DIV
+         */
+        const createVideoWrapper = (userId, isSelf = false) => {
+            const idPrefix = isSelf ? 'self' : 'remote';
+            let videoWrapper = document.getElementById(`${idPrefix}-video-wrapper-${userId}`);
+            
+            if (videoWrapper) return videoWrapper; // Already exists
+            
+            videoWrapper = document.createElement("div");
+            videoWrapper.id = `${idPrefix}-video-wrapper-${userId}`;
+            
+            // Apply different borders for self (blue) vs remote (green) view
+            const borderColor = isSelf ? 'border-blue-500' : 'border-green-500';
+            // These classes define the visual space (adjust as needed)
+            videoWrapper.className = `w-1/2 h-full rounded-lg shadow-xl mx-2 border-4 ${borderColor} overflow-hidden relative`;
+            
+            container.appendChild(videoWrapper);
+            return videoWrapper;
+        };
+
+        // 5. Create and render self video element (Lawyer's video) using renderVideo
+        const selfVideoWrapper = createVideoWrapper(currentUserId, true);
+
+        // Start local video and audio
+        await stream.startVideo(); 
+        await stream.startAudio(); 
+        console.log("Video and audio stream started");
+
+        // Render the lawyer's stream into the wrapper element
+        // Using currentUserId as the userId parameter for self-view
+        await stream.renderVideo(selfVideoWrapper, currentUserId, VIEW_MODE_CONTAIN); 
+        console.log("Local video stream rendered.");
+
+
+        // 6. Listener for remote user's video status changes (The FIX!)
+        client.on('user-video-status-change', async (payload) => {
+            const remoteUser = payload.user || payload;
+            const remoteUserId = remoteUser.userId;
+            const videoStatus = payload.action; // 'Active' or 'Inactive'
+            
+            // Only care about other users
+            if (remoteUserId === currentUserId) return; 
+
+            console.log(`User ${remoteUserId} video status changed to: ${videoStatus}`);
+
+            if (videoStatus === 'Active') {
+                const remoteVideoWrapper = createVideoWrapper(remoteUserId, false);
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                    // Stop the tracks immediately after checking access
-                    stream.getTracks().forEach(track => track.stop());
-                    return true;
-                } catch (e) {
-                    console.error("Camera access denied or failed:", e);
-                    displayMessage("Please allow camera and microphone access to start the consultation.");
-                    return false;
-                }
-            }
-
-            /**
-             * Displays a non-alert message to the user.
-             * (Replaces problematic window.alert() usage)
-             */
-            function displayMessage(message) {
-                const container = document.getElementById('videoContainer');
-                let messageDiv = document.getElementById('statusMessage');
-                
-                if (!messageDiv) {
-                    messageDiv = document.createElement('div');
-                    messageDiv.id = 'statusMessage';
-                    messageDiv.className = 'text-red-600 font-semibold p-4 border border-red-300 rounded-lg bg-red-50 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 shadow-lg z-50';
-                    container.appendChild(messageDiv);
-                }
-                
-                messageDiv.textContent = message;
-                
-                // Hide after 5 seconds
-                setTimeout(() => {
-                    if (messageDiv.parentNode) {
-                        messageDiv.remove();
-                    }
-                }, 5000);
-            }
-
-
-            // Event listener for accepting the consultation
-            document.getElementById('acceptBtn').addEventListener('click', async () => {
-                // Assuming 'currentConsultation' is a globally available object set before this call.
-                if(!currentConsultation) return; 
-                
-                const res = await fetch("{{ route('web.lawyer.response') }}", {
-                    method:'POST',
-                    headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
-                    body: JSON.stringify({consultation_id: currentConsultation.consultation_id, action:'accept'})
-                });
-                const data = await res.json();
-                
-                if(data.status){
-                    document.getElementById('incomingPopup').classList.add('hidden');
+                    // Use renderVideo for attachment and rendering
+                    await stream.renderVideo(remoteVideoWrapper, remoteUserId, VIEW_MODE_CONTAIN); 
+                    console.log(`Remote video rendered for user ${remoteUserId}`);
                     
-                    // Set the global consultationId for status updates later
-                    consultationId = currentConsultation.consultation_id; 
+                    // Update status when the second participant's video is confirmed active
+                    await updateConsultationStatus('in_progress'); 
 
-                    // Wait a few seconds before starting the video to allow time for the client to join
-                    setTimeout(() => {
-                        // Note: Ensure the ZoomVideo SDK is loaded via a <script> tag earlier in your HTML.
-                        window.startZoomVideo(data.data, '{{ addslashes(auth()->user()->name) }}');
-                    }, 3000); 
+                } catch (err) {
+                    console.error(`Failed to render remote video for ${remoteUserId}:`, err);
+                }
+            } else if (videoStatus === 'Inactive') {
+                // Video stopped, detach the stream
+                await stream.stopRenderVideo(remoteUserId);
+                console.log(`Remote video render stopped for user ${remoteUserId}`);
+            }
+        });
+
+        // 7. Handle initial existing users (if client joined before lawyer)
+        const existingUsers = client.getAllUser();
+        console.log("Existing participants:", existingUsers);
+
+        if (existingUsers.length > 1) {
+            const remoteUser = existingUsers.find(u => u.userId !== currentUserId);
+            if (remoteUser) {
+                console.log("Remote user (Client) already in meeting:", remoteUser.userId);
+                
+                const userInfo = client.getUser(remoteUser.userId);
+                const remoteVideoWrapper = createVideoWrapper(remoteUser.userId, false);
+
+                // If video is already on, render immediately
+                // The logs indicated bVideoOn: true, so this path should execute.
+                if (userInfo?.bVideoOn) { 
+                    await stream.renderVideo(remoteVideoWrapper, remoteUser.userId, VIEW_MODE_CONTAIN);
+                    console.log("Immediately rendered video of existing user.");
+                    await updateConsultationStatus('in_progress'); 
+                }
+            }
+        }
+        
+        // 8. Handle user joining and removing (creating/destroying elements)
+        client.on('user-added', async (payload) => {
+            const remoteUser = payload.user || payload;
+            if (remoteUser.userId === currentUserId) return; // Ignore self
+            
+            console.log("Remote user joined:", remoteUser.userId);
+            // Element created here. Video rendering handled by 'user-video-status-change'
+            createVideoWrapper(remoteUser.userId, false); 
+        });
+
+        client.on('user-removed', async (payload) => {
+            const remoteUser = payload.user || payload;
+            const remoteUserId = remoteUser.userId;
+            console.log("Remote user left:", remoteUserId);
+
+            const remoteVideoWrapper = document.getElementById(`remote-video-wrapper-${remoteUserId}`);
+            if (remoteVideoWrapper) {
+                // IMPORTANT: Stop rendering before removing the element
+                await stream.stopRenderVideo(remoteUserId); 
+                remoteVideoWrapper.remove();
+            }
+            // Update status to 'completed' when the other user leaves
+            await updateConsultationStatus('completed');
+        });
+        
+        // 9. Show video area
+        if (videoArea) {
+            videoArea.classList.remove('hidden');
+        } else {
+            console.error("Video area element not found");
+        }
+
+        // 10. Handle leave meeting button
+        const leaveBtn = document.getElementById('leaveBtn');
+        if (leaveBtn) {
+            leaveBtn.addEventListener('click', async () => {
+                try {
+                    // Stop rendering local stream and leave the meeting
+                    await stream.stopRenderVideo(currentUserId); 
+                    await stream.stopVideo();
+                    await stream.stopAudio();
+                    await client.leave();
+                    console.log("Left meeting");
+                    
+                    if (videoArea) {
+                        videoArea.classList.add('hidden');
+                    }
+                    container.innerHTML = ''; // Clear videos
+
+                    // Final status update upon lawyer leaving
+                    await updateConsultationStatus('completed');
+                } catch (err) {
+                    console.error("Error leaving meeting:", err);
+                    displayMessage("Error leaving the meeting. Please refresh the page manually.");
                 }
             });
+        } else {
+            console.error("Leave button not found");
+        }
+    } catch (error) {
+        console.error("Zoom SDK Error:", error);
+        displayMessage(`Failed to start Zoom meeting: ${error.message || 'Unknown error'}. Check console for details.`);
+    }
+};
 
-
-            /**
-             * Initiates the Zoom video consultation.
-             * @param {object} data Meeting details (meeting_number, signature).
-             * @param {string} username Current user's display name.
-             */
-            window.startZoomVideo = async function (data, username) {
-                let client;
-                const container = document.getElementById('videoContainer');
-                const videoArea = document.getElementById('videoArea');
-
-                // 1. Verify camera access
-                if (!(await checkCameraAccess())) {
-                    return;
-                }
-
-                try {
-                    console.log("Meeting details:", data);
-
-                    // 2. Initialize Zoom Video SDK
-                    client = ZoomVideo.createClient();
-                    await client.init("en-US", "Global", { debug: true });
-                    console.log("Zoom client initialized");
-
-                    // 3. Join the meeting
-                    await client.join(data.meeting_number, data.signature, username, '');
-                    const currentUserId = client.getCurrentUserInfo().userId;
-                    console.log("Joined meeting, userId:", currentUserId);
-
-                    const stream = client.getMediaStream();
-
-                    // 4. Clear and prepare video container
-                    if (!container) {
-                        throw new Error("Video container not found");
-                    }
-                    container.innerHTML = '';
-                    
-                    // 5. Create and render self video element (Lawyer's video)
-                    const selfVideoElement = document.createElement("video");
-                    selfVideoElement.id = "self-video";
-                    selfVideoElement.autoplay = true;
-                    selfVideoElement.muted = true; // Mute self-view
-                    selfVideoElement.playsInline = true;
-                    selfVideoElement.className = "w-1/2 h-full object-cover rounded-lg shadow-xl mx-2 border-4 border-blue-500";
-                    container.appendChild(selfVideoElement);
-
-                    await stream.startVideo({ videoElement: selfVideoElement });
-                    await stream.startAudio(); // Also start audio
-                    console.log("Video and audio stream started and attached to self-view element");
-
-
-                    // --- CORE FIX: Handle remote video streams starting and stopping ---
-                    
-                    /**
-                     * Function to create the remote video element for a user
-                     * @param {string} userId The remote user ID
-                     * @returns {HTMLVideoElement} The created video element
-                     */
-                    const createRemoteVideoElement = (userId) => {
-                        let remoteVideoElement = document.getElementById(`video-${userId}`);
-                        if (remoteVideoElement) return remoteVideoElement; // Already exists
-                        
-                        remoteVideoElement = document.createElement("video");
-                        remoteVideoElement.id = `video-${userId}`;
-                        remoteVideoElement.autoplay = true;
-                        remoteVideoElement.playsInline = true;
-                        remoteVideoElement.className = "w-1/2 h-full object-cover rounded-lg shadow-xl mx-2 border-4 border-green-500";
-                        container.appendChild(remoteVideoElement);
-                        return remoteVideoElement;
-                    };
-                    
-                    // 6. Listener for remote user's video status changes (The Fix!)
-                    client.on('user-video-status-change', async (payload) => {
-                        const remoteUser = payload.user || payload;
-                        const remoteUserId = remoteUser.userId;
-                        const videoStatus = payload.action; // 'Active' or 'Inactive'
-                        
-                        // Only care about other users
-                        if (remoteUserId === currentUserId) return; 
-
-                        console.log(`User ${remoteUserId} video status changed to: ${videoStatus}`);
-
-                        if (videoStatus === 'Active') {
-                            const remoteVideoElement = createRemoteVideoElement(remoteUserId);
-                            try {
-                                // Attach the stream when video becomes active
-                                await stream.attachVideo(remoteUserId, remoteVideoElement); 
-                                console.log(`Remote video attached for user ${remoteUserId}`);
-                                
-                                // Update status when the second participant's video is confirmed active
-                                await updateConsultationStatus('in_progress'); 
-
-                            } catch (err) {
-                                console.error(`Failed to attach remote video for ${remoteUserId}:`, err);
-                            }
-                        } else if (videoStatus === 'Inactive') {
-                            // Video stopped, detach the stream
-                            await stream.detachVideo(remoteUserId);
-                            console.log(`Remote video detached for user ${remoteUserId}`);
-                        }
-                    });
-
-                    // 7. Handle initial existing users (if client joined before lawyer)
-                    const existingUsers = client.getAllUser();
-                    console.log("Existing participants:", existingUsers);
-
-                    if (existingUsers.length > 1) {
-                        const lawyerUser = existingUsers.find(u => u.userId !== currentUserId);
-                        if (lawyerUser) {
-                            console.log("Remote user (Client) already in meeting:", lawyerUser.userId);
-                            
-                            const userInfo = client.getUser(lawyerUser.userId);
-                            const remoteVideoElement = createRemoteVideoElement(lawyerUser.userId);
-
-                            // If video is already on, attach immediately
-                            if (userInfo?.bVideoOn) { 
-                                await stream.attachVideo(lawyerUser.userId, remoteVideoElement);
-                                console.log("Immediately attached video of existing user.");
-                                await updateConsultationStatus('in_progress'); 
-                            }
-                        }
-                    }
-                    
-                    // 8. Handle user joining and removing (creating/destroying elements)
-                    client.on('user-added', async (payload) => {
-                        const remoteUser = payload.user || payload;
-                        if (remoteUser.userId === currentUserId) return; // Ignore self
-                        
-                        console.log("Remote user joined:", remoteUser.userId);
-                        // Element created here. Video attachment handled by 'user-video-status-change'
-                        createRemoteVideoElement(remoteUser.userId); 
-                    });
-
-                    client.on('user-removed', async (payload) => {
-                        const remoteUser = payload.user || payload;
-                        const remoteUserId = remoteUser.userId;
-                        console.log("Remote user left:", remoteUserId);
-
-                        const remoteVideoElement = document.getElementById(`video-${remoteUserId}`);
-                        if (remoteVideoElement) {
-                            remoteVideoElement.remove();
-                        }
-                        // Update status to 'completed' when the other user leaves
-                        await updateConsultationStatus('completed');
-                    });
-                    
-                    // 9. Show video area
-                    if (videoArea) {
-                        videoArea.classList.remove('hidden');
-                    } else {
-                        console.error("Video area element not found");
-                    }
-
-                    // 10. Handle leave meeting button
-                    const leaveBtn = document.getElementById('leaveBtn');
-                    if (leaveBtn) {
-                        leaveBtn.addEventListener('click', async () => {
-                            try {
-                                await stream.stopVideo();
-                                await stream.stopAudio();
-                                await client.leave();
-                                console.log("Left meeting");
-                                
-                                if (videoArea) {
-                                    videoArea.classList.add('hidden');
-                                }
-                                container.innerHTML = ''; // Clear videos
-
-                                // Final status update upon lawyer leaving
-                                await updateConsultationStatus('completed');
-                            } catch (err) {
-                                console.error("Error leaving meeting:", err);
-                                displayMessage("Error leaving the meeting. Please refresh the page manually.");
-                            }
-                        });
-                    } else {
-                        console.error("Leave button not found");
-                    }
-                } catch (error) {
-                    console.error("Zoom SDK Error:", error);
-                    displayMessage(`Failed to start Zoom meeting: ${error.message || 'Unknown error'}. Check console for details.`);
-                }
-            };
-
-            /**
-             * Helper function to update consultation status on the backend.
-             * @param {string} status The new status ('in_progress' or 'completed').
-             */
-            async function updateConsultationStatus(status) {
-                if (!consultationId) {
-                    console.warn("Cannot update status: consultationId is missing.");
-                    return;
-                }
-                try {
-                    await fetch(`{{ route('consultation.status.update') }}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            consultation_id: consultationId,
-                            status: status
-                        })
-                    });
-                    console.log(`Consultation status updated to: ${status}`);
-                } catch (e) {
-                    console.error(`Failed to update consultation status to ${status}:`, e);
-                }
-            }
+/**
+ * Helper function to update consultation status on the backend.
+ * @param {string} status The new status ('in_progress' or 'completed').
+ */
+async function updateConsultationStatus(status) {
+    if (!consultationId) {
+        console.warn("Cannot update status: consultationId is missing.");
+        return;
+    }
+    try {
+        await fetch(`{{ route('consultation.status.update') }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                consultation_id: consultationId,
+                status: status
+            })
+        });
+        console.log(`Consultation status updated to: ${status}`);
+    } catch (e) {
+        console.error(`Failed to update consultation status to ${status}:`, e);
+    }
+}
         });
 
        
