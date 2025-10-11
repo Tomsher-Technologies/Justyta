@@ -242,26 +242,26 @@
                 currentConsultation = null;
             });
 
-            let consultationId = null;
-            // Accept
-            document.getElementById('acceptBtn').addEventListener('click', async () => {
-                if(!currentConsultation) return;
-                const res = await fetch("{{ route('web.lawyer.response') }}", {
-                    method:'POST',
-                    headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
-                    body: JSON.stringify({consultation_id: currentConsultation.consultation_id, action:'accept'})
-                });
-                const data = await res.json();
-                if(data.status){
-                    document.getElementById('incomingPopup').classList.add('hidden');
+            
+            // // Accept
+            // document.getElementById('acceptBtn').addEventListener('click', async () => {
+            //     if(!currentConsultation) return;
+            //     const res = await fetch("{{ route('web.lawyer.response') }}", {
+            //         method:'POST',
+            //         headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
+            //         body: JSON.stringify({consultation_id: currentConsultation.consultation_id, action:'accept'})
+            //     });
+            //     const data = await res.json();
+            //     if(data.status){
+            //         document.getElementById('incomingPopup').classList.add('hidden');
 
-                    consultationId = currentConsultation.consultation_id;
-                    setTimeout(() => {
-                        startZoomVideo(data.data, '{{ addslashes(auth()->user()->name) }}');
-                    }, 3000);
+            //         consultationId = currentConsultation.consultation_id;
+            //         setTimeout(() => {
+            //             startZoomVideo(data.data, '{{ addslashes(auth()->user()->name) }}');
+            //         }, 3000);
                     
-                }
-            });
+            //     }
+            // });
 
             // Reject
             document.getElementById('rejectBtn').addEventListener('click', async () => {
@@ -275,170 +275,503 @@
                 currentConsultation = null;
             });
 
+            // async function checkCameraAccess() {
+            //     try {
+            //         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            //         stream.getTracks().forEach(track => track.stop());
+            //         console.log("Camera access granted");
+            //         return true;
+            //     } catch (err) {
+            //         console.error("Camera access denied or error:", err);
+            //         alert("Please grant camera access to start the video.");
+            //         return false;
+            //     }
+            // }
+
+            // window.startZoomVideo = async function (data, username) {
+            //     // Verify camera access
+            //     if (!(await checkCameraAccess())) {
+            //         return;
+            //     }
+
+            //     let client;
+            //     try {
+            //         // Check SharedArrayBuffer support
+            //         const isSharedArrayBufferSupported = typeof SharedArrayBuffer === 'function';
+            //         console.log("SharedArrayBuffer supported:", isSharedArrayBufferSupported);
+                    
+            //         console.log("Meeting details:", data);
+
+            //         // Initialize Zoom Video SDK
+            //         client = ZoomVideo.createClient();
+            //         await client.init("en-US", "Global", { debug: true });
+            //         console.log("Zoom client initialized");
+
+            //         // Join the meeting
+            //         await client.join(data.meeting_number, data.signature, username, '');
+            //         console.log("Joined meeting, userId:", client.getCurrentUserInfo().userId);
+
+            //         const stream = client.getMediaStream();
+
+            //         // --- Start of Corrected Section ---
+
+            //         // Clear and prepare video container
+            //         const container = document.getElementById('videoContainer');
+            //         if (!container) {
+            //             throw new Error("Video container not found");
+            //         }
+            //         container.innerHTML = '';
+
+            //         // Create and configure self video element FIRST
+            //         const selfVideoElement = document.createElement("video");
+            //         selfVideoElement.id = "self-video";
+            //         selfVideoElement.autoplay = true;
+            //         selfVideoElement.muted = true;
+            //         selfVideoElement.playsInline = true;
+            //         selfVideoElement.style.width = "400px";
+            //         selfVideoElement.style.height = "300px";
+            //         selfVideoElement.style.border = "2px solid blue"; // Debugging border
+            //         container.appendChild(selfVideoElement);
+
+            //         // Verify video element
+            //         console.log("Self video element created:", selfVideoElement);
+
+            //         // 💡 *THE FIX:* Start video and render the self-view in one step
+            //         await stream.startVideo({ videoElement: selfVideoElement });
+            //         console.log("Video stream started and attached to self-view element");
+
+            //         const existingUsers = client.getAllUser();
+            //         console.log("Existing participants:", existingUsers);
+
+            //         // If lawyer already joined before user
+            //         if (existingUsers.length > 1) {
+            //             const lawyerUser = existingUsers.find(u => u.userId !== client.getCurrentUserInfo().userId);
+            //             if (lawyerUser) {
+            //                 console.log("Lawyer already in meeting:", lawyerUser.userId);
+
+            //                 const remoteVideoElement = document.createElement("video");
+            //                 remoteVideoElement.id = `video-${lawyerUser.userId}`;
+            //                 remoteVideoElement.autoplay = true;
+            //                 remoteVideoElement.playsInline = true;
+            //                 remoteVideoElement.style.width = "400px";
+            //                 remoteVideoElement.style.height = "300px";
+            //                 remoteVideoElement.style.border = "2px solid green";
+            //                 container.appendChild(remoteVideoElement);
+
+            //                 const userInfo = client.getUser(lawyerUser.userId);
+            //                 if (userInfo?.bVideoOn) {
+            //                     await stream.attachVideo(lawyerUser.userId, remoteVideoElement);
+
+            //                     // ✅ Update consultation status
+            //                     await fetch(`{{ route('consultation.status.update') }}`, {
+            //                         method: 'POST',
+            //                         headers: {
+            //                             'Content-Type': 'application/json',
+            //                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            //                         },
+            //                         body: JSON.stringify({
+            //                             consultation_id: consultationId,
+            //                             status: 'in_progress'
+            //                         })
+            //                     });
+            //                 }
+            //             }
+            //         }
+
+            //         // Handle remote participants
+            //         client.on('user-added', async (payload) => {
+
+            //             console.log("User addeddddddddddddddddddddd:" +payload );
+            //             console.log(payload);
+            //             const remoteUser = payload.user || payload;
+            //             const remoteUserId = remoteUser.userId;
+            //             console.log("Remote user joined:", remoteUserId);
+
+            //             if (!remoteUserId) return;
+
+            //             const remoteVideoElement = document.createElement("video");
+            //             remoteVideoElement.id = `video-${remoteUserId}`;
+            //             remoteVideoElement.autoplay = true;
+            //             remoteVideoElement.playsInline = true;
+            //             remoteVideoElement.style.width = "400px";
+            //             remoteVideoElement.style.height = "300px";
+            //             remoteVideoElement.style.border = "2px solid green"; // Debugging border
+            //             container.appendChild(remoteVideoElement);
+
+            //             try {
+            //                 // This is correct for remote users
+            //                 await stream.attachVideo(remoteUserId, remoteVideoElement);
+            //                 console.log(`Remote video attached for user ${remoteUserId}`);
+
+            //                 await fetch(`{{ route('consultation.status.update') }}`, {
+            //                     method: 'POST',
+            //                     headers: {
+            //                         'Content-Type': 'application/json',
+            //                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            //                     },
+            //                     body: JSON.stringify({
+            //                         consultation_id: consultationId,
+            //                         status: 'in_progress'
+            //                     })
+            //                 });
+            //             } catch (err) {
+            //                 console.error(`Failed to attach remote video for ${remoteUserId}:`, err);
+            //             }
+            //         });
+
+            //         // Handle remote user leaving
+            //         client.on('user-removed', async (payload) => {
+            //             const remoteUser = payload.user || payload;
+            //             const remoteUserId = remoteUser.userId;
+            //             console.log("Remote user left:", remoteUserId);
+
+            //             if (!remoteUserId) return;
+            //             const remoteVideoElement = document.getElementById(`video-${remoteUserId}`);
+            //             if (remoteVideoElement) {
+            //                 remoteVideoElement.remove();
+            //             }
+            //             await fetch(`{{ route('consultation.status.update') }}`, {
+            //                 method: 'POST',
+            //                 headers: {
+            //                     'Content-Type': 'application/json',
+            //                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            //                 },
+            //                 body: JSON.stringify({
+            //                     consultation_id: consultationId,
+            //                     status: 'completed'
+            //                 })
+            //             });
+            //         });
+
+            //         // Show video area
+            //         const videoArea = document.getElementById('videoArea');
+            //         if (videoArea) {
+            //             videoArea.classList.remove('hidden');
+            //         } else {
+            //             console.error("Video area element not found");
+            //         }
+
+            //         // Handle leave meeting
+            //         const leaveBtn = document.getElementById('leaveBtn');
+            //         if (leaveBtn) {
+            //             leaveBtn.addEventListener('click', async () => {
+            //                 try {
+            //                     await stream.stopVideo();
+            //                     await stream.stopAudio();
+            //                     await client.leave();
+            //                     console.log("Left meeting");
+            //                     if (videoArea) {
+            //                         videoArea.classList.add('hidden');
+            //                     }
+            //                     container.innerHTML = ''; // Clear videos
+
+            //                     await fetch(`{{ route('consultation.status.update') }}`, {
+            //                         method: 'POST',
+            //                         headers: {
+            //                             'Content-Type': 'application/json',
+            //                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            //                         },
+            //                         body: JSON.stringify({
+            //                             consultation_id: consultationId,
+            //                             status: 'completed'
+            //                         })
+            //                     });
+            //                 } catch (err) {
+            //                     console.error("Error leaving meeting:", err);
+            //                 }
+            //             });
+            //         } else {
+            //             console.error("Leave button not found");
+            //         }
+            //     } catch (error) {
+            //         console.error("Zoom SDK Error:", error);
+            //         alert(`Failed to start Zoom meeting: ${error.message || 'Unknown error'}`);
+            //     }
+            // };
+
+
+            // Global variable to store consultation ID
+            let consultationId = null; 
+
+            /**
+             * Utility function to check for camera access permissions.
+             * @returns {Promise<boolean>}
+             */
             async function checkCameraAccess() {
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    // Stop the tracks immediately after checking access
                     stream.getTracks().forEach(track => track.stop());
-                    console.log("Camera access granted");
                     return true;
-                } catch (err) {
-                    console.error("Camera access denied or error:", err);
-                    alert("Please grant camera access to start the video.");
+                } catch (e) {
+                    console.error("Camera access denied or failed:", e);
+                    displayMessage("Please allow camera and microphone access to start the consultation.");
                     return false;
                 }
             }
 
-           window.startZoomVideo = async function(data, username) {
-    // Verify camera access
-    if (!(await checkCameraAccess())) return;
-
-    let client;
-    try {
-        console.log("Meeting details:", data);
-
-        // Initialize Zoom Video SDK
-        client = ZoomVideo.createClient();
-        await client.init("en-US", "Global", { debug: true });
-        console.log("Zoom client initialized");
-
-        // Join the meeting
-        await client.join(data.meeting_number, data.signature, username, '');
-        const currentUser = client.getCurrentUserInfo();
-        console.log("Joined meeting:", currentUser);
-
-        const stream = client.getMediaStream();
-
-        // Clear video container
-        const container = document.getElementById('videoContainer');
-        if (!container) throw new Error("Video container not found");
-        container.innerHTML = '';
-
-        // ----- Self-video -----
-        const selfVideo = document.createElement("video");
-        selfVideo.id = "self-video";
-        selfVideo.autoplay = true;
-        selfVideo.muted = true;
-        selfVideo.playsInline = true;
-        selfVideo.style.width = "400px";
-        selfVideo.style.height = "300px";
-        selfVideo.style.border = "2px solid blue";
-        container.appendChild(selfVideo);
-
-        await stream.startVideo({ videoElement: selfVideo });
-        console.log("Self video started");
-
-        // ----- Attach existing remote users -----
-        const currentUserId = currentUser.userId;
-        client.getAllUser().forEach(async u => {
-            if (u.userId !== currentUserId) {
-                attachRemoteVideo(u.userId, u.displayName);
+            /**
+             * Displays a non-alert message to the user.
+             * (Replaces problematic window.alert() usage)
+             */
+            function displayMessage(message) {
+                const container = document.getElementById('videoContainer');
+                let messageDiv = document.getElementById('statusMessage');
+                
+                if (!messageDiv) {
+                    messageDiv = document.createElement('div');
+                    messageDiv.id = 'statusMessage';
+                    messageDiv.className = 'text-red-600 font-semibold p-4 border border-red-300 rounded-lg bg-red-50 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 shadow-lg z-50';
+                    container.appendChild(messageDiv);
+                }
+                
+                messageDiv.textContent = message;
+                
+                // Hide after 5 seconds
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.remove();
+                    }
+                }, 5000);
             }
-        });
 
-        // ----- Event: new user joins -----
-        client.on('user-added', payload => {
-            const remoteUser = payload.user || payload;
-            console.log("Remote user joined:", remoteUser);
-            attachRemoteVideo(remoteUser.userId, remoteUser.displayName);
-        });
 
-        // ----- Event: user leaves -----
-        client.on('user-removed', async payload => {
-            const remoteUser = payload.user || payload;
-            const videoEl = document.getElementById(`video-${remoteUser.userId}`);
-            if (videoEl) videoEl.remove();
+            // Event listener for accepting the consultation
+            document.getElementById('acceptBtn').addEventListener('click', async () => {
+                // Assuming 'currentConsultation' is a globally available object set before this call.
+                if(!currentConsultation) return; 
+                
+                const res = await fetch("{{ route('web.lawyer.response') }}", {
+                    method:'POST',
+                    headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},
+                    body: JSON.stringify({consultation_id: currentConsultation.consultation_id, action:'accept'})
+                });
+                const data = await res.json();
+                
+                if(data.status){
+                    document.getElementById('incomingPopup').classList.add('hidden');
+                    
+                    // Set the global consultationId for status updates later
+                    consultationId = currentConsultation.consultation_id; 
 
-            // Update status to completed
-            await fetch(`{{ route('consultation.status.update') }}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ consultation_id: consultationId, status: 'completed' })
-            });
-        });
-
-        // ----- Leave meeting -----
-        const leaveBtn = document.getElementById('leaveBtn');
-        if (leaveBtn) {
-            leaveBtn.addEventListener('click', async () => {
-                try {
-                    await stream.stopVideo();
-                    await stream.stopAudio();
-                    await client.leave();
-                    container.innerHTML = '';
-                    const videoArea = document.getElementById('videoArea');
-                    if (videoArea) videoArea.classList.add('hidden');
-
-                    await fetch(`{{ route('consultation.status.update') }}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ consultation_id: consultationId, status: 'completed' })
-                    });
-                } catch (err) {
-                    console.error("Error leaving meeting:", err);
+                    // Wait a few seconds before starting the video to allow time for the client to join
+                    setTimeout(() => {
+                        // Note: Ensure the ZoomVideo SDK is loaded via a <script> tag earlier in your HTML.
+                        window.startZoomVideo(data.data, '{{ addslashes(auth()->user()->name) }}');
+                    }, 3000); 
                 }
             });
-        }
 
-        // ----- Show video area -----
-        const videoArea = document.getElementById('videoArea');
-        if (videoArea) videoArea.classList.remove('hidden');
 
-        // ===== Helper: attach remote video =====
-        async function attachRemoteVideo(remoteUserId, displayName) {
-            if (!remoteUserId) return;
+            /**
+             * Initiates the Zoom video consultation.
+             * @param {object} data Meeting details (meeting_number, signature).
+             * @param {string} username Current user's display name.
+             */
+            window.startZoomVideo = async function (data, username) {
+                let client;
+                const container = document.getElementById('videoContainer');
+                const videoArea = document.getElementById('videoArea');
 
-            // Create video element
-            const remoteVideo = document.createElement("video");
-            remoteVideo.id = `video-${remoteUserId}`;
-            remoteVideo.autoplay = true;
-            remoteVideo.playsInline = true;
-            remoteVideo.style.width = "400px";
-            remoteVideo.style.height = "300px";
-            remoteVideo.style.border = "2px solid green";
-            container.appendChild(remoteVideo);
+                // 1. Verify camera access
+                if (!(await checkCameraAccess())) {
+                    return;
+                }
 
-            const attach = async () => {
                 try {
-                    await stream.attachVideo(remoteUserId, remoteVideo);
-                    console.log(`Remote video attached for ${displayName}`);
+                    console.log("Meeting details:", data);
 
-                    // Update consultation status
-                    await fetch(`{{ route('consultation.status.update') }}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ consultation_id: consultationId, status: 'in_progress' })
+                    // 2. Initialize Zoom Video SDK
+                    client = ZoomVideo.createClient();
+                    await client.init("en-US", "Global", { debug: true });
+                    console.log("Zoom client initialized");
+
+                    // 3. Join the meeting
+                    await client.join(data.meeting_number, data.signature, username, '');
+                    const currentUserId = client.getCurrentUserInfo().userId;
+                    console.log("Joined meeting, userId:", currentUserId);
+
+                    const stream = client.getMediaStream();
+
+                    // 4. Clear and prepare video container
+                    if (!container) {
+                        throw new Error("Video container not found");
+                    }
+                    container.innerHTML = '';
+                    
+                    // 5. Create and render self video element (Lawyer's video)
+                    const selfVideoElement = document.createElement("video");
+                    selfVideoElement.id = "self-video";
+                    selfVideoElement.autoplay = true;
+                    selfVideoElement.muted = true; // Mute self-view
+                    selfVideoElement.playsInline = true;
+                    selfVideoElement.className = "w-1/2 h-full object-cover rounded-lg shadow-xl mx-2 border-4 border-blue-500";
+                    container.appendChild(selfVideoElement);
+
+                    await stream.startVideo({ videoElement: selfVideoElement });
+                    await stream.startAudio(); // Also start audio
+                    console.log("Video and audio stream started and attached to self-view element");
+
+
+                    // --- CORE FIX: Handle remote video streams starting and stopping ---
+                    
+                    /**
+                     * Function to create the remote video element for a user
+                     * @param {string} userId The remote user ID
+                     * @returns {HTMLVideoElement} The created video element
+                     */
+                    const createRemoteVideoElement = (userId) => {
+                        let remoteVideoElement = document.getElementById(`video-${userId}`);
+                        if (remoteVideoElement) return remoteVideoElement; // Already exists
+                        
+                        remoteVideoElement = document.createElement("video");
+                        remoteVideoElement.id = `video-${userId}`;
+                        remoteVideoElement.autoplay = true;
+                        remoteVideoElement.playsInline = true;
+                        remoteVideoElement.className = "w-1/2 h-full object-cover rounded-lg shadow-xl mx-2 border-4 border-green-500";
+                        container.appendChild(remoteVideoElement);
+                        return remoteVideoElement;
+                    };
+                    
+                    // 6. Listener for remote user's video status changes (The Fix!)
+                    client.on('user-video-status-change', async (payload) => {
+                        const remoteUser = payload.user || payload;
+                        const remoteUserId = remoteUser.userId;
+                        const videoStatus = payload.action; // 'Active' or 'Inactive'
+                        
+                        // Only care about other users
+                        if (remoteUserId === currentUserId) return; 
+
+                        console.log(`User ${remoteUserId} video status changed to: ${videoStatus}`);
+
+                        if (videoStatus === 'Active') {
+                            const remoteVideoElement = createRemoteVideoElement(remoteUserId);
+                            try {
+                                // Attach the stream when video becomes active
+                                await stream.attachVideo(remoteUserId, remoteVideoElement); 
+                                console.log(`Remote video attached for user ${remoteUserId}`);
+                                
+                                // Update status when the second participant's video is confirmed active
+                                await updateConsultationStatus('in_progress'); 
+
+                            } catch (err) {
+                                console.error(`Failed to attach remote video for ${remoteUserId}:`, err);
+                            }
+                        } else if (videoStatus === 'Inactive') {
+                            // Video stopped, detach the stream
+                            await stream.detachVideo(remoteUserId);
+                            console.log(`Remote video detached for user ${remoteUserId}`);
+                        }
                     });
-                } catch (err) {
-                    console.error(`Failed to attach remote video for ${displayName}:`, err);
+
+                    // 7. Handle initial existing users (if client joined before lawyer)
+                    const existingUsers = client.getAllUser();
+                    console.log("Existing participants:", existingUsers);
+
+                    if (existingUsers.length > 1) {
+                        const lawyerUser = existingUsers.find(u => u.userId !== currentUserId);
+                        if (lawyerUser) {
+                            console.log("Remote user (Client) already in meeting:", lawyerUser.userId);
+                            
+                            const userInfo = client.getUser(lawyerUser.userId);
+                            const remoteVideoElement = createRemoteVideoElement(lawyerUser.userId);
+
+                            // If video is already on, attach immediately
+                            if (userInfo?.bVideoOn) { 
+                                await stream.attachVideo(lawyerUser.userId, remoteVideoElement);
+                                console.log("Immediately attached video of existing user.");
+                                await updateConsultationStatus('in_progress'); 
+                            }
+                        }
+                    }
+                    
+                    // 8. Handle user joining and removing (creating/destroying elements)
+                    client.on('user-added', async (payload) => {
+                        const remoteUser = payload.user || payload;
+                        if (remoteUser.userId === currentUserId) return; // Ignore self
+                        
+                        console.log("Remote user joined:", remoteUser.userId);
+                        // Element created here. Video attachment handled by 'user-video-status-change'
+                        createRemoteVideoElement(remoteUser.userId); 
+                    });
+
+                    client.on('user-removed', async (payload) => {
+                        const remoteUser = payload.user || payload;
+                        const remoteUserId = remoteUser.userId;
+                        console.log("Remote user left:", remoteUserId);
+
+                        const remoteVideoElement = document.getElementById(`video-${remoteUserId}`);
+                        if (remoteVideoElement) {
+                            remoteVideoElement.remove();
+                        }
+                        // Update status to 'completed' when the other user leaves
+                        await updateConsultationStatus('completed');
+                    });
+                    
+                    // 9. Show video area
+                    if (videoArea) {
+                        videoArea.classList.remove('hidden');
+                    } else {
+                        console.error("Video area element not found");
+                    }
+
+                    // 10. Handle leave meeting button
+                    const leaveBtn = document.getElementById('leaveBtn');
+                    if (leaveBtn) {
+                        leaveBtn.addEventListener('click', async () => {
+                            try {
+                                await stream.stopVideo();
+                                await stream.stopAudio();
+                                await client.leave();
+                                console.log("Left meeting");
+                                
+                                if (videoArea) {
+                                    videoArea.classList.add('hidden');
+                                }
+                                container.innerHTML = ''; // Clear videos
+
+                                // Final status update upon lawyer leaving
+                                await updateConsultationStatus('completed');
+                            } catch (err) {
+                                console.error("Error leaving meeting:", err);
+                                displayMessage("Error leaving the meeting. Please refresh the page manually.");
+                            }
+                        });
+                    } else {
+                        console.error("Leave button not found");
+                    }
+                } catch (error) {
+                    console.error("Zoom SDK Error:", error);
+                    displayMessage(`Failed to start Zoom meeting: ${error.message || 'Unknown error'}. Check console for details.`);
                 }
             };
 
-            // Attach immediately
-            attach();
-
-            // Listen for remote user starting video later
-            client.on('user-video-started', payload => {
-                if (payload.userId === remoteUserId) {
-                    attach();
+            /**
+             * Helper function to update consultation status on the backend.
+             * @param {string} status The new status ('in_progress' or 'completed').
+             */
+            async function updateConsultationStatus(status) {
+                if (!consultationId) {
+                    console.warn("Cannot update status: consultationId is missing.");
+                    return;
                 }
-            });
-        }
-
-    } catch (error) {
-        console.error("Zoom SDK Error:", error);
-        alert(`Failed to start Zoom meeting: ${error.message || 'Unknown error'}`);
-    }
-};
-
+                try {
+                    await fetch(`{{ route('consultation.status.update') }}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            consultation_id: consultationId,
+                            status: status
+                        })
+                    });
+                    console.log(`Consultation status updated to: ${status}`);
+                } catch (e) {
+                    console.error(`Failed to update consultation status to ${status}:`, e);
+                }
+            }
         });
 
        
