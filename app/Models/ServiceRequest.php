@@ -13,11 +13,28 @@ class ServiceRequest extends Model
     protected $table = 'service_requests';
 
     protected $fillable = [
-        'user_id', 'service_id', 'service_slug', 'reference_code', 'status', 'payment_status', 'payment_reference', 'service_fee', 'govt_fee', 'tax', 'amount', 'paid_at', 'payment_response', 'submitted_at', 'source','request_success'
+        'user_id',
+        'service_id',
+        'service_slug',
+        'reference_code',
+        'status',
+        'payment_status',
+        'payment_reference',
+        'service_fee',
+        'govt_fee',
+        'tax',
+        'amount',
+        'paid_at',
+        'payment_response',
+        'submitted_at',
+        'source',
+        'request_success',
+        'completed_files',
     ];
 
     protected $casts = [
         'submitted_at' => 'datetime',
+        'completed_files' => 'array',
     ];
 
 
@@ -25,6 +42,7 @@ class ServiceRequest extends Model
     {
         return $this->belongsTo(User::class);
     }
+
 
     public function service()
     {
@@ -123,4 +141,21 @@ class ServiceRequest extends Model
         return $this->hasMany(AnnualAgreementInstallment::class);
     }
 
+    public function statusHistories()
+    {
+        return $this->hasMany(ServiceRequestTimeline::class)->orderBy('id', 'desc');
+    }
+
+    public function getCurrentStatusAttribute()
+    {
+        return $this->statusHistories()->value('status');
+    }
+
+    public function getLatestRejectionDetails()
+    {
+        return $this->statusHistories()
+            ->where('status', 'rejected')
+            ->latest('id')
+            ->first();
+    }
 }

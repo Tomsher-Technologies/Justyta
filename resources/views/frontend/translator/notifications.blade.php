@@ -1,4 +1,4 @@
-@extends('layouts.web_default', ['title' => __('frontend.notifications')])
+@extends('layouts.web_translator', ['title' => __('frontend.notifications')])
 
 @section('content')
     <div class="container">
@@ -45,7 +45,7 @@
                                     {{ $key + 1 + ($paginatedNot->currentPage() - 1) * $paginatedNot->perPage() }}
                                 </td>
                                 <td class="px-6 py-4">
-                                    {{ $notification['message'] ?? '-' }} {{ $notification['status'] ?? '' }}
+                                    {{ $notification['message'] ?? '-' }}
                                 </td>
                                 <td class="px-6 py-4">
                                     {{ $notification['time'] }}
