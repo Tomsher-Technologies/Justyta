@@ -1,4 +1,4 @@
-@extends('layouts.web_default', ['title' => __('frontend.request_success')])
+@extends('layouts.web_default', ['title' => __('frontend.request_submit_failed')])
 
 @section('content')
     <div class="grid grid-cols-1 gap-6">
@@ -12,7 +12,7 @@
                 <h1 class="text-2xl font-light text-gray-800 mb-4">{{ __('frontend.request_submit_failed') }}</h1>
 
                 <div class="bg-[#FFF9F4] p-8 rounded-lg mb-6 border border-[#F5E4BA]">
-                    <div class="text-gray-700 text-sm mb-3">{!! $data['message'] !!}</div>
+                    <div class="text-gray-700 text-sm mb-3">{!! $pageData['content'] ?? '' !!}</div>
                 </div>
 
                 <p class="text-gray-700 text-lg mb-4">{{ __('frontend.thank_you_for_choosing') }}</p>

@@ -42,7 +42,13 @@ use App\Models\RequestLastWill;
 use App\Models\RequestSubmissionPricing;
 use App\Models\ServiceRequestTimeline;
 use App\Models\TranslationAssignmentHistory;
+use App\Models\Consultation;
+use App\Models\ConsultationAssignment;
+use App\Models\ConsultationPayment;
 use App\Notifications\ServiceRequestStatusChanged;
+use App\Models\Lawyer;
+use Illuminate\Support\Facades\Http;
+use App\Services\ZoomService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +56,6 @@ use Illuminate\Support\Facades\Validator;
 use App\Notifications\ServiceRequestSubmitted;
 use App\Services\ServiceRequestFileService;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
@@ -124,6 +129,39 @@ class ServiceRequestController extends Controller
         ], 200);
     }
 
+    public function getOnlineConsultationPrice(Request $request){
+        $consultant_type    = $request->query('consultant_type') ?? NULL;
+        $duration           = $request->query('duration') ?? NULL;
+
+        if ($consultant_type === NULL || $duration === NULL) {
+            return response()->json([
+                'status'    => true,
+                'message'   => 'Success',
+                'data'      => [
+                                'admin_fee' => 0,
+                                'govt_fee' => 0,
+                                'tax'       => 0,
+                                'total'     => 0,
+                            ]
+            ], 200);
+        }
+
+        $base = ConsultationDuration::where('type', $consultant_type)
+                                    ->where('duration', $duration)
+                                    ->where('status', 1)
+                                    ->first();
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'admin_fee' => 0,
+                            'govt_fee' => 0,
+                            'tax'       => 0,
+                            'total'     => (float)($base->amount ?? 0),
+                        ]
+        ], 200);
+    }
+        
     public function getAnnualAgreementPrice(Request $request)
     {
         $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
@@ -905,6 +943,234 @@ class ServiceRequestController extends Controller
         abort(404);
     }
 
+    public function showConsultationForm (Request $request){
+        $lang           = app()->getLocale() ?? env('APP_LOCALE','en');
+
+        $dropdowns  = Dropdown::with([
+                        'options' => function ($q) {
+                            $q->where('status', 'active')->orderBy('sort_order');
+                        },
+                        'options.translations' => function ($q) use ($lang) {
+                            $q->whereIn('language_code', [$lang, 'en']);
+                        }
+                    ])->whereIn('slug', ['specialities', 'case_stage', 'you_represent','languages'])->get()->keyBy('slug');
+       
+        
+        $dropdownData   = [];
+
+        foreach ($dropdowns as $slug => $dropdown) {
+            $dropdownData[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                return [
+                    'id'    => $option->id,
+                    'value' => $option->getTranslation('name',$lang),
+                ];
+            });
+        }
+
+        if(isset($dropdownData['specialities'])){
+            $dropdownData['case_types'] = $dropdownData['specialities'];
+            unset($dropdownData['specialities']);
+        }
+
+        $timeslots = ConsultationDuration::where('status',1)->where('type','normal')->orderBy('id')->get();
+
+        $dropdownData['timeslots'] = $timeslots->map(function ($timeslot) use($lang) {
+                return [
+                    'duration'  => $timeslot->duration,
+                    'value'     => $timeslot->getTranslation('name',$lang),
+                ];
+        });
+
+        $service = Service::where('slug', 'online-live-consultancy')->first();
+        return view('frontend.user.service-requests.online_consultation', ['service' => $service,'dropdownData' => $dropdownData, 'lang' => $lang]);
+    }
+
+    public function requestConsultation(Request $request)
+    {
+        $data = $request->validate([
+            'applicant_type' => 'required|in:company,individual',
+            'litigation_type'=> 'required|in:local,federal',
+            'consultant_type'=> 'required|in:normal,vip',
+            'emirate_id'     => 'required|integer',
+            'you_represent'  => 'required',
+            'case_type'      => 'required',
+            'case_stage'     => 'required',
+            'language'       => 'required',
+            'duration'       => 'required|numeric',
+            'lawyer_id'      => 'nullable|exists:lawyers,id'
+        ]);
+
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en');
+        $user       = Auth::guard('frontend')->user();
+
+        $consultation = Consultation::create([
+            'user_id'=> $user->id,
+            ...$data
+        ]);
+
+        $lawyer = findBestFitLawyer($consultation);
+       
+        if ($lawyer) {
+            reserveLawyer($lawyer->id, $consultation->id);
+        } else {
+            $consultation->delete();
+            return redirect()->back()->with('error', __('frontend.no_lawyer_available'));
+        }
+    
+        $base = ConsultationDuration::where('type', $request->consultant_type)
+                                    ->where('duration', $request->duration)
+                                    ->where('status', 1)
+                                    ->first();
+
+        $total_amount = (float)($base->amount ?? 0);
+
+        $consultation->update([
+            'amount' => $total_amount
+        ]);
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
+
+        $total_amount = 0;
+        if($total_amount > 0) {
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone
+            ];
+            $orderReference = $consultation->id .'--'.$consultation->ref_code;
+
+            $payment = createConsultationWebOrder($customer, $total_amount, env('APP_CURRENCY','AED'), $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $paymentData = ConsultationPayment::create([
+                                'consultation_id' => $consultation->id,
+                                'user_id' => $user->id,
+                                'amount' => $total_amount,
+                                'type' => 'initial',
+                                'status' => 'pending',
+                                'payment_reference' => $payment['reference'] ?? NULL
+                            ]);
+                return redirect()->away($payment['_links']['payment']['href']);
+            }
+
+            return redirect()->back()->with('error', __('frontend.consultation_request_submit_failed'));
+        }else{
+            $consultation->refresh();
+           
+            if ($consultation->lawyer_id) {
+                assignLawyer($consultation, $consultation->lawyer_id);
+                $consultation->status = 'waiting_lawyer';
+                $consultation->save();
+            } else {
+                // Backup case: find a lawyer again if not reserved
+                $lawyer = findBestFitLawyer($consultation);
+                if ($lawyer) {
+                    assignLawyer($consultation, $lawyer->id);
+                    $consultation->status = 'waiting_lawyer';
+                    $consultation->save();
+                } else {
+                    $consultation->status = 'no_lawyer_available';
+                    $consultation->save();
+                }
+            }
+            return redirect()->route('user.consultation-payment.success', ['id' => base64_encode($consultation->id)]);
+
+        }
+    }
+
+
+    public function consultationPaymentSuccess(Request $request) 
+    {
+        $paymentReference = $request->query('ref') ?? NULL;
+        $token = getAccessToken();
+
+        $baseUrl = config('services.ngenius.base_url');
+        $outletRef = config('services.ngenius.outlet_ref');
+
+        $response = Http::withToken($token)->get("{$baseUrl}/transactions/outlets/" . $outletRef . "/orders/{$paymentReference}");
+        $data = $response->json();
+      
+        $orderRef = $data['merchantOrderReference'] ?? NULL;
+        $serviceData = explode('--', $orderRef);
+
+        $consultationId = $serviceData[0];
+        $serviceRequestCode = $serviceData[1];
+        
+        $status = $data['_embedded']['payment'][0]['state'] ?? null;
+        $paid_amount = $data['_embedded']['payment'][0]['amount']['value'] ?? 0;
+
+        $paidAmount = ($paid_amount != 0) ? $paid_amount/100 : 0;
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en');
+
+        if ($status === 'PURCHASED' || $status === 'CAPTURED') {
+            $servicePayment = ConsultationPayment::where('payment_reference', $paymentReference)
+                                                ->where('consultation_id', $consultationId)
+                                                ->first();
+
+            if ($servicePayment) {
+                $servicePayment->update(['status' => 'completed']);
+            }
+
+            $consultation = Consultation::findOrFail($consultationId);
+
+            if ($consultation->lawyer_id) {
+                assignLawyer($consultation, $consultation->lawyer_id);
+                $consultation->status = 'waiting_lawyer';
+                $consultation->save();
+            } else {
+                // Backup case: find a lawyer again if not reserved
+                $lawyer = findBestFitLawyer($consultation);
+                if ($lawyer) {
+                    assignLawyer($consultation, $lawyer->id);
+                    $consultation->status = 'waiting_lawyer';
+                    $consultation->save();
+                } else {
+                    $consultation->status = 'no_lawyer_available';
+                    $consultation->save();
+                }
+            }
+
+            return redirect()->route('user.consultation-payment.success', ['id' => base64_encode($consultation->id)]);
+        }else{
+            $consultation = Consultation::find($consultationId);
+            unreserveLawyer($consultation->lawyer_id);
+            $consultation->delete();
+            return redirect()->route('user.payment-consultation-failed');
+        }
+
+        return redirect()->route('user.dashboard')->with('error', 'Payment failed or cancelled.');
+    }
+
+    public function consultationCancelPayment(Request $request){
+        $ref = $request->get('ref'); 
+
+        $servicePayment = ConsultationPayment::where('payment_reference', $ref)->first();
+
+        if ($servicePayment) {
+            $consultation = Consultation::find($servicePayment->consultation_id);
+            unreserveLawyer($consultation->lawyer_id);
+            $consultation->delete();
+        }
+
+        return redirect()->route('user.dashboard')->with('error', __('frontend.request_cancelled'));
+    }
+
+    public function consultationWaitingLawyer(Request $request, $id = NULL){
+        $lang = app()->getLocale() ?? env('APP_LOCALE','en');
+
+        $consultation = Consultation::find(base64_decode($id));
+        $pageData = getPageDynamicContent('consultancy_waiting_page',$lang);
+
+        $pageData = $pageData['content'] ?? '';
+        return view('frontend.user.service-requests.consultation_waiting_lawyer', compact('pageData', 'consultation'));
+    }
+
+    public function consultationRequestFailed(){
+        $lang       = app()->getLocale() ?? env('APP_LOCALE','en');
+         $pageData = getPageDynamicContent('consultancy_payment_failed',$lang);
+        return view('frontend.user.service-requests.consultation_failed', compact('pageData'));
+    }
+        
     public function requestCourtCase(Request $request)
     {
         $validator = Validator::make($request->all(), [

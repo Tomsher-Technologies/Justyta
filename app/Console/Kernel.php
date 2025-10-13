@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('check:vendor-expiry')->daily();
         $schedule->command('subscriptions:check-expiry')->daily();
         $schedule->command('membership:send-expiry-reminders')->everyMinute();
+        $schedule->command('consultations:release-expired')->everyMinute();
         $schedule->command('queue:work --stop-when-empty')
                 ->everyMinute()
                 ->withoutOverlapping();

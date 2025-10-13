@@ -3,7 +3,7 @@
 @section('content')
     <!-- Consultancy Form -->
     <h2 class="text-xl font-medium text-gray-800 mb-4">
-        Law Firm Services
+        {{ __('frontend.law_firm_services') }}
     </h2>
     <div class="grid grid-cols-5 gap-2">
 
@@ -15,12 +15,21 @@
             @php
                 $translation = $serv->translations->first();
             @endphp
-            <div class="bg-white p-8 rounded-lg text-center">
-                <a href="{{ route('service.request.form',['slug' => $serv->slug]) }}">
-                    <img src="{{ asset(getUploadedImage($serv->icon)) }}" alt="{{ $translation?->title }}" class="mb-4 w-20 h-20 mx-auto object-contain" />
-                    <h3 class="mb-6 text-lg font-semibold">{{ $translation?->title }}</h3>
-                </a>
-            </div>
+            @if($serv->slug === 'online-live-consultancy')
+                <div class="bg-white p-8 rounded-lg text-center">
+                    <a href="{{ route('service.online.consultation') }}">
+                        <img src="{{ asset(getUploadedImage($serv->icon)) }}" alt="{{ $translation?->title }}" class="mb-4 w-20 h-20 mx-auto object-contain" />
+                        <h3 class="mb-6 text-lg font-semibold">{{ $translation?->title }}</h3>
+                    </a>
+                </div>
+            @else
+                <div class="bg-white p-8 rounded-lg text-center">
+                    <a href="{{ route('service.request.form',['slug' => $serv->slug]) }}">
+                        <img src="{{ asset(getUploadedImage($serv->icon)) }}" alt="{{ $translation?->title }}" class="mb-4 w-20 h-20 mx-auto object-contain" />
+                        <h3 class="mb-6 text-lg font-semibold">{{ $translation?->title }}</h3>
+                    </a>
+                </div>
+            @endif
         @empty
             
         @endforelse

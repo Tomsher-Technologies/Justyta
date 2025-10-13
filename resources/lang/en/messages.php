@@ -244,6 +244,8 @@ return [
     'subdoc_type_required' => 'Subdocument type is required.',
     'receive_by_required' => 'Receive by is required.',
     'status_changed' => 'has been updated to status',
+    'case_stage_required' => 'Case stage is required.',
+    'duration_required' => 'Duration is required.',
     '' => '',
     '' => '',
     '' => '',

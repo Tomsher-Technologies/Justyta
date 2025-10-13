@@ -38,6 +38,19 @@ class ConsultationController extends Controller
             'user_id'=> $user->id,
             ...$data
         ]);
+
+        $lawyer = findBestFitLawyer($consultation);
+
+        if ($lawyer) {
+            reserveLawyer($lawyer->id, $consultation->id);
+        } else {
+            $consultation->delete();
+            return response()->json([
+                    'status'    => false,
+                    'message'   => __('frontend.no_lawyer_available'),
+                    'data'      => [],
+                ], 200);
+        }
     
         $base = ConsultationDuration::where('type', $request->consultant_type)
                                     ->where('duration', $request->duration)
@@ -93,26 +106,23 @@ class ConsultationController extends Controller
             //     'data'      => json_encode($payment),
             // ], 200);
 
-            $consultationId = $consultation->id;
-            $servicePayment = ConsultationPayment::where('consultation_id', $consultationId)
-                                                ->first();
-
-            if ($servicePayment) {
-                $servicePayment->update(['status' => 'completed']);
-            }
-
-            $consultation = Consultation::findOrFail($consultationId);
-            $consultation->status = 'waiting_lawyer';
-            $consultation->save();
-
-            if($consultation->consultant_type == 'vip'){
+            $consultation->refresh();
+           
+            if ($consultation->lawyer_id) {
                 assignLawyer($consultation, $consultation->lawyer_id);
-            }else{
+                $consultation->status = 'waiting_lawyer';
+                $consultation->save();
+            } else {
+                // Backup case: find a lawyer again if not reserved
                 $lawyer = findBestFitLawyer($consultation);
-                if(!$lawyer){
-                    return response()->json(['status' => false,'message'=> __('frontend.no_lawyer_available')],200);
+                if ($lawyer) {
+                    assignLawyer($consultation, $lawyer->id);
+                    $consultation->status = 'waiting_lawyer';
+                    $consultation->save();
+                } else {
+                    $consultation->status = 'no_lawyer_available';
+                    $consultation->save();
                 }
-                assignLawyer($consultation, $lawyer->id);
             }
 
             $pageData = getPageDynamicContent('consultancy_payment_success',$lang);
@@ -166,34 +176,55 @@ class ConsultationController extends Controller
                 }
 
                 $consultation = Consultation::findOrFail($consultationId);
-                $consultation->status = 'waiting_lawyer';
-                $consultation->save();
-
-                if($consultation->consultant_type == 'vip'){
+                if ($consultation->lawyer_id) {
                     assignLawyer($consultation, $consultation->lawyer_id);
-                }else{
+                    $consultation->status = 'waiting_lawyer';
+                    $consultation->save();
+                } else {
                     $lawyer = findBestFitLawyer($consultation);
-                    if(!$lawyer){
+                    if ($lawyer) {
+                        assignLawyer($consultation, $lawyer->id);
+                        $consultation->status = 'waiting_lawyer';
+                        $consultation->save();
+                    } else {
+                        $consultation->status = 'no_lawyer_available';
+                        $consultation->save();
                         return response()->json(['status' => false,'message'=> __('frontend.no_lawyer_available')],200);
                     }
-                    assignLawyer($consultation, $lawyer->id);
                 }
 
-                $pageData = getPageDynamicContent('consultancy_payment_success',$lang);
+                // $pageData = getPageDynamicContent('consultancy_payment_success',$lang);
                 $waitingMessage = getPageDynamicContent('consultancy_waiting_page',$lang);
 
                 return response()->json([
                     'status' => true,
-                    'message'=> $pageData['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                    'message'=> $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
                     'data' => [
                         'consultation_id' => $consultation->id ?? null,
                         'ref_code' => $consultation->ref_code ?? null,
-                        'success_message' => $pageData['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                        'success_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
                         'waiting_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
                     ]
                 ],200);
+            }else{
+                $consultation = Consultation::find($consultationId);
+                unreserveLawyer($consultation->lawyer_id);
+                $consultation->delete();
             }
         }
+        return response()->json(['status'=>false, 'message'=>__('frontend.payment_failed')],200);
+    }
+
+    public function paymentCancel(Request $request)
+    {
+        $consultation_id = $request->query('consultation_id') ?? null;
+
+        if ($consultation_id) {
+            $consultation = Consultation::find($consultation_id);
+            unreserveLawyer($consultation->lawyer_id);
+            $consultation->delete();
+        }
+        
         return response()->json(['status'=>false, 'message'=>__('frontend.payment_failed')],200);
     }
 

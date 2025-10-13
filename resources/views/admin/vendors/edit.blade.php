@@ -175,9 +175,10 @@
                                         Plan <span class="text-danger">*</span></label>
                                     <select name="subscription_plan_id"
                                         class="form-control ih-small ip-gray radius-xs b-light px-15 ">
+                                        <option value="">Select Plan</option>
                                         @foreach ($plans as $plan)
                                             <option value="{{ $plan->id }}"
-                                                {{ old('subscription_plan_id', $vendor->currentSubscription->membership_plan_id) == $plan->id ? 'selected' : '' }}>
+                                                {{ old('subscription_plan_id', $vendor->currentSubscription?->membership_plan_id) == $plan->id ? 'selected' : '' }}>
                                                 {{ $plan->title }}</option>
                                         @endforeach
                                     </select>

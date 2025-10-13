@@ -6,9 +6,11 @@ use App\Models\EnquiryStatus;
 use App\Models\Service;
 use App\Models\Page;
 use App\Models\User;
+use App\Models\Vendor;
 use App\Models\VendorSubscription;
 use App\Models\Lawyer;
 use App\Models\CaseType;
+use App\Models\JobPost;
 use App\Models\RequestType;
 use App\Models\RequestTitle;
 use App\Models\UserOnlineLog;
@@ -928,6 +930,44 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
     return $response->json(); // returns _id, reference, _links etc.
 }
 
+function createConsultationWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+{
+    
+    $accessToken = getAccessToken();
+    if (!$accessToken) return null;
+
+    $baseUrl = config('services.ngenius.base_url');
+    $outletRef = config('services.ngenius.outlet_ref');
+
+    $payload = [
+        'action' => 'PURCHASE',
+        'amount' => [
+            'currencyCode' => $currency,
+            'value' => intval($amount * 100), // AED 10.00 => 1000
+        ],
+        'merchantOrderReference' => $orderReference,
+        'merchantAttributes' => [
+            'merchantOrderReference' => $orderReference,
+            'redirectUrl' => route('consultationSuccessPayment'),
+            'cancelUrl'   => route('consultationCancelPayment')
+        ],
+        'emailAddress' => $customer['email'],
+        
+    ];
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $accessToken,
+        'Accept' => 'application/vnd.ni-payment.v2+json',
+        'Content-Type' => 'application/vnd.ni-payment.v2+json',
+    ])->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", $payload);
+
+    if (!$response->successful()) {
+        Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
+        return null;
+    }
+    return $response->json(); // returns _id, reference, _links etc.
+}
+
 function deleteRequestFolder(string $serviceSlug, int $requestId): void
 {
     $folderPath = "uploads/{$serviceSlug}/{$requestId}";
@@ -1157,3 +1197,89 @@ function getFullStatusHistory(ServiceRequest $serviceRequest): array
         
     })->all();
 }
+
+ function reserveLawyer($lawyerId, $consultationId)
+    {
+        $lawyer = \App\Models\Lawyer::find($lawyerId);
+        if ($lawyer) {
+            $lawyer->update(['is_busy' => 1]);
+
+            $consultation = \App\Models\Consultation::find($consultationId);
+            if ($consultation) {
+                $consultation->update(['lawyer_id' => $lawyerId, 'status' => 'reserved']);
+            }
+        }
+    }
+
+    function unreserveLawyer($lawyerId)
+    {
+        if ($lawyerId) {
+            $lawyer = \App\Models\Lawyer::find($lawyerId);
+            if ($lawyer) {
+                $lawyer->update(['is_busy' => 0]);
+            }
+        }
+    }
+
+
+    function isVendorCanCreateLawyers()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        $vendor = Vendor::with('currentSubscription')
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$vendor) {
+            return false;
+        }
+
+        $subscription = $vendor->currentSubscription;
+
+        if (!$subscription || !$subscription->member_count) {
+            return false;
+        }
+
+        if ($subscription->subscription_end && now()->gt($subscription->subscription_end)) {
+            return false;
+        }
+
+        $lawyerCount = Lawyer::where('lawfirm_id', $vendor->id)->count();
+
+        return $lawyerCount < $subscription->member_count;
+    }
+
+    function isVendorCanCreateJobs()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        $vendor = Vendor::with('currentSubscription')
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$vendor) {
+            return false;
+        }
+
+        $subscription = $vendor->currentSubscription;
+
+        if (!$subscription || !$subscription->job_post_count) {
+            return false;
+        }
+
+        if ($subscription->subscription_end && now()->gt($subscription->subscription_end)) {
+            return false;
+        }
+
+        $jobCount = JobPost::where('user_id', $vendor->id)->count();
+
+        return $jobCount < $subscription->job_post_count;
+    }

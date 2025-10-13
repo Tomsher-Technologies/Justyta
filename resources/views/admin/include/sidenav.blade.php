@@ -142,6 +142,16 @@
                         </li>
                     @endcan
 
+                    @can('manage_translation_requests')
+                        <li class="">
+                            <a href="{{ route('legal-translation-requests.index') }}"
+                                class="{{ areActiveRoutes(['legal-translation-requests.index','translation-request-details']) }}">
+                                <span class="las la-language nav-icon"></span>
+                                <span class="menu-text">Legal Translation Requests</span>
+                            </a>
+                        </li>
+                    @endcan
+
                     @can('manage_training_requests')
                         <li class="">
                             <a href="{{ route('training-requests.index') }}"

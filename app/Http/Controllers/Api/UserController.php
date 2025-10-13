@@ -189,7 +189,7 @@ class UserController extends Controller
                     'message'   => __($notification->data['message'], [
                                         'service'   => $serviceName,
                                         'reference' => $data['reference_code'],
-                                        'status' => __('messages.'.$data['status'])
+                                        // 'status' => __('messages.'.$data['status'] ?? ''),
                                     ]),
                     'time'      => $notification->created_at->format('h:i A'), 
                 ];
@@ -619,7 +619,7 @@ class UserController extends Controller
             'email'     => 'required|email',
             'subject'   => 'required|string|max:100',
             'message'   => 'required|string|max:1000',
-            'image'     => 'nullable|image|max:1024',
+            'image'     => 'nullable|image|max:10240',
         ],[
             'email.required'    => __('messages.email_required'),
             'email.email'       => __('messages.valid_email'),
@@ -797,7 +797,7 @@ class UserController extends Controller
             'start_date'        => 'required',
             'residency_status'  => 'required',
             'documents'         => 'nullable|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:10240',
         ], [
             'emirate_id.required'       => __('messages.emirate_required'),
             'position.required'         => __('messages.position_required'),

@@ -419,4 +419,17 @@ return [
 
     'file_invalid_type' => 'File must be of type: PDF, DOC, DOCX, JPG, JPEG, or PNG.',
     'file_too_large' => 'File size must not exceed 10MB.',
+    'job_post_limit_reached' => 'Job post limit based on your membership plan has reached.',
+    'law_firm_services' => 'Law Firm Services',
+    'online_consultation' => 'Online Consultation',
+    'case_stage' => 'Case Stage',
+    'preferred_language' => 'Preferred Language',
+    'consultant_type' => 'Consultant Type',
+    'vip' => 'VIP',
+    'consultation_time' => 'Consultation Time',
+    'minutes' => 'Minutes',
+    'consultation_request_submit_failed' => 'Consultation request submit failed',
+    'waiting' => 'Waiting..',
+    'no_lawyer_available' => 'No lawyer available for consultation at this time. Please try again later.',
+    'payment_cancelled' => 'Payment cancelled.',
 ];
