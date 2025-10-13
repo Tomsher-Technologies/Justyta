@@ -296,7 +296,7 @@ class ConsultationController extends Controller
             $consultation->lawyer_id = $lawyerId;
             $consultation->save();
 
-            $meetingNumber = "Consultation-{$consultation->id}";
+            $meetingNumber = $consultation->id.rand(1000,9999);
 
             $consultation->zoom_meeting_id = $meetingNumber;
             $consultation->save();
@@ -385,6 +385,24 @@ class ConsultationController extends Controller
                 $consultation->lawyer->update(['is_busy' => 0]);
             }
         }
+    }
+
+    public function updateConsultationStatus(Request $request)
+    {
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $userId   = $user->id ?? null; 
+        $consultationId = $request->consultation_id;
+        $consultation = Consultation::find($consultationId);
+        if ($consultation) {
+            $consultation->status = $request->status;
+            $consultation->save();
+
+            unreserveLawyer($consultation->lawyer_id);
+            return response()->json(['status' => true,'message' => 'Success'],200);
+        }
+
+        return response()->json(['status' => false,'message' => 'Failed'], 200);
     }
 
 
