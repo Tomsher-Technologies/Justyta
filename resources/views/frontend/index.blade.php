@@ -52,7 +52,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Online Live Consultancy</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -90,7 +90,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Request Submission</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -128,7 +128,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Legal Translation</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -166,7 +166,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Companies Retainership Annual Agreement</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -204,7 +204,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Immigration Requests</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -228,7 +228,7 @@
                      fill="#B9A572" />
                </svg>
                 <h3 class="mb-6">Court Case Submission</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -318,7 +318,7 @@
                      fill="#B9A572" />
                </svg>
                 <h3 class="mb-6">Criminal Complaint</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -354,7 +354,7 @@
                      fill="#B9A572" />
                </svg>
                 <h3 class="mb-6">Power Of Attorney</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -392,7 +392,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Last Will & Testament</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -430,7 +430,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Memo Writing</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
