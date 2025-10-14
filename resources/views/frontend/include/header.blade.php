@@ -1,9 +1,9 @@
-    <header class="px-[100px] mt-[20px]">
-        <div class="grid grid-cols-3 items-start flex justify-between">
-            <a href="{{ route('home') }}">
-                <img src="{{ asset('assets/images/logo.png') }}" alt="Logo">
+    <header class="container mx-auto mt-5 px-5 xl:px-0">
+        <div class="flex items-start justify-between md:justify-start">
+            <a href="{{ route('home') }}" >
+                <img src="{{ asset('assets/images/logo.png') }}" alt="Logo" >
             </a>
-            <ul class="flex items-center gap-8 font-cinzel font-bold text-[16px]">
+            <ul class="flex items-center gap-8 font-cinzel font-bold text-[16px] ms-auto mt-3">
                 <li>
                     <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.home') }}</a>
                 </li>
@@ -20,16 +20,16 @@
                     <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.contact') }}</a>
                 </li>
             </ul>
-            <div class="grid grid-cols-2 gap-5 justify-end">
-                <div class="flex items-center justify-end gap-5 span-2">
+            <div class="flex md:flex items-center gap-4 ms-auto">
+               
                     <a href="{{ route('frontend.login') }}" class="bg-[#04502E] text-white px-8 py-2 rounded-full w-auto ">
                         {{ __('frontend.sign_in') }}
                     </a>
                     <a href="{{ route('frontend.register') }}" class="text-[#07683B] border !border-[#07683B] px-8 py-2 rounded-full w-auto ">
                         {{ __('frontend.sign_up') }}
                     </a>
-                </div>
-                <div class="flex">
+               
+                <div class="relative">
                     <button type="button"
                         class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="33" viewBox="0 0 28 33"
