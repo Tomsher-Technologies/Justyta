@@ -13,6 +13,7 @@ use App\Http\Controllers\Frontend\VendorJobPostController;
 require __DIR__ . '/admin.php';
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
+Route::get('/refund-policy', [HomeController::class, 'refundPolicy'])->name('refund-policy');
 
 // Frontend Login Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('frontend.login');

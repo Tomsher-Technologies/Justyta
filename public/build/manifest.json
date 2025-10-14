@@ -1,16 +1,27 @@
 {
+  "_daterangepicker-C49afB5_.js": {
+    "file": "assets/daterangepicker-C49afB5_.js",
+    "name": "daterangepicker",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
   "resources/css/app.css": {
-    "file": "assets/app-NX5ilxBS.css",
+    "file": "assets/app-OUjvLIn4.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-Czf5Lg-w.js",
+    "file": "assets/app-DHtiPS31.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
+    "dynamicImports": [
+      "_daterangepicker-C49afB5_.js"
+    ],
     "css": [
-      "assets/app-CeeVvsza.css"
+      "assets/app-DLQzlXsg.css"
     ]
   }
 }

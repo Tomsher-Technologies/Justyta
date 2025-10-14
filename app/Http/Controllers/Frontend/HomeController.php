@@ -19,6 +19,13 @@ class HomeController extends Controller
         return view('frontend.index');
     }
 
+    public function about(){
+        return view('frontend.about');
+    }
+
+    public function refundPolicy(){
+        return view('frontend.refund-policy');
+    }
     public function userDashboard(){
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
         $services = Service::with(['translations' => function ($query) use ($lang) {
