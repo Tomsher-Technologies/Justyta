@@ -67,7 +67,7 @@
             </li>
 
             <li class="flex items-center gap-2">
-                <a href="#" class="contents {{ areActiveWebRoutes(['user.notifications.index']) }}">
+                <a href="{{ route('vendor.training-requests') }}" class="contents {{ areActiveWebRoutes(['vendor.training-requests']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="30" viewBox="0 0 28 30"
                         fill="none">
                         <path

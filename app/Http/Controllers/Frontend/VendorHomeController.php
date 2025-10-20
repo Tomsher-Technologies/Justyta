@@ -13,6 +13,8 @@ use App\Models\Language;
 use App\Models\User;
 use App\Models\Emirate;
 use App\Models\Lawyer;
+use App\Models\TrainingRequest;
+use App\Models\Contacts;
 use App\Models\VendorSubscription;
 use App\Models\DropdownOption;
 use Illuminate\Support\Facades\DB;
@@ -337,5 +339,58 @@ class VendorHomeController extends Controller
         $languageIds = $lawyer->dropdownOptions()->wherePivot('type', 'languages')->pluck('dropdown_option_id')->toArray();
 
         return view('frontend.vendor.lawyers.show', compact('lang', 'lawyer','specialityIds','languageIds'));
+    }
+
+    public function trainingRequests(Request $request){
+        $lang = env('APP_LOCALE', 'en');
+        $query = TrainingRequest::query();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('emirate_id')) {
+            $query->where('emirate_id', $request->emirate_id);
+        }
+
+        if ($request->filled('residency_status')) {
+            $query->where('residency_status', $request->residency_status);
+        }
+
+        if ($request->filled('position')) {
+            $query->where('position', $request->position);
+        }
+
+        $requests = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        $dropdowns  = Dropdown::with([
+                        'options' => function ($q) {
+                            $q->where('status', 'active')->orderBy('sort_order');
+                        },
+                        'options.translations' => function ($q) use ($lang) {
+                            $q->whereIn('language_code', [$lang, 'en']);
+                        }
+                    ])->whereIn('slug', ['training_positions','residency_status'])->get()->keyBy('slug');
+
+        $response   = [];
+        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+
+        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
+                return [
+                    'id'    => $emirate->id,
+                    'value' => $emirate->getTranslation('name',$lang),
+                ];
+        });
+
+        foreach ($dropdowns as $slug => $dropdown) {
+            $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
+                return [
+                    'id'    => $option->id,
+                    'value' => $option->getTranslation('name',$lang),
+                ];
+            });
+        }
+
+        return view('frontend.vendor.training-requests', compact('requests', 'response'));
     }
 }

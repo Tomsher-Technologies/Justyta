@@ -82,6 +82,9 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
     Route::get('/jobs/edit/{id}', [VendorJobPostController::class, 'edit'])->name('jobs.edit');
     Route::post('/jobs/delete', [VendorJobPostController::class, 'destroy'])->name('jobs.delete');
     Route::get('/jobs/applications/{id}', [VendorJobPostController::class, 'applications'])->name('jobs.applications');
+
+    // Training Requests
+    Route::get('/training-requests', [VendorHomeController::class, 'trainingRequests'])->name('vendor.training-requests');
 });
 
 Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {
