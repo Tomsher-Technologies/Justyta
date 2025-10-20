@@ -114,7 +114,7 @@
                                 @endphp
 
                                 @if(in_array($ext, ['png', 'jpg', 'jpeg', 'webp']))
-                                    <a href="{{ asset(getUploadedImage($file)) }}" data-lightbox="image{{ $i }}">
+                                    <a href="{{ asset(getUploadedImage($file)) }}" data-lightbox="image{{ $i }}" target="_blank">
                                         <img src="{{ asset(getUploadedImage($file)) }}"  alt="doc" width="50" class="mb-1" />
                                     </a>
                                 @elseif($ext == 'pdf')
@@ -185,74 +185,7 @@
             });
         });
 
-        function update_status(el) {
-            if (el.checked) {
-                var status = 1;
-            } else {
-                var status = 0;
-            }
-            $.post('{{ route('jobs.status') }}', {
-                _token: '{{ csrf_token() }}',
-                id: el.value,
-                status: status
-            }, function(data) {
-                if (data == 1) {
-                    toastr.success("{{ __('frontend.job_status_updated_successfully') }}");
-                    // setTimeout(function() {
-                    //     window.location.reload();
-                    // }, 2000);
-
-                } else {
-                    toastr.error("{{ __('frontend.something_went_wrong') }}");
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 3000);
-                }
-            });
-        }
-
-        $(document).on('click', '.delete-selected', function () {
-            let jobId = this.getAttribute('data-id');
-
-            Swal.fire({
-                    title: '{{ __("frontend.are_you_sure") }}',
-                    text: "{{ __('frontend.action_cannot_undone') }}",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: '{{ __("frontend.yes_delete") }}',
-                    cancelButtonText: '{{ __("frontend.cancel") }}'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        fetch("{{ route('jobs.delete') }}", {
-                            method: "POST",
-                            headers: {
-                                'X-CSRF-TOKEN': "{{ csrf_token() }}",
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                job_id: jobId
-                            })
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success) {
-                                toastr.success(data.message);
-                                setTimeout(function() {
-                                    window.location.reload();
-                                }, 2000);
-                            } else {
-                                toastr.error('Error: ' + (data.message || '{{ __("frontend.unable_delete_job") }}'));
-                            }
-                        })
-                        .catch(err => {
-                            toastr.error("{{ __('frontend.server_error') }}");
-                            console.error(err);
-                        });
-                    }
-                });
-        });
+       
 
     </script>
 @endsection
