@@ -38,6 +38,7 @@ use App\Models\RequestAnnualAgreement;
 use App\Models\RequestLegalTranslation;
 use App\Models\DefaultTranslatorAssignment;
 use App\Models\TranslatorLanguageRate;
+use App\Models\Translator;
 use App\Models\RequestLastWill;
 use App\Models\RequestSubmissionPricing;
 use App\Models\ServiceRequestTimeline;
@@ -3071,7 +3072,7 @@ class ServiceRequestController extends Controller
                     'to_language_id'   => $to,
                 ])->first();
 
-                $userToNotify = App\Models\Translator::find($assignment->translator_id);
+                $userToNotify = Translator::find($assignment->translator_id);
 
                 if ($userToNotify) {
                     $userNot = User::find($userToNotify->user_id);
