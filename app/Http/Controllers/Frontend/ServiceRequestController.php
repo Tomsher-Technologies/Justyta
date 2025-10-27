@@ -3071,10 +3071,11 @@ class ServiceRequestController extends Controller
                     'to_language_id'   => $to,
                 ])->first();
 
-                $userToNotify = User::find()->where('translator_id', $assignment->translator_id);
+                $userToNotify = App\Models\Translator::find($assignment->translator_id);
 
                 if ($userToNotify) {
-                    $userToNotify->notify(new ServiceRequestSubmitted($serviceRequest));
+                    $userNot = User::find($userToNotify->user_id);
+                    $userNot->notify(new ServiceRequestSubmitted($serviceRequest));
                 }
 
                 if ($assignment) {
