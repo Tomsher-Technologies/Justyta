@@ -892,7 +892,7 @@ function createMobOrder($customer, float $amount, string $currency = 'AED', ?str
     return $response->json(); // returns _id, reference, _links etc.
 }
 
-function createWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+function createWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null, ?string $userType = null)
 {
 
     $accessToken = getAccessToken();
@@ -910,8 +910,8 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
         'merchantOrderReference' => $orderReference,
         'merchantAttributes' => [
             'merchantOrderReference' => $orderReference,
-            'redirectUrl' => route('successPayment'),
-            'cancelUrl'   => route('cancelPayment')
+            'redirectUrl' => ($userType == 'vendor') ? route('vendor.successPayment') : route('successPayment'),
+            'cancelUrl'   => ($userType == 'vendor') ? route('vendor.cancelPayment') : route('cancelPayment')
         ],
         'emailAddress' => $customer['email'],
 

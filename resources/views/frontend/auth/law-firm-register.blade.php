@@ -461,22 +461,22 @@
                     trade_license: {
                         required: false, 
                         fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                        filesize: 2 * 1024 * 1024
+                        filesize: 102400
                     },
                     residence_visa: {
                         required: false, 
                         fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                        filesize: 2 * 1024 * 1024
+                        filesize: 102400
                     },
                     emirates_id_front: {
                         required: true, 
                         fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                        filesize: 2 * 1024 * 1024
+                        filesize: 102400
                     }, 
                     emirates_id_back:  {
                         required: true, 
                         fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                        filesize: 2 * 1024 * 1024
+                        filesize: 102400
                     },
                     emirates_id_expiry: {
                         required: true, 
@@ -485,7 +485,7 @@
                     passport: {
                         required: true, 
                         fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                        filesize: 2 * 1024 * 1024 
+                        filesize: 102400
                     },
                     passport_expiry: {
                         required: true, 
@@ -494,7 +494,7 @@
                     card_of_law: {
                         required: true, 
                         fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                        filesize: 2 * 1024 * 1024
+                        filesize: 102400
                     },
                     card_of_law_expiry: {
                         required: true, 
@@ -503,7 +503,7 @@
                     ministry_of_justice_card: {
                         required: true, 
                         fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                        filesize: 2 * 1024 * 1024
+                        filesize: 102400
                     },
                     ministry_of_justice_card_expiry: {
                         required: true, 
@@ -562,12 +562,12 @@
                     emirates_id_front: {
                         required: "{{ __('frontend.this_field_required') }}", 
                         fileext: "{{ __('frontend.allowed_files') }}", 
-                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                     },
                     emirates_id_back: {
                         required: "{{ __('frontend.this_field_required') }}", 
                         fileext: "{{ __('frontend.allowed_files') }}", 
-                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                     },
                     emirates_id_expiry: {
                         required: "{{ __('frontend.this_field_required') }}", 
@@ -576,7 +576,7 @@
                     passport: {
                         required: "{{ __('frontend.this_field_required') }}", 
                         fileext: "{{ __('frontend.allowed_files') }}", 
-                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                     },
                     passport_expiry: {
                         required: "{{ __('frontend.this_field_required') }}",
@@ -585,7 +585,7 @@
                     card_of_law: {
                         required: "{{ __('frontend.this_field_required') }}", 
                         fileext: "{{ __('frontend.allowed_files') }}", 
-                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                     },
                     card_of_law_expiry: {
                         required: "{{ __('frontend.this_field_required') }}",
@@ -593,16 +593,16 @@
                     },
                     trade_license: {
                         fileext: "{{ __('frontend.allowed_files') }}", 
-                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                     },
                     residence_visa: {
                         fileext: "{{ __('frontend.allowed_files') }}", 
-                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                     },
                     ministry_of_justice_card: {
                         required: "{{ __('frontend.this_field_required') }}", 
                         fileext: "{{ __('frontend.allowed_files') }}", 
-                        filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                        filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                     },
                     ministry_of_justice_card_expiry: {
                         required: "{{ __('frontend.this_field_required') }}"

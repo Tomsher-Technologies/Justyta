@@ -188,17 +188,11 @@
                 this.value = this.value.replace(/[^0-9+]/g, '');
             });
  
-            $.validator.addMethod("fileSize", function (value, element, param) {
-                if (!element.files || element.files.length === 0) {
-                    return true;
-                }
-                for (let i = 0; i < element.files.length; i++) {
-                    if (element.files[i].size > param * 1024) {
-                        return false;
-                    }
-                }
-                return true;
-            }, "File size must be less than {0}KB");
+            $.validator.addMethod("fileSize", function(value, element, param) {
+                if (value === "") return true;
+                if (element.files.length === 0) return false; 
+                return element.files[0].size <= param;
+            }, "File size must be less than {0} bytes.");
 
             $("#jobApplyForm").validate({
                 ignore: [],
@@ -210,7 +204,7 @@
                     "resume": {
                         required: true,
                         extension: "pdf,doc,docx",
-                        fileSize: 2048
+                        fileSize: 102400
                     }
                 },
                 messages: {
