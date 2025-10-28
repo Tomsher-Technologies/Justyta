@@ -85,6 +85,20 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
 
     // Training Requests
     Route::get('/training-requests', [VendorHomeController::class, 'trainingRequests'])->name('vendor.training-requests');
+
+    //Translation Requests
+
+    Route::get('/translation-requests', [VendorHomeController::class, 'translationRequests'])->name('vendor.translation-requests');
+    Route::get('/translation-request/{id}', [VendorHomeController::class, 'showTranslationRequest'])->name('vendor.translation.details');
+
+    Route::get('/create-translation-request', [VendorHomeController::class, 'createTranslationRequest'])->name('vendor.create-translation-requests');
+    Route::post('/legal-translation-request', [VendorHomeController::class, 'requestLegalTranslation'])->name('vendor.service.legal-translation-request');
+    Route::get('/payment-request-success/{reqid}', [VendorHomeController::class, 'requestPaymentSuccess'])->name('vendor.payment-request-success');
+    Route::get('/request-payment-success', [VendorHomeController::class, 'paymentSuccess'])->name('vendor.successPayment');
+    Route::get('/request-payment-cancel', [VendorHomeController::class, 'paymentCancel'])->name('vendor.cancelPayment');
+
+    Route::post('/get-sub-document-types', [VendorHomeController::class, 'getSubDocumentTypes'])->name('vendor.get.sub.document.types');
+    Route::post('/calculate-translation-price', [VendorHomeController::class, 'calculateTranslationPrice'])->name('vendor.calculate-translation-price');
 });
 
 Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {

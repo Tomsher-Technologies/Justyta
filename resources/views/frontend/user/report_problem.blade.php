@@ -158,7 +158,10 @@
                 }
             }
             return true;
-        }, "File size must be less than {0}KB");
+        }, function (param, element) {
+            return "File size must be less than " + (param / 1024) + " MB";
+        });
+
 
         $("#reportProblem").validate({
             ignore: [],
@@ -168,7 +171,7 @@
                 message: { required: true },
                 "image": {
                     extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                    fileSize: 500
+                    fileSize: 102400
                 }
             },
             messages: {

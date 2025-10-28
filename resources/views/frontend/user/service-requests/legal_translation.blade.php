@@ -305,20 +305,20 @@
 
                     "memo[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "documents[]": {
                         required: true,
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "additional_documents[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        fileSize: 102400
                     },
                     "trade_license[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        fileSize: 102400
                     }
                 },
                 messages: {

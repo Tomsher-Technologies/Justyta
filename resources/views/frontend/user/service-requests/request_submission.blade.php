@@ -314,21 +314,21 @@
                     case_number: { required: true },
                     "memo[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "documents[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "eid[]": {
                         required: true,
                         extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        fileSize: 102400
                     },
                     "trade_license[]": {
                         required: true,
                         extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        fileSize: 102400
                     }
                 },
                 messages: {

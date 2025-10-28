@@ -47,8 +47,7 @@
 
                         <!-- Address -->
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.address') }}</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.address') }}</label>
                             <textarea name="address" rows="5"
                                 class="bg-[#F9F9F9] border @error('address') border-red-500 @else border-gray-300 @enderror text-sm rounded-[10px] block w-full p-3.5"
                                 placeholder="{{ __('frontend.enter') }}">{{ old('address', $user->address) }}</textarea>

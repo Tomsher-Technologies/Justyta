@@ -433,4 +433,6 @@ return [
     'no_lawyer_available' => 'No lawyer available for consultation at this time. Please try again later.',
     'payment_cancelled' => 'Payment cancelled.',
     'training_requests' => 'Training Requests',
+    'legal_translation_request' => 'Legal Translation Request',
+    'create_new_request' => 'Create New Request',
 ];
