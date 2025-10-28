@@ -435,4 +435,9 @@ return [
     'training_requests' => 'Training Requests',
     'legal_translation_request' => 'Legal Translation Request',
     'create_new_request' => 'Create New Request',
+    'total_lawyers' => 'Total Lawyers',
+    'total_consultations' => 'Total Consultations',
+    'total_translation_requests' => 'Total Translation Requests',
+    'total_jobs_posted' => 'Total Jobs Posted',
+    'total_rejected_cases' => 'Total Rejected Cases',
 ];

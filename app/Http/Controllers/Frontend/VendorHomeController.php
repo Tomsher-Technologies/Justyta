@@ -27,6 +27,7 @@ use App\Models\RequestLegalTranslation;
 use App\Models\TranslationAssignmentHistory;
 use App\Models\ServiceRequestTimeline;
 use App\Models\Translator;
+use App\Models\JobPost;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -41,10 +42,151 @@ use Carbon\Carbon;
 
 class VendorHomeController extends Controller
 {
-    public function dashboard(){
-        $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
-    
-        return view('frontend.vendor.dashboard', compact('lang'));
+ 
+     public function dashboard()
+    {
+        $translatorId = Auth::id();
+        $lawfirmId = Auth::guard('frontend')->user()->vendor?->id;
+
+        $lang = app()->getLocale() ?? env('APP_LOCALE', 'en');
+        $services = \App\Models\Service::with('translations')->get();
+
+        $totalLawyers = Lawyer::where('lawfirm_id',$lawfirmId)->count();
+
+        $legalTranslationRequests = RequestLegalTranslation::where('assigned_translator_id', Auth::guard('frontend')->user()->translator?->id)
+            ->with(['serviceRequest', 'documentLanguage', 'translationLanguage'])
+            ->get();
+
+        $totalTranslations = $legalTranslationRequests->count();
+
+        $completedTranslations = $legalTranslationRequests->filter(function ($item) {
+            return $item->serviceRequest && in_array($item->serviceRequest->status, ['completed']);
+        })->count();
+
+        $pendingTranslations = $legalTranslationRequests->filter(function ($item) {
+            return $item->serviceRequest && in_array($item->serviceRequest->status, ['pending']);
+        })->count();
+
+        $inProgressTranslations = $legalTranslationRequests->filter(function ($item) {
+            return $item->serviceRequest && in_array($item->serviceRequest->status, ['under_review', 'ongoing']);
+        })->count();
+
+        $currentMonthIncome = $legalTranslationRequests->filter(function ($item) {
+            return $item->serviceRequest &&
+                $item->serviceRequest->paid_at &&
+                Carbon::parse($item->serviceRequest->paid_at)->isCurrentMonth()
+                && in_array($item->serviceRequest->status, ['completed']);
+        })->sum('translator_amount');
+
+        $totalIncome = $legalTranslationRequests->filter(function ($item) {
+            return $item->serviceRequest &&
+                $item->serviceRequest->paid_at
+                && in_array($item->serviceRequest->status, ['completed']);
+        })->sum('translator_amount');
+
+        $currentYear = Carbon::now()->year;
+        $year = request()->get('consultation_year', $currentYear);
+
+        $monthlyTranslations = RequestLegalTranslation::where('assigned_translator_id', Auth::guard('frontend')->user()->translator?->id)
+            ->whereHas('serviceRequest', function ($query) use ($year) {
+                $query->whereYear('created_at', $year);
+            })
+            ->with(['serviceRequest'])
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->serviceRequest ? Carbon::parse($item->serviceRequest->created_at)->format('m') : null;
+            })
+            ->map(function ($group) {
+                return $group->count();
+            })
+            ->toArray();
+
+
+        $monthlyData = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $month = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $monthlyData[$month] = $monthlyTranslations[$month] ?? 0;
+        }
+
+
+        $serviceRequests = $legalTranslationRequests
+            ->sortByDesc(function ($item) {
+                return $item->serviceRequest ? $item->serviceRequest->created_at : $item->created_at;
+            })
+            ->take(10)
+            ->map(function ($item) {
+                $serviceRequest = $item->serviceRequest;
+                return [
+                    'reference_code' => $serviceRequest ? $serviceRequest->reference_code : 'N/A',
+                    'date_time' => $serviceRequest ? $serviceRequest->created_at->format('Y-m-d H:i A') : $item->created_at->format('Y-m-d H:i A'),
+                    'document_language' => $item->documentLanguage ? $item->documentLanguage->name : 'N/A',
+                    'translation_language' => $item->translationLanguage ? $item->translationLanguage->name : 'N/A',
+                    'no_of_pages' => $item->no_of_pages ?? 'N/A',
+                    'status' => $serviceRequest ? $serviceRequest->status : 'N/A',
+                    'service_request_id' => $serviceRequest ? $serviceRequest->id : null
+                ];
+            });
+
+        $notificationsResult = $result = $this->getTranslatorNotifications();
+        $notifications = $notificationsResult['notifications'];
+
+        $totalTranslations = RequestLegalTranslation::where('user_id', Auth::guard('frontend')->user()?->id)->count();
+        $totalJobs = JobPost::where('user_id', Auth::guard('frontend')->user()?->id)->count();
+
+        return view('frontend.vendor.dashboard', compact('totalLawyers','totalJobs',
+            'totalTranslations',
+            'completedTranslations',
+            'pendingTranslations',
+            'inProgressTranslations',
+            'currentMonthIncome',
+            'serviceRequests',
+            'totalIncome',
+            'notifications',
+            'monthlyData',
+            'year'
+        ));
+    }
+
+     public function getTranslatorNotifications()
+    {
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
+        $services   = \App\Models\Service::with('translations')->get();
+
+        $serviceMap = [];
+
+        foreach ($services as $service) {
+            foreach ($service->translations as $translation) {
+                $serviceMap[$service->slug][$translation->lang] = $translation->title;
+            }
+        }
+
+        $allNotifications =  Auth::guard('frontend')->user()->notifications();
+
+        $paginatedNot = (clone $allNotifications)
+            ->orderByDesc('created_at')
+            ->paginate(10);
+
+        $notifications = collect($paginatedNot->items())
+            ->map(function ($notification) use ($lang, $serviceMap) {
+                $data = $notification->data;
+                $slug = $data['service'] ?? null;
+
+                $serviceName =  $slug && isset($serviceMap[$slug]) ? ($serviceMap[$slug][$lang] ?? $serviceMap[$slug][env('APP_LOCALE', 'en')] ?? $slug) : '';
+
+                return [
+                    'id'   => $notification->id,
+                    'message'   => __($notification->data['message'], [
+                        'service'   => $serviceName,
+                        'reference' => $data['reference_code'],
+                    ]),
+                    'time'      => $notification->created_at->format('d M, Y h:i A'),
+                ];
+            });
+
+        return [
+            'notifications' => $notifications,
+            'paginatedNot'  => $paginatedNot,
+        ];
     }
 
     public function lawyers(Request $request){
