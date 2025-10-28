@@ -90,7 +90,7 @@
                     </div>
 
                 <div class="row">
-                    <h5 class="fw-semibold">Service Requests</h5>
+                    <h5 class="fw-semibold">Total Service Requests</h5>
                     <div class="row g-4 mb-4">
                         @foreach ($services as $key => $service)
                             @if ($service->slug != 'law-firm-services')
