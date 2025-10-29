@@ -3431,7 +3431,7 @@ class ServiceRequestController extends Controller
         }
 
         if (!$serviceDetails) {
-            return response()->json(['success' => false, 'message' => 'Service details not found'], 404);
+            return response()->json(['success' => false, 'message' => __('frontend.service_details_not_found')], 404);
         }
 
         $requestFolder = "uploads/{$serviceRequest->service_slug}/{$serviceDetails->id}/";
@@ -3476,7 +3476,7 @@ class ServiceRequestController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Files uploaded successfully and status changed to pending',
+            'message' => __('frontend.files_uploaded_successfully'),
         ]);
     }
 }

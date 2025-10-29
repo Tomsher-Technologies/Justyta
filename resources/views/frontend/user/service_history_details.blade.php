@@ -197,7 +197,7 @@
                                                     {{ __('frontend.supporting_documents') }} *
                                                 </label>
                                                 <input type="file" name="supporting_docs"
-                                                    class=" text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-700 file:text-white hover:file:bg-green-800"
+                                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
                                                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
                                             </div>
                                         @endif
@@ -208,7 +208,7 @@
                                                     {{ __('frontend.supporting_documents_any') }} *
                                                 </label>
                                                 <input type="file" name="supporting_docs_any"
-                                                    class=" text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-700 file:text-white hover:file:bg-green-800"
+                                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
                                                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
                                             </div>
                                         @endif

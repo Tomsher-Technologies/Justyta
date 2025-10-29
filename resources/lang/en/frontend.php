@@ -440,4 +440,6 @@ return [
     'total_translation_requests' => 'Total Translation Requests',
     'total_jobs_posted' => 'Total Jobs Posted',
     'total_rejected_cases' => 'Total Rejected Cases',
+    'file_uploaded_successfully' => 'File uploaded successfully.',
+    'service_details_not_found' => 'Service details not found.',
 ];

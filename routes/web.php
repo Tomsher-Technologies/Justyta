@@ -92,6 +92,8 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
 
     Route::get('/translation-requests', [VendorHomeController::class, 'translationRequests'])->name('vendor.translation-requests');
     Route::get('/translation-request/{id}', [VendorHomeController::class, 'showTranslationRequest'])->name('vendor.translation.details');
+    Route::post('/translation-request/{id}/re-upload', [ServiceRequestController::class, 'reUploadAfterRejection'])->name('vendor.translation-request.re-upload');
+    Route::get('/translation-request/{id}/download', [UserController::class, 'downloadServiceCompletedFiles'])->name('vendor.translation-request.download');
 
     Route::get('/create-translation-request', [VendorHomeController::class, 'createTranslationRequest'])->name('vendor.create-translation-requests');
     Route::post('/legal-translation-request', [VendorHomeController::class, 'requestLegalTranslation'])->name('vendor.service.legal-translation-request');

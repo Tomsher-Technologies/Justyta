@@ -32,7 +32,7 @@
                     {{ ucfirst($status) }}
                 </span>
             </div>
-            <a href="{{ Session::has('service_last_url') ? Session::get('service_last_url') : route('user.service.history') }}"
+            <a href="{{ Session::has('translation_request_last_url') ? Session::get('translation_request_last_url') : route('vendor.translation-requests') }}"
                 class="inline-flex items-center px-4 py-2 text-black bg-[#c4b07e] hover:bg-[#c4b07e]-800 focus:ring-4 focus:ring-green-300 font-medium rounded-full text-base dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
                 {{ __('frontend.go_back') }}
                 <svg class="w-4 h-4 ms-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"
@@ -168,7 +168,7 @@
 
                     <div class="flex justify-end mt-16">
                         @if ($details['status'] === 'completed')
-                            <a href="{{ route('user.service-request.download', ['id' => $details['id']]) }}"
+                            <a href="{{ route('vendor.translation-request.download', ['id' => $details['id']]) }}"
                                 class="bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-10 py-3 transition flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -197,7 +197,7 @@
                                                     {{ __('frontend.supporting_documents') }} *
                                                 </label>
                                                 <input type="file" name="supporting_docs"
-                                                    class=" text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-700 file:text-white hover:file:bg-green-800"
+                                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
                                                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
                                             </div>
                                         @endif
@@ -208,7 +208,7 @@
                                                     {{ __('frontend.supporting_documents_any') }} *
                                                 </label>
                                                 <input type="file" name="supporting_docs_any"
-                                                    class=" text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-700 file:text-white hover:file:bg-green-800"
+                                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
                                                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
                                             </div>
                                         @endif
@@ -304,134 +304,55 @@
 
 @section('script')
     <script>
-        const selectEl = document.getElementById("status-select");
-        const sections = document.querySelectorAll(".status-section");
-        const serviceRequestId = {{ $details['id'] }};
+        document.addEventListener('DOMContentLoaded', function() {
+            const reuploadBtn = document.getElementById('reupload-submit-btn');
 
-        function showSelectedSection() {
-            const selected = selectEl.value;
+            if (reuploadBtn) {
+                reuploadBtn.addEventListener('click', function() {
+                    const form = document.getElementById('reupload-form');
+                    const formData = new FormData(form);
 
-            sections.forEach((section) => {
-                section.classList.add("hidden");
-            });
+                    const serviceId = {{ $details['id'] }};
 
-            const selectedSection = document.getElementById(selected);
-            if (selectedSection) {
-                selectedSection.classList.remove("hidden");
-            }
-        }
+                    reuploadBtn.innerHTML = '{{ __('frontend.uploading') }}...';
+                    reuploadBtn.disabled = true;
 
-        function clearAllFields() {
-            const supportingDocs = document.getElementById('supporting-docs');
-            const supportingDocsAny = document.getElementById('supporting-docs-any');
-            const reasonTextarea = document.getElementById('reason');
+                    fetch(`/vendor/translation-request/${serviceId}/re-upload`, {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                toastr.success(data.message);
 
-            if (supportingDocs) supportingDocs.checked = false;
-            if (supportingDocsAny) supportingDocsAny.checked = false;
-            if (reasonTextarea) reasonTextarea.value = '';
+                                location.reload();
+                            } else {
 
-            const fileInput = document.getElementById('file_input');
-            if (fileInput) fileInput.value = '';
-
-            if (selectEl) selectEl.selectedIndex = 0;
-        }
-
-        selectEl.addEventListener("change", showSelectedSection);
-
-        document.addEventListener("DOMContentLoaded", showSelectedSection);
-
-        const currentStatus = "{{ $details['status'] }}";
-
-        document.querySelectorAll('.update-status-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const status = document.getElementById('status-select').value;
-
-                if (currentStatus === 'completed' && status !== 'completed') {
-                    toastr.error('{{ __('frontend.cannot_change_completed_status') }}');
-                    return;
-                }
-
-                if (status === currentStatus) {
-                    toastr.error('{{ __('frontend.same_status_error') }}');
-                    return;
-                }
-
-                const formData = new FormData();
-                formData.append('status', status);
-                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute(
-                    'content'));
-
-                if (status === 'rejected') {
-                    const reasonElement = document.getElementById('reason');
-                    if (reasonElement) {
-                        formData.append('reason', reasonElement.value);
-                    }
-
-                    const supportingDocs = document.getElementById('supporting-docs');
-                    const supportingDocsAny = document.getElementById('supporting-docs-any');
-                    formData.append('supporting_docs', supportingDocs ? supportingDocs.checked : false);
-                    formData.append('supporting_docs_any', supportingDocsAny ? supportingDocsAny.checked :
-                        false);
-                }
-
-                if (status === 'completed') {
-                    const fileInput = document.getElementById('file_input');
-                    if (fileInput && fileInput.files[0]) {
-                        formData.append('file', fileInput.files[0]);
-                    } else {
-                        toastr.error('{{ __('frontend.please_select_file_to_upload') }}');
-                        return;
-                    }
-                }
-
-                const originalText = this.textContent;
-                this.textContent = '{{ __('frontend.updating') }}';
-                this.disabled = true;
-
-                fetch(`/translator/service-request/${serviceRequestId}/update-status`, {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => {
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            const statusBadge = document.getElementById('status-badge');
-                            if (statusBadge) {
-                                statusBadge.textContent = data.new_status;
-                            }
-
-                            toastr.success('{{ __('frontend.updated_successfully') }}');
-
-                            const modal = document.getElementById('default-modal');
-                            modal.classList.add('hidden');
-
-                            clearAllFields();
-
-                            window.location.reload();
-                        } else {
-                            if (data.errors) {
-                                Object.keys(data.errors).forEach(field => {
-                                    data.errors[field].forEach(errorMessage => {
-                                        toastr.error(errorMessage);
+                                if (data.errors) {
+                                    Object.keys(data.errors).forEach(field => {
+                                        data.errors[field].forEach(errorMessage => {
+                                            toastr.error(errorMessage);
+                                        });
                                     });
-                                });
-                                return;
-                            }
+                                    return;
+                                }
 
-                            toastr.error(data.message || '{{ __('frontend.failed_to_update') }}');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        toastr.error('{{ __('frontend.failed_to_update') }}: ' + error.message);
-                    })
-                    .finally(() => {
-                        this.textContent = originalText;
-                        this.disabled = false;
-                    });
-            });
+                                toastr.error(data.message || '{{ __('frontend.upload_failed') }}');
+                            }
+                        })
+                        .catch(error => {
+
+
+                            console.error('Error:', error);
+                            toastr.error('{{ __('frontend.upload_failed') }}');
+                        })
+                        .finally(() => {
+                            reuploadBtn.innerHTML = '{{ __('frontend.reupload') }}';
+                            reuploadBtn.disabled = false;
+                        });
+                });
+            }
         });
     </script>
 @endsection
