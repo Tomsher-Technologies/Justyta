@@ -413,7 +413,8 @@ class AuthController extends Controller
             $customer = [
                             'email' => $user->email,
                             'name'  => $user->name,
-                            'phone' => $user->phone
+                            'phone' => $user->phone,
+                            'address' => $user->address
                         ];
             $payment = createWebPlanOrder($customer, $totalAmount, env('APP_CURRENCY','AED'), $orderReference);
 

@@ -802,7 +802,14 @@ function createOrder($customer, float $amount, string $currency = 'AED', ?string
         'merchantOrderReference' => $orderReference,
         'redirectUrl' => route('payment.callback'),
         'cancelUrl' => route('payment.cancel'),
-        'emailAddress' => $customer['email']
+        'emailAddress' => $customer['email'],
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
     ];
 
     //  'merchantDetails' => [
@@ -876,7 +883,13 @@ function createMobOrder($customer, float $amount, string $currency = 'AED', ?str
             'cancelUrl'   => route('payment.cancel')
         ],
         'emailAddress' => $customer['email'],
-
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
     ];
 
     $response = Http::withHeaders([
@@ -914,7 +927,13 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
             'cancelUrl'   => ($userType == 'vendor') ? route('vendor.cancelPayment') : route('cancelPayment')
         ],
         'emailAddress' => $customer['email'],
-
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
     ];
 
     $response = Http::withHeaders([
@@ -952,7 +971,13 @@ function createConsultationWebOrder($customer, float $amount, string $currency =
             'cancelUrl'   => route('consultationCancelPayment')
         ],
         'emailAddress' => $customer['email'],
-        
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
     ];
 
     $response = Http::withHeaders([
@@ -1050,7 +1075,13 @@ function createWebPlanOrder($customer, float $amount, string $currency = 'AED', 
             'cancelUrl'   => route('purchase-cancel')
         ],
         'emailAddress' => $customer['email'],
-
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
     ];
 
     $response = Http::withHeaders([

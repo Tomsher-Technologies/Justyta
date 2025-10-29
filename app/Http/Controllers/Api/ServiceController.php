@@ -2266,7 +2266,8 @@ class ServiceController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
@@ -2438,7 +2439,8 @@ class ServiceController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
@@ -2607,7 +2609,8 @@ class ServiceController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
@@ -2749,7 +2752,8 @@ class ServiceController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
@@ -2984,7 +2988,8 @@ class ServiceController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
@@ -3147,7 +3152,8 @@ class ServiceController extends Controller
         $customer = [
             'email' => 'jisha.tomsher@gmail.com',
             'name'  => 'Jisha P',
-            'phone' => '971568650838'
+            'phone' => '971568650838',
+            'address' => 'Abu Dhabi'
         ];
 
         $order = createOrder($customer, $amount, $currency, $orderReference);

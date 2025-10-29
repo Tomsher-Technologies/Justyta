@@ -70,7 +70,8 @@ class ConsultationController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $consultation->id .'--'.$consultation->ref_code;
 
