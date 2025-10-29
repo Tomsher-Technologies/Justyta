@@ -26,6 +26,13 @@
             <div>
                 <h3 class="font-cinzel font-bold text-[20px] mb-5">Quick Links</h3>
                 <ul class="flex flex-col items-start gap-4">
+
+                    <li>
+                        <a href="{{ route('terms-conditions') }}">Terms and Conditions</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('privacy-policy') }}">Privacy Policy</a>
+                    </li>
                     <li>
                         <a href="{{ route('refund-policy') }}">Refund Policy</a>
                     </li>
