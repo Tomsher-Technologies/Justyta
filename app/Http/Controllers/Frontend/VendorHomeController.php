@@ -43,6 +43,12 @@ use Carbon\Carbon;
 class VendorHomeController extends Controller
 {
  
+    protected $fileService;
+
+    public function __construct(ServiceRequestFileService $fileService)
+    {
+        $this->fileService = $fileService;
+    }
      public function dashboard()
     {
         $translatorId = Auth::id();
@@ -555,6 +561,8 @@ class VendorHomeController extends Controller
     public function translationRequests (Request $request){
         $lang = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
+        $request->session()->put('translation_request_last_url', url()->full());
+
         $query = RequestLegalTranslation::where('user_id', Auth::guard('frontend')->user()?->id)
             ->with(['serviceRequest', 'documentLanguage', 'translationLanguage']);
 
@@ -651,6 +659,8 @@ class VendorHomeController extends Controller
 
         $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
 
+        $timeline = getFullStatusHistory($serviceRequest);
+
         $details = [
             'id'                => $serviceRequest->id,
             'service_slug'      => $serviceRequest->service_slug,
@@ -670,11 +680,161 @@ class VendorHomeController extends Controller
             'timeline'          => $timeline,
         ];
 
-        return view('frontend.vendor.translation.translation-details', compact(
-            'details',
-        ));
+        if ($serviceRequest->status === 'rejected') {
+            $rejectionDetails = $serviceRequest->getLatestRejectionDetails();
+            if ($rejectionDetails) {
+                $details['rejection_meta'] = $rejectionDetails->meta;
+            }
+        }
+
+        return view('frontend.vendor.translation.translation-details', compact('details'));
     }
 
+    public function reUploadAfterRejection(Request $request, $id)
+    {
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
+        $user = Auth::guard('frontend')->user();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => __('frontend.unauthorized')], 403);
+        }
+
+        $serviceRequest = ServiceRequest::with('statusHistories')->findOrFail($id);
+
+        if ($serviceRequest->user_id != $user->id) {
+            return response()->json(['success' => false, 'message' => __('frontend.unauthorized')], 403);
+        }
+
+        if ($serviceRequest->status !== 'rejected') {
+            return response()->json(['success' => false, 'message' => __('frontend.status_not_rejected')], 400);
+        }
+
+        $rejectionDetails = $serviceRequest->getLatestRejectionDetails();
+        $rejectionMeta = $rejectionDetails ? $rejectionDetails->meta : [];
+
+        $requiredFiles = [];
+        $validationRules = [];
+        $customMessages = [];
+        $needsAtLeastOneFile = false;
+
+        if (isset($rejectionMeta['rejection_details'])) {
+            $rejectionDetailsMeta = $rejectionMeta['rejection_details'];
+
+            $supportingDocsRequired = isset($rejectionDetailsMeta['supporting_docs']) && $rejectionDetailsMeta['supporting_docs'];
+            $supportingDocsAnyRequired = isset($rejectionDetailsMeta['supporting_docs_any']) && $rejectionDetailsMeta['supporting_docs_any'];
+
+            if ($supportingDocsRequired || $supportingDocsAnyRequired) {
+                $needsAtLeastOneFile = true;
+
+                if ($supportingDocsRequired) {
+                    $requiredFiles[] = 'supporting_docs';
+                }
+                if ($supportingDocsAnyRequired) {
+                    $requiredFiles[] = 'supporting_docs_any';
+                }
+
+                $validationRules['supporting_docs'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240';
+                $validationRules['supporting_docs_any'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240';
+
+                $customMessages['supporting_docs.file'] = __('frontend.supporting_docs_must_be_file');
+                $customMessages['supporting_docs.mimes'] = __('frontend.supporting_docs_invalid_type');
+                $customMessages['supporting_docs.max'] = __('frontend.supporting_docs_too_large');
+
+                $customMessages['supporting_docs_any.file'] = __('frontend.supporting_docs_any_must_be_file');
+                $customMessages['supporting_docs_any.mimes'] = __('frontend.supporting_docs_any_invalid_type');
+                $customMessages['supporting_docs_any.max'] = __('frontend.supporting_docs_any_too_large');
+            }
+        }
+
+        try {
+            $validatedData = $request->validate($validationRules, $customMessages);
+
+            if ($needsAtLeastOneFile) {
+                if (!$request->hasFile('supporting_docs') && !$request->hasFile('supporting_docs_any')) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'files' => [__('frontend.at_least_one_file_required')]
+                    ]);
+                }
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => __('frontend.validation_failed'),
+                'errors' => $e->errors(),
+                'required_files' => $requiredFiles
+            ], 422);
+        }
+
+
+        $relation = getServiceRelationName($serviceRequest->service_slug);
+        $serviceDetails = null;
+
+        if ($relation) {
+            $serviceDetails = $serviceRequest->$relation;
+        }
+
+        if (!$serviceDetails) {
+            return response()->json(['success' => false, 'message' => __('frontend.service_details_not_found')], 404);
+        }
+
+        $requestFolder = "uploads/{$serviceRequest->service_slug}/{$serviceDetails->id}/";
+
+        foreach ($requiredFiles as $fileName) {
+            if ($request->hasFile($fileName)) {
+                $file = $request->file($fileName);
+
+                $uniqueName = $fileName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $filename = $requestFolder . $uniqueName;
+
+                $fileContents = file_get_contents($file);
+                Storage::disk('public')->put($filename, $fileContents);
+                $fileUrl = Storage::url($filename);
+
+                $fieldMapping = [
+                    'supporting_docs' => 'documents',
+                    'supporting_docs_any' => 'additional_documents'
+                ];
+
+                if (isset($fieldMapping[$fileName])) {
+                    $field = $fieldMapping[$fileName];
+                    $updatedFiles = [$fileUrl];
+                    $serviceDetails->update([$field => $updatedFiles]);
+                }
+            }
+        }
+
+        $serviceRequest->update(['status' => 'pending']);
+
+        ServiceRequestTimeline::create([
+            'service_request_id' => $serviceRequest->id,
+            'service_slug' => $serviceRequest->service_slug,
+            'status' => 'pending',
+            'note' => 'Files re-uploaded after rejection',
+            'changed_by' => $user->id,
+            'meta' => [
+                'action' => 'reupload_after_rejection',
+                'files_uploaded' => $requiredFiles
+            ]
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('frontend.files_uploaded_successfully'),
+        ]);
+    }
+
+    public function downloadServiceCompletedFiles($id)
+    {
+        $user = Auth::guard('frontend')->user();
+
+        $serviceRequest = ServiceRequest::findOrFail($id);
+
+        if ($serviceRequest->user_id !== $user->id) {
+            abort(403, __('frontend.unauthorized'));
+        }
+
+        return $this->fileService->download($id);
+    }
 
     public function createTranslationRequest(Request $request){
         $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
