@@ -14,6 +14,8 @@ require __DIR__ . '/admin.php';
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/refund-policy', [HomeController::class, 'refundPolicy'])->name('refund-policy');
+Route::get('/privacy-policy', [HomeController::class, 'privacyPolicy'])->name('privacy-policy');
+Route::get('/terms-conditions', [HomeController::class, 'termsConditions'])->name('terms-conditions');
 
 // Frontend Login Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('frontend.login');
