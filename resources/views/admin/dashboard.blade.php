@@ -5,93 +5,104 @@
         <div class="row ">
             <div class="col-lg-12">
 
-                <h2 class="row fw-bold mb-4">Admin Dashboard</h2>
-
-                <div class="row g-4">
-
-                        <!-- Total Users -->
-                        {{-- <div class="col-xl-2 col-md-4 col-sm-6 mb-2">
-                            <div class="card shadow-sm border-0 p-3 text-center" style="background:#e0f7fa;">
-                                <a href="{{ route('admin.users.index') }}">
-                                    <div class="icon mb-2">
-                                        <i class="las la-users fs-2 text-primary"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1">Total Users</h6>
-                                    <h4 class="text-primary">{{ $userCounts['user'] ?? 0 }}</h4>
-                                </a>
+                <div class="dashboard-card g-4 mt-4">
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 mb-2 d-flex justify-content-between align-items-center">
+                                <h2 class="fw-semibold mb-0">Dashboard</h2>
+                                {{-- <div class="w-20 input-group mb-1">
+                                    <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker"  id="dashboard_datepicker" name="daterange" placeholder="From Date - To Date" value="{{ request('daterange') }}">
+                                </div> --}}
                             </div>
-                        </div> --}}
 
-                        <!-- Total Translators -->
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-2">
-                            <div class="card shadow-sm border-0 p-3 text-center" style="background:#f1f8e9;">
-                                <a href="{{ route('translators.index') }}">
+                            <!-- Total Users -->
+                            <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                <div class="card shadow-sm border-0 p-3 text-center" style="background:#e0f7fa;">
                                     <div class="icon mb-2">
-                                        <i class="las la-language fs-2 text-primary"></i>
+                                        <i class="las la-credit-card fs-2 text-primary"></i>
                                     </div>
-                                    <h6 class="fw-bold mb-1">Total Translators</h6>
-                                    <h4 class="text-primary">{{ $userCounts['translator'] ?? 0 }}</h4>
-                                </a>
+                                    <h6 class="fw-bold mb-1">Total Sales</h6>
+                                    <h4 class="text-primary">AED {{ $totalSales ?? 0 }}</h4>
+                                </div>
+                            </div>
+
+                            <!-- Total Translators -->
+                            <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                <div class="card shadow-sm border-0 p-3 text-center" style="background:#f1f8e9;">
+                                    <a href="{{ route('translators.index') }}">
+                                        <div class="icon mb-2">
+                                            <i class="las la-language fs-2 text-primary"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Total Translators</h6>
+                                        <h4 class="text-primary">{{ $userCounts['translator'] ?? 0 }}</h4>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Total Law Firms -->
+                            <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                <div class="card shadow-sm border-0 p-3 text-center" style="background:#fff3e0;">
+                                    <a href="{{ route('vendors.index') }}">
+                                        <div class="icon mb-2">
+                                            <i class="las la-gavel fs-2 text-primary"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Total Law Firms</h6>
+                                        <h4 class="text-primary">{{ $userCounts['vendor'] ?? 0 }}</h4>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Total Lawyers -->
+                            <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                <div class="card shadow-sm border-0 p-3 text-center" style="background:#fce4ec;">
+                                    <a href="{{ route('lawyers.index') }}">
+                                        <div class="icon mb-2">
+                                            <i class="las la-user-tie fs-2 text-primary"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Total Lawyers</h6>
+                                        <h4 class="text-primary">{{ $userCounts['lawyer'] ??  0}}</h4>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Total Job Posts -->
+                            <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                <div class="card shadow-sm border-0 p-3 text-center" style="background:#ede7f6;">
+                                    <a href="{{ route('job-posts.index') }}">
+                                        <div class="icon mb-2">
+                                            <i class="las la-briefcase fs-2 text-primary"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Total Job Posts</h6>
+                                        <h4 class="text-primary">{{ $totalJobs ?? 0 }}</h4>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Total Training Requests -->
+                            <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                <div class="card shadow-sm border-0 p-3 text-center" style="background:#e8f5e9;">
+                                    <a href="{{ route('training-requests.index') }}">
+                                        <div class="icon mb-2">
+                                            <i class="las la-chalkboard-teacher fs-2 text-primary"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Total Training Requests</h6>
+                                        <h4 class="text-primary">{{ $totalTrainings ?? 0 }}</h4>
+                                    </a>
+                                </div>
                             </div>
                         </div>
-
-                        <!-- Total Law Firms -->
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-2">
-                            <div class="card shadow-sm border-0 p-3 text-center" style="background:#fff3e0;">
-                                <a href="{{ route('vendors.index') }}">
-                                    <div class="icon mb-2">
-                                        <i class="las la-gavel fs-2 text-primary"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1">Total Law Firms</h6>
-                                    <h4 class="text-primary">{{ $userCounts['vendor'] ?? 0 }}</h4>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- Total Lawyers -->
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-2">
-                            <div class="card shadow-sm border-0 p-3 text-center" style="background:#fce4ec;">
-                                <a href="{{ route('lawyers.index') }}">
-                                    <div class="icon mb-2">
-                                        <i class="las la-user-tie fs-2 text-primary"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1">Total Lawyers</h6>
-                                    <h4 class="text-primary">{{ $userCounts['lawyer'] ??  0}}</h4>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- Total Job Posts -->
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-2">
-                            <div class="card shadow-sm border-0 p-3 text-center" style="background:#ede7f6;">
-                                <a href="{{ route('job-posts.index') }}">
-                                    <div class="icon mb-2">
-                                        <i class="las la-briefcase fs-2 text-primary"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1">Total Job Posts</h6>
-                                    <h4 class="text-primary">{{ $totalJobs ?? 0 }}</h4>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- Total Training Requests -->
-                        <div class="col-xl-2 col-md-4 col-sm-6 mb-2">
-                            <div class="card shadow-sm border-0 p-3 text-center" style="background:#e8f5e9;">
-                                <a href="{{ route('training-requests.index') }}">
-                                    <div class="icon mb-2">
-                                        <i class="las la-chalkboard-teacher fs-2 text-primary"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1">Total Training Requests</h6>
-                                    <h4 class="text-primary">{{ $totalTrainings ?? 0 }}</h4>
-                                </a>
-                            </div>
-                        </div>
-
                     </div>
+                </div>
 
-                <div class="row">
-                    <h5 class="fw-semibold">Total Service Requests</h5>
-                    <div class="row g-4 mb-4">
+                
+                <div class="dashboard-card g-4 mt-4">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 mb-2 d-flex justify-content-between align-items-center">
+                            <h2 class="fw-semibold mb-0">Total Service Requests</h2>
+                            {{-- <div class="w-20 input-group mb-1">
+                                <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker" id="service_request_datepicker" name="daterange" placeholder="From Date - To Date" value="{{ request('daterange') }}">
+                            </div> --}}
+                        </div>
                         @foreach ($services as $key => $service)
                             @if ($service->slug != 'law-firm-services')
                                 <div class="col-md-2 col-sm-3 mt-4">
@@ -106,7 +117,7 @@
                                                 <img src="{{ asset(getUploadedImage($service->icon)) }}" class="card-img-top"
                                                     style="height: 45px; object-fit: contain;" alt="{{ $service->name }}" />
                                             </div>
-                                            <span class="service-title">{{ $service->name ?? '—' }}</span>
+                                            <h6 class="service-title">{{ $service->name ?? '—' }}</h6>
                                             <h5 class="service-count">{{ $serviceCounts[$service->id] ?? 0 }}</h5>
                                             {{-- <div class="service-status">
                                                 <span class="status pending">Pending: 25</span>
@@ -123,18 +134,10 @@
                 </div>
 
 
-                <!-- Charts Section -->
-                <div class="row g-4 mb-4">
-                    {{-- <div class="col-lg-8">
-                        <div class="dashboard-card">
-                            <h5 class="fw-semibold mb-3">Monthly Revenue Overview</h5>
-                            <div id="revenueChart" style="height:320px;"></div>
-                        </div>
-                    </div> --}}
-
+                <div class="row g-4 mt-4 mb-4">
                     <div class="col-lg-12">
                         <div class="dashboard-card">
-                            <h5 class="fw-semibold mb-3">Service Requests</h5>
+                            <h4 class="fw-semibold mb-3">Service Requests</h4>
                             <div id="serviceChart" style="height:500px;"></div>
                         </div>
                     </div>
@@ -143,24 +146,64 @@
                 {{-- <div class="row g-4">
                     <div class="col-lg-6">
                         <div class="dashboard-card">
-                            <h5 class="fw-semibold mb-3">Consultations Trend</h5>
+                            <h4 class="fw-semibold mb-3">Consultations Trend</h4>
                             <div id="consultationChart" style="height:320px;"></div>
                         </div>
                     </div>
 
                     <div class="col-lg-6">
                         <div class="dashboard-card">
-                            <h5 class="fw-semibold mb-3">Lawyer Activity</h5>
+                            <h4 class="fw-semibold mb-3">Lawyer Activity</h4>
                             <div id="lawyerChart" style="height:320px;"></div>
                         </div>
                     </div>
                 </div> --}}
 
+                <div class="row g-4 mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-card">
+                            <div class="col-lg-12 d-flex">
+                                <div class="d-flex">
+                                    <select id="filterType" class="form-control w-auto mr-2" style="border : 1px solid #8c8c8c;">
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly" selected>Monthly</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                
+                                    @php
+                                        $currentYear = now()->year;
+                                        $minYear = 2024; 
+                                        $endYear = max($currentYear - 9, $minYear);
+                                    @endphp
+
+                                    <select id="filterYear" class="form-control w-auto" style="border : 1px solid #8c8c8c;">
+                                        @for ($y = $currentYear; $y >= $endYear; $y--)
+                                            <option value="{{ $y }}">{{ $y }}</option>
+                                        @endfor
+                                    </select>
+
+                                    <select id="filterMonth" style="display:none;border : 1px solid #8c8c8c;" class="form-control w-auto ml-2">
+                                        @foreach (range(1,12) as $m)
+                                            <option value="{{ $m }}">{{ date('F', mktime(0,0,0,$m,1)) }}</option>
+                                        @endforeach
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="col-lg-12 ">
+                                
+                                <div id="sales-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Recent Requests -->
                 <div class="row mt-4">
                     <div class="col-12">
                         <div class="dashboard-card">
-                            <h5 class="fw-semibold mb-3">Recent Service Requests</h5>
+                            <h4 class="fw-semibold mb-3">Recent Service Requests</h4>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle">
                                     <thead class="table-light">
@@ -303,7 +346,7 @@
 
 
         .service-card {
-            background: #ffffff;
+            background: #f1f0ec;
             border-radius: 16px;
             padding: 10px;
             text-align: center;
@@ -412,39 +455,117 @@
 @section('script')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+           
+            function loadChart() {
+                const filter = $('#filterType').val();
+                let year = '';
+                if (filter != 'yearly') {
+                    year = $('#filterYear').val();
+                }
+                const month = $('#filterMonth').val();
 
+                $.ajax({
+                    url: '{{ route('sales.report.data') }}',
+                    data: { filter, year, month },
+                    success: function (response) {
+                        Highcharts.chart('sales-chart', {
+                            chart: { 
+                                type: 'column',
+                                height: 600 
+                            },
+                            title: { 
+                                text: 'Sales Overview',
+                                align: 'center',    
+                                margin: 40,  
+                                style: {
+                                    color: '#08683d', 
+                                    fontWeight: 'bold', 
+                                    fontSize: '20px',   
+                                    fontFamily: '"Inter", sans-serif' 
+                                }
+                            },
+                            xAxis: {
+                                categories: response.labels,
+                                labels: { 
+                                    // rotation: -45,
+                                    style: {
+                                        fontSize: '12px',
+                                        fontFamily: '"Inter", sans-serif',
+                                        color: '#00000'
+                                    } 
+                                }
+                            },
+                            yAxis: { 
+                                title: { 
+                                    text: 'Total Sales (AED)' 
+                                } 
+                            },
+                            series: [{
+                                name: 'Sales',
+                                data: response.data,
+                                color: '#08683d'
+                            }],
+                            legend: {
+                                enabled: true,
+                                itemStyle: {
+                                    fontWeight: 'bold',
+                                    fontSize: '14px'
+                                }
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            exporting: {
+                                enabled: false 
+                            }
+                        });
+                    }
+                });
+            }
 
-            // Monthly Revenue Chart
-            // Highcharts.chart('revenueChart', {
-            //     chart: {
-            //         type: 'column'
-            //     },
-            //     title: {
-            //         text: ''
-            //     },
-            //     xAxis: {
-            //         categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct']
-            //     },
-            //     yAxis: {
-            //         title: {
-            //             text: 'Revenue ($)'
-            //         }
-            //     },
-            //     series: [{
-            //             name: 'Revenue',
-            //             data: [4200, 4800, 5200, 6800, 7500, 8000, 9500, 10300, 9700, 11000],
-            //             color: '#007bff'
-            //         },
-            //         {
-            //             name: 'Expenses',
-            //             data: [2000, 2500, 2700, 3100, 3300, 3600, 4000, 4500, 4200, 5000],
-            //             color: '#dc3545'
-            //         }
-            //     ],
-            //     credits: {
-            //         enabled: false
-            //     }
-            // });
+            const $filterType  = $('#filterType');
+            const $filterYear  = $('#filterYear');
+            const $filterMonth = $('#filterMonth');
+
+            $filterMonth.on('change', function () {
+                $(this).data('userSelected', true);
+                loadChart();
+            });
+
+            $filterYear.on('change', function () {
+                loadChart();
+            });
+
+            $filterType.on('change', function () {
+                applyFilterChange(false);
+            });
+
+            applyFilterChange(true);
+
+            function applyFilterChange(isInitialLoad) {
+                const filter = $filterType.val();
+
+                if (filter === 'daily') {
+                    $filterMonth.show();
+
+                    const userSelected = $filterMonth.data('userSelected');
+                    if (!userSelected) {
+                        const currentMonth = String(new Date().getMonth() + 1);
+                        if ($filterMonth.val() !== currentMonth) {
+                            $filterMonth.val(currentMonth);
+                        }
+                    }
+                } else {
+                    $filterMonth.hide();
+                }
+
+                if(filter !== 'yearly'){
+                    $filterYear.show();
+                }else{
+                    $filterYear.hide();
+                }
+                loadChart();
+            }
 
             // Service Category Chart
             Highcharts.chart('serviceChart', {
@@ -510,33 +631,6 @@
             //         name: 'Completed',
             //         data: [20, 25, 30, 28, 40, 35, 32],
             //         color: '#28a745'
-            //     }],
-            //     credits: {
-            //         enabled: false
-            //     }
-            // });
-
-            // // Lawyer Activity
-            // Highcharts.chart('lawyerChart', {
-            //     chart: {
-            //         type: 'areaspline'
-            //     },
-            //     title: {
-            //         text: ''
-            //     },
-            //     xAxis: {
-            //         categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct']
-            //     },
-            //     yAxis: {
-            //         title: {
-            //             text: 'Active Lawyers'
-            //         }
-            //     },
-            //     series: [{
-            //         name: 'Active',
-            //         data: [200, 220, 250, 280, 320, 360, 400, 420, 460, 500],
-            //         color: '#17a2b8',
-            //         fillOpacity: 0.3
             //     }],
             //     credits: {
             //         enabled: false

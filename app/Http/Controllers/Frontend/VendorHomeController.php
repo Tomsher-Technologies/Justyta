@@ -42,7 +42,6 @@ use Carbon\Carbon;
 
 class VendorHomeController extends Controller
 {
- 
     protected $fileService;
 
     public function __construct(ServiceRequestFileService $fileService)
