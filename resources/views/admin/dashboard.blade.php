@@ -5,100 +5,101 @@
         <div class="row ">
             <div class="col-lg-12">
 
-                <div class="dashboard-card g-4 mt-4">
-                    <div class="col-12">
-                        <div class="row">
-                            <div class="col-md-12 col-sm-12 mb-2 d-flex justify-content-between align-items-center">
-                                <h2 class="fw-semibold mb-0">Dashboard</h2>
-                                {{-- <div class="w-20 input-group mb-1">
-                                    <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker"  id="dashboard_datepicker" name="daterange" placeholder="From Date - To Date" value="{{ request('daterange') }}">
-                                </div> --}}
-                            </div>
+                @if(auth()->user()->user_type == 'admin')
+                    <div class="dashboard-card g-4 mt-4">
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-md-12 col-sm-12 mb-2 d-flex justify-content-between align-items-center">
+                                    <h2 class="fw-semibold mb-0">Dashboard</h2>
+                                    {{-- <div class="w-20 input-group mb-1">
+                                        <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker"  id="dashboard_datepicker" name="daterange" placeholder="From Date - To Date" value="{{ request('daterange') }}">
+                                    </div> --}}
+                                </div>
 
-                            <!-- Total Users -->
-                            <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                <div class="card shadow-sm border-0 p-3 text-center" style="background:#e0f7fa;">
-                                    <div class="icon mb-2">
-                                        <i class="las la-credit-card fs-2 text-primary"></i>
+                                <!-- Total Users -->
+                                <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                    <div class="card shadow-sm border-0 p-3 text-center" style="background:#e0f7fa;">
+                                        <div class="icon mb-2">
+                                            <i class="las la-credit-card fs-2 text-primary"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Total Sales</h6>
+                                        <h4 class="text-primary">AED {{ $totalSales ?? 0 }}</h4>
                                     </div>
-                                    <h6 class="fw-bold mb-1">Total Sales</h6>
-                                    <h4 class="text-primary">AED {{ $totalSales ?? 0 }}</h4>
                                 </div>
-                            </div>
 
-                            <!-- Total Translators -->
-                            <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                <div class="card shadow-sm border-0 p-3 text-center" style="background:#f1f8e9;">
-                                    <a href="{{ route('translators.index') }}">
-                                        <div class="icon mb-2">
-                                            <i class="las la-language fs-2 text-primary"></i>
-                                        </div>
-                                        <h6 class="fw-bold mb-1">Total Translators</h6>
-                                        <h4 class="text-primary">{{ $userCounts['translator'] ?? 0 }}</h4>
-                                    </a>
+                                <!-- Total Translators -->
+                                <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                    <div class="card shadow-sm border-0 p-3 text-center" style="background:#f1f8e9;">
+                                        <a href="{{ route('translators.index') }}">
+                                            <div class="icon mb-2">
+                                                <i class="las la-language fs-2 text-primary"></i>
+                                            </div>
+                                            <h6 class="fw-bold mb-1">Total Translators</h6>
+                                            <h4 class="text-primary">{{ $userCounts['translator'] ?? 0 }}</h4>
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Total Law Firms -->
-                            <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                <div class="card shadow-sm border-0 p-3 text-center" style="background:#fff3e0;">
-                                    <a href="{{ route('vendors.index') }}">
-                                        <div class="icon mb-2">
-                                            <i class="las la-gavel fs-2 text-primary"></i>
-                                        </div>
-                                        <h6 class="fw-bold mb-1">Total Law Firms</h6>
-                                        <h4 class="text-primary">{{ $userCounts['vendor'] ?? 0 }}</h4>
-                                    </a>
+                                <!-- Total Law Firms -->
+                                <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                    <div class="card shadow-sm border-0 p-3 text-center" style="background:#fff3e0;">
+                                        <a href="{{ route('vendors.index') }}">
+                                            <div class="icon mb-2">
+                                                <i class="las la-gavel fs-2 text-primary"></i>
+                                            </div>
+                                            <h6 class="fw-bold mb-1">Total Law Firms</h6>
+                                            <h4 class="text-primary">{{ $userCounts['vendor'] ?? 0 }}</h4>
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Total Lawyers -->
-                            <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                <div class="card shadow-sm border-0 p-3 text-center" style="background:#fce4ec;">
-                                    <a href="{{ route('lawyers.index') }}">
-                                        <div class="icon mb-2">
-                                            <i class="las la-user-tie fs-2 text-primary"></i>
-                                        </div>
-                                        <h6 class="fw-bold mb-1">Total Lawyers</h6>
-                                        <h4 class="text-primary">{{ $userCounts['lawyer'] ??  0}}</h4>
-                                    </a>
+                                <!-- Total Lawyers -->
+                                <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                    <div class="card shadow-sm border-0 p-3 text-center" style="background:#fce4ec;">
+                                        <a href="{{ route('lawyers.index') }}">
+                                            <div class="icon mb-2">
+                                                <i class="las la-user-tie fs-2 text-primary"></i>
+                                            </div>
+                                            <h6 class="fw-bold mb-1">Total Lawyers</h6>
+                                            <h4 class="text-primary">{{ $userCounts['lawyer'] ??  0}}</h4>
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Total Job Posts -->
-                            <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                <div class="card shadow-sm border-0 p-3 text-center" style="background:#ede7f6;">
-                                    <a href="{{ route('job-posts.index') }}">
-                                        <div class="icon mb-2">
-                                            <i class="las la-briefcase fs-2 text-primary"></i>
-                                        </div>
-                                        <h6 class="fw-bold mb-1">Total Job Posts</h6>
-                                        <h4 class="text-primary">{{ $totalJobs ?? 0 }}</h4>
-                                    </a>
+                                <!-- Total Job Posts -->
+                                <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                    <div class="card shadow-sm border-0 p-3 text-center" style="background:#ede7f6;">
+                                        <a href="{{ route('job-posts.index') }}">
+                                            <div class="icon mb-2">
+                                                <i class="las la-briefcase fs-2 text-primary"></i>
+                                            </div>
+                                            <h6 class="fw-bold mb-1">Total Job Posts</h6>
+                                            <h4 class="text-primary">{{ $totalJobs ?? 0 }}</h4>
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Total Training Requests -->
-                            <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                <div class="card shadow-sm border-0 p-3 text-center" style="background:#e8f5e9;">
-                                    <a href="{{ route('training-requests.index') }}">
-                                        <div class="icon mb-2">
-                                            <i class="las la-chalkboard-teacher fs-2 text-primary"></i>
-                                        </div>
-                                        <h6 class="fw-bold mb-1">Total Training Requests</h6>
-                                        <h4 class="text-primary">{{ $totalTrainings ?? 0 }}</h4>
-                                    </a>
+                                <!-- Total Training Requests -->
+                                <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                    <div class="card shadow-sm border-0 p-3 text-center" style="background:#e8f5e9;">
+                                        <a href="{{ route('training-requests.index') }}">
+                                            <div class="icon mb-2">
+                                                <i class="las la-chalkboard-teacher fs-2 text-primary"></i>
+                                            </div>
+                                            <h6 class="fw-bold mb-1">Total Training Requests</h6>
+                                            <h4 class="text-primary">{{ $totalTrainings ?? 0 }}</h4>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
+                @endif
                 
                 <div class="dashboard-card g-4 mt-4">
                     <div class="row">
                         <div class="col-md-12 col-sm-12 mb-2 d-flex justify-content-between align-items-center">
-                            <h2 class="fw-semibold mb-0">Total Service Requests</h2>
+                            <h4 class="fw-semibold mb-0">Total Service Requests</h4>
                             {{-- <div class="w-20 input-group mb-1">
                                 <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker" id="service_request_datepicker" name="daterange" placeholder="From Date - To Date" value="{{ request('daterange') }}">
                             </div> --}}
@@ -158,46 +159,47 @@
                         </div>
                     </div>
                 </div> --}}
+                @if(auth()->user()->user_type == 'admin')
+                    <div class="row g-4 mb-4">
+                        <div class="col-12">
+                            <div class="dashboard-card">
+                                <div class="col-lg-12 d-flex">
+                                    <div class="d-flex">
+                                        <select id="filterType" class="form-control w-auto mr-2" style="border : 1px solid #8c8c8c;">
+                                            <option value="daily">Daily</option>
+                                            <option value="weekly">Weekly</option>
+                                            <option value="monthly" selected>Monthly</option>
+                                            <option value="yearly">Yearly</option>
+                                        </select>
+                                    
+                                        @php
+                                            $currentYear = now()->year;
+                                            $minYear = 2024; 
+                                            $endYear = max($currentYear - 9, $minYear);
+                                        @endphp
 
-                <div class="row g-4 mb-4">
-                    <div class="col-12">
-                        <div class="dashboard-card">
-                            <div class="col-lg-12 d-flex">
-                                <div class="d-flex">
-                                    <select id="filterType" class="form-control w-auto mr-2" style="border : 1px solid #8c8c8c;">
-                                        <option value="daily">Daily</option>
-                                        <option value="weekly">Weekly</option>
-                                        <option value="monthly" selected>Monthly</option>
-                                        <option value="yearly">Yearly</option>
-                                    </select>
-                                
-                                    @php
-                                        $currentYear = now()->year;
-                                        $minYear = 2024; 
-                                        $endYear = max($currentYear - 9, $minYear);
-                                    @endphp
+                                        <select id="filterYear" class="form-control w-auto" style="border : 1px solid #8c8c8c;">
+                                            @for ($y = $currentYear; $y >= $endYear; $y--)
+                                                <option value="{{ $y }}">{{ $y }}</option>
+                                            @endfor
+                                        </select>
 
-                                    <select id="filterYear" class="form-control w-auto" style="border : 1px solid #8c8c8c;">
-                                        @for ($y = $currentYear; $y >= $endYear; $y--)
-                                            <option value="{{ $y }}">{{ $y }}</option>
-                                        @endfor
-                                    </select>
+                                        <select id="filterMonth" style="display:none;border : 1px solid #8c8c8c;" class="form-control w-auto ml-2">
+                                            @foreach (range(1,12) as $m)
+                                                <option value="{{ $m }}">{{ date('F', mktime(0,0,0,$m,1)) }}</option>
+                                            @endforeach
+                                        </select>
 
-                                    <select id="filterMonth" style="display:none;border : 1px solid #8c8c8c;" class="form-control w-auto ml-2">
-                                        @foreach (range(1,12) as $m)
-                                            <option value="{{ $m }}">{{ date('F', mktime(0,0,0,$m,1)) }}</option>
-                                        @endforeach
-                                    </select>
-
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-lg-12 ">
-                                
-                                <div id="sales-chart"></div>
+                                <div class="col-lg-12 ">
+                                    
+                                    <div id="sales-chart"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @endif
 
                 <!-- Recent Requests -->
                 <div class="row mt-4">
