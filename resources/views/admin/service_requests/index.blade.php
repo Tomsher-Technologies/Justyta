@@ -16,6 +16,10 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
+                            @php
+                                $serviceSlug = request('service_id'); 
+                                $exportPermissionName = $serviceSlug ? "export-$serviceSlug" : null;
+                            @endphp
 
                             <form method="GET" action="{{ route('service-requests.index') }}" autocomplete="off">
                                 <div class="row mb-2">
@@ -24,9 +28,14 @@
                                         <select name="service_id" class="select2 form-control ih-small ip-gray radius-xs b-deep px-15"  data-placeholder="Select Service" >
                                             <option value="">--Select Service--</option>
                                              @foreach($services as $serv)
-                                                <option value="{{ $serv->slug }}"  {{ request('service_id') == $serv->slug ? 'selected' : '' }}>
-                                                    {{ $serv->name ?? '---' }}
-                                                </option>
+                                                @php
+                                                    $viewPermissionName = $serv->slug ? "view-$serv->slug" : null;
+                                                @endphp
+                                                @if($viewPermissionName && auth()->user()->can($viewPermissionName))
+                                                    <option value="{{ $serv->slug }}"  {{ request('service_id') == $serv->slug ? 'selected' : '' }}>
+                                                        {{ $serv->name ?? '---' }}
+                                                    </option>
+                                                @endif
                                             @endforeach
                                         </select>
                                     </div>
@@ -75,7 +84,7 @@
                                             class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
 
                                         @if(request('service_id'))
-                                            @can('export_service_requests')
+                                            @if($exportPermissionName && auth()->user()->can($exportPermissionName))
                                                 <a href="{{ route('service-requests.export', ['service_id' => request('service_id')] + request()->all()) }}"
                                                     class="btn btn-warning btn-sm ml-2">
                                                     Export
@@ -155,7 +164,7 @@
                                                 <td class="text-center">{{ date('d, M Y h:i A', strtotime($serviceReq->submitted_at)) }}</td>
 
                                                 <td class="text-center">
-                                                    @can('view_service_requests')
+                                                    @can('view-'.$serviceReq->service_slug)
                                                         <div class="table-actions">
                                                             <a href="{{ route('service-request-details', base64_encode($serviceReq->id)) }}"
                                                                 title="View Service Request">

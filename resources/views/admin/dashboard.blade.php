@@ -11,9 +11,15 @@
                             <div class="row">
                                 <div class="col-md-12 col-sm-12 mb-2 d-flex justify-content-between align-items-center">
                                     <h2 class="fw-semibold mb-0">Dashboard</h2>
-                                    {{-- <div class="w-20 input-group mb-1">
-                                        <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker"  id="dashboard_datepicker" name="daterange" placeholder="From Date - To Date" value="{{ request('daterange') }}">
-                                    </div> --}}
+                                    <div class="w-22 mb-1 d-flex">
+                                        <form action="{{ route('admin.dashboard') }}" method="get" id="dashboardCommonForm" autocomplete="off">
+                                            <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker"  id="dashboard_datepicker"  name="daterangeCommon" placeholder="From Date - To Date" value="{{ request('daterangeCommon') }}" style="width:105% !important;">
+                                        </form>
+
+                                        <a href="{{ route('admin.dashboard') }}" class="m-auto" id="resetDashboardDate" title="Reset Filter">
+                                            <i class="fas fa-sync-alt" style="font-size: 20px; color:#08683d;"></i>
+                                        </a>
+                                    </div>
                                 </div>
 
                                 <!-- Total Users -->
@@ -100,9 +106,15 @@
                     <div class="row">
                         <div class="col-md-12 col-sm-12 mb-2 d-flex justify-content-between align-items-center">
                             <h4 class="fw-semibold mb-0">Total Service Requests</h4>
-                            {{-- <div class="w-20 input-group mb-1">
-                                <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker" id="service_request_datepicker" name="daterange" placeholder="From Date - To Date" value="{{ request('daterange') }}">
-                            </div> --}}
+                            <div class="w-22 mb-1 d-flex">
+                                <form action="{{ route('admin.dashboard') }}" method="get" id="dashboardServiceForm" autocomplete="off">
+                                    <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker"  id="dashboard_service_datepicker"  name="daterangeService" placeholder="From Date - To Date" value="{{ request('daterangeService') }}" style="width:105% !important;">
+                                </form>
+
+                                <a href="{{ route('admin.dashboard') }}" class="m-auto" id="resetDashboardDate" title="Reset Filter">
+                                    <i class="fas fa-sync-alt" style="font-size: 20px; color:#08683d;"></i>
+                                </a>
+                            </div>
                         </div>
                         @foreach ($services as $key => $service)
                             @if ($service->slug != 'law-firm-services')
@@ -165,6 +177,13 @@
                             <div class="dashboard-card">
                                 <div class="col-lg-12 d-flex">
                                     <div class="d-flex">
+                                        <select id="filterService" class="form-control w-auto mr-2" style="border : 1px solid #8c8c8c;">
+                                            <option value="all">All</option>
+                                            @foreach ($paymentServices as $key => $serv)
+                                                <option value="{{ $serv['slug'] }}">{{ $serv['name'] }}</option>
+                                            @endforeach
+                                        </select>
+
                                         <select id="filterType" class="form-control w-auto mr-2" style="border : 1px solid #8c8c8c;">
                                             <option value="daily">Daily</option>
                                             <option value="weekly">Weekly</option>
@@ -194,7 +213,7 @@
                                 </div>
                                 <div class="col-lg-12 ">
                                     
-                                    <div id="sales-chart"></div>
+                                    <div id="sales-chart" class="mt-4"></div>
                                 </div>
                             </div>
                         </div>
@@ -457,9 +476,24 @@
 @section('script')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            $('#dashboard_datepicker').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(
+                    picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD')
+                );
+                $('#dashboardCommonForm').submit();
+            });
+
+            $('#dashboard_service_datepicker').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(
+                    picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD')
+                );
+                $('#dashboardServiceForm').submit();
+            });
            
             function loadChart() {
                 const filter = $('#filterType').val();
+                const service = $('#filterService').val();
                 let year = '';
                 if (filter != 'yearly') {
                     year = $('#filterYear').val();
@@ -468,7 +502,7 @@
 
                 $.ajax({
                     url: '{{ route('sales.report.data') }}',
-                    data: { filter, year, month },
+                    data: {service, filter, year, month },
                     success: function (response) {
                         Highcharts.chart('sales-chart', {
                             chart: { 
@@ -476,7 +510,7 @@
                                 height: 600 
                             },
                             title: { 
-                                text: 'Sales Overview',
+                                text: response.title +' Sales Overview',
                                 align: 'center',    
                                 margin: 40,  
                                 style: {
@@ -526,11 +560,16 @@
             }
 
             const $filterType  = $('#filterType');
+            const $filterService  = $('#filterService');
             const $filterYear  = $('#filterYear');
             const $filterMonth = $('#filterMonth');
 
             $filterMonth.on('change', function () {
                 $(this).data('userSelected', true);
+                loadChart();
+            });
+
+            $filterService.on('change', function () {
                 loadChart();
             });
 

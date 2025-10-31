@@ -54,7 +54,7 @@ class ServiceRequestController extends Controller
         $this->middleware('auth');
        
         $this->middleware('permission:manage_service_requests',  ['only' => ['index','destroy']]);
-        $this->middleware('permission:view_service_requests',  ['only' => ['index','show']]);
+        $this->middleware('permission:view-annual-retainer-agreement|view-company-setup|view-contract-drafting|view-court-case-submission|view-criminal-complaint|view-debts-collection|view-escrow-accounts|view-expert-report|view-immigration-requests|view-last-will-and-testament|view-memo-writing|view-power-of-attorney|view-request-submission',  ['only' => ['index','show']]);
         $this->middleware('permission:change_request_status',  ['only' => ['updateRequestStatus','updatePaymentStatus','updateInstallmentStatus','assignServiceLawfirm']]);
         $this->middleware('permission:export_service_requests',  ['only' => ['export']]);
 
@@ -200,15 +200,33 @@ class ServiceRequestController extends Controller
 
         if ($request->filled('service_id')) {
             $serviceSlug = $request->service_id;
-            if($serviceSlug === 'law-firm-services'){
-                $slugs = Service::whereHas('parent', function ($query) {
-                    $query->where('slug', 'law-firm-services');
-                })->pluck('slug');
+            if(auth()->user()->can('view-'.$serviceSlug)){
+                if($serviceSlug === 'law-firm-services'){
+                    $slugs = Service::whereHas('parent', function ($query) {
+                        $query->where('slug', 'law-firm-services');
+                    })->pluck('slug');
 
-                $query->whereIn('service_slug', $slugs);
+                    $query->whereIn('service_slug', $slugs);
+                }else{
+                    $query->where('service_slug', $serviceSlug);
+                }   
             }else{
-                $query->where('service_slug', $serviceSlug);
-            }    
+                $query->whereNull('id');
+            }
+             
+        }else{
+            $allowedSlugs = [];
+            foreach ($services as $serv) {
+                $permission = 'view-' . $serv->slug;
+                if (auth()->user()->can($permission)) {
+                    $allowedSlugs[] = $serv->slug;
+                }
+            }
+            if (!empty($allowedSlugs)) {
+                $query->whereIn('service_slug', $allowedSlugs);
+            } else {
+                $query->whereNull('id'); 
+            }
         }
 
         if ($request->filled('status')) {

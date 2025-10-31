@@ -16,33 +16,72 @@ use DB;
 
 class AdminDashboardController extends Controller
 {
-    public function dashboard(){
+    public function dashboard(Request $request){
         $data = [];
-        $services = Service::orderBy('sort_order', 'asc')->get();
-        $serviceCounts = ServiceRequest::selectRaw('service_id, COUNT(*) as total')
-                            ->where('request_success', 1)
-                            ->groupBy('service_id')
-                            ->pluck('total', 'service_id');
 
+        $daterangeCommon = $request->has('daterangeCommon') ? $request->daterangeCommon : null;
+
+        $daterangeCommon = explode(' - ', $daterangeCommon);
+
+        $date1Common = $date2Common = null;
+        if (count($daterangeCommon) == 2) {
+            $date1Common = trim($daterangeCommon[0]);
+            $date2Common = trim($daterangeCommon[1]);
+        }
+
+        $dateFilter = function($query) use ($date1Common, $date2Common) {
+                        if ($date1Common && $date2Common) {
+                            $query->whereDate('created_at', '>=', $date1Common)
+                                ->whereDate('created_at', '<=', $date2Common);
+                        }
+                    };
+
+        $services = Service::where('status', 1)->orderBy('sort_order', 'asc')->get();
+        
         $userCounts = User::select('user_type', DB::raw('count(*) as total'))
                             // ->where('banned', 0)
+                            ->when($date1Common && $date2Common, $dateFilter)
                             ->groupBy('user_type')
                             ->pluck('total', 'user_type');
         
-        $totalJobs = JobPost::count();
-        $totalTrainings = TrainingRequest::count();
+        $totalJobs = JobPost::when($date1Common && $date2Common, $dateFilter)->count();
+        $totalTrainings = TrainingRequest::when($date1Common && $date2Common, $dateFilter)->count();
 
-        $serviceSales = ServiceRequest::where('request_success', 1)->get()->sum('amount');
+        $serviceSales = ServiceRequest::where('request_success', 1)->when($date1Common && $date2Common, $dateFilter)->get()->sum('amount');
 
-        $consultationSales = Consultation::where('request_success', 1)->get()->sum('amount');
+        $consultationSales = Consultation::where('request_success', 1)->when($date1Common && $date2Common, $dateFilter)->get()->sum('amount');
       
         $totalSales = $serviceSales + $consultationSales;
 
         // Service request chart
+
+        $daterangeService = $request->has('daterangeService') ? $request->daterangeService : null;
+
+        $daterangeService = explode(' - ', $daterangeService);
+
+        $date1Service = $date2Service = null;
+        if (count($daterangeService) == 2) {
+            $date1Service = trim($daterangeService[0]);
+            $date2Service = trim($daterangeService[1]);
+        }
+
+        $serviceCounts = ServiceRequest::selectRaw('service_id, COUNT(*) as total')
+                            ->where('request_success', 1)
+                            ->when($date1Service && $date2Service, function($query) use ($date1Service, $date2Service) {
+                                if ($date1Service && $date2Service) {
+                                    $query->whereDate('created_at', '>=', $date1Service)
+                                        ->whereDate('created_at', '<=', $date2Service);
+                                }
+                            })
+                            ->groupBy('service_id')
+                            ->pluck('total', 'service_id');
+
         $chartData = [];
-         $colors = [
+        $colors = [
                 '#06b6d482','#7fffd4','#deb887','#a9a9a9','#bdb76b', '#d2a3ff','#f18989','#90f790','#f7d28e','#f3acf3','#f7f779','#f96565','#a6a6ee','#daa9b2','#b8860b','#9acd32','#059ab3', '#902fec','#ff0000','#008000','#ffa500','#ff00ff','#caca03','#a52a2a', '#5f5ff3','#e36179',
                 ];
+
+        $paymentServices = [];        
         foreach($services as $i => $service){
             if($service->slug != 'law-firm-services'){
                 $chartData[] = [
@@ -50,7 +89,16 @@ class AdminDashboardController extends Controller
                     'y' => $serviceCounts[$service->id] ?? 0,
                     'color' => $colors[$i]
                 ];
+                if($service->payment_active == 1){
+                    $paymentServices[] = [
+                        'name' => $service->name,
+                        'id' => $service->id,
+                        'slug' => $service->slug
+                    ];
+                }
             }
+            
+            
         }
 
         $recentRequests = ServiceRequest::with('service')
@@ -61,7 +109,7 @@ class AdminDashboardController extends Controller
                                         ->get(); 
 
         
-        return view('admin.dashboard', compact('data', 'services','serviceCounts','userCounts','totalJobs','totalTrainings','chartData','recentRequests','totalSales'));
+        return view('admin.dashboard', compact('data', 'services','serviceCounts','userCounts','totalJobs','totalTrainings','chartData','recentRequests','totalSales','paymentServices'));
     }
 
     public function getSalesData(Request $request)
@@ -69,12 +117,19 @@ class AdminDashboardController extends Controller
         $filter = $request->get('filter', 'monthly');
         $year = $request->get('year');
         $month = $request->get('month'); 
+        $service = $request->get('service','all');
 
+        $serviceData = ($service && $service !== 'all') ? Service::where('slug', $service)->first() : null;
        // DB::enableQueryLog();
         $serviceSales = ServiceRequest::when($year, function ($q) use ($year) {
                                         $q->whereYear('created_at', $year);
                                     })
                                     ->when($filter === 'daily' && $month, fn($q) => $q->whereMonth('created_at', $month))
+                                    ->when($service, function($query) use ($service) {
+                                        if ($service !== 'all' && $service !== 'online-live-consultancy') {
+                                            $query->where('service_slug', $service);
+                                        }
+                                    })
                                     ->where('request_success', 1)
                                     // ->whereNotNull('payment_reference')
                                     ->get(['amount', 'created_at']);
@@ -89,7 +144,13 @@ class AdminDashboardController extends Controller
         $serviceSales = collect($serviceSales);
         $consultationSales = collect($consultationSales);
 
-        $sales = $serviceSales->merge($consultationSales);
+        if ($service === 'all') {
+            $sales = $serviceSales->merge($consultationSales);
+        } elseif ($service === 'online-live-consultancy') {
+            $sales = $consultationSales;
+        } else {
+            $sales = $serviceSales; 
+        } 
 
         $getKey = function ($item, $filter) {
             $dt = $item->created_at ?? ($item['created_at'] ?? null);
@@ -174,6 +235,7 @@ class AdminDashboardController extends Controller
         $response = [
             'labels' => array_keys($labels),
             'data'   => array_values($labels),
+            'title'  => $service === 'all' ? 'All Services' : $serviceData?->name,
         ];
 
         return response()->json($response);
