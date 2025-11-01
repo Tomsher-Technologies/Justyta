@@ -134,23 +134,23 @@
                     </button>
                 </div> --}}
 
-                <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full">
-                <div class="relative w-full flex-1 max-w-5xl">
-                    <!-- Remote Video Large -->
-                    <video-player-container id="remote-video"
-                        class="relative w-full h-full bg-black rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(2,6,23,0.3)]">
-                        <div id="guest-name" class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white text-sm font-medium px-3 py-1 rounded-lg pointer-events-none max-w-[120px] truncate">
-                        </div>
-
-                        <!-- Local Video Small Floating INSIDE remote video -->
-                        <video-player-container id="local-video"
-                            class="absolute z-50 right-4 bottom-4 w-28 md:w-40 lg:w-52 aspect-video bg-black rounded-xl overflow-hidden shadow-[0_6px_18px_rgba(0,0,0,0.45)] border border-white/30 transition-transform transform-gpu hover:scale-[1.03] touch-none" style="position: absolute !important;">
-                            <div id="user-name"
-                                class="absolute bottom-1 left-1 bg-black/65 text-white text-xs px-2 py-0.5 rounded max-w-[90px] truncate">
+                <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full bg-black">
+                    <div class="relative w-full flex-1 max-w-5xl bg-black">
+                        <!-- Remote Video Large -->
+                        <video-player-container id="remote-video"
+                            class="relative w-full h-full bg-black rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(2,6,23,0.3)]">
+                            <div id="guest-name" class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white text-sm font-medium px-3 py-1 rounded-lg pointer-events-none max-w-[120px] truncate">
                             </div>
+
+                            <!-- Local Video Small Floating INSIDE remote video -->
+                            <video-player-container id="local-video"
+                                class="absolute z-50 right-4 bottom-4 w-28 md:w-40 lg:w-52 aspect-video bg-black rounded-xl overflow-hidden shadow-[0_6px_18px_rgba(0,0,0,0.45)] border border-white/30 transition-transform transform-gpu hover:scale-[1.03] touch-none" style="position: absolute !important;">
+                                <div id="user-name"
+                                    class="absolute bottom-1 left-1 bg-black/65 text-white text-xs px-2 py-0.5 rounded max-w-[90px] truncate">
+                                </div>
+                            </video-player-container>
                         </video-player-container>
-                    </video-player-container>
-                </div>
+                    </div>
 
                 <!-- Controls -->
                 <div
@@ -374,7 +374,7 @@
                     // }, 3000);
 
                     await startCall(data.data, '{{ addslashes(auth()->user()->name) }}');
-                    
+
                 }
             });
 
