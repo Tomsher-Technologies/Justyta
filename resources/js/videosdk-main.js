@@ -28,7 +28,7 @@
 
     async function startCall(data, username) {
         console.log("data", data);
-
+        window.consultation_id = data.consultation_id;
         if (!isSecure) {
             alert(
                 "This app requires a secure context for camera/mic. Open via HTTPS or run on localhost."
@@ -160,6 +160,17 @@
         document.querySelector("#user-name").innerHTML = '';
         await client.leave();
         stopCallTimer();
+        await fetch(window.consultationStatusUpdateUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': window.csrfToken
+            },
+            body: JSON.stringify({
+                consultation_id: window.consultation_id,
+                status: 'completed'
+            })
+        });
     }
 
     async function toggleVideo() {

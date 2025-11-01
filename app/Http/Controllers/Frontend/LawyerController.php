@@ -112,6 +112,14 @@ class LawyerController extends Controller
         $consultation = Consultation::find($request->consultation_id);
         if ($consultation) {
             $consultation->status = $request->status;
+
+            if($request->status == 'in_progress'){
+                $consultation->meeting_start_time = now();
+            }
+
+            if($request->status == 'completed'){
+                $consultation->meeting_end_time = now();
+            }
             $consultation->save();
 
             unreserveLawyer($consultation->lawyer_id);
