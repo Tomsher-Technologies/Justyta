@@ -17,7 +17,7 @@
                                         </form>
 
                                         <a href="{{ route('admin.dashboard') }}" class="m-auto" id="resetDashboardDate" title="Reset Filter">
-                                            <i class="fas fa-sync-alt" style="font-size: 20px; color:#08683d;"></i>
+                                            <i class="fas fa-sync-alt ml-3" style="font-size: 20px; color:#08683d;"></i>
                                         </a>
                                     </div>
                                 </div>
@@ -112,7 +112,7 @@
                                 </form>
 
                                 <a href="{{ route('admin.dashboard') }}" class="m-auto" id="resetDashboardDate" title="Reset Filter">
-                                    <i class="fas fa-sync-alt" style="font-size: 20px; color:#08683d;"></i>
+                                    <i class="fas fa-sync-alt ml-3" style="font-size: 20px; color:#08683d;"></i>
                                 </a>
                             </div>
                         </div>
