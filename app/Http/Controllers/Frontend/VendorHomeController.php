@@ -1331,7 +1331,7 @@ class VendorHomeController extends Controller
                                 $totalHours = $rate->urgent_hours_above_50;
                             }
                         }
-
+                       
                         $delivery = $rate->deliveries->first();
                         $admin_amount = $delivery->admin_amount * $pages;
                         $translator_amount = $delivery->translator_amount * $pages;
