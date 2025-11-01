@@ -1369,13 +1369,11 @@ class VendorHomeController extends Controller
 
             Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest));
 
-            $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+            $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
             Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
 
             return redirect()->route('vendor.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         } else {
-            $pageData = getPageDynamicContent('request_payment_failed', $lang);
-
             $serviceSlug = $serviceRequest->service_slug;
             $requestId   = $serviceRequest->id;
 

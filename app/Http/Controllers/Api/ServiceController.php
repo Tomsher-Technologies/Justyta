@@ -1201,7 +1201,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-court-case-submission', 'change-status-court-case-submission']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -1328,7 +1328,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-criminal-complaint', 'change-status-criminal-complaint']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -1434,7 +1434,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-last-will-and-testament','change-status-last-will-and-testament']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -1572,7 +1572,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-power-of-attorney','change-status-power-of-attorney']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -1699,7 +1699,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-memo-writing', 'change-status-memo-writing']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -1771,7 +1771,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-escrow-accounts','change-status-escrow-accounts']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -1892,7 +1892,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-debts-collection','change-status-debts-collection']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -2008,7 +2008,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-company-setup', 'change-status-company-setup']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -2137,7 +2137,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-contract-drafting','change-status-contract-drafting']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -3365,7 +3365,7 @@ class ServiceController extends Controller
 
                 $request->user()->notify(new ServiceRequestSubmitted($serviceRequest));
 
-                $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+                $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
                 Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
                 
                 return response()->json([
