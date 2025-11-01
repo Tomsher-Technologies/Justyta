@@ -1279,7 +1279,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-court-case-submission', 'change-status-court-case-submission']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -1392,7 +1392,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-criminal-complaint', 'change-status-criminal-complaint']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -1485,7 +1485,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-last-will-and-testament','change-status-last-will-and-testament']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -1544,7 +1544,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-escrow-accounts','change-status-escrow-accounts']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -1648,7 +1648,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-debts-collection','change-status-debts-collection']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -1759,7 +1759,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-memo-writing', 'change-status-memo-writing']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -1941,7 +1941,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-power-of-attorney','change-status-power-of-attorney']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -2057,7 +2057,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-contract-drafting','change-status-contract-drafting']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -2160,7 +2160,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-company-setup', 'change-status-company-setup']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -3174,13 +3174,12 @@ class ServiceRequestController extends Controller
 
             Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest));
 
-            $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+            $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
             Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
 
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         } else {
-            $pageData = getPageDynamicContent('request_payment_failed', $lang);
-
+            
             if ($serviceRequest->service_slug === 'expert-report') {
                 $serviceRequest->update([
                     'payment_status' => 'failed',
@@ -3191,7 +3190,7 @@ class ServiceRequestController extends Controller
 
                 Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest));
 
-                $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+                $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
                 Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
             } else {
 

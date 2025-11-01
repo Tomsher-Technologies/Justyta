@@ -55,12 +55,14 @@ class ServiceRequestController extends Controller
        
         $this->middleware('permission:manage_service_requests',  ['only' => ['index','destroy']]);
         $this->middleware('permission:view-annual-retainer-agreement|view-company-setup|view-contract-drafting|view-court-case-submission|view-criminal-complaint|view-debts-collection|view-escrow-accounts|view-expert-report|view-immigration-requests|view-last-will-and-testament|view-memo-writing|view-power-of-attorney|view-request-submission',  ['only' => ['index','show']]);
-        $this->middleware('permission:change_request_status',  ['only' => ['updateRequestStatus','updatePaymentStatus','updateInstallmentStatus','assignServiceLawfirm']]);
-        $this->middleware('permission:export_service_requests',  ['only' => ['export']]);
+
+        $this->middleware('permission:change-status-annual-retainer-agreement|change-status-company-setup|change-status-contract-drafting|change-status-court-case-submission|change-status-criminal-complaint|change-status-debts-collection|change-status-escrow-accounts|change-status-expert-report|change-status-immigration-requests|change-status-last-will-and-testament|change-status-memo-writing|change-status-power-of-attorney|change-status-request-submission|change_translation_request_status',  ['only' => ['updateRequestStatus','updatePaymentStatus','updateInstallmentStatus','assignServiceLawfirm']]);
+
+        $this->middleware('permission:export-annual-retainer-agreement|export-company-setup|export-contract-drafting|export-court-case-submission|export-criminal-complaint|export-debts-collection|export-escrow-accounts|export-expert-report|export-immigration-requests|export-last-will-and-testament|export-memo-writing|export-power-of-attorney|export-request-submission',  ['only' => ['export']]);
 
         $this->middleware('permission:manage_translation_requests',  ['only' => ['indexTranslation']]);
         $this->middleware('permission:view_translation_requests',  ['only' => ['indexTranslation','showTranslationRequest']]);
-        $this->middleware('permission:change_translation_request_status',  ['only' => ['updateRequestStatus','updatePaymentStatus']]);
+       
         $this->middleware('permission:export_translation_requests',  ['only' => ['exportLegalTranslationRequests']]);
     }
 
