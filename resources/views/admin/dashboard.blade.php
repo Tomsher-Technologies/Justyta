@@ -293,7 +293,7 @@
 
                                                 <td class="text-center">{{ date('d, M Y h:i A', strtotime($serviceReq->submitted_at)) }}</td>
                                                 <td class="text-center">
-                                                    @can('view_service_requests')
+                                                    @can('view-'.$serviceReq->service_slug)
                                                         <div class="table-actions">
                                                             <a href="{{ route('service-request-details', base64_encode($serviceReq->id)) }}"
                                                                 title="View Service Request">

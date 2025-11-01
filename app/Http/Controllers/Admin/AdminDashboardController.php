@@ -81,7 +81,13 @@ class AdminDashboardController extends Controller
                 '#06b6d482','#7fffd4','#deb887','#a9a9a9','#bdb76b', '#d2a3ff','#f18989','#90f790','#f7d28e','#f3acf3','#f7f779','#f96565','#a6a6ee','#daa9b2','#b8860b','#9acd32','#059ab3', '#902fec','#ff0000','#008000','#ffa500','#ff00ff','#caca03','#a52a2a', '#5f5ff3','#e36179',
                 ];
 
-        $paymentServices = [];        
+        $paymentServices = [];       
+        
+        $services = $services->filter(function($service) {
+                            return auth()->user()->can('view-' . $service->slug);
+                        })->values();
+
+        $allowedServiceSlugs = [];
         foreach($services as $i => $service){
             if($service->slug != 'law-firm-services'){
                 $chartData[] = [
@@ -97,14 +103,18 @@ class AdminDashboardController extends Controller
                     ];
                 }
             }
-            
-            
+
+            $permission = 'view-' . $service->slug;
+            if (auth()->user()->can($permission)) {
+                $allowedServiceSlugs[] = $service->slug;
+            }
         }
 
         $recentRequests = ServiceRequest::with('service')
                                         ->where('request_success', 1)
                                         ->whereNotIn('service_slug',['legal-translation'])
                                         ->orderByDesc('id')
+                                        ->whereIn('service_slug', $allowedServiceSlugs)
                                         ->limit(10)
                                         ->get(); 
 
