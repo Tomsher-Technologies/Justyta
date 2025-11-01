@@ -118,22 +118,6 @@
             @yield('content')
             <div class="max-w-5xl mx-auto p-6">
                 <h2 class="text-2xl font-semibold mb-4">Incoming Consultations</h2>
-
-                {{-- <video-player-container></video-player-container>
-                <div class="flex flex-row self-center">
-
-                    <button id="stop-btn"
-                        class=" bg-blue-500 text-white font-bold py-2 px-4 rounded mb-4 w-64 self-center">
-                        Leave
-                    </button>
-                </div>
-                <div class="flex flex-row self-center m-2">
-                    <button id="toggle-video-btn"
-                        class="hidden bg-blue-500 text-white py-2 text-sm px-2 rounded w-48 self-center">
-                        Toggle Video
-                    </button>
-                </div> --}}
-
                 <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full bg-black">
                     <div class="relative w-full flex-1 max-w-5xl bg-black">
                         <!-- Remote Video Large -->

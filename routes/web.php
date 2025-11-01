@@ -47,6 +47,10 @@ Route::get('success-consultation-payment', [ServiceRequestController::class, 'co
 Route::get('cancel-consultation-payment', [ServiceRequestController::class, 'consultationPaymentCancel'])->name('consultationCancelPayment');
 Route::post('network-webhook', [ServiceRequestController::class, 'networkWebhook'])->name('network-webhook');
 
+Route::post('/consultation/start-time', [HomeController::class, 'saveStartTime']);
+Route::get('/consultation/start-time/{id}', [HomeController::class, 'getStartTime']);
+
+
 // Protected Dashboards
 Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:lawyer'])->group(function () {
     Route::get('/dashboard', [LawyerController::class, 'lawyerDashboard'])->name('lawyer.dashboard');
