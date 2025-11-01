@@ -56,6 +56,7 @@ class LawyerController extends Controller
                 'case_stage' => $assignment->consultation?->caseStage?->getTranslation('name', $lang),
                 'language' => $assignment->consultation?->languageValue?->getTranslation('name', $lang),
                 'duration' => $assignment->consultation?->duration,
+                'role' => 1
             ]
         ],200);
     }
@@ -112,10 +113,6 @@ class LawyerController extends Controller
         $consultation = Consultation::find($request->consultation_id);
         if ($consultation) {
             $consultation->status = $request->status;
-
-            if($request->status == 'in_progress'){
-                $consultation->meeting_start_time = now();
-            }
 
             if($request->status == 'completed'){
                 $consultation->meeting_end_time = now();

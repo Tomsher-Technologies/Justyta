@@ -16,19 +16,11 @@
     );
     const isSecure = window.isSecureContext || isLocalhost;
 
-    // function generateSignature(sessionName, role, key, secret){
-    //   const K = window.KJUR;
-    //   if (!(window.KJUR && ((window.KJUR.jws && window.KJUR.jws.JWS) || (window.KJUR.KJUR && window.KJUR.KJUR.jws && window.KJUR.KJUR.jws.JWS)))) { console.error('KJUR (jsrsasign) not available.'); return ''; }
-    //   const iat = Math.floor(Date.now()/1000) - 30;
-    //   const exp = iat + 60*60*2;
-    //   const oHeader = { alg: 'HS256', typ: 'JWT' };
-    //   const oPayload = { app_key: key, tpc: sessionName, role_type: role, version: 1, iat, exp };
-    //   return (window.KJUR.jws ? window.KJUR.jws : window.KJUR.KJUR.jws).JWS.sign('HS256', JSON.stringify(oHeader), JSON.stringify(oPayload), secret);
-    // }
-
     async function startCall(data, username) {
         console.log("data", data);
         window.consultation_id = data.consultation_id;
+        window.userRole = data.role;
+
         if (!isSecure) {
             alert(
                 "This app requires a secure context for camera/mic. Open via HTTPS or run on localhost."
@@ -36,10 +28,10 @@
             return;
         }
         await client.init("en-US", "Global", { patchJsMedia: true });
-        // if (!sdkKey || !sdkSecret) { alert('Missing ZOOM_SDK_KEY or ZOOM_SDK_SECRET'); return; }
-        // const token = generateSignature(topic, role, sdkKey, sdkSecret);
-        // if (!token) { alert('Failed to generate token. Check jsrsasign load.'); return; }
+      
         client.on("peer-video-state-change", renderVideo);
+        client.on("user-added", onUserJoined);
+        client.on("user-removed", onUserLeft);
         await client.join(data.meeting_number, data.signature, username);
         const mediaStream = client.getMediaStream();
         await mediaStream.startAudio();
@@ -49,50 +41,46 @@
             userId: client.getCurrentUserInfo().userId,
             userName: username,
         });
-        const sessionInfo = client.getSessionInfo();
-        console.log("sessionInfoTimer", sessionInfo);
-        const baseTime = sessionInfo.startTime || Date.now();
-
+       
         document.getElementById('video-call-container').classList.remove('hidden');
-        startCallTimer(baseTime);
+        const response = await fetch(`/consultation/start-time/${data.consultation_id}`);
+        const result = await response.json();
+
+        if (result.start_time) {
+            window.zoomCallStartTime = result.start_time;
+            startCallTimer(result.start_time);
+        }
     }
 
-    // async function renderVideo(event) {
-    //     const mediaStream = client.getMediaStream();
-    //     if (event.action === "Stop") {
-    //         const element = await mediaStream.detachVideo(event.userId);
-    //         Array.isArray(element)
-    //             ? element.forEach((el) => el.remove())
-    //             : element && element.remove && element.remove();
-    //     } else {
-    //         const userVideo = await mediaStream.attachVideo(
-    //             event.userId,
-    //             2 /* Video_360P */
-    //         );
-    //         if (userVideo) {
-    //             console.log(
-    //                 "Attached video element:",
-    //                 userVideo.tagName || userVideo.nodeName,
-    //                 userVideo
-    //             );
-    //             if (videoContainer) {
-    //                 videoContainer.appendChild(userVideo);
-    //             }
-    //             try {
-    //                 setTimeout(() => {
-    //                     console.log(
-    //                         "Video rect:",
-    //                         userVideo.getBoundingClientRect()
-    //                     );
-    //                 }, 150);
-    //             } catch (e) {}
-    //         } else {
-    //             console.warn("attachVideo returned no element");
-    //         }
-    //         if (videoContainer && userVideo)
-    //             videoContainer.appendChild(userVideo);
-    //     }
-    // }
+    let callStarted = false;
+
+    async function onUserJoined(user) {
+        if (!callStarted) {
+            callStarted = true;
+
+            const now = Date.now();
+
+            // store start time only once
+            await fetch("/consultation/start-time", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": window.csrfToken
+                },
+                body: JSON.stringify({
+                    consultation_id: window.consultation_id,
+                    start_time: now
+                })
+            });
+
+            window.zoomCallStartTime = now;
+            startCallTimer(now);
+        }
+    }
+
+    function onUserLeft() {
+        stopCallTimer();
+    }
 
     async function renderVideo(event) {
         const mediaStream = client.getMediaStream();

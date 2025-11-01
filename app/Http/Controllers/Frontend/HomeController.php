@@ -65,10 +65,34 @@ class HomeController extends Controller
             'data'=>[
                 'consultation_id'=>$consultation->id,
                 'meeting_number'=>$consultation->zoom_meeting_id,
-                'role'=>0,
+                'role'=> 0,
                 'sdk_key'=>config('services.zoom.sdk_key'),
                 'signature'=>$signature
             ]
         ]);
     }
+
+    public function saveStartTime(Request $request)
+    {
+        $consult = Consultation::find($request->consultation_id);
+
+        $consult->status = 'in_progress';
+
+        if (!$consult->meeting_start_time) {
+            $consult->meeting_start_time = $request->start_time;
+        }
+        $consult->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function getStartTime($id)
+    {
+        $consult = Consultation::find($id);
+
+        return response()->json([
+            'start_time' => $consult->meeting_start_time ?? null
+        ]);
+    }
+
 }

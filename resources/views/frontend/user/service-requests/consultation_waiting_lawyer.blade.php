@@ -82,7 +82,7 @@
             </div>
 
             <!-- Video Call Container -->
-            <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full">
+            <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full bg-black">
                 <div class="relative w-full flex-1 max-w-5xl">
                     <!-- Remote Video Large -->
                     <video-player-container id="remote-video"
