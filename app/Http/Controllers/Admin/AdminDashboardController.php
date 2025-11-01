@@ -82,6 +82,19 @@ class AdminDashboardController extends Controller
                 ];
 
         $paymentServices = [];       
+
+        foreach($services as $i => $service){
+            if($service->slug != 'law-firm-services'){
+                if($service->payment_active == 1){
+                    $paymentServices[] = [
+                        'name' => $service->name,
+                        'id' => $service->id,
+                        'slug' => $service->slug
+                    ];
+                }
+            }
+        }
+
         
         $services = $services->filter(function($service) {
                             return auth()->user()->can('view-' . $service->slug);
