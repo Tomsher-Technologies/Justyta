@@ -108,13 +108,6 @@ class AdminDashboardController extends Controller
                     'y' => $serviceCounts[$service->id] ?? 0,
                     'color' => $colors[$i]
                 ];
-                if($service->payment_active == 1){
-                    $paymentServices[] = [
-                        'name' => $service->name,
-                        'id' => $service->id,
-                        'slug' => $service->slug
-                    ];
-                }
             }
 
             $permission = 'view-' . $service->slug;
