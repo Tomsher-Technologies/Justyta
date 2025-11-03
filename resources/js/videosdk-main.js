@@ -255,6 +255,8 @@
             const now = Date.now();
             const elapsedMs = now - callStartTime;
 
+            console.log('********************************************************************************');
+            console.log("Duration:", window.callDurationLimit);
             // If duration defined
             if (window.callDurationLimit) {
                 const remainingMs = window.callDurationLimit - elapsedMs;
@@ -271,6 +273,7 @@
                 const remainingSeconds = Math.floor(remainingMs / 1000);
                 const rMin = Math.floor(remainingSeconds / 60);
                 const rSec = remainingSeconds % 60;
+                console.log(`Remaining Time: ${rMin}:${rSec}`);
                 countdownElement.textContent =
                     `Time Left: ${String(rMin).padStart(2, "0")}:${String(rSec).padStart(2, "0")}`;
             }
