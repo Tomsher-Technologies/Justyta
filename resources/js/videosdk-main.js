@@ -252,7 +252,7 @@
         if (timerInterval) clearInterval(timerInterval);
 
         timerInterval = setInterval(async () => {
-            const now = Date.now();
+            now = Date.now();
             const elapsedMs = now - callStartTime;
 
             console.log('********************************************************************************');
