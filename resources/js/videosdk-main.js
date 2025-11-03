@@ -268,7 +268,7 @@
                     countdownElement.textContent = "Time Left: 00:00";
                     console.log("Meeting duration reached. Ending call...");
                     stopCallTimer();
-                    await leaveCall();
+                    
                     alert("Your consultation time has ended.");
                     return;
                 }
