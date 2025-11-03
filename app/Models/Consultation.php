@@ -10,7 +10,7 @@ class Consultation extends Model
     protected $fillable = [
         'user_id','ref_code','applicant_type','litigation_type','consultant_type',
         'emirate_id','you_represent','case_type','case_stage','language',
-        'duration','amount','lawyer_id','status','zoom_meeting_id','zoom_join_url','meeting_start_time','meeting_end_time','is_completed'
+        'duration','amount','lawyer_id','status','zoom_meeting_id','zoom_join_url','meeting_start_time','meeting_end_time','is_completed','is_extended'
     ];
 
     public function user() {

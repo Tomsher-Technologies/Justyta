@@ -20,6 +20,8 @@
         console.log("data", data);
         window.consultation_id = data.consultation_id;
         window.userRole = data.role;
+        // window.callDurationLimit = data.duration * 60 * 1000; 
+        window.callDurationLimit = 1 * 60 * 1000;
 
         if (!isSecure) {
             alert(
@@ -80,6 +82,7 @@
 
     function onUserLeft() {
         stopCallTimer();
+        leaveCall();
     }
 
     async function renderVideo(event) {
@@ -216,6 +219,8 @@
     if (stopBtn && toggleVideoBtn && mute) {
         stopBtn.addEventListener("click", async () => {
             toggleVideoBtn.style.display = "none";
+            mute.style.display = "none";
+            stopCallTimer();
             await leaveCall();
             stopBtn.style.display = "none";
            
@@ -246,16 +251,30 @@
 
         if (timerInterval) clearInterval(timerInterval);
 
-        timerInterval = setInterval(() => {
+        timerInterval = setInterval(async () => {
             const elapsedMs = Date.now() - callStartTime;
+
+            // Auto end check
+            if (window.callDurationLimit && elapsedMs >= window.callDurationLimit) {
+                console.log("Meeting duration reached. Ending call automatically...");
+                stopCallTimer();
+                await leaveCall();
+
+                // Optionally show alert/UI message
+                alert("Your consultation time is over.");
+                return;
+            }
+
             const totalSeconds = Math.floor(elapsedMs / 1000);
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
             const seconds = totalSeconds % 60;
+
             timerElement.textContent =
                 (hours > 0 ? `${String(hours).padStart(2, "0")}:` : "") +
                 `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
         }, 1000);
+
     }
 
     function stopCallTimer() {
