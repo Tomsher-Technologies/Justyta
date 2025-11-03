@@ -80,7 +80,7 @@ class HomeController extends Controller
         $consult->status = 'in_progress';
 
         if (!$consult->meeting_start_time) {
-            $consult->meeting_start_time = $request->start_time;
+            $consult->meeting_start_time = date('Y-m-d H:i:s', strtotime($request->start_time));
         }
         $consult->save();
 
