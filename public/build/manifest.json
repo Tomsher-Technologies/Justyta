@@ -1,6 +1,6 @@
 {
-  "_daterangepicker-Bqqnzq_t.js": {
-    "file": "assets/daterangepicker-Bqqnzq_t.js",
+  "_daterangepicker-DuSD5pfk.js": {
+    "file": "assets/daterangepicker-DuSD5pfk.js",
     "name": "daterangepicker",
     "isDynamicEntry": true,
     "imports": [
@@ -13,12 +13,12 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-BHngLc4I.js",
+    "file": "assets/app-U5fZni74.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "dynamicImports": [
-      "_daterangepicker-Bqqnzq_t.js"
+      "_daterangepicker-DuSD5pfk.js"
     ],
     "css": [
       "assets/app-Dxa3t2xW.css"

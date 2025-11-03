@@ -20,8 +20,8 @@
         console.log("data", data);
         window.consultation_id = data.consultation_id;
         window.userRole = data.role;
-        // window.callDurationLimit = data.duration * 60 * 1000; 
-        window.callDurationLimit = 1 * 60 * 1000;
+        window.callDurationLimit = data.duration * 60 * 1000; 
+        // window.callDurationLimit = 1 * 60 * 1000;
 
         if (!isSecure) {
             alert(
