@@ -55,7 +55,7 @@ class LawyerController extends Controller
                 'case_type' => $assignment->consultation?->caseType?->getTranslation('name', $lang),
                 'case_stage' => $assignment->consultation?->caseStage?->getTranslation('name', $lang),
                 'language' => $assignment->consultation?->languageValue?->getTranslation('name', $lang),
-                'duration' => $assignment->consultation?->duration,
+                'duration' => $assignment->consultation?->duration ?? 0,
                 'role' => 1
             ]
         ],200);

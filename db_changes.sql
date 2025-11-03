@@ -112,3 +112,6 @@
 -- INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, '59', 'export-request-submission', 'Export - Request Submission Requests', 'web', '1', NULL, NULL);
 -- INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, '59', 'change-status-request-submission', 'Change Status - Request Submission Requests', 'web', '1', NULL, NULL);
 -- INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, '59', 'sales-request-submission', 'View Sales - Request Submission Requests', 'web', '1', NULL, NULL);
+
+
+ALTER TABLE `consultations` ADD `is_extended` TINYINT(1) NOT NULL DEFAULT '0' AFTER `amount`;
