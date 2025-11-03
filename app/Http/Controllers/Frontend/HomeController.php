@@ -80,7 +80,8 @@ class HomeController extends Controller
         $consult->status = 'in_progress';
 
         if (!$consult->meeting_start_time) {
-            $consult->meeting_start_time = date('Y-m-d H:i:s', strtotime($request->start_time));
+            $start_time = $request->start_time / 1000;
+            $consult->meeting_start_time = date('Y-m-d H:i:s', strtotime($start_time));
         }
         $consult->save();
 
@@ -92,7 +93,7 @@ class HomeController extends Controller
         $consult = Consultation::find($id);
 
         return response()->json([
-            'start_time' => $consult->meeting_start_time ?? null
+            'start_time' => strtotime($consult->meeting_start_time) * 1000 ?? null
         ]);
     }
 
