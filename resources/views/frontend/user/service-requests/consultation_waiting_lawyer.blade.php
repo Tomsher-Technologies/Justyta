@@ -119,6 +119,8 @@
                         <span class="text-xs mt-1 font-medium">End</span>
                     </button>
                     <div id="call-timer" class="text-gray-700 font-bold text-lg min-w-[80px] text-center">00:00</div>
+                    <div id="call-countdown" class="text-sm text-gray-500"></div>
+
                 </div>
             </div>
         </div>
