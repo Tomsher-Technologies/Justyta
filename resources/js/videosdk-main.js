@@ -256,7 +256,10 @@
             const elapsedMs = nowTime - callStartTime;
 
             console.log('********************************************************************************');
+            console.log("Start Time:", callStartTime);
+            console.log("Elapsed Time:", elapsedMs);
             console.log("Duration:", window.callDurationLimit);
+            console.log('===============================================================================');
             // If duration defined
             if (window.callDurationLimit) {
                 const remainingMs = window.callDurationLimit - elapsedMs;
