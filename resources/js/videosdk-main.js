@@ -151,17 +151,17 @@
         document.querySelector("#user-name").innerHTML = '';
         await client.leave();
         stopCallTimer();
-        await fetch(window.consultationStatusUpdateUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': window.csrfToken
-            },
-            body: JSON.stringify({
-                consultation_id: window.consultation_id,
-                status: 'completed'
-            })
-        });
+        // await fetch(window.consultationStatusUpdateUrl, {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'X-CSRF-TOKEN': window.csrfToken
+        //     },
+        //     body: JSON.stringify({
+        //         consultation_id: window.consultation_id,
+        //         status: 'completed'
+        //     })
+        // });
     }
 
     async function toggleVideo() {
@@ -268,7 +268,7 @@
                     countdownElement.textContent = "Time Left: 00:00";
                     console.log("Meeting duration reached. Ending call...");
                     stopCallTimer();
-                    
+                    await leaveCall();
                     alert("Your consultation time has ended.");
                     return;
                 }
