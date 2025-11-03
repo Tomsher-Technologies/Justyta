@@ -81,11 +81,9 @@ class HomeController extends Controller
 
         if (!$consult->meeting_start_time) {
             $start_time = $request->start_time / 1000; 
-            $consult->meeting_start_time = date('Y-m-d H:i:s', strtotime($start_time));
+            $consult->meeting_start_time = date('Y-m-d H:i:s');
         }
-        echo date('Y-m-d H:i:s', strtotime($start_time));
         $consult->save();
-die;
         return response()->json(['success' => true]);
     }
 
