@@ -245,24 +245,34 @@
 
     function startCallTimer(baseTime = null) {
         const timerElement = document.getElementById("call-timer");
+        const countdownElement = document.getElementById("call-countdown");
 
-        // Use provided base time (same for everyone) or local time as fallback
         callStartTime = baseTime ? new Date(baseTime).getTime() : Date.now();
 
         if (timerInterval) clearInterval(timerInterval);
 
         timerInterval = setInterval(async () => {
-            const elapsedMs = Date.now() - callStartTime;
+            const now = Date.now();
+            const elapsedMs = now - callStartTime;
 
-            // Auto end check
-            if (window.callDurationLimit && elapsedMs >= window.callDurationLimit) {
-                console.log("Meeting duration reached. Ending call automatically...");
-                stopCallTimer();
-                await leaveCall();
+            // If duration defined
+            if (window.callDurationLimit) {
+                const remainingMs = window.callDurationLimit - elapsedMs;
 
-                // Optionally show alert/UI message
-                alert("Your consultation time is over.");
-                return;
+                if (remainingMs <= 0) {
+                    countdownElement.textContent = "Time Left: 00:00";
+                    console.log("Meeting duration reached. Ending call...");
+                    stopCallTimer();
+                    await leaveCall();
+                    alert("Your consultation time has ended.");
+                    return;
+                }
+
+                const remainingSeconds = Math.floor(remainingMs / 1000);
+                const rMin = Math.floor(remainingSeconds / 60);
+                const rSec = remainingSeconds % 60;
+                countdownElement.textContent =
+                    `Time Left: ${String(rMin).padStart(2, "0")}:${String(rSec).padStart(2, "0")}`;
             }
 
             const totalSeconds = Math.floor(elapsedMs / 1000);
@@ -274,8 +284,8 @@
                 (hours > 0 ? `${String(hours).padStart(2, "0")}:` : "") +
                 `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
         }, 1000);
-
     }
+
 
     function stopCallTimer() {
         if (timerInterval) clearInterval(timerInterval);

@@ -49,7 +49,7 @@ Route::post('network-webhook', [ServiceRequestController::class, 'networkWebhook
 
 Route::post('/consultation/start-time', [HomeController::class, 'saveStartTime']);
 Route::get('/consultation/start-time/{id}', [HomeController::class, 'getStartTime']);
-
+Route::post('/consultation/update-status', [LawyerController::class, 'updateConsultationStatus'])->name('consultation.status.update');
 
 // Protected Dashboards
 Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:lawyer'])->group(function () {
@@ -58,8 +58,7 @@ Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:law
     Route::get('/lawyer/video', [LawyerController::class, 'lawyerDashboard'])->name('web.lawyer.video');
     Route::get('/web/lawyer/poll', [LawyerController::class, 'poll'])->name('web.lawyer.poll');
     Route::post('/web/lawyer/response', [LawyerController::class, 'lawyerResponse'])->name('web.lawyer.response');
-    Route::post('/consultation/update-status', [LawyerController::class, 'updateConsultationStatus'])
-    ->name('consultation.status.update');
+    
 });
 
 Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:vendor'])->group(function () {
