@@ -252,8 +252,8 @@
         if (timerInterval) clearInterval(timerInterval);
 
         timerInterval = setInterval(async () => {
-            now = Date.now();
-            const elapsedMs = now - callStartTime;
+            const nowTime = Date.now();
+            const elapsedMs = nowTime - callStartTime;
 
             console.log('********************************************************************************');
             console.log("Duration:", window.callDurationLimit);
