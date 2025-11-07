@@ -97,7 +97,8 @@ class LawyerController extends Controller
                     'meeting_number' => $consultation->zoom_meeting_id,
                     'role' => 1,
                     'sdk_key' => config('services.zoom.sdk_key'),
-                    'signature' => $signature
+                    'signature' => $signature,
+                    'duration' => $consultation->duration ?? 0
                 ]
             ]);
         }

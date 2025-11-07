@@ -276,11 +276,11 @@
                                                     @php
                                                         $paymentStatus = '-';
                                                         if(in_array($serviceReq->payment_status, ['pending','failed'])){
-                                                            $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span>';
+                                                            $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span><br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }elseif($serviceReq->payment_status === 'success'){
-                                                            $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span>';
+                                                            $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span><br><small>AED '.($serviceReq->amount ?? 0).'</small>';
                                                         }elseif($serviceReq->payment_status === 'partial'){
-                                                            $paymentStatus = '<span class="badge badge-pill badge-warning">Partially Paid</span>';
+                                                            $paymentStatus = '<span class="badge badge-pill badge-warning">Partially Paid</span><br><small>AED '.($serviceReq->amount ?? 0).'</small>';
                                                         }
                                                     @endphp     
                                                     {!! $paymentStatus !!}

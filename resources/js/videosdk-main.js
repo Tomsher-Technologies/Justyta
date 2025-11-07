@@ -261,25 +261,25 @@
             console.log("Duration:", window.callDurationLimit);
             console.log('===============================================================================');
             // If duration defined
-            if (window.callDurationLimit) {
-                const remainingMs = window.callDurationLimit - elapsedMs;
+            // if (window.callDurationLimit) {
+            //     const remainingMs = window.callDurationLimit - elapsedMs;
 
-                if (remainingMs <= 0) {
-                    countdownElement.textContent = "Time Left: 00:00";
-                    console.log("Meeting duration reached. Ending call...");
-                    stopCallTimer();
-                    await leaveCall();
-                    alert("Your consultation time has ended.");
-                    return;
-                }
+            //     if (remainingMs <= 0) {
+            //         countdownElement.textContent = "Time Left: 00:00";
+            //         console.log("Meeting duration reached. Ending call...");
+            //         stopCallTimer();
+            //         await leaveCall();
+            //         alert("Your consultation time has ended.");
+            //         return;
+            //     }
 
-                const remainingSeconds = Math.floor(remainingMs / 1000);
-                const rMin = Math.floor(remainingSeconds / 60);
-                const rSec = remainingSeconds % 60;
-                console.log(`Remaining Time: ${rMin}:${rSec}`);
-                countdownElement.textContent =
-                    `Time Left: ${String(rMin).padStart(2, "0")}:${String(rSec).padStart(2, "0")}`;
-            }
+            //     const remainingSeconds = Math.floor(remainingMs / 1000);
+            //     const rMin = Math.floor(remainingSeconds / 60);
+            //     const rSec = remainingSeconds % 60;
+            //     console.log(`Remaining Time: ${rMin}:${rSec}`);
+            //     countdownElement.textContent =
+            //         `Time Left: ${String(rMin).padStart(2, "0")}:${String(rSec).padStart(2, "0")}`;
+            // }
 
             const totalSeconds = Math.floor(elapsedMs / 1000);
             const hours = Math.floor(totalSeconds / 3600);
