@@ -59,8 +59,7 @@
 
                         <!-- Language -->
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.language') }}</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.language') }}</label>
                             <select name="language"
                                 class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-3.5">
                                 @php
