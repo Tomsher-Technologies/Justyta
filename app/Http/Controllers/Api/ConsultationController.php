@@ -394,6 +394,12 @@ class ConsultationController extends Controller
         $consultation = Consultation::find($consultationId);
         if ($consultation) {
             $consultation->status = $request->status;
+
+            if($request->status == 'completed'){
+                $consultation->meeting_end_time = now();
+                $consultation->is_completed = 1;
+            }
+            
             $consultation->save();
 
             unreserveLawyer($consultation->lawyer_id);
@@ -403,16 +409,102 @@ class ConsultationController extends Controller
         return response()->json(['status' => false,'message' => 'Failed'], 200);
     }
 
-    public function extendZoom(Request $request, $id)
+    public function extendConsultation(Request $request)
     {
-        $request->validate([
-            'extra_minutes'=>'required|integer'
+        $data = $request->validate([
+            'consultation_id' => 'required|exists:consultations,id',
+            'duration' => 'required|numeric|min:1'
         ]);
 
-        $consultation = Consultation::findOrFail($id);
-        $this->extendZoomMeeting($consultation, $request->extra_minutes);
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $userId     = $user->id ?? null; 
 
-        return response()->json(['success'=>true]);
+        $consultation = Consultation::findOrFail($data['consultation_id']);
+
+        // ✅ Prevent extending if consultation already completed
+        if ($consultation->is_completed) {
+            return response()->json([
+                'status' => false,
+                'message' => __('frontend.consultation_completed_cannot_extend'),
+            ], 400);
+        }
+
+        // ✅ Find pricing for the given extra duration (if applicable)
+        $base = ConsultationDuration::where('type', $consultation->consultant_type)
+                                    ->where('duration', $data['duration'])
+                                    ->where('status', 1)
+                                    ->first();
+
+        $extendAmount = $data['amount'] ?? (float)($base->amount ?? 0);
+        $currency = env('APP_CURRENCY', 'AED');
+
+        // ✅ Handle payment if required
+        if ($extendAmount > 0) {
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone,
+                'address' => $user->address,
+            ];
+
+            $orderReference = $consultation->id . '--extend-' . now()->timestamp;
+
+            $payment = createMobOrder($customer, $extendAmount, $currency, $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                ConsultationPayment::create([
+                    'consultation_id' => $consultation->id,
+                    'user_id' => $user->id,
+                    'amount' => $extendAmount,
+                    'type' => 'extend',
+                    'status' => 'pending',
+                    'payment_reference' => $payment['reference'] ?? NULL,
+                ]);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => __('messages.extension_payment_pending'),
+                    'data' => json_encode($payment),
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => __('frontend.request_submit_failed'),
+                'data' => json_encode($payment ?? []),
+            ], 200);
+        }
+
+        // ✅ No payment needed → directly extend the consultation
+        $consultation->duration += $data['duration'];
+        $consultation->is_extended = true;
+
+        if ($consultation->meeting_end_time) {
+            $consultation->meeting_end_time = Carbon::parse($consultation->meeting_end_time)
+                ->addMinutes($data['duration']);
+        }
+
+        $consultation->save();
+
+        ConsultationPayment::create([
+            'consultation_id' => $consultation->id,
+            'user_id' => $user->id,
+            'amount' => $extendAmount,
+            'type' => 'extend',
+            'status' => 'success',
+            'payment_reference' => $data['payment_reference'] ?? NULL,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.consultation_extended_successfully'),
+            'data' => [
+                'consultation_id' => $consultation->id,
+                'duration' => $consultation->duration,
+                'meeting_end_time' => $consultation->meeting_end_time,
+            ],
+        ], 200);
     }
 
    

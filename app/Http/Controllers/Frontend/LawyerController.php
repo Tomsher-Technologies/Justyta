@@ -125,6 +125,7 @@ class LawyerController extends Controller
 
             if($request->status == 'completed'){
                 $consultation->meeting_end_time = now();
+                $consultation->is_completed = 1;
             }
             $consultation->save();
 
