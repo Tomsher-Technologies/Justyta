@@ -267,7 +267,6 @@ class ConsultationController extends Controller
         ], 200);
     }
 
-
     public function lawyerResponse(Request $request, ZoomService $zoomService){
         $request->validate([
             'action'=>'required|in:accept,reject',
@@ -319,6 +318,9 @@ class ConsultationController extends Controller
                 ]],200);
         }
 
+        $lawyer->is_busy = 0;
+        $lawyer->save();
+
         $nextLawyer = findBestFitLawyer($consultation);
         if($nextLawyer){
             assignLawyer($consultation, $nextLawyer->id);
@@ -328,10 +330,6 @@ class ConsultationController extends Controller
             $consultation->save();
             return response()->json(['status'=> false, 'message'=> __('frontend.rejected_no_lawyer_available')]);
         }
-
-        $consultation->status = 'rejected';
-        $consultation->save();
-        return response()->json(['status'=> false, 'message'=> __('frontend.rejected_no_lawyer_available')]);
     }
 
     public function checkUserConsultationStatus(Request $request)
@@ -370,7 +368,6 @@ class ConsultationController extends Controller
         ], 200);
     }
 
-
     public function handleZoomCompleted(Request $request)
     {
         $event = $request->event ?? null;
@@ -406,12 +403,6 @@ class ConsultationController extends Controller
         return response()->json(['status' => false,'message' => 'Failed'], 200);
     }
 
-
-
-
-
-
-
     public function extendZoom(Request $request, $id)
     {
         $request->validate([
@@ -424,35 +415,6 @@ class ConsultationController extends Controller
         return response()->json(['success'=>true]);
     }
 
-    private function createZoomMeeting(Consultation $consultation)
-    {
-        $jwt = $this->getZoomJWT();
-        $response = Http::withHeaders([
-            'Authorization'=>"Bearer $jwt",
-            'Content-Type'=>'application/json'
-        ])->post('https://api.zoom.us/v2/users/me/meetings',[
-            'topic'=>"Consultation #{$consultation->id}",
-            'type'=>2,
-            'start_time'=>now()->addMinutes(1)->toIso8601String(),
-            'duration'=>$consultation->duration,
-            'settings'=>['join_before_host'=>true]
-        ]);
-
-        $data = $response->json();
-        return ['id'=>$data['id'],'join_url'=>$data['join_url']];
-    }
-
-    private function extendZoomMeeting(Consultation $consultation, $extraMinutes)
-    {
-        $jwt = $this->getZoomJWT();
-        Http::withHeaders([
-            'Authorization'=>"Bearer $jwt",
-            'Content-Type'=>'application/json'
-        ])->patch("https://api.zoom.us/v2/meetings/{$consultation->zoom_meeting_id}",[
-            'duration'=>$consultation->duration + $extraMinutes
-        ]);
-
-        $consultation->update(['duration'=>$consultation->duration + $extraMinutes]);
-    }
+   
 
 }
