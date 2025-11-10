@@ -103,10 +103,18 @@ class LawyerController extends Controller
             ]);
         }
 
-        $consultation->status = 'rejected';
-        $consultation->save();
+        $lawyer->is_busy = 0;
+        $lawyer->save();
 
-        return response()->json(['status'=>false,'message'=>'Lawyer rejected consultation']);
+        $nextLawyer = findBestFitLawyer($consultation);
+        if($nextLawyer){
+            assignLawyer($consultation, $nextLawyer->id);
+            return response()->json(['status'=> false, 'message'=>'Lawyer rejected, next lawyer assigned']);
+        }else{
+            $consultation->status = 'rejected';
+            $consultation->save();
+            return response()->json(['status'=> false, 'message'=> __('frontend.rejected_no_lawyer_available')]);
+        }
     }
 
     public function updateConsultationStatus(Request $request)
