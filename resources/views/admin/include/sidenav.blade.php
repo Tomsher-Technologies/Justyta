@@ -142,6 +142,17 @@
                         </li>
                     @endcan
 
+                    @can('manage_consultation_requests')
+                        <li class="">
+                            <a href="{{ route('consultations.index') }}"
+                                class="{{ areActiveRoutes(['consultations.index','consultations.show']) }}">
+                                <span class="las la-video nav-icon"></span>
+
+                                <span class="menu-text">Online Consultations</span>
+                            </a>
+                        </li>
+                    @endcan
+
                     @can('manage_translation_requests')
                         <li class="">
                             <a href="{{ route('legal-translation-requests.index') }}"

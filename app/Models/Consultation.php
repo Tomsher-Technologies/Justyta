@@ -25,7 +25,7 @@ class Consultation extends Model
         return $this->belongsTo(Emirate::class);
     }
 
-    public function caseType()
+    public function caseType()     // Specialities dropdown
     {
         return $this->belongsTo(DropdownOption::class, 'case_type');
     }
@@ -48,6 +48,11 @@ class Consultation extends Model
     public function assignments() {
         return $this->hasMany(ConsultationAssignment::class);
     }
+
+    public function payments() {
+        return $this->hasMany(ConsultationPayment::class);
+    }
+
 
     protected static function booted()
     {

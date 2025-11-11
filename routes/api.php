@@ -146,6 +146,8 @@ Route::middleware('set_api_locale')->group(function () {
 
         Route::post('/consultation/update-status', [ConsultationController::class, 'updateConsultationStatus']);
         Route::post('/consultation/extend', [ConsultationController::class, 'extendConsultation']);
+        Route::get('/consultation/payment-extend-success', [ConsultationController::class,'paymentExtendSuccess']);
+        Route::get('/consultation/payment-extend-cancel', [ConsultationController::class, 'paymentExtendCancel']);
 
         // Online Consulation Lawyer endpoints
         Route::get('/consultation/lawyer-poll', [ConsultationController::class, 'poll'])->name('lawyer.poll');

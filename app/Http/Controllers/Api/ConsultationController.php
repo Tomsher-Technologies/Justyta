@@ -81,6 +81,7 @@ class ConsultationController extends Controller
                 $paymentData = ConsultationPayment::create([
                                 'consultation_id' => $consultation->id,
                                 'user_id' => $user->id,
+                                'duration' => $request->duration,
                                 'amount' => $total_amount,
                                 'type' => 'initial',
                                 'status' => 'pending',
@@ -222,7 +223,9 @@ class ConsultationController extends Controller
 
         if ($consultation_id) {
             $consultation = Consultation::find($consultation_id);
-            unreserveLawyer($consultation->lawyer_id);
+            if($consultation->lawyer_id != null){
+                unreserveLawyer($consultation->lawyer_id);
+            }
             $consultation->delete();
         }
         
@@ -399,7 +402,7 @@ class ConsultationController extends Controller
                 $consultation->meeting_end_time = now();
                 $consultation->is_completed = 1;
             }
-            
+
             $consultation->save();
 
             unreserveLawyer($consultation->lawyer_id);
@@ -422,7 +425,6 @@ class ConsultationController extends Controller
 
         $consultation = Consultation::findOrFail($data['consultation_id']);
 
-        // ✅ Prevent extending if consultation already completed
         if ($consultation->is_completed) {
             return response()->json([
                 'status' => false,
@@ -430,7 +432,6 @@ class ConsultationController extends Controller
             ], 400);
         }
 
-        // ✅ Find pricing for the given extra duration (if applicable)
         $base = ConsultationDuration::where('type', $consultation->consultant_type)
                                     ->where('duration', $data['duration'])
                                     ->where('status', 1)
@@ -439,7 +440,7 @@ class ConsultationController extends Controller
         $extendAmount = $data['amount'] ?? (float)($base->amount ?? 0);
         $currency = env('APP_CURRENCY', 'AED');
 
-        // ✅ Handle payment if required
+        // $extendAmount =0; // For Testing
         if ($extendAmount > 0) {
             $customer = [
                 'email' => $user->email,
@@ -448,7 +449,9 @@ class ConsultationController extends Controller
                 'address' => $user->address,
             ];
 
-            $orderReference = $consultation->id . '--extend-' . now()->timestamp;
+            $consultationCount = ConsultationPayment::where('consultation_id', $consultation->id)->count();
+
+            $orderReference = $consultation->id . '--extend-'.$consultationCount.'--'. $consultation->ref_code;
 
             $payment = createMobOrder($customer, $extendAmount, $currency, $orderReference);
 
@@ -457,6 +460,7 @@ class ConsultationController extends Controller
                     'consultation_id' => $consultation->id,
                     'user_id' => $user->id,
                     'amount' => $extendAmount,
+                    'duration' => $data['duration'],
                     'type' => 'extend',
                     'status' => 'pending',
                     'payment_reference' => $payment['reference'] ?? NULL,
@@ -464,7 +468,7 @@ class ConsultationController extends Controller
 
                 return response()->json([
                     'status' => true,
-                    'message' => __('messages.extension_payment_pending'),
+                    'message' => __('frontend.extension_payment_pending'),
                     'data' => json_encode($payment),
                 ], 200);
             }
@@ -476,15 +480,8 @@ class ConsultationController extends Controller
             ], 200);
         }
 
-        // ✅ No payment needed → directly extend the consultation
         $consultation->duration += $data['duration'];
-        $consultation->is_extended = true;
-
-        if ($consultation->meeting_end_time) {
-            $consultation->meeting_end_time = Carbon::parse($consultation->meeting_end_time)
-                ->addMinutes($data['duration']);
-        }
-
+        $consultation->is_extended = 1;
         $consultation->save();
 
         ConsultationPayment::create([
@@ -492,21 +489,97 @@ class ConsultationController extends Controller
             'user_id' => $user->id,
             'amount' => $extendAmount,
             'type' => 'extend',
-            'status' => 'success',
-            'payment_reference' => $data['payment_reference'] ?? NULL,
+            'duration' => $data['duration'],
+            'status' => 'completed',
+            'payment_reference' => NULL,
         ]);
 
         return response()->json([
             'status' => true,
-            'message' => __('messages.consultation_extended_successfully'),
+            'message' => __('frontend.consultation_extended_successfully'),
             'data' => [
                 'consultation_id' => $consultation->id,
                 'duration' => $consultation->duration,
-                'meeting_end_time' => $consultation->meeting_end_time,
             ],
         ], 200);
     }
 
+    public function paymentExtendSuccess(Request $request)
+    {
+        $paymentReference = $request->query('ref') ?? NULL;
+        if($paymentReference){
+            $token = getAccessToken();
+
+            $baseUrl = config('services.ngenius.base_url');
+            $outletRef = config('services.ngenius.outlet_ref');
+
+            $response = Http::withToken($token)->get("{$baseUrl}/transactions/outlets/" . $outletRef . "/orders/{$paymentReference}");
+            $data = $response->json();
+
+            $orderRef = $data['merchantOrderReference'] ?? NULL;
+            $serviceData = explode('--', $orderRef);
+
+            $consultationId = $serviceData[0];
+            
+            $status = $data['_embedded']['payment'][0]['state'] ?? null;
+            $paid_amount = $data['_embedded']['payment'][0]['amount']['value'] ?? 0;
+
+            $paidAmount = ($paid_amount != 0) ? $paid_amount/100 : 0;
+        
+            $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+
+            if ($status === 'PURCHASED' || $status === 'CAPTURED') {
+                $servicePayment = ConsultationPayment::where('payment_reference', $paymentReference)
+                                                ->where('consultation_id', $consultationId)
+                                                ->first();
+
+                if ($servicePayment) {
+                    $servicePayment->update(['status' => 'completed']);
+                }
+
+                $consultation = Consultation::findOrFail($consultationId);
+                $consultation->duration += $servicePayment?->duration ?? 0;
+                $consultation->amount += $paidAmount;
+                $consultation->is_extended = 1;
+                $consultation->save();
+
+                return response()->json([
+                    'status' => true,
+                    'message'=> __('frontend.consultation_extended_successfully'),
+                    'data' => [
+                        'consultation_id' => $consultation->id ?? null,
+                        'duration' => $servicePayment?->duration ?? 0
+                    ]
+                ],200);
+            }else{
+                $servicePayment = ConsultationPayment::where('payment_reference', $paymentReference)
+                                                ->where('consultation_id', $consultationId)
+                                                ->first();
+
+                if ($servicePayment) {
+                    $servicePayment->update(['status' => 'failed']);
+                }
+            }
+        }
+        return response()->json(['status'=>false, 'message'=>__('frontend.payment_failed')],200);
+    }
+
+    public function paymentExtendCancel(Request $request)
+    {
+        $consultation_id = $request->query('consultation_id') ?? null;
+
+        if ($consultation_id) {
+            $servicePayment = ConsultationPayment::where('status', 'pending')
+                                                ->where('consultation_id', $consultation_id)
+                                                ->first();
+
+            if ($servicePayment) {
+                $servicePayment->update(['status' => 'failed']);
+            }
+        }
+        
+        return response()->json(['status'=>false, 'message'=>__('frontend.payment_failed')],200);
+    }
    
 
 }
