@@ -25,11 +25,13 @@
                                 <!-- Total Users -->
                                 <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
                                     <div class="card shadow-sm border-0 p-3 text-center" style="background:#e0f7fa;">
-                                        <div class="icon mb-2">
-                                            <i class="las la-credit-card fs-2 text-primary"></i>
-                                        </div>
-                                        <h6 class="fw-bold mb-1">Total Sales</h6>
-                                        <h4 class="text-primary">AED {{ $totalSales ?? 0 }}</h4>
+                                        <a href="{{ route('admin.service-sales') }}" class="">
+                                            <div class="icon mb-2">
+                                                <i class="las la-credit-card fs-2 text-primary"></i>
+                                            </div>
+                                            <h6 class="fw-bold mb-1">Total Sales</h6>
+                                            <h4 class="text-primary">AED {{ $totalSales ?? 0 }}</h4>
+                                        </a>
                                     </div>
                                 </div>
 
@@ -209,6 +211,10 @@
                                             @endforeach
                                         </select>
 
+                                    </div>
+
+                                    <div class="d-flex ml-auto">
+                                        <a href="{{ route('admin.service-sales') }}" class="btn btn-primary mr-2" id="btn-filter">Service Sales</a>
                                     </div>
                                 </div>
                                 <div class="col-lg-12 ">

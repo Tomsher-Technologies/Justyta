@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Models\JobPost;
 use App\Models\TrainingRequest;
 use App\Models\Consultation;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ServiceSalesExport;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use DB;
@@ -255,5 +257,75 @@ class AdminDashboardController extends Controller
         ];
 
         return response()->json($response);
+    }
+
+    public function getServiceSalesData(Request $request)
+    {
+        $services = Service::where('status', 1)
+                        ->where('payment_active', 1)
+                        ->orderBy('sort_order', 'asc')
+                        ->get();
+
+        $selectedService = $request->get('service_id');
+
+        $dateQuery = false;
+        if ($request->filled('daterange')) {
+            $dates = explode(' to ', $request->daterange);
+            if (count($dates) === 2) {
+                $dateQuery = true;
+            }
+        }
+
+        if ($selectedService == 'online-live-consultancy') {
+            $request->session()->put('last_page_consultations', url()->full());
+            $conQuery = Consultation::with(['user', 'lawyer'])
+                ->where('request_success', 1);
+
+            if ($dateQuery) {
+                $conQuery->whereBetween('created_at', [
+                    Carbon::parse($dates[0])->startOfDay(),
+                    Carbon::parse($dates[1])->endOfDay()
+                ]);
+            }
+            $consultations = $conQuery->orderBy('id', 'desc')
+                                ->paginate(10);
+
+            return view('admin.sales.service-sales', compact('services', 'selectedService', 'consultations'));
+        }
+
+        if ($selectedService == 'legal-translation') {
+            $request->session()->put('translation_service_request_last_url', url()->full());
+        }else{
+            $request->session()->put('service_request_last_url', url()->full());
+        }
+        
+        $serviceQuery = ServiceRequest::with(['user', 'service'])
+            ->where('request_success', 1)
+            ->when($selectedService, function ($query) use ($selectedService) {
+                $query->where('service_slug', $selectedService);
+            });
+
+        if ($dateQuery) {
+            $serviceQuery->whereBetween('submitted_at', [
+                Carbon::parse($dates[0])->startOfDay(),
+                Carbon::parse($dates[1])->endOfDay()
+            ]);
+        }
+        $serviceRequests = $serviceQuery->orderBy('id', 'desc')->paginate(10);
+
+        return view('admin.sales.service-sales', compact('services', 'selectedService', 'serviceRequests'));
+    }
+
+    public function exportServiceSales(Request $request)
+    {
+        $serviceSlug = $request->get('service_id');
+        $fileName = $serviceSlug ? "{$serviceSlug}-sales.xlsx" : "service-sales.xlsx";
+        $dates = null;
+
+        if ($request->filled('daterange')) {
+            $dates = explode(' to ', $request->daterange);
+        }
+
+        return Excel::download(new ServiceSalesExport($serviceSlug, $dates), $fileName);
     }
 }
