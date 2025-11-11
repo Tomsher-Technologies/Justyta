@@ -1103,6 +1103,7 @@ function assignLawyer($consultation, $lawyerId)
     ConsultationAssignment::create([
         'consultation_id' => $consultation->id,
         'lawyer_id' => $lawyerId,
+        'assigned_at' => now(),
         'status' => 'assigned'
     ]);
 

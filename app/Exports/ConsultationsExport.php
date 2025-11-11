@@ -157,7 +157,7 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                 }
 
                 // Merge and format first row (Export info)
-                $sheet->mergeCells('A1:I1');
+                $sheet->mergeCells('A1:K1');
                 $sheet->getStyle('A1')->getFont()->setBold(true);
                 $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             },
