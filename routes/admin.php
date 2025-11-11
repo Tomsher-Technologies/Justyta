@@ -43,6 +43,9 @@ Route::prefix('admin')->group(function () {
 Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/sales-report/data', [AdminDashboardController::class, 'getSalesData'])->name('sales.report.data');
+    Route::get('/service-sales', [AdminDashboardController::class, 'getServiceSalesData'])->name('admin.service-sales');
+    Route::get('/service-sales/export', [AdminDashboardController::class, 'exportServiceSales'])->name('service-sales.export');
+
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

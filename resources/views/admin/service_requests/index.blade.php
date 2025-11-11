@@ -107,15 +107,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @php
+                                            $statusClass = [
+                                                'pending' => 'badge-gray',
+                                                'ongoing' => 'badge-warning',
+                                                'completed' => 'badge-success',
+                                                'rejected' => 'badge-danger',
+                                            ];
+                                        @endphp
                                         @foreach ($serviceRequests as $key => $serviceReq)
-                                            @php
-                                                $statusClass = [
-                                                    'pending' => 'badge-gray',
-                                                    'ongoing' => 'badge-warning',
-                                                    'completed' => 'badge-success',
-                                                    'rejected' => 'badge-danger',
-                                                ];
-                                            @endphp
+                                            
                                             <tr>
                                                 <td class="text-center">{{ $serviceRequests->firstItem() + $key }}</td>
                                                 <td class="text-center">

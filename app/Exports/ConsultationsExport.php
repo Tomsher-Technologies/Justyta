@@ -84,9 +84,12 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                 return [
                     'Sl No.' => $key + 1,
                     'Reference Code' => $consultation->ref_code ?? '-',
-                    'Status' => ucwords(str_replace('_', ' ', $consultation->status ?? '-')),
-                    'User' => $consultation->user?->name ?? '-',
+                    
+                    'User Name' => $consultation->user?->name ?? '-',
+                    'User Email' => $consultation->user?->email ?? '-',
+                    'User Phone' => $consultation->user?->phone ?? '-',
                     'Lawyer' => $consultation->lawyer?->full_name ?? '-',
+                    'Status' => ucwords(str_replace('_', ' ', $consultation->status ?? '-')),
                     'Applicant Type' => ucfirst($consultation->applicant_type ?? '-'),
                     'Litigation Type' => ucfirst($consultation->litigation_type ?? '-'),
                     'Consultant Type' => ucfirst($consultation->consultant_type ?? '-'),
@@ -110,9 +113,12 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
             [
                 'Sl No.',
                 'Reference Code',
-                'Status',
-                'User',
+                
+                'User Name',
+                'User Email',
+                'User Phone',
                 'Lawyer',
+                'Status',
                 'Applicant Type',
                 'Litigation Type',
                 'Consultant Type',
@@ -132,7 +138,7 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
     public function styles(Worksheet $sheet)
     {
         // Make main header row (row 2) bold
-        $sheet->getStyle('A2:Q2')->getFont()->setBold(true);
+        $sheet->getStyle('A2:S2')->getFont()->setBold(true);
     }
 
     public function registerEvents(): array
@@ -142,7 +148,7 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                 $sheet = $event->sheet->getDelegate();
 
                 // Center alignment for specific columns (A,B,C,G,H,M,N,O,P,Q)
-                $columnsToCenter = ['A', 'B', 'C','F', 'G', 'H','K','L', 'M', 'N', 'O', 'P', 'Q'];
+                $columnsToCenter = ['A', 'B', 'C', 'D', 'E','F', 'G', 'H','I', 'J',  'K','L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S'];
                 foreach ($columnsToCenter as $col) {
                     $sheet->getStyle("{$col}:{$col}")
                           ->getAlignment()
