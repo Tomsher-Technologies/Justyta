@@ -442,4 +442,8 @@ return [
     'total_rejected_cases' => 'Total Rejected Cases',
     'file_uploaded_successfully' => 'File uploaded successfully.',
     'service_details_not_found' => 'Service details not found.',
+    'consultation_completed_cannot_extend' => 'Consultation is completed. Cannot extend.',
+    'extension_payment_pending' => 'Extension payment is pending.',
+    'payment_failed' => 'Payment failed.',
+    'consultation_extended_successfully' => 'Consultation extended successfully.',
 ];
