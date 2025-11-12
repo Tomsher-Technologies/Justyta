@@ -106,6 +106,10 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
 
     Route::post('/get-sub-document-types', [VendorHomeController::class, 'getSubDocumentTypes'])->name('vendor.get.sub.document.types');
     Route::post('/calculate-translation-price', [VendorHomeController::class, 'calculateTranslationPrice'])->name('vendor.calculate-translation-price');
+
+    // Consultation Requests
+    Route::get('/consultations', [VendorHomeController::class, 'consultationsIndex'])->name('vendor.consultations.index');
+    Route::get('/consultations/{id}', [VendorHomeController::class, 'showConsultation'])->name('vendor.consultations.show');
 });
 
 Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {
