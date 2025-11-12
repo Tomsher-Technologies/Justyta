@@ -1167,22 +1167,28 @@ function findAvailableLawyer($caseType, $languages)
     $countLanguages = count($languages);
     
     $lawyers = DB::table('lawyers as l')
-                    ->join('users as u', 'u.id', '=', 'l.user_id')
-                    ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
-                        $join->on('ld_speciality.lawyer_id', '=', 'l.id')
-                            ->where('ld_speciality.type', 'specialities')
-                            ->where('ld_speciality.dropdown_option_id', $caseType);
-                    })
-                    ->join('lawyer_dropdown_options as ld_lang', function ($join) use ($languages) {
-                        $join->on('ld_lang.lawyer_id', '=', 'l.id')
-                            ->where('ld_lang.type', 'languages')
-                            ->whereIn('ld_lang.dropdown_option_id', $languages);
-                    })
-                    ->where('u.is_online', 1)
-                    ->where('l.is_busy', 0)
-                    ->groupBy('l.id')
-                    ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
-                    ->pluck('l.id');
+                ->join('users as u', 'u.id', '=', 'l.user_id')
+                ->join('vendors as v', 'v.id', '=', 'l.lawfirm_id')
+                ->join('vendor_subscriptions as vs', function ($join) {
+                    $join->on('vs.vendor_id', '=', 'v.id')
+                        ->where('vs.status', 'active')
+                        ->where('vs.membership_plan_id', 1);
+                })
+                ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
+                    $join->on('ld_speciality.lawyer_id', '=', 'l.id')
+                        ->where('ld_speciality.type', 'specialities')
+                        ->where('ld_speciality.dropdown_option_id', $caseType);
+                })
+                ->join('lawyer_dropdown_options as ld_lang', function ($join) use ($languages) {
+                    $join->on('ld_lang.lawyer_id', '=', 'l.id')
+                        ->where('ld_lang.type', 'languages')
+                        ->whereIn('ld_lang.dropdown_option_id', $languages);
+                })
+                ->where('u.is_online', 1)
+                ->where('l.is_busy', 0)
+                ->groupBy('l.id')
+                ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
+                ->pluck('l.id');
 
     return $lawyers;
 }
