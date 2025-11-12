@@ -76,8 +76,9 @@ class VendorHomeController extends Controller
                                     ->where('status', 'completed')
                                     ->sum('lawyer_amount');
 
-        $acceptedConsultations = ConsultationAssignment::whereIn('lawyer_id', $allLawyers)
-                                    ->where('status', 'accepted')
+        $acceptedConsultations = Consultation::whereIn('lawyer_id', $allLawyers)
+                                    ->where('request_success', 1)
+                                    ->where('status', 'completed')
                                     ->count();
         $rejectedConsultations = ConsultationAssignment::whereIn('lawyer_id', $allLawyers)
                                     ->where('status', 'rejected')
