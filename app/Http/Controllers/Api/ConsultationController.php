@@ -542,6 +542,7 @@ class ConsultationController extends Controller
         
             $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
 
+            $consultation = Consultation::findOrFail($consultationId);
             if ($status === 'PURCHASED' || $status === 'CAPTURED') {
                 $servicePayment = ConsultationPayment::where('payment_reference', $paymentReference)
                                                 ->where('consultation_id', $consultationId)
@@ -550,8 +551,6 @@ class ConsultationController extends Controller
                 if ($servicePayment) {
                     $servicePayment->update(['status' => 'completed']);
                 }
-
-                $consultation = Consultation::findOrFail($consultationId);
 
                 $lawyer = Lawyer::where('id', $consultation->lawyer_id)->first();
                 $total_amount = $paidAmount;
@@ -565,6 +564,7 @@ class ConsultationController extends Controller
                 $consultation->admin_amount += $admin_amount;
                 $consultation->lawyer_amount += $lawyer_amount;
                 $consultation->is_extended = 1;
+                $consultation->status = 'in_progress';
                 $consultation->save();
 
                 return response()->json([
@@ -583,6 +583,8 @@ class ConsultationController extends Controller
                 if ($servicePayment) {
                     $servicePayment->update(['status' => 'failed']);
                 }
+                $consultation->status = 'in_progress';
+                $consultation->save();
             }
         }
         return response()->json(['status'=>false, 'message'=>__('frontend.payment_failed')],200);
