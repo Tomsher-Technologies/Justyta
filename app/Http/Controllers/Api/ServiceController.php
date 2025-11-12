@@ -15,6 +15,7 @@ use App\Models\ConsultationDuration;
 use App\Models\Vendor;
 use App\Models\AnnualRetainerBaseFee;
 use App\Models\User;
+use App\Models\Lawyer;
 use App\Models\Page;
 use App\Models\CourtRequest;
 use App\Models\PublicProsecution;
@@ -3573,7 +3574,25 @@ class ServiceController extends Controller
         
         $consultant_type    = $request->query('consultant_type') ?? NULL;
         $duration           = $request->query('duration') ?? NULL;
+        $case_type          = $request->query('case_type') ?? NULL;
+        $language           = $request->query('language') ?? NULL;
 
+        $lawyerData = [];
+        if($consultant_type == 'vip'){
+            $lawyers = findAvailableLawyer($case_type, $language);
+
+            $lawyerData = Lawyer::whereIn('id', $lawyers)
+                            ->with('translations') // eager load to avoid N+1 queries
+                            ->get()
+                            ->map(function ($lawyer) use ($lang) {
+                                return [
+                                    'id'   => $lawyer->id,
+                                    'name' => $lawyer->getTranslation('full_name', $lang),
+                                ];
+                            })
+                            ->toArray();
+        }
+        
         if ($consultant_type === NULL || $duration === NULL) {
             return response()->json([
                 'status'    => true,
@@ -3599,6 +3618,7 @@ class ServiceController extends Controller
                             'govt_fee' => 0,
                             'tax'       => 0,
                             'total'     => (float)($base->amount ?? 0),
+                            'lawyers'   => $lawyerData
                         ]
         ], 200);
     }

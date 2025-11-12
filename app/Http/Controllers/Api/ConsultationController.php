@@ -39,8 +39,12 @@ class ConsultationController extends Controller
             ...$data
         ]);
 
-        $lawyer = findBestFitLawyer($consultation);
-
+        if ($request->lawyer_id) {
+            $lawyer = Lawyer::find($request->lawyer_id);
+        }else{
+            $lawyer = findBestFitLawyer($consultation);
+        }
+       
         if ($lawyer) {
             reserveLawyer($lawyer->id, $consultation->id);
         } else {
@@ -109,7 +113,7 @@ class ConsultationController extends Controller
             // ], 200);
 
             $consultation->refresh();
-           
+
             if ($consultation->lawyer_id) {
                 assignLawyer($consultation, $consultation->lawyer_id);
                 $consultation->status = 'waiting_lawyer';
