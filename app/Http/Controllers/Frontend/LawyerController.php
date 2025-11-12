@@ -129,7 +129,10 @@ class LawyerController extends Controller
             }
             $consultation->save();
 
-            unreserveLawyer($consultation->lawyer_id);
+            if($request->status == 'completed' || $request->status == 'rejected' || $request->status == 'cancelled' || $request->status == 'no_lawyer_available'){
+                unreserveLawyer($consultation->lawyer_id);
+            }
+            
             return response()->json(['status' => true]);
         }
 

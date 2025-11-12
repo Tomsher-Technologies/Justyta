@@ -288,7 +288,7 @@ class AdminDashboardController extends Controller
                 ]);
             }
             $consultations = $conQuery->orderBy('id', 'desc')
-                                ->paginate(10);
+                                ->paginate(20);
 
             return view('admin.sales.service-sales', compact('services', 'selectedService', 'consultations'));
         }

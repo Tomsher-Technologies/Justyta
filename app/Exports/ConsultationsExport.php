@@ -93,12 +93,15 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                     'Applicant Type' => ucfirst($consultation->applicant_type ?? '-'),
                     'Litigation Type' => ucfirst($consultation->litigation_type ?? '-'),
                     'Consultant Type' => ucfirst($consultation->consultant_type ?? '-'),
+                    'You Represent' => $consultation->youRepresent?->getTranslation('name', 'en') ?? '-',
                     'Case Type' => $consultation->caseType?->getTranslation('name', 'en') ?? '-',
                     'Case Stage' => $consultation->caseStage?->getTranslation('name', 'en') ?? '-',
                     'Language' => ucfirst($consultation->languageValue?->getTranslation('name', 'en') ?? '-'),
                     'Emirate' => $consultation->emirate?->getTranslation('name', 'en') ?? '-',
                     'Duration (mins)' => $consultation->duration ?? '-',
-                    'Amount (AED)' => number_format($consultation->amount ?? 0, 2),
+                    'Total Amount (AED)' => number_format($consultation->amount ?? 0, 2),
+                    'Admin Amount (AED)' => number_format($consultation->admin_amount ?? 0, 2),
+                    'Lawyer Amount (AED)' => number_format($consultation->lawyer_amount ?? 0, 2),
                     'Meeting Start' => $consultation->meeting_start_time ? Carbon::parse($consultation->meeting_start_time)->format('Y-m-d h:i A') : '-',
                     'Meeting End' => $consultation->meeting_end_time ? Carbon::parse($consultation->meeting_end_time)->format('Y-m-d h:i A') : '-',
                     'Date' => optional($consultation->created_at)->format('Y-m-d h:i A') ?? '-',
@@ -113,7 +116,6 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
             [
                 'Sl No.',
                 'Reference Code',
-                
                 'User Name',
                 'User Email',
                 'User Phone',
@@ -122,12 +124,15 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                 'Applicant Type',
                 'Litigation Type',
                 'Consultant Type',
+                'You Represent',
                 'Case Type',
                 'Case Stage',
                 'Language',
                 'Emirate',
                 'Duration (mins)',
-                'Amount (AED)',
+                'Total Amount (AED)',
+                'Admin Amount (AED)',
+                'Lawyer Amount (AED)',
                 'Meeting Start',
                 'Meeting End',
                 'Date',
@@ -138,7 +143,7 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
     public function styles(Worksheet $sheet)
     {
         // Make main header row (row 2) bold
-        $sheet->getStyle('A2:S2')->getFont()->setBold(true);
+        $sheet->getStyle('A2:V2')->getFont()->setBold(true);
     }
 
     public function registerEvents(): array
@@ -148,7 +153,7 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                 $sheet = $event->sheet->getDelegate();
 
                 // Center alignment for specific columns (A,B,C,G,H,M,N,O,P,Q)
-                $columnsToCenter = ['A', 'B', 'C', 'D', 'E','F', 'G', 'H','I', 'J',  'K','L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S'];
+                $columnsToCenter = ['A', 'B', 'C', 'D', 'E','F', 'G', 'H','I', 'J',  'K','L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S','T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
                 foreach ($columnsToCenter as $col) {
                     $sheet->getStyle("{$col}:{$col}")
                           ->getAlignment()
