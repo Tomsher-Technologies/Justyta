@@ -1009,9 +1009,13 @@ class ServiceRequestController extends Controller
             ...$data
         ]);
 
-        $lawyer = findBestFitLawyer($consultation);
+        if ($request->lawyer_id) {
+            $lawyer = Lawyer::find($request->lawyer_id);
+        }else{
+            $lawyer = findBestFitLawyer($consultation);
+        }
        
-        if ($lawyer) {
+        if ($lawyer && $lawyer->is_busy == 0 && $lawyer->user->is_online == 1) {
             reserveLawyer($lawyer->id, $consultation->id);
         } else {
             $consultation->delete();
@@ -1025,8 +1029,16 @@ class ServiceRequestController extends Controller
 
         $total_amount = (float)($base->amount ?? 0);
 
+        $commission = $lawyer->lawfirm?->consultation_commission ?? 0;
+
+        $admin_amount = ($commission > 0) ? ($total_amount * $commission) / 100 : 0;
+        $lawyer_amount = $total_amount - $admin_amount;
+      
         $consultation->update([
-            'amount' => $total_amount
+            'amount' => $total_amount,
+            'admin_amount' => $admin_amount,
+            'lawyer_amount' => $lawyer_amount,
+            'commission_percentage' => $commission
         ]);
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
