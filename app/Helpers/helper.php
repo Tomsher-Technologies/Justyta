@@ -1129,34 +1129,68 @@ function findBestFitLawyer($consultation)
     $countLanguages = count($languages);
 
     $lawyerId =  DB::table('lawyers as l')
-        ->join('users as u', 'u.id', '=', 'l.user_id')
-        ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
-            $join->on('ld_speciality.lawyer_id', '=', 'l.id')
-                ->where('ld_speciality.type', 'specialities')
-                ->where('ld_speciality.dropdown_option_id', $caseType);
-        })
+                    ->join('users as u', 'u.id', '=', 'l.user_id')
+                    ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
+                        $join->on('ld_speciality.lawyer_id', '=', 'l.id')
+                            ->where('ld_speciality.type', 'specialities')
+                            ->where('ld_speciality.dropdown_option_id', $caseType);
+                    })
 
-        ->join('lawyer_dropdown_options as ld_lang', function ($join) use ($languages) {
-            $join->on('ld_lang.lawyer_id', '=', 'l.id')
-                ->where('ld_lang.type', 'languages')
-                ->whereIn('ld_lang.dropdown_option_id', $languages);
-        })
+                    ->join('lawyer_dropdown_options as ld_lang', function ($join) use ($languages) {
+                        $join->on('ld_lang.lawyer_id', '=', 'l.id')
+                            ->where('ld_lang.type', 'languages')
+                            ->whereIn('ld_lang.dropdown_option_id', $languages);
+                    })
 
-        // ->when($emirateId, function ($q) use ($emirateId) {
-        //     $q->where('l.emirate_id', $emirateId);
-        // })
+                    // ->when($emirateId, function ($q) use ($emirateId) {
+                    //     $q->where('l.emirate_id', $emirateId);
+                    // })
 
-        ->where('u.is_online', 1)
-        ->where('l.is_busy', 0)
-        ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
-        ->groupBy('l.id')
-        ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
-        ->pluck('l.id')
-        ->first();
+                    ->where('u.is_online', 1)
+                    ->where('l.is_busy', 0)
+                    ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
+                    ->groupBy('l.id')
+                    ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
+                    ->pluck('l.id')
+                    ->first();
 
     $lawyer = $lawyerId ? \App\Models\Lawyer::find($lawyerId) : null;
 
     return $lawyer;
+}
+
+function findAvailableLawyer($caseType, $languages)
+{
+    $languages  = (array) $languages;
+    $caseType   = $caseType;
+   
+    $countLanguages = count($languages);
+    
+    $lawyers = DB::table('lawyers as l')
+                ->join('users as u', 'u.id', '=', 'l.user_id')
+                ->join('vendors as v', 'v.id', '=', 'l.lawfirm_id')
+                ->join('vendor_subscriptions as vs', function ($join) {
+                    $join->on('vs.vendor_id', '=', 'v.id')
+                        ->where('vs.status', 'active')
+                        ->where('vs.membership_plan_id', 1);
+                })
+                ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
+                    $join->on('ld_speciality.lawyer_id', '=', 'l.id')
+                        ->where('ld_speciality.type', 'specialities')
+                        ->where('ld_speciality.dropdown_option_id', $caseType);
+                })
+                ->join('lawyer_dropdown_options as ld_lang', function ($join) use ($languages) {
+                    $join->on('ld_lang.lawyer_id', '=', 'l.id')
+                        ->where('ld_lang.type', 'languages')
+                        ->whereIn('ld_lang.dropdown_option_id', $languages);
+                })
+                ->where('u.is_online', 1)
+                ->where('l.is_busy', 0)
+                ->groupBy('l.id')
+                ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
+                ->pluck('l.id');
+
+    return $lawyers;
 }
 
 function getFormattedTimeline(ServiceRequest $serviceRequest, ?array $labels = null): array
