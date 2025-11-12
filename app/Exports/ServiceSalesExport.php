@@ -81,7 +81,9 @@ class ServiceSalesExport implements FromCollection, WithHeadings, WithMapping, W
                 'Consultation Type',
                 'Status',
                 'Duration (mins)',
-                'Amount (AED)',
+                'Total Amount (AED)',
+                'Admin Amount (AED)',
+                'Lawyer Amount (AED)',
                 'Created At',
             ]);
         } else {
@@ -120,6 +122,8 @@ class ServiceSalesExport implements FromCollection, WithHeadings, WithMapping, W
                 ucfirst(str_replace('_', ' ', $row->status ?? '-')),
                 $row->duration ?? 0,
                 number_format($row->amount, 2),
+                number_format($row->admin_amount, 2),
+                number_format($row->lawyer_amount, 2),
                 $row->created_at->format('d, M Y h:i A'),
             ];
         }
@@ -159,8 +163,8 @@ class ServiceSalesExport implements FromCollection, WithHeadings, WithMapping, W
         $sheet->getStyle('A1')->getAlignment()->setHorizontal('center');
 
         // Make heading row bold and centered
-        $sheet->getStyle('A2:J2')->getFont()->setBold(true);
-        $sheet->getStyle('A2:J2')->getAlignment()->setHorizontal('center');
+        $sheet->getStyle('A2:N2')->getFont()->setBold(true);
+        $sheet->getStyle('A2:N2')->getAlignment()->setHorizontal('center');
 
         // Center align all cells
         $highestRow = $sheet->getHighestRow();

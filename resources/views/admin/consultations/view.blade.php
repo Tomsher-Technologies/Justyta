@@ -5,206 +5,7 @@
 <div class="card">
     
     <div class="card-body">
-        {{-- <table class="table table-bordered">
-            <tr>
-                <th>User</th>
-                <td>{{ $consultation->user?->name ?? '-' }}</td>
-            </tr>
-
-            <tr>
-                <th>Lawyer</th>
-                <td>{{ $consultation->lawyer?->full_name ?? '-' }}</td>
-            </tr>
-
-            <tr>
-                <th>Status</th>
-                <td>{{ ucfirst(str_replace('_', ' ', $consultation->status)) }}</td>
-            </tr>
-
-            <tr>
-                <th>Applicant Type</th>
-                <td>{{ ucfirst($consultation->applicant_type) ?? '-' }}</td>
-            </tr>
-
-            <tr>
-                <th>Litigation Type</th>
-                <td>{{ ucfirst($consultation->litigation_type) ?? '-' }}</td>
-            </tr>
-
-            <tr>
-                <th>Consultant Type</th>
-                <td>{{ ucfirst($consultation->consultant_type) ?? '-' }}</td>
-            </tr>
-
-            <tr>
-                <th>Case Type</th>
-                <td>{{ $consultation->caseType?->title ?? '-' }}</td>
-            </tr>
-
-            <tr>
-                <th>Case Stage</th>
-                <td>{{ $consultation->caseStage?->getTranslation('name', 'en') ?? '-' }}</td>
-            </tr>
-
-            <tr>
-                <th>Language</th>
-                <td>{{ ucfirst($consultation->languageValue?->getTranslation('name', 'en')) ?? '-' }}</td>
-            </tr>
-
-            <tr>
-                <th>Emirate</th>
-                <td>{{ $consultation->emirate?->getTranslation('name', 'en') ?? '-' }}</td>
-            </tr>
-
-            <tr>
-                <th>Duration</th>
-                <td>{{ $consultation->duration }} mins</td>
-            </tr>
-
-            <tr>
-                <th>Amount</th>
-                <td>{{ number_format($consultation->amount, 2) }}</td>
-            </tr>
-
-            <tr>
-                <th>Meeting Start</th>
-                <td>{{ $consultation->meeting_start_time ?? '-' }}</td>
-            </tr>
-
-            <tr>
-                <th>Meeting End</th>
-                <td>{{ $consultation->meeting_end_time ?? '-' }}</td>
-            </tr>
-
-            <tr>
-                <th>Created At</th>
-                <td>{{ $consultation->created_at?->format('Y-m-d H:i') }}</td>
-            </tr>
-
-        </table> --}}
-
-        {{-- <div class="card shadow-lg border-0 rounded-lg">
-            <div class="card-header bg-gradient-primary text-white d-flex align-items-center justify-content-between">
-                <h5 class="mb-0"><i class="fas fa-info-circle mr-2"></i> Consultation Details</h5>
-                <span class="badge badge-light text-primary px-3 py-2">{{ ucfirst($consultation->status) }}</span>
-            </div>
-            <div class="card-body">
-                <div class="row">
-
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 bg-white shadow-sm rounded d-flex align-items-center">
-                            <i class="fas fa-user text-primary mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">User</small>
-                                <div>{{ $consultation->user?->name ?? '-' }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 bg-white shadow-sm rounded d-flex align-items-center">
-                            <i class="fas fa-balance-scale text-info mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Lawyer</small>
-                                <div>{{ $consultation->lawyer?->full_name ?? '-' }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 bg-white shadow-sm rounded d-flex align-items-center">
-                            <i class="fas fa-gavel text-warning mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Case Type</small>
-                                <div>{{ $consultation->caseType?->title ?? '-' }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 bg-white shadow-sm rounded d-flex align-items-center">
-                            <i class="fas fa-layer-group text-secondary mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Case Stage</small>
-                                <div>{{ $consultation->caseStage?->getTranslation('name', 'en') ?? '-' }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 bg-white shadow-sm rounded d-flex align-items-center">
-                            <i class="fas fa-language text-success mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Language</small>
-                                <div>{{ ucfirst($consultation->languageValue?->getTranslation('name', 'en') ?? '-') }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 bg-white shadow-sm rounded d-flex align-items-center">
-                            <i class="fas fa-city text-danger mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Emirate</small>
-                                <div>{{ $consultation->emirate?->getTranslation('name', 'en') ?? '-' }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 bg-white shadow-sm rounded d-flex align-items-center">
-                            <i class="fas fa-clock text-primary mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Duration</small>
-                                <div>{{ $consultation->duration }} mins</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 bg-white shadow-sm rounded d-flex align-items-center">
-                            <i class="fas fa-dollar-sign text-success mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Amount</small>
-                                <div>{{ number_format($consultation->amount, 2) }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 bg-white shadow-sm rounded d-flex align-items-center">
-                            <i class="far fa-calendar-alt text-info mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Meeting Start</small>
-                                <div>{{ $consultation->meeting_start_time ?? '-' }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 bg-white shadow-sm rounded d-flex align-items-center">
-                            <i class="far fa-calendar-check text-success mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Meeting End</small>
-                                <div>{{ $consultation->meeting_end_time ?? '-' }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <div class="p-3 bg-white shadow-sm rounded d-flex align-items-center">
-                            <i class="fas fa-calendar text-secondary mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Created At</small>
-                                <div>{{ $consultation->created_at?->format('Y-m-d H:i') }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div> --}}
-
+    
         <div class="card shadow-lg border-0 rounded-lg">
             <div class="card-header  text-white d-flex justify-content-between align-items-center" style="background: #07683b">
                 <h5 class="mb-0 text-white"><i class="fas fa-file-alt mr-2"></i> Consultation Details</h5>
@@ -318,6 +119,16 @@
 
                     <div class="col-md-4 mb-3">
                         <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
+                            <i class="fas fa-user-check text-primary mr-3 fa-lg"></i>
+                            <div>
+                                <small class="text-muted">You Represent</small>
+                                <div>{{ $consultation->youRepresent?->getTranslation('name', 'en') ?? '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
                             <i class="fas fa-language text-primary mr-3 fa-lg"></i>
                             <div>
                                 <small class="text-muted">Language</small>
@@ -346,15 +157,38 @@
                         </div>
                     </div>
 
+                    
+
                     <div class="col-md-4 mb-3">
                         <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
                             <i class="fas fa-dollar-sign text-success mr-3 fa-lg"></i>
                             <div>
-                                <small class="text-muted">Amount</small>
-                                <div>{{ number_format($consultation->amount, 2) }}</div>
+                                <small class="text-muted">Total Amount</small>
+                                <div>AED {{ number_format($consultation->amount, 2) }}</div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
+                            <i class="fas fa-dollar-sign text-success mr-3 fa-lg"></i>
+                            <div>
+                                <small class="text-muted">Admin Amount</small>
+                                <div>AED {{ number_format($consultation->admin_amount, 2) }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
+                            <i class="fas fa-dollar-sign text-success mr-3 fa-lg"></i>
+                            <div>
+                                <small class="text-muted">Lawyer Amount</small>
+                                <div>AED {{ number_format($consultation->lawyer_amount, 2) }}</div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <div class="col-md-4 mb-3">
                         <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
@@ -375,8 +209,9 @@
                             </div>
                         </div>
                     </div>
+                    
 
-                    <div class="col-md-4 mb-3">
+                    {{-- <div class="col-md-4 mb-3">
                         <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
                             <i class="fas fa-calendar text-secondary mr-3 fa-lg"></i>
                             <div>
@@ -384,7 +219,7 @@
                                 <div>{{ $consultation->created_at?->format('Y-m-d H:i') }}</div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>

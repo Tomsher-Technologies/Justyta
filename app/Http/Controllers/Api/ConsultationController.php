@@ -45,7 +45,7 @@ class ConsultationController extends Controller
             $lawyer = findBestFitLawyer($consultation);
         }
        
-        if ($lawyer) {
+        if ($lawyer && $lawyer->is_busy == 0 && $lawyer->user->is_online == 1) {
             reserveLawyer($lawyer->id, $consultation->id);
         } else {
             $consultation->delete();
@@ -63,8 +63,16 @@ class ConsultationController extends Controller
 
         $total_amount = (float)($base->amount ?? 0);
 
+        $commission = $lawyer->lawfirm?->consultation_commission ?? 0;
+
+        $admin_amount = ($commission > 0) ? ($total_amount * $commission) / 100 : 0;
+        $lawyer_amount = $total_amount - $admin_amount;
+      
         $consultation->update([
-            'amount' => $total_amount
+            'amount' => $total_amount,
+            'admin_amount' => $admin_amount,
+            'lawyer_amount' => $lawyer_amount,
+            'commission_percentage' => $commission
         ]);
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
@@ -409,7 +417,9 @@ class ConsultationController extends Controller
 
             $consultation->save();
 
-            unreserveLawyer($consultation->lawyer_id);
+            if($request->status == 'completed' || $request->status == 'rejected' || $request->status == 'cancelled' || $request->status == 'no_lawyer_available'){
+                unreserveLawyer($consultation->lawyer_id);
+            }
             return response()->json(['status' => true,'message' => 'Success'],200);
         }
 
@@ -532,6 +542,7 @@ class ConsultationController extends Controller
         
             $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
 
+            $consultation = Consultation::findOrFail($consultationId);
             if ($status === 'PURCHASED' || $status === 'CAPTURED') {
                 $servicePayment = ConsultationPayment::where('payment_reference', $paymentReference)
                                                 ->where('consultation_id', $consultationId)
@@ -541,10 +552,19 @@ class ConsultationController extends Controller
                     $servicePayment->update(['status' => 'completed']);
                 }
 
-                $consultation = Consultation::findOrFail($consultationId);
+                $lawyer = Lawyer::where('id', $consultation->lawyer_id)->first();
+                $total_amount = $paidAmount;
+                $commission = $lawyer->lawfirm?->consultation_commission ?? 0;
+
+                $admin_amount = ($commission > 0) ? ($total_amount * $commission) / 100 : 0;
+                $lawyer_amount = $total_amount - $admin_amount;
+            
                 $consultation->duration += $servicePayment?->duration ?? 0;
                 $consultation->amount += $paidAmount;
+                $consultation->admin_amount += $admin_amount;
+                $consultation->lawyer_amount += $lawyer_amount;
                 $consultation->is_extended = 1;
+                $consultation->status = 'in_progress';
                 $consultation->save();
 
                 return response()->json([
@@ -563,6 +583,8 @@ class ConsultationController extends Controller
                 if ($servicePayment) {
                     $servicePayment->update(['status' => 'failed']);
                 }
+                $consultation->status = 'in_progress';
+                $consultation->save();
             }
         }
         return response()->json(['status'=>false, 'message'=>__('frontend.payment_failed')],200);

@@ -6,7 +6,7 @@
                     <span>Main menu</span>
                 </li>
                 <li class="">
-                    <a href="{{ route('admin.dashboard') }}" class="{{ areActiveRoutes(['admin.dashboard']) }}">
+                    <a href="{{ route('admin.dashboard') }}" class="{{ areActiveRoutes(['admin.dashboard','admin.service-sales']) }}">
                         <span data-feather="home" class="nav-icon"></span>
                         <span class="menu-text">Dashboard</span>
                     </a>
