@@ -37,23 +37,15 @@
         <table class="w-full border">
             <thead class="text-md font-normal">
                 <tr class="bg-[#07683B] text-white font-normal">
-                    {{-- <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.sl_no') }}</th>
+                    <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.sl_no') }}</th>
                     <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.user') }}</th>
-                    <th class="px-6 py-5 font-semibold text-start" width="25%">{{ __('frontend.emirate') }}</th>
+                    <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.emirate') }}</th>
                     <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.position') }}</th>
                     <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.residency_status') }}</th>
-                    <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.applications') }}</th>
-                    <th class="px-6 py-5 font-semibold text-start">{{ __('frontend.status') }}</th>
-                    <th class="px-6 py-5 font-semibold text-start">{{ __('frontend.actions') }}</th> --}}
-                    <th class="px-6 py-5 font-semibold text-center">#</th>
-                    <th class="px-6 py-5 font-semibold text-center">User Name</th>
-                    <th class="px-6 py-5 font-semibold text-center">Emirate</th>
-                    <th class="px-6 py-5 font-semibold text-center">Position</th>
-                    <th class="px-6 py-5 font-semibold text-center">Residency Status</th>
-                    <th class="px-6 py-5 font-semibold text-center">Starting Date</th>
-                    <th class="px-6 py-5 font-semibold text-center w-20" width="20%">Documents</th>
+                    <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.start_date') }}</th>
+                    <th class="px-6 py-5 font-semibold text-center w-20" width="20%">{{ __('frontend.documents') }}</th>
                     {{-- <th class="text-center">Status</th> --}}
-                    <th class="px-6 py-5 font-semibold text-center">Created</th>
+                    <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.created') }}</th>
                 </tr>
             </thead>
             <tbody class="text-[#4D4D4D]">
@@ -103,34 +95,36 @@
                             {{ date('d, M Y', strtotime($req->start_date)) }}
                         </td>
                         
-                            <td style="width: 25%">
-                            @php
-                                $documents = $req->documents;
-                            @endphp
-                            @foreach($documents as $file)
+                        <td style="width: 25%">
+                            <div class="flex flex-wrap gap-4">
                                 @php
-                                    $i++;
-                                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                    $documents = $req->documents;
                                 @endphp
+                                @foreach($documents as $file)
+                                    @php
+                                        $i++;
+                                        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                    @endphp
 
-                                @if(in_array($ext, ['png', 'jpg', 'jpeg', 'webp']))
-                                    <a href="{{ asset(getUploadedImage($file)) }}" data-lightbox="image{{ $i }}" target="_blank">
-                                        <img src="{{ asset(getUploadedImage($file)) }}"  alt="doc" width="50" class="mb-1" />
-                                    </a>
-                                @elseif($ext == 'pdf')
-                                    <a href="{{ asset(getUploadedImage($file)) }}" target="_blank" class="d-inline-block text-danger mr-2">
-                                        <i class="fas fa-file-pdf fa-2x"></i>
-                                    </a>
-                                @elseif(in_array($ext, ['doc', 'docx']))
-                                    <a href="{{ asset(getUploadedImage($file)) }}" target="_blank" class="d-inline-block text-primary mr-2">
-                                        <i class="fas fa-file-word fa-2x"></i>
-                                    </a>
-                                @else
-                                    <a href="{{ asset(getUploadedImage($file)) }}" target="_blank" class="d-inline-block text-secondary mr-2">
-                                        <i class="fas fa-file fa-2x"></i>
-                                    </a>
-                                @endif
-                            @endforeach
+                                    @if(in_array($ext, ['png', 'jpg', 'jpeg', 'webp']))
+                                        <a href="{{ asset(getUploadedImage($file)) }}" data-lightbox="image{{ $i }}" target="_blank">
+                                            <img src="{{ asset(getUploadedImage($file)) }}"  alt="doc" width="50" class="mb-1" />
+                                        </a>
+                                    @elseif($ext == 'pdf')
+                                        <a href="{{ asset(getUploadedImage($file)) }}" target="_blank" class="d-inline-block text-danger mr-2">
+                                            <i class="fas fa-file-pdf fa-2x"></i>
+                                        </a>
+                                    @elseif(in_array($ext, ['doc', 'docx']))
+                                        <a href="{{ asset(getUploadedImage($file)) }}" target="_blank" class="d-inline-block text-primary mr-2">
+                                            <i class="fas fa-file-word fa-2x"></i>
+                                        </a>
+                                    @else
+                                        <a href="{{ asset(getUploadedImage($file)) }}" target="_blank" class="d-inline-block text-secondary mr-2">
+                                            <i class="fas fa-file fa-2x"></i>
+                                        </a>
+                                    @endif
+                                @endforeach
+                            </div>
                         </td>
                         
                         {{-- <td class="text-center">

@@ -43,7 +43,7 @@
             </li>
 
             <li class="flex items-center gap-2">
-                <a href="#" class="contents {{ areActiveWebRoutes(['user.service.history','user.service.history.details']) }}">
+                <a href="{{ route('vendor.consultations.index') }}" class="contents {{ areActiveWebRoutes(['vendor.consultations.index','vendor.consultations.show']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"
                         fill="none">
                         <path fill-rule="evenodd" clip-rule="evenodd"

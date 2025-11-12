@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Consultation;
+use App\Models\ConsultationAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
@@ -48,111 +50,65 @@ class VendorHomeController extends Controller
     {
         $this->fileService = $fileService;
     }
-     public function dashboard()
+    public function dashboard()
     {
-        $translatorId = Auth::id();
         $lawfirmId = Auth::guard('frontend')->user()->vendor?->id;
 
         $lang = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $services = \App\Models\Service::with('translations')->get();
 
-        $totalLawyers = Lawyer::where('lawfirm_id',$lawfirmId)->count();
+        $lawyers = Lawyer::where('lawfirm_id',$lawfirmId)->get();
 
-        $legalTranslationRequests = RequestLegalTranslation::where('assigned_translator_id', Auth::guard('frontend')->user()->translator?->id)
-            ->with(['serviceRequest', 'documentLanguage', 'translationLanguage'])
-            ->get();
+        $allLawyers = $lawyers->pluck('id')->toArray();
 
-        $totalTranslations = $legalTranslationRequests->count();
-
-        $completedTranslations = $legalTranslationRequests->filter(function ($item) {
-            return $item->serviceRequest && in_array($item->serviceRequest->status, ['completed']);
-        })->count();
-
-        $pendingTranslations = $legalTranslationRequests->filter(function ($item) {
-            return $item->serviceRequest && in_array($item->serviceRequest->status, ['pending']);
-        })->count();
-
-        $inProgressTranslations = $legalTranslationRequests->filter(function ($item) {
-            return $item->serviceRequest && in_array($item->serviceRequest->status, ['under_review', 'ongoing']);
-        })->count();
-
-        $currentMonthIncome = $legalTranslationRequests->filter(function ($item) {
-            return $item->serviceRequest &&
-                $item->serviceRequest->paid_at &&
-                Carbon::parse($item->serviceRequest->paid_at)->isCurrentMonth()
-                && in_array($item->serviceRequest->status, ['completed']);
-        })->sum('translator_amount');
-
-        $totalIncome = $legalTranslationRequests->filter(function ($item) {
-            return $item->serviceRequest &&
-                $item->serviceRequest->paid_at
-                && in_array($item->serviceRequest->status, ['completed']);
-        })->sum('translator_amount');
-
+        $totalLawyers = $lawyers->count();
         $currentYear = Carbon::now()->year;
         $year = request()->get('consultation_year', $currentYear);
-
-        $monthlyTranslations = RequestLegalTranslation::where('assigned_translator_id', Auth::guard('frontend')->user()->translator?->id)
-            ->whereHas('serviceRequest', function ($query) use ($year) {
-                $query->whereYear('created_at', $year);
-            })
-            ->with(['serviceRequest'])
-            ->get()
-            ->groupBy(function ($item) {
-                return $item->serviceRequest ? Carbon::parse($item->serviceRequest->created_at)->format('m') : null;
-            })
-            ->map(function ($group) {
-                return $group->count();
-            })
-            ->toArray();
-
-
-        $monthlyData = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $month = str_pad($i, 2, '0', STR_PAD_LEFT);
-            $monthlyData[$month] = $monthlyTranslations[$month] ?? 0;
-        }
-
-
-        $serviceRequests = $legalTranslationRequests
-            ->sortByDesc(function ($item) {
-                return $item->serviceRequest ? $item->serviceRequest->created_at : $item->created_at;
-            })
-            ->take(10)
-            ->map(function ($item) {
-                $serviceRequest = $item->serviceRequest;
-                return [
-                    'reference_code' => $serviceRequest ? $serviceRequest->reference_code : 'N/A',
-                    'date_time' => $serviceRequest ? $serviceRequest->created_at->format('Y-m-d H:i A') : $item->created_at->format('Y-m-d H:i A'),
-                    'document_language' => $item->documentLanguage ? $item->documentLanguage->name : 'N/A',
-                    'translation_language' => $item->translationLanguage ? $item->translationLanguage->name : 'N/A',
-                    'no_of_pages' => $item->no_of_pages ?? 'N/A',
-                    'status' => $serviceRequest ? $serviceRequest->status : 'N/A',
-                    'service_request_id' => $serviceRequest ? $serviceRequest->id : null
-                ];
-            });
-
-        $notificationsResult = $result = $this->getTranslatorNotifications();
+        
+        $notificationsResult = $result = $this->getNotifications();
         $notifications = $notificationsResult['notifications'];
 
         $totalTranslations = RequestLegalTranslation::where('user_id', Auth::guard('frontend')->user()?->id)->count();
         $totalJobs = JobPost::where('user_id', Auth::guard('frontend')->user()?->id)->count();
 
+        $totalIncome = Consultation::whereIn('lawyer_id', $allLawyers)
+                                    ->where('request_success', 1)
+                                    ->where('status', 'completed')
+                                    ->sum('lawyer_amount');
+
+        $acceptedConsultations = ConsultationAssignment::whereIn('lawyer_id', $allLawyers)
+                                    ->where('status', 'accepted')
+                                    ->count();
+        $rejectedConsultations = ConsultationAssignment::whereIn('lawyer_id', $allLawyers)
+                                    ->where('status', 'rejected')
+                                    ->count();
+
+        $monthlyData = [];
+        $monthlyData = Consultation::select(
+                                    DB::raw('MONTH(created_at) as month'),
+                                    DB::raw('COUNT(id) as total')
+                                )
+                                ->whereYear('created_at', $year)
+                                ->whereIn('lawyer_id', $allLawyers)
+                                ->where('request_success', 1)
+                                ->where('status', 'completed')
+                                ->groupBy('month')
+                                ->pluck('total', 'month')
+                                ->toArray();
+
+        $conQuery = Consultation::with(['user', 'lawyer', 'emirate'])->whereIn('lawyer_id', $allLawyers);
+        $consultations = $conQuery->where('request_success', 1)->orderBy('id', 'desc')->limit(10)->get();
+
         return view('frontend.vendor.dashboard', compact('totalLawyers','totalJobs',
-            'totalTranslations',
-            'completedTranslations',
-            'pendingTranslations',
-            'inProgressTranslations',
-            'currentMonthIncome',
-            'serviceRequests',
+            'totalTranslations', 'acceptedConsultations', 'rejectedConsultations',
             'totalIncome',
-            'notifications',
             'monthlyData',
-            'year'
+            'notifications',
+            'year','consultations'
         ));
     }
 
-     public function getTranslatorNotifications()
+    public function getNotifications()
     {
         $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $services   = \App\Models\Service::with('translations')->get();
@@ -1461,5 +1417,81 @@ class VendorHomeController extends Controller
 
             return view('frontend.vendor.translation.request_failed', ['data' => $response, 'lang' => $lang]);
         }
+    }
+
+    public function consultationsIndex(Request $request)
+    {
+        $lawfirmId = Auth::guard('frontend')->user()->vendor?->id;
+
+        $lang = app()->getLocale() ?? env('APP_LOCALE', 'en');
+
+        $lawyers = Lawyer::where('lawfirm_id',$lawfirmId)->get();
+
+        $allLawyers = $lawyers->pluck('id')->toArray();
+
+        $request->session()->put('last_page_consultations', url()->full());
+
+        $conQuery = Consultation::with(['user', 'lawyer', 'emirate']);
+            
+        if($request->filled('lawyer_id')) {
+            $conQuery->where('lawyer_id', $request->lawyer_id);
+        }else{
+            $conQuery->whereIn('lawyer_id', $allLawyers);
+        }
+
+        if($request->filled('specialities')) {
+            $conQuery->where('case_type', $request->specialities);
+        }
+
+        if($request->filled('language')) {
+            $conQuery->where('language', $request->language);
+        }
+
+        if($request->filled('status')) {
+            $conQuery->where('status', $request->status);
+        }
+
+        if ($request->filled('daterange')) {
+            $dates = explode(' to ', $request->daterange);
+            if (count($dates) === 2) {
+                $conQuery->whereBetween('created_at', [
+                    Carbon::parse($dates[0])->startOfDay(),
+                    Carbon::parse($dates[1])->endOfDay()
+                ]);
+            }
+        }
+
+        if($request->filled('keyword')) {
+            $keyword = $request->keyword;
+            $conQuery->where(function ($q) use ($keyword){
+                $q->where('ref_code', 'like', "%{$keyword}%");
+                $q->orWhereHas('user', function ($userQuery) use ($keyword) {
+                    $userQuery->where('name', 'like', "%{$keyword}%")
+                            ->orWhere('email', 'like', "%{$keyword}%")
+                            ->orWhere('phone', 'like', "%{$keyword}%");
+                });
+            });
+        }
+
+        $consultations = $conQuery->where('request_success', 1)->orderBy('id', 'desc')
+                            ->paginate(15);
+
+        $dropdowns = Dropdown::with(['options.translations' => function ($q) {
+            $q->where('language_code', 'en');
+        }])->whereIn('slug', ['specialities', 'case_stage','languages'])->get()->keyBy('slug');
+
+        return view('frontend.vendor.consultations.index', compact('consultations', 'lawyers', 'dropdowns'));
+    }
+
+    public function showConsultation($id)
+    {
+        $consultation = Consultation::with([
+            'user', 'lawyer', 'emirate', 
+            'caseType', 'caseStage',
+            'assignments.lawyer', 
+            'payments'
+        ])->find($id);
+
+        return view('frontend.vendor.consultations.show', compact('consultation'));
     }
 }

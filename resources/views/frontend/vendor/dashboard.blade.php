@@ -5,32 +5,36 @@
     <h2 class="text-xl font-medium text-gray-800 mb-4">
         {{ __('frontend.dashboard') }}
     </h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <div class="bg-white rounded-lg p-6 flex justify-between items-start space-x-4 border border-[#FFE9B1] h-full">
-            <div>
-                <h3 class="text-black text-md">{{ __('frontend.total_lawyers') }}</h3>
-                <h4 class="font-semibold text-[24px]">{{ $totalLawyers ?? 0 }}</h4>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
+        <a href="{{ route('vendor.lawyers') }}">
+            <div class="bg-white rounded-lg p-6 flex justify-between items-start space-x-4 border border-[#FFE9B1] h-full">
+                <div>
+                    <h3 class="text-black text-md">{{ __('frontend.total_lawyers') }}</h3>
+                    <h4 class="font-semibold text-[24px]">{{ $totalLawyers ?? 0 }}</h4>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="38" height="45" viewBox="0 0 38 45" fill="none">
+                    <g clip-path="url(#clip0_926_15308)">
+                        <path
+                            d="M29.6338 27.163L25.7093 25.3472L21.2077 38.8265L20.2843 31.2138H20.8614L21.7271 29.1186L20.8614 27.0234H17.2832L16.4175 29.1186L17.2832 31.2138H17.8604L16.937 39.0361L12.4931 25.6964L8.45316 27.2329C5.45208 28.49 3.43213 31.9123 3.43213 35.6837V44.4837H34.5971V35.6837C34.5971 31.9123 32.5772 28.49 29.6338 27.163ZM17.9181 29.817L17.6295 29.1186L17.9181 28.4202H20.1112L20.3997 29.1186L20.1112 29.817H17.9181ZM4.58639 43.0869V35.6837C4.58639 32.471 6.26006 29.5376 8.79943 28.49L11.8005 27.3726L16.9947 43.0869H4.58639ZM18.2644 43.0869L17.7449 41.6202L18.9569 31.2138H19.1301L20.3997 41.4107L19.8226 43.0869H18.2644ZM33.4429 43.0869H21.0346L26.3442 27.163L29.2298 28.49C31.7692 29.6075 33.4429 32.471 33.4429 35.7535V43.0869Z"
+                            fill="#B9A572" />
+                        <path
+                            d="M9.54991 15.0107C9.54991 16.8964 11.0505 16.5472 11.0505 16.5472C12.3201 21.0171 15.2635 25.6266 19.0148 25.6266C22.7662 25.6266 25.7095 21.0171 26.9792 16.5472C27.7872 16.4075 28.4221 15.7091 28.4798 14.7313L28.826 12.5663C28.8838 12.0075 28.7106 10.7504 27.6141 10.3313C27.2678 7.11864 24.7284 1.18213 19.0148 1.18213C14.6287 1.18213 11.0505 5.09324 10.4733 10.3313C9.31906 10.8202 9.20364 12.0075 9.26135 12.6361C9.20364 12.6361 9.54991 14.871 9.54991 15.0107ZM19.0148 2.57895C21.5542 2.57895 23.7473 4.11546 25.1324 6.49007L21.0348 4.11546C21.0348 4.11546 19.592 8.86467 15.4366 8.86467H11.8584C12.8973 5.16308 15.7252 2.57895 19.0148 2.57895ZM10.9927 11.6583H11.5122C11.5122 11.6583 11.6276 10.5409 11.6276 10.2615H15.4944C18.0337 10.2615 20.3422 8.5853 21.6119 5.93134L26.0558 8.51546C26.5175 9.98213 26.5752 11.6583 26.5752 11.6583H27.1524C27.6141 11.7282 27.7295 12.2171 27.7295 12.3567L27.3832 14.5218C27.3255 14.871 27.0947 15.1504 26.8061 15.1504H26.1713L26.0558 15.6393C24.9593 19.8996 22.2468 24.2297 19.0726 24.2297C15.8983 24.2297 13.1858 19.8996 12.0893 15.6393L11.9739 15.1504H10.8196C10.8196 15.0805 10.7042 13.6139 10.4733 12.4266C10.3002 12.2171 10.4156 11.6583 10.9927 11.6583Z"
+                            fill="#B9A572" />
+                    </g>
+                    <defs>
+                        <clipPath id="clip0_926_15308">
+                            <rect width="36.3592" height="44" fill="white" transform="translate(0.834961 0.833008)" />
+                        </clipPath>
+                    </defs>
+                </svg>
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="38" height="45" viewBox="0 0 38 45" fill="none">
-                <g clip-path="url(#clip0_926_15308)">
-                    <path
-                        d="M29.6338 27.163L25.7093 25.3472L21.2077 38.8265L20.2843 31.2138H20.8614L21.7271 29.1186L20.8614 27.0234H17.2832L16.4175 29.1186L17.2832 31.2138H17.8604L16.937 39.0361L12.4931 25.6964L8.45316 27.2329C5.45208 28.49 3.43213 31.9123 3.43213 35.6837V44.4837H34.5971V35.6837C34.5971 31.9123 32.5772 28.49 29.6338 27.163ZM17.9181 29.817L17.6295 29.1186L17.9181 28.4202H20.1112L20.3997 29.1186L20.1112 29.817H17.9181ZM4.58639 43.0869V35.6837C4.58639 32.471 6.26006 29.5376 8.79943 28.49L11.8005 27.3726L16.9947 43.0869H4.58639ZM18.2644 43.0869L17.7449 41.6202L18.9569 31.2138H19.1301L20.3997 41.4107L19.8226 43.0869H18.2644ZM33.4429 43.0869H21.0346L26.3442 27.163L29.2298 28.49C31.7692 29.6075 33.4429 32.471 33.4429 35.7535V43.0869Z"
-                        fill="#B9A572" />
-                    <path
-                        d="M9.54991 15.0107C9.54991 16.8964 11.0505 16.5472 11.0505 16.5472C12.3201 21.0171 15.2635 25.6266 19.0148 25.6266C22.7662 25.6266 25.7095 21.0171 26.9792 16.5472C27.7872 16.4075 28.4221 15.7091 28.4798 14.7313L28.826 12.5663C28.8838 12.0075 28.7106 10.7504 27.6141 10.3313C27.2678 7.11864 24.7284 1.18213 19.0148 1.18213C14.6287 1.18213 11.0505 5.09324 10.4733 10.3313C9.31906 10.8202 9.20364 12.0075 9.26135 12.6361C9.20364 12.6361 9.54991 14.871 9.54991 15.0107ZM19.0148 2.57895C21.5542 2.57895 23.7473 4.11546 25.1324 6.49007L21.0348 4.11546C21.0348 4.11546 19.592 8.86467 15.4366 8.86467H11.8584C12.8973 5.16308 15.7252 2.57895 19.0148 2.57895ZM10.9927 11.6583H11.5122C11.5122 11.6583 11.6276 10.5409 11.6276 10.2615H15.4944C18.0337 10.2615 20.3422 8.5853 21.6119 5.93134L26.0558 8.51546C26.5175 9.98213 26.5752 11.6583 26.5752 11.6583H27.1524C27.6141 11.7282 27.7295 12.2171 27.7295 12.3567L27.3832 14.5218C27.3255 14.871 27.0947 15.1504 26.8061 15.1504H26.1713L26.0558 15.6393C24.9593 19.8996 22.2468 24.2297 19.0726 24.2297C15.8983 24.2297 13.1858 19.8996 12.0893 15.6393L11.9739 15.1504H10.8196C10.8196 15.0805 10.7042 13.6139 10.4733 12.4266C10.3002 12.2171 10.4156 11.6583 10.9927 11.6583Z"
-                        fill="#B9A572" />
-                </g>
-                <defs>
-                    <clipPath id="clip0_926_15308">
-                        <rect width="36.3592" height="44" fill="white" transform="translate(0.834961 0.833008)" />
-                    </clipPath>
-                </defs>
-            </svg>
-        </div>
+        </a>
+
+
         <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
             <div>
-                <h3 class="text-black text-md">{{ __('frontend.total_consultations') }}</h3>
-                <h4 class="font-semibold text-[24px]">0</h4>
+                <h3 class="text-black text-md">{{ __('frontend.total_accepted_cases') }}</h3>
+                <h4 class="font-semibold text-[24px]">{{ $acceptedConsultations ?? 0 }}</h4>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" width="65" height="65" viewBox="0 0 35 35" fill="none">
                 <g clip-path="url(#clip0_390_9523)">
@@ -54,64 +58,71 @@
                 </defs>
             </svg>
         </div>
-        <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
-            <div>
-                <h3 class="text-black text-md">{{ __('frontend.total_translation_requests') }}</h3>
-                <h4 class="font-semibold text-[24px]">{{ $totalTranslations }}</h4>
+
+        <a href="{{ route('vendor.translation-requests') }}">
+            <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
+                <div>
+                    <h3 class="text-black text-md">{{ __('frontend.total_translation_requests') }}</h3>
+                    <h4 class="font-semibold text-[24px]">{{ $totalTranslations ?? 0 }}</h4>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="65" height="65" viewBox="0 0 35 35" fill="none">
+                    <g clip-path="url(#clip0_390_9539)">
+                        <path
+                            d="M30.9589 14.4569H19.7829V3.2808C19.7829 1.48938 18.3306 0.0371094 16.5391 0.0371094H3.41692C1.63359 0.0452647 0.194516 1.49747 0.202671 3.28073V16.3883C0.202671 18.1635 1.64174 19.6026 3.41692 19.6026H14.6224V30.8081C14.6224 32.5832 16.0615 34.0223 17.8367 34.0223H30.9442C32.7275 34.0305 34.1797 32.5915 34.1879 30.8081V17.7006C34.1879 15.9149 32.7446 14.465 30.9589 14.4569ZM14.6224 17.7153V18.143L3.41692 18.1282C2.45604 18.1282 1.67713 17.3492 1.67713 16.3884V3.2808C1.66898 2.31183 2.44781 1.51966 3.41685 1.5115C3.41692 1.5115 3.41692 1.5115 3.41698 1.5115H16.5245C17.5016 1.5115 18.2938 2.30367 18.2938 3.2808V14.4716H17.8367C16.0534 14.4798 14.6143 15.932 14.6224 17.7153ZM32.7282 30.8081C32.7201 31.7771 31.928 32.5561 30.9591 32.5479C30.959 32.5479 30.959 32.5479 30.9589 32.5479H17.8514C16.8905 32.5479 16.1116 31.769 16.1116 30.8081V17.7006C16.1035 16.7316 16.8823 15.9394 17.8513 15.9313C17.8514 15.9313 17.8514 15.9313 17.8515 15.9313H30.9589C31.936 15.9313 32.7282 16.7234 32.7282 17.7006V30.8081Z"
+                            fill="#B9A572" />
+                        <path
+                            d="M28.7627 28.8471L25.1062 19.1307C24.925 18.748 24.4679 18.5846 24.0852 18.7658C23.925 18.8416 23.7961 18.9706 23.7203 19.1307L20.1521 28.8324C20.0096 29.2152 20.2044 29.6409 20.5871 29.7834C20.9698 29.9259 21.3956 29.7312 21.5381 29.3485L22.408 27.0189H26.5069L27.3768 29.3485C27.4824 29.6404 27.7594 29.8349 28.0698 29.8351C28.477 29.8348 28.8069 29.5047 28.8067 29.0975C28.8066 29.0121 28.7917 28.9275 28.7627 28.8471ZM22.9093 25.5592L24.3837 21.5046L25.8581 25.5592H22.9093Z"
+                            fill="#B9A572" />
+                        <path
+                            d="M14.6672 14.5158C13.4251 14.5134 12.2089 14.1608 11.1582 13.4984C12.4577 12.1662 13.2594 10.4273 13.4287 8.57393H14.6672C15.0744 8.57393 15.4045 8.24384 15.4045 7.8367C15.4045 7.42955 15.0744 7.09947 14.6672 7.09947H10.7306V4.40129C10.7306 3.99415 10.4005 3.66406 9.99332 3.66406C9.58617 3.66406 9.25609 3.99415 9.25609 4.40129V7.09947H5.28996C4.88282 7.09947 4.55273 7.42955 4.55273 7.8367C4.55273 8.24384 4.88282 8.57393 5.28996 8.57393H6.54319C6.71369 10.4271 7.51527 12.1655 8.81377 13.4984C7.762 14.1585 6.54644 14.511 5.30469 14.5158C4.89754 14.5158 4.56746 14.8459 4.56746 15.253C4.56746 15.6602 4.89754 15.9903 5.30469 15.9903C6.98213 15.9937 8.61977 15.4787 9.99332 14.5159C11.3615 15.4785 12.9943 15.9936 14.6672 15.9903C15.0744 15.9903 15.4045 15.6602 15.4045 15.253C15.4045 14.8459 15.0744 14.5158 14.6672 14.5158ZM8.06188 8.57393H11.9248C11.7686 10.1037 11.0859 11.5317 9.99332 12.6138C8.90182 11.531 8.21926 10.1033 8.06188 8.57393Z"
+                            fill="#B9A572" />
+                        <path
+                            d="M34.1591 11.1542C34.1511 5.04069 29.2143 0.0776097 23.101 0.0371094C22.6939 0.0371094 22.3638 0.367194 22.3638 0.774339C22.3638 1.18148 22.6939 1.51157 23.101 1.51157C28.2362 1.52111 32.4629 5.55344 32.7142 10.6824H30.2814C29.8742 10.6824 29.5441 11.0125 29.5441 11.4196C29.5441 11.8268 29.8742 12.1569 30.2814 12.1569H33.4219C33.829 12.1569 34.1591 11.8268 34.1591 11.4196C34.1632 11.3755 34.1632 11.3311 34.1591 11.2869C34.1632 11.2428 34.1632 11.1983 34.1591 11.1542Z"
+                            fill="#B9A572" />
+                        <path
+                            d="M11.3058 32.5626C6.17604 32.5535 1.95143 28.5297 1.69261 23.4065H4.1106C4.51774 23.4065 4.84783 23.0764 4.84783 22.6693C4.84783 22.2621 4.51774 21.9321 4.1106 21.9321H0.984887C0.577741 21.9321 0.247657 22.2622 0.247657 22.6694C0.244271 22.7086 0.244271 22.7481 0.247657 22.7873C0.244271 22.8266 0.244271 22.8661 0.247657 22.9053C0.247519 29.0246 5.18662 33.9966 11.3058 34.0372C11.7129 34.0372 12.043 33.7071 12.043 33.2999C12.043 32.8928 11.7129 32.5626 11.3058 32.5626Z"
+                            fill="#B9A572" />
+                    </g>
+                    <defs>
+                        <clipPath id="clip0_390_9539">
+                            <rect width="34" height="34" fill="white" transform="translate(0.195801 0.0371094)" />
+                        </clipPath>
+                    </defs>
+                </svg>
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="65" height="65" viewBox="0 0 35 35" fill="none">
-                <g clip-path="url(#clip0_390_9539)">
-                    <path
-                        d="M30.9589 14.4569H19.7829V3.2808C19.7829 1.48938 18.3306 0.0371094 16.5391 0.0371094H3.41692C1.63359 0.0452647 0.194516 1.49747 0.202671 3.28073V16.3883C0.202671 18.1635 1.64174 19.6026 3.41692 19.6026H14.6224V30.8081C14.6224 32.5832 16.0615 34.0223 17.8367 34.0223H30.9442C32.7275 34.0305 34.1797 32.5915 34.1879 30.8081V17.7006C34.1879 15.9149 32.7446 14.465 30.9589 14.4569ZM14.6224 17.7153V18.143L3.41692 18.1282C2.45604 18.1282 1.67713 17.3492 1.67713 16.3884V3.2808C1.66898 2.31183 2.44781 1.51966 3.41685 1.5115C3.41692 1.5115 3.41692 1.5115 3.41698 1.5115H16.5245C17.5016 1.5115 18.2938 2.30367 18.2938 3.2808V14.4716H17.8367C16.0534 14.4798 14.6143 15.932 14.6224 17.7153ZM32.7282 30.8081C32.7201 31.7771 31.928 32.5561 30.9591 32.5479C30.959 32.5479 30.959 32.5479 30.9589 32.5479H17.8514C16.8905 32.5479 16.1116 31.769 16.1116 30.8081V17.7006C16.1035 16.7316 16.8823 15.9394 17.8513 15.9313C17.8514 15.9313 17.8514 15.9313 17.8515 15.9313H30.9589C31.936 15.9313 32.7282 16.7234 32.7282 17.7006V30.8081Z"
-                        fill="#B9A572" />
-                    <path
-                        d="M28.7627 28.8471L25.1062 19.1307C24.925 18.748 24.4679 18.5846 24.0852 18.7658C23.925 18.8416 23.7961 18.9706 23.7203 19.1307L20.1521 28.8324C20.0096 29.2152 20.2044 29.6409 20.5871 29.7834C20.9698 29.9259 21.3956 29.7312 21.5381 29.3485L22.408 27.0189H26.5069L27.3768 29.3485C27.4824 29.6404 27.7594 29.8349 28.0698 29.8351C28.477 29.8348 28.8069 29.5047 28.8067 29.0975C28.8066 29.0121 28.7917 28.9275 28.7627 28.8471ZM22.9093 25.5592L24.3837 21.5046L25.8581 25.5592H22.9093Z"
-                        fill="#B9A572" />
-                    <path
-                        d="M14.6672 14.5158C13.4251 14.5134 12.2089 14.1608 11.1582 13.4984C12.4577 12.1662 13.2594 10.4273 13.4287 8.57393H14.6672C15.0744 8.57393 15.4045 8.24384 15.4045 7.8367C15.4045 7.42955 15.0744 7.09947 14.6672 7.09947H10.7306V4.40129C10.7306 3.99415 10.4005 3.66406 9.99332 3.66406C9.58617 3.66406 9.25609 3.99415 9.25609 4.40129V7.09947H5.28996C4.88282 7.09947 4.55273 7.42955 4.55273 7.8367C4.55273 8.24384 4.88282 8.57393 5.28996 8.57393H6.54319C6.71369 10.4271 7.51527 12.1655 8.81377 13.4984C7.762 14.1585 6.54644 14.511 5.30469 14.5158C4.89754 14.5158 4.56746 14.8459 4.56746 15.253C4.56746 15.6602 4.89754 15.9903 5.30469 15.9903C6.98213 15.9937 8.61977 15.4787 9.99332 14.5159C11.3615 15.4785 12.9943 15.9936 14.6672 15.9903C15.0744 15.9903 15.4045 15.6602 15.4045 15.253C15.4045 14.8459 15.0744 14.5158 14.6672 14.5158ZM8.06188 8.57393H11.9248C11.7686 10.1037 11.0859 11.5317 9.99332 12.6138C8.90182 11.531 8.21926 10.1033 8.06188 8.57393Z"
-                        fill="#B9A572" />
-                    <path
-                        d="M34.1591 11.1542C34.1511 5.04069 29.2143 0.0776097 23.101 0.0371094C22.6939 0.0371094 22.3638 0.367194 22.3638 0.774339C22.3638 1.18148 22.6939 1.51157 23.101 1.51157C28.2362 1.52111 32.4629 5.55344 32.7142 10.6824H30.2814C29.8742 10.6824 29.5441 11.0125 29.5441 11.4196C29.5441 11.8268 29.8742 12.1569 30.2814 12.1569H33.4219C33.829 12.1569 34.1591 11.8268 34.1591 11.4196C34.1632 11.3755 34.1632 11.3311 34.1591 11.2869C34.1632 11.2428 34.1632 11.1983 34.1591 11.1542Z"
-                        fill="#B9A572" />
-                    <path
-                        d="M11.3058 32.5626C6.17604 32.5535 1.95143 28.5297 1.69261 23.4065H4.1106C4.51774 23.4065 4.84783 23.0764 4.84783 22.6693C4.84783 22.2621 4.51774 21.9321 4.1106 21.9321H0.984887C0.577741 21.9321 0.247657 22.2622 0.247657 22.6694C0.244271 22.7086 0.244271 22.7481 0.247657 22.7873C0.244271 22.8266 0.244271 22.8661 0.247657 22.9053C0.247519 29.0246 5.18662 33.9966 11.3058 34.0372C11.7129 34.0372 12.043 33.7071 12.043 33.2999C12.043 32.8928 11.7129 32.5626 11.3058 32.5626Z"
-                        fill="#B9A572" />
-                </g>
-                <defs>
-                    <clipPath id="clip0_390_9539">
-                        <rect width="34" height="34" fill="white" transform="translate(0.195801 0.0371094)" />
-                    </clipPath>
-                </defs>
-            </svg>
-        </div>
-        <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
-            <div>
-                <h3 class="text-black text-md">{{ __('frontend.total_jobs_posted') }}</h3>
-                <h4 class="font-semibold text-[24px]">{{ $totalJobs }}</h4>
+        </a>
+
+        <a href="{{ route('jobs.index') }}">
+            <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
+                <div>
+                    <h3 class="text-black text-md">{{ __('frontend.total_jobs_posted') }}</h3>
+                    <h4 class="font-semibold text-[24px]">{{ $totalJobs ?? 0 }}</h4>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 40 40" fill="none">
+                    <g clip-path="url(#clip0_926_15361)">
+                        <path
+                            d="M35.4438 35.7705H4.56885C2.29385 35.7705 0.506348 33.983 0.506348 31.708V12.208C0.506348 9.93301 2.29385 8.14551 4.56885 8.14551H35.4438C37.7188 8.14551 39.5063 9.93301 39.5063 12.208V31.708C39.5063 33.983 37.7188 35.7705 35.4438 35.7705ZM4.56885 9.77051C3.26885 9.77051 2.13135 10.908 2.13135 12.208V31.708C2.13135 33.008 3.26885 34.1455 4.56885 34.1455H35.4438C36.7438 34.1455 37.8813 33.008 37.8813 31.708V12.208C37.8813 10.908 36.7438 9.77051 35.4438 9.77051H4.56885Z"
+                            fill="#B9A572" />
+                        <path
+                            d="M25.6938 9.77051C25.2063 9.77051 24.8813 9.44551 24.8813 8.95801V5.70801C24.8813 5.22051 24.5563 4.89551 24.0688 4.89551H15.9438C15.4563 4.89551 15.1313 5.22051 15.1313 5.70801V8.95801C15.1313 9.44551 14.8063 9.77051 14.3188 9.77051C13.8313 9.77051 13.5063 9.44551 13.5063 8.95801V5.70801C13.5063 4.40801 14.6438 3.27051 15.9438 3.27051H24.0688C25.3688 3.27051 26.5063 4.40801 26.5063 5.70801V8.95801C26.5063 9.44551 26.1813 9.77051 25.6938 9.77051Z"
+                            fill="#B9A572" />
+                        <path
+                            d="M20.0061 22.7704C19.8436 22.7704 19.8436 22.7704 19.6811 22.7704L0.993613 16.2704C0.668613 16.1079 0.343613 15.6204 0.506113 15.1329C0.668613 14.8079 1.15611 14.4829 1.64361 14.6454L20.0061 21.1454L38.3686 14.6454C38.8561 14.4829 39.1811 14.6454 39.3436 15.1329C39.5061 15.6204 39.3436 15.9454 38.8561 16.1079L20.1686 22.6079C20.1686 22.7704 20.1686 22.7704 20.0061 22.7704Z"
+                            fill="#B9A572" />
+                    </g>
+                    <defs>
+                        <clipPath id="clip0_926_15361">
+                            <rect width="39" height="39" fill="white" transform="translate(0.506348 0.0205078)" />
+                        </clipPath>
+                    </defs>
+                </svg>
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 40 40" fill="none">
-                <g clip-path="url(#clip0_926_15361)">
-                    <path
-                        d="M35.4438 35.7705H4.56885C2.29385 35.7705 0.506348 33.983 0.506348 31.708V12.208C0.506348 9.93301 2.29385 8.14551 4.56885 8.14551H35.4438C37.7188 8.14551 39.5063 9.93301 39.5063 12.208V31.708C39.5063 33.983 37.7188 35.7705 35.4438 35.7705ZM4.56885 9.77051C3.26885 9.77051 2.13135 10.908 2.13135 12.208V31.708C2.13135 33.008 3.26885 34.1455 4.56885 34.1455H35.4438C36.7438 34.1455 37.8813 33.008 37.8813 31.708V12.208C37.8813 10.908 36.7438 9.77051 35.4438 9.77051H4.56885Z"
-                        fill="#B9A572" />
-                    <path
-                        d="M25.6938 9.77051C25.2063 9.77051 24.8813 9.44551 24.8813 8.95801V5.70801C24.8813 5.22051 24.5563 4.89551 24.0688 4.89551H15.9438C15.4563 4.89551 15.1313 5.22051 15.1313 5.70801V8.95801C15.1313 9.44551 14.8063 9.77051 14.3188 9.77051C13.8313 9.77051 13.5063 9.44551 13.5063 8.95801V5.70801C13.5063 4.40801 14.6438 3.27051 15.9438 3.27051H24.0688C25.3688 3.27051 26.5063 4.40801 26.5063 5.70801V8.95801C26.5063 9.44551 26.1813 9.77051 25.6938 9.77051Z"
-                        fill="#B9A572" />
-                    <path
-                        d="M20.0061 22.7704C19.8436 22.7704 19.8436 22.7704 19.6811 22.7704L0.993613 16.2704C0.668613 16.1079 0.343613 15.6204 0.506113 15.1329C0.668613 14.8079 1.15611 14.4829 1.64361 14.6454L20.0061 21.1454L38.3686 14.6454C38.8561 14.4829 39.1811 14.6454 39.3436 15.1329C39.5061 15.6204 39.3436 15.9454 38.8561 16.1079L20.1686 22.6079C20.1686 22.7704 20.1686 22.7704 20.0061 22.7704Z"
-                        fill="#B9A572" />
-                </g>
-                <defs>
-                    <clipPath id="clip0_926_15361">
-                        <rect width="39" height="39" fill="white" transform="translate(0.506348 0.0205078)" />
-                    </clipPath>
-                </defs>
-            </svg>
-        </div>
+        </a>
+
         <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
             <div>
                 <h3 class="text-black text-md">{{ __('frontend.total_rejected_cases') }}</h3>
-                <h4 class="font-semibold text-[24px]">0</h4>
+                <h4 class="font-semibold text-[24px]">{{ $rejectedConsultations ?? 0 }}</h4>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" width="61" height="62" viewBox="0 0 31 32" fill="none">
                 <g clip-path="url(#clip0_1077_18204)">
@@ -132,10 +143,11 @@
                 </defs>
             </svg>
         </div>
-        {{-- <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
+
+        <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
             <div>
                 <h3 class="text-black text-md">{{ __('frontend.total_income') }}</h3>
-                <h4 class="font-semibold text-[24px]">{{ __('frontend.AED') }} {{ number_format($totalIncome, 2) }}</h4>
+                <h4 class="font-semibold text-[22px]">{{ __('frontend.AED') }} {{ number_format($totalIncome, 2) }}</h4>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" width="74" height="71" viewBox="0 0 44 41" fill="none">
                 <path
@@ -151,7 +163,7 @@
                     d="M32.9662 8.77491C32.8254 8.70906 32.663 8.69923 32.5146 8.74757C32.3662 8.79592 32.2441 8.89848 32.175 9.0327L30.8008 11.703C30.7664 11.7695 30.7461 11.8418 30.741 11.9158C30.7359 11.9898 30.7462 12.064 30.7713 12.1342C30.7963 12.2044 30.8356 12.2692 30.887 12.3248C30.9383 12.3805 31.0007 12.426 31.0705 12.4587C31.1403 12.4913 31.2162 12.5105 31.2938 12.5152C31.3714 12.5199 31.4492 12.5099 31.5228 12.4858C31.5963 12.4618 31.6642 12.4241 31.7225 12.375C31.7807 12.3259 31.8283 12.2664 31.8624 12.1997L33.2366 9.52941C33.2708 9.46295 33.2909 9.3907 33.2958 9.31681C33.3008 9.24292 33.2904 9.16883 33.2653 9.09877C33.2402 9.0287 33.2008 8.96404 33.1495 8.90847C33.0982 8.8529 33.0359 8.80752 32.9662 8.77491Z"
                     fill="#B9A572" />
             </svg>
-        </div> --}}
+        </div>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
@@ -160,11 +172,11 @@
         <div class="lg:col-span-2 bg-white rounded-lg p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-medium text-gray-900">
-                    Number of Consultations
+                    {{ __('frontend.no_of_completed_consultations') }}
                 </h2>
                 @php
                     $currentYear = now()->year;
-                    $minYear = 2025; // stop at 2025
+                    $minYear = 2024; // stop at 2025
                     $endYear = max($currentYear - 9, $minYear);
                 @endphp
 
@@ -215,29 +227,72 @@
     </div>
     <div class="bg-white rounded-lg p-6">
         <h2 class="text-xl font-medium text-gray-900 mb-4">
-           Recent Consultations
+            {{ __('frontend.recent_consultations') }}
         </h2>
         <div class="relative overflow-x-auto sm:rounded-lg">
             <table class="w-full border">
                 <thead class="text-md font-normal">
                     <tr class="bg-[#07683B] text-white font-normal">
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Ref. No</th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Date and Time</th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Lawyer Name</th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Duration</th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Case Type</th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Client Name</th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Actions</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.sl_no') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.ref_no') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.date') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.lawyer') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.duration') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.client_name') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center" >{{ __('frontend.amount') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.actions') }}</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-[#4D4D4D]">
+                    @php
+                        $i = 0;
+                    @endphp
+                    @forelse($consultations as $key => $consultation)
+                        
+                        <tr  class="border-b text-[#4D4D4D]">
+                            <td class="px-6 py-4  text-center">
+                                {{ $key + 1  }}
+                            </td>
 
-                    <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                                {{ __('frontend.no_details_found') }}
+                            <td class="px-6 py-4  text-center">
+                                {{ $consultation->ref_code ?? '-' }}
+                            </td>
+
+                            <td class="px-6 py-4 text-center">
+                                {{ date('d, M Y h:i A', strtotime($consultation->created_at)) }}
+                            </td>
+
+                            <td class="px-6 py-4 text-center">
+                                {{ $consultation->lawyer?->full_name ?? '-' }}
+                            </td>
+
+                            <td class="px-6 py-4 text-center">
+                                {{ $consultation->duration ?? 0 }} <small>Mins</small>
+                            </td>
+
+                            <td class="px-6 py-4 text-center">
+                                {{ $consultation->user?->name ?? '—' }}
+                            </td>
+                            
+                            <td class="px-6 py-4 text-center">
+                                <small>AED</small> {{ number_format($consultation->lawyer_amount, 2) }}
+                            </td>
+                        
+                            <td class="px-6 py-4 text-center">
+                                <a href="{{ route('vendor.consultations.show', $consultation->id) }}" class="flex items-center gap-0.5">
+                                    <svg class="w-6 h-6 text-[##4D4D4D]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-width="1.7" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
+                                        <path stroke="currentColor" stroke-width="1.7" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                    </svg>
+                                    <span>View</span>
+                                </a>
                             </td>
                         </tr>
-
+                    @empty
+                        <tr>
+                            <td colspan="8" class="px-6 py-4 text-center">{{ __('frontend.no_data_found') }}</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -246,117 +301,37 @@
 
 @section('script')
     <script>
-        const monthNames = [
-            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-        ];
-
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const monthlyData = @json($monthlyData);
 
-        const chartData = [{
-                name: 'Jan',
-                y: 0,
-                color: '#FFE9B1'
-            },
-            {
-                name: 'Feb',
-                y: 0,
-                color: '#FFE9B1'
-            },
-            {
-                name: 'Mar',
-                y: 0,
-                color: '#FFE9B1'
-            },
-            {
-                name: 'Apr',
-                y: 0,
-                color: '#FFE9B1'
-            },
-            {
-                name: 'May',
-                y: 0,
-                color: '#FFE9B1'
-            },
-            {
-                name: 'Jun',
-                y: 0,
-                color: '#FFE9B1'
-            },
-            {
-                name: 'Jul',
-                y: 0,
-                color: '#FFE9B1'
-            },
-            {
-                name: 'Aug',
-                y: 0,
-                color: '#FFE9B1'
-            },
-            {
-                name: 'Sep',
-                y: 0,
-                color: '#FFE9B1'
-            },
-            {
-                name: 'Oct',
-                y: 0,
-                color: '#FFE9B1'
-            },
-            {
-                name: 'Nov',
-                y: 0,
-                color: '#FFE9B1'
-            },
-            {
-                name: 'Dec',
-                y: 0,
-                color: '#FFE9B1'
-            }
-        ];
+        const chartData = monthNames.map((month, index) => ({
+            name: month,
+            y: monthlyData[index + 1] || 0,
+            color: '#FFE9B1'
+        }));
 
         function initializeChart() {
             Highcharts.chart('consultationChart', {
                 chart: {
                     type: 'column',
                     backgroundColor: '#FFFFFF',
-                    style: {
-                        fontFamily: 'inherit'
-                    }
+                    style: { fontFamily: 'inherit' }
                 },
-                title: {
-                    text: '',
-                    align: 'left'
-                },
+                title: { text: '', align: 'left' },
                 xAxis: {
                     type: 'category',
-                    labels: {
-                        style: {
-                            fontSize: '13px',
-                            color: '#666666'
-                        }
-                    },
+                    labels: { style: { fontSize: '13px', color: '#666' } },
                     lineColor: '#E5E5E5',
                     tickColor: '#E5E5E5'
                 },
                 yAxis: {
-                    title: {
-                        text: ''
-                    },
+                    title: { text: '' },
                     min: 0,
                     allowDecimals: false,
-                    showFirstLabel: false,
                     gridLineColor: '#F5F5F5',
-                    labels: {
-                        style: {
-                            fontSize: '13px',
-                            color: '#666666'
-                        }
-                    }
+                    labels: { style: { fontSize: '13px', color: '#666' } }
                 },
-                legend: {
-                    enabled: false
-                },
+                legend: { enabled: false },
                 plotOptions: {
                     column: {
                         borderRadius: 8,
@@ -364,26 +339,20 @@
                         groupPadding: 0.1,
                         borderWidth: 0,
                         states: {
-                            hover: {
-                                color: '#B9A572',
-                                brightness: 0
-                            },
-                            inactive: {
-                                opacity: 1
-                            }
+                            hover: { color: '#B9A572', brightness: 0 },
+                            inactive: { opacity: 1 }
                         },
                         dataLabels: {
                             enabled: true,
                             inside: true,
                             verticalAlign: 'top',
                             y: -20,
-                            formatter: function() {
-                                return (this.y != 0) ? this.y : null;
+                            formatter: function () {
+                                return this.y ? this.y : null;
                             },
                             style: {
                                 fontSize: '12px',
-                                fontWeight: 'normal',
-                                color: '#666666',
+                                color: '#666',
                                 textOutline: 'none'
                             }
                         }
@@ -393,28 +362,23 @@
                     backgroundColor: '#FFFFFF',
                     borderColor: '#B9A572',
                     borderRadius: 8,
-                    style: {
-                        color: '#333333'
-                    },
                     headerFormat: '<span style="font-size:11px; font-weight:bold">{point.key}</span><br>',
-                    pointFormat: '<span>{{ __('frontend.translations') }}:</span> <b>{point.y}</b>'
+                    pointFormat: '<b>{point.y}</b> Completed Consultations'
                 },
                 series: [{
-                    name: '{{ __('frontend.translations') }}',
+                    name: 'Consultations',
                     data: chartData
                 }],
-                credits: {
-                    enabled: false
-                }
+                credits: { enabled: false }
             });
         }
 
-        document.getElementById('consultation-year').addEventListener('change', function() {
-            const selectedYear = this.value;
-            window.location.href = `?consultation_year=${selectedYear}`;
+        document.getElementById('consultation-year').addEventListener('change', function () {
+            window.location.href = `?consultation_year=${this.value}`;
         });
 
-        document.addEventListener("DOMContentLoaded", initializeChart);
+        document.addEventListener('DOMContentLoaded', initializeChart);
     </script>
+
 @endsection
 

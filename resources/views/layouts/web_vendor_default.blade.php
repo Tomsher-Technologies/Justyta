@@ -69,16 +69,42 @@
     @yield('ads')
 
     @include('frontend.include.footer')
-
+    @yield('script_first')
     <script src="{{ asset('assets/js/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('assets/js/additional-methods.min.js') }}"></script>
     <script src="{{ asset('assets/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('assets/js/moment.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap/daterangepicker.min.js') }}"></script>
 
     <script>
 
         $('.select2').select2({
             width: '100%',
             placeholder: "{{ __('frontend.choose_option') }}"
+        });
+
+        $('.date-range-picker').daterangepicker({
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+            opens: 'left', // or 'right'
+            autoUpdateInput: false,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        });
+
+        $('.date-range-picker').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' to ' + picker.endDate.format('YYYY-MM-DD'));
+        });
+
+        $('.date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
         });
 
         document.addEventListener("DOMContentLoaded", function() {
