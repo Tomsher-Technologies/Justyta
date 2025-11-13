@@ -9,6 +9,7 @@ use App\Models\ConsultationAssignment;
 use App\Models\ConsultationDuration;
 use App\Models\ConsultationPayment;
 use App\Models\Lawyer;
+use App\Models\Dropdown;
 use Illuminate\Support\Facades\Http;
 use App\Services\ZoomService;
 use Illuminate\Support\Facades\Auth;
@@ -25,9 +26,179 @@ class LawyerController extends Controller
 {
     public function lawyerDashboard(){
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
-        return view('frontend.lawyer.dashboard');
+
+        $lawyerId = Auth::guard('frontend')->user()->lawyer->id;
+        $currentYear = Carbon::now()->year;
+        $year = request()->get('consultation_year', $currentYear);
+        
+        $notificationsResult = $result = $this->getNotifications();
+        $notifications = $notificationsResult['notifications'];
+
+        $acceptedConsultationsToday = ConsultationAssignment::with('consultation')
+                                        ->where('lawyer_id', $lawyerId)
+                                        ->where('status', 'accepted')
+                                        ->whereDate('assigned_at', Carbon::today())
+                                        ->count();
+
+        $totalAcceptedConsultations = ConsultationAssignment::with('consultation')
+                                        ->where('lawyer_id', $lawyerId)
+                                        ->where('status', 'accepted')
+                                        ->count();
+
+        $totalRejections = ConsultationAssignment::with('consultation')
+                                        ->where('lawyer_id', $lawyerId)
+                                        ->where('status', 'rejected')
+                                        ->count();
+
+        $consultations = ConsultationAssignment::with(['consultation.user','consultation.lawyer','consultation.emirate'])
+                                    ->where('lawyer_id', $lawyerId)
+                                    ->whereIn('status', ['accepted', 'rejected'])
+                                    ->orderBy('id', 'desc')
+                                    ->limit(10)->get();
+        
+        $monthlyData = [];
+        $monthlyData = Consultation::select(
+                                    DB::raw('MONTH(created_at) as month'),
+                                    DB::raw('COUNT(id) as total')
+                                )
+                                ->whereYear('created_at', $year)
+                                ->where('lawyer_id', $lawyerId)
+                                ->where('request_success', 1)
+                                ->where('status', 'completed')
+                                ->groupBy('month')
+                                ->pluck('total', 'month')
+                                ->toArray();
+
+        return view('frontend.lawyer.dashboard', compact('acceptedConsultationsToday', 'totalAcceptedConsultations','totalRejections','notifications','consultations','monthlyData','lang','year'));
     }
 
+    public function getNotifications()
+    {
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
+        $services   = \App\Models\Service::with('translations')->get();
+
+        $serviceMap = [];
+
+        foreach ($services as $service) {
+            foreach ($service->translations as $translation) {
+                $serviceMap[$service->slug][$translation->lang] = $translation->title;
+            }
+        }
+
+        $allNotifications =  Auth::guard('frontend')->user()->notifications();
+
+        $paginatedNot = (clone $allNotifications)
+            ->orderByDesc('created_at')
+            ->paginate(10);
+
+        $notifications = collect($paginatedNot->items())
+            ->map(function ($notification) use ($lang, $serviceMap) {
+                $data = $notification->data;
+                $slug = $data['service'] ?? null;
+
+                $serviceName =  $slug && isset($serviceMap[$slug]) ? ($serviceMap[$slug][$lang] ?? $serviceMap[$slug][env('APP_LOCALE', 'en')] ?? $slug) : '';
+
+                return [
+                    'id'   => $notification->id,
+                    'message'   => __($notification->data['message'], [
+                        'service'   => $serviceName,
+                        'reference' => $data['reference_code'],
+                    ]),
+                    'time'      => $notification->created_at->format('d M, Y h:i A'),
+                ];
+            });
+
+        return [
+            'notifications' => $notifications,
+            'paginatedNot'  => $paginatedNot,
+        ];
+    }
+
+    public function consultationsIndex(Request $request)
+    {
+        $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
+
+        $lawyerId = Auth::guard('frontend')->user()->lawyer->id;
+
+        $request->session()->put('last_page_consultations', url()->full());
+
+        $conQuery = ConsultationAssignment::with([
+            'consultation.user',
+            'consultation.lawyer',
+            'consultation.emirate',
+            'consultation.caseType',
+            'consultation.youRepresent',
+            'consultation.languageValue'
+        ])->where('lawyer_id', $lawyerId)
+        ->whereIn('status', ['accepted', 'rejected']);
+
+        if ($request->filled('specialities')) {
+            $conQuery->whereHas('consultation', function ($q) use ($request) {
+                $q->where('case_type', $request->specialities);
+            });
+        }
+
+        if ($request->filled('language')) {
+            $conQuery->whereHas('consultation', function ($q) use ($request) {
+                $q->where('language', $request->language);
+            });
+        }
+
+        if ($request->filled('status')) {
+            $conQuery->where('status', $request->status);
+        }
+
+        if ($request->filled('daterange')) {
+            $dates = explode(' to ', $request->daterange);
+            if (count($dates) === 2) {
+                $conQuery->whereBetween('created_at', [
+                    Carbon::parse($dates[0])->startOfDay(),
+                    Carbon::parse($dates[1])->endOfDay()
+                ]);
+            }
+        }
+        if ($request->filled('keyword')) {
+            $keyword = $request->keyword;
+            $conQuery->whereHas('consultation', function ($q) use ($keyword) {
+                $q->where('ref_code', 'like', "%{$keyword}%")
+                ->orWhereHas('user', function ($userQuery) use ($keyword) {
+                    $userQuery->where('name', 'like', "%{$keyword}%")
+                                ->orWhere('email', 'like', "%{$keyword}%")
+                                ->orWhere('phone', 'like', "%{$keyword}%");
+                });
+            });
+        }
+
+        $consultations = $conQuery->orderBy('id', 'desc')->paginate(15);
+
+        $dropdowns = Dropdown::with(['options.translations' => function ($q) {
+                                $q->where('language_code', 'en');
+                            }])->whereIn('slug', ['specialities', 'case_stage', 'languages'])->get()->keyBy('slug');
+
+        return view('frontend.lawyer.consultations.index', compact('consultations',  'dropdowns'));
+    }
+
+
+    public function showConsultation($id)
+    {
+        $assignment = ConsultationAssignment::with([
+            'consultation.user',
+            'consultation.lawyer',
+            'consultation.emirate',
+            'consultation.caseType',
+            'consultation.caseStage',
+            'consultation.youRepresent',
+            'consultation.languageValue',
+            'consultation.payments',
+            'lawyer' // the lawyer who accepted/rejected
+        ])->findOrFail($id);
+
+        $consultation = $assignment->consultation;
+
+        return view('frontend.lawyer.consultations.show', compact('consultation', 'assignment'));
+    }
+
+    
     public function poll(Request $request)
     {
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 

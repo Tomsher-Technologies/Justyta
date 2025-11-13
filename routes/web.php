@@ -59,6 +59,9 @@ Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:law
     Route::get('/web/lawyer/poll', [LawyerController::class, 'poll'])->name('web.lawyer.poll');
     Route::post('/web/lawyer/response', [LawyerController::class, 'lawyerResponse'])->name('web.lawyer.response');
     
+    // Consultation Requests
+    Route::get('/consultations', [LawyerController::class, 'consultationsIndex'])->name('lawyer.consultations.index');
+    Route::get('/consultations/{id}', [LawyerController::class, 'showConsultation'])->name('lawyer.consultations.show');
 });
 
 Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:vendor'])->group(function () {

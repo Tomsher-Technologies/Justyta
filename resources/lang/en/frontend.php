@@ -458,4 +458,7 @@ return [
     'meeting_start_time' => 'Meeting Start Time',
     'meeting_end_time' => 'Meeting End Time',
     'accepted' => 'Accepted',
+    'todays_consultations' => 'Todays Consultations',
+    'total_accepted_consultations' => 'Total Accepted Consultations',
+    'total_rejected_consultations' => 'Total Rejected Consultations',
 ];

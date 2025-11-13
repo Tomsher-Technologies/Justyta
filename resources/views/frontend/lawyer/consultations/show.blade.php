@@ -1,10 +1,10 @@
-@extends('layouts.web_vendor_default', ['title' => __('frontend.consultations')])
+@extends('layouts.web_lawyer', ['title' => __('frontend.consultations')])
 
 @section('content')
 <div class="bg-white rounded-lg p-6 min-h-[calc(100vh-150px)]">
     <div class="flex items-center justify-between">
         <h2 class="text-xl font-medium text-gray-900">{{ __('frontend.consultations') }}</h2>
-        <a href="{{ Session::has('last_page_consultations') ? Session::get('last_page_consultations') : route('vendor.consultations.index') }}" class="inline-flex items-center px-4 py-2 text-black bg-[#c4b07e] hover:bg-[#c4b07e]-800 focus:ring-4 focus:ring-green-300 font-medium rounded-full text-base dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
+        <a href="{{ Session::has('last_page_consultations') ? Session::get('last_page_consultations') : route('lawyer.consultations.index') }}" class="inline-flex items-center px-4 py-2 text-black bg-[#c4b07e] hover:bg-[#c4b07e]-800 focus:ring-4 focus:ring-green-300 font-medium rounded-full text-base dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
             {{ __('frontend.go_back') }}
             <svg class="w-4 h-4 ms-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"
                 aria-hidden="true">
@@ -60,10 +60,10 @@
                     </div>
 
                     {{-- @if($assignment->status == 'accepted') --}}
-                        <div class="flex items-center">
+                        {{-- <div class="flex items-center">
                             <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.lawyer') }} :</p>
                             <p class="text-gray-800">{{ $assignment->lawyer?->full_name ?? '-' }}</p>
-                        </div>
+                        </div> --}}
                     {{-- @endif --}}
                     
 
@@ -117,7 +117,7 @@
                         <p class="text-gray-800">{{ $consultation->duration }} mins</p>
                     </div>
 
-                    <div class="flex items-center">
+                    {{-- <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.amount') }} :</p>
                         <p class="text-gray-800">
                             @if($assignment->status == 'accepted')
@@ -127,7 +127,7 @@
                             @endif
                             
                         </p>
-                    </div>
+                    </div> --}}
 
                     @if($assignment->status == 'accepted')
                         <div class="flex items-center">
