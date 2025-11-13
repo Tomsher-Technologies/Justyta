@@ -42,7 +42,7 @@
                                 'on_hold' => ['bg' => '#FFA500', 'text' => '#000000'],
                             ];
 
-                            $status = $consultation->status ?? 'reserved';
+                            $status = $assignment->status ?? '';
                             $bgColor = $statusClass[$status]['bg'] ?? '#e0e0e0';
                             $textColor = $statusClass[$status]['text'] ?? '#000000';
                         @endphp
@@ -59,10 +59,13 @@
                         <p class="text-gray-800">{{ $consultation->user?->name ?? '-' }}</p>
                     </div>
 
-                    <div class="flex items-center">
-                        <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.lawyer') }} :</p>
-                        <p class="text-gray-800">{{ $consultation->lawyer?->full_name ?? '-' }}</p>
-                    </div>
+                    {{-- @if($assignment->status == 'accepted') --}}
+                        <div class="flex items-center">
+                            <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.lawyer') }} :</p>
+                            <p class="text-gray-800">{{ $assignment->lawyer?->full_name ?? '-' }}</p>
+                        </div>
+                    {{-- @endif --}}
+                    
 
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.applicant_type') }} :</p>
@@ -116,18 +119,27 @@
 
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.amount') }} :</p>
-                        <p class="text-gray-800">AED {{ number_format($consultation->lawyer_amount, 2) }}</p>
+                        <p class="text-gray-800">
+                            @if($assignment->status == 'accepted')
+                                AED {{ number_format($consultation->lawyer_amount, 2) }}
+                            @else
+                                AED 0.00
+                            @endif
+                            
+                        </p>
                     </div>
 
-                    <div class="flex items-center">
-                        <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.meeting_start_time') }} :</p>
-                        <p class="text-gray-800">{{ $consultation->meeting_start_time ?? '-' }}</p>
-                    </div>
+                    @if($assignment->status == 'accepted')
+                        <div class="flex items-center">
+                            <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.meeting_start_time') }} :</p>
+                            <p class="text-gray-800">{{ $consultation->meeting_start_time ?? '-' }}</p>
+                        </div>
 
-                    <div class="flex items-center">
-                        <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.meeting_end_time') }} :</p>
-                        <p class="text-gray-800">{{ $consultation->meeting_end_time ?? '-' }}</p>
-                    </div>
+                        <div class="flex items-center">
+                            <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.meeting_end_time') }} :</p>
+                            <p class="text-gray-800">{{ $consultation->meeting_end_time ?? '-' }}</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -240,6 +240,7 @@
                         <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.duration') }}</th>
                         <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.client_name') }}</th>
                         <th class="px-6 py-5 font-semibold text-center" >{{ __('frontend.amount') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.status') }}</th>
                         <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.actions') }}</th>
                     </tr>
                 </thead>
@@ -247,8 +248,10 @@
                     @php
                         $i = 0;
                     @endphp
-                    @forelse($consultations as $key => $consultation)
-                        
+                    @forelse($consultations as $key =>$assignment)
+                        @php
+                            $consultation = $assignment->consultation;
+                        @endphp
                         <tr  class="border-b text-[#4D4D4D]">
                             <td class="px-6 py-4  text-center">
                                 {{ $key + 1  }}
@@ -263,7 +266,7 @@
                             </td>
 
                             <td class="px-6 py-4 text-center">
-                                {{ $consultation->lawyer?->full_name ?? '-' }}
+                                {{ $assignment->lawyer?->full_name ?? '-' }}
                             </td>
 
                             <td class="px-6 py-4 text-center">
@@ -275,11 +278,25 @@
                             </td>
                             
                             <td class="px-6 py-4 text-center">
-                                <small>AED</small> {{ number_format($consultation->lawyer_amount, 2) }}
+                                @if($assignment->status == 'accepted')
+                                    AED {{ number_format($consultation->lawyer_amount, 2) }}
+                                @else
+                                    AED 0.00
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                @php
+                                    $status = $assignment->status ?? '';
+                                    $bgColor = ($status == 'accepted') ? '#90EE90' : (($status == 'rejected') ?  '#FF0000' :  'blue');
+                                    $textColor = ($status == 'accepted') ? '#000000' : (($status == 'rejected') ?  '#fff' :  '#fff');
+                                @endphp
+                                <span class="px-3 py-1 rounded text-sm font-medium" style="background-color: {{ $bgColor }}; color: {{ $textColor }};">
+                                    {{ ucwords(str_replace('_', ' ', $status)) ?? ucwords($status) }}
+                                </span>
                             </td>
                         
                             <td class="px-6 py-4 text-center">
-                                <a href="{{ route('vendor.consultations.show', $consultation->id) }}" class="flex items-center gap-0.5">
+                                <a href="{{ route('vendor.consultations.show', $assignment->id) }}" class="flex items-center gap-0.5">
                                     <svg class="w-6 h-6 text-[##4D4D4D]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                         <path stroke="currentColor" stroke-width="1.7" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
                                         <path stroke="currentColor" stroke-width="1.7" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
