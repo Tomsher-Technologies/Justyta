@@ -15,16 +15,12 @@
     <link rel="stylesheet" href="{{ asset('assets/css/web/custom.css') }}">
 
 
-    <link type="text/css" rel="stylesheet" href="https://source.zoom.us/2.14.0/css/bootstrap.css" />
+    {{-- <link type="text/css" rel="stylesheet" href="https://source.zoom.us/2.14.0/css/bootstrap.css" /> --}}
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <link rel="stylesheet" href="{{ asset('assets/css/select2.min.css') }}">
     <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
-
-
-
-
 
     <style>
         /* Target the Select2 control box */
@@ -84,10 +80,7 @@
             width: 100% !important;
             height: auto !important;
         }
-    </style>
-    @yield('style')
-    <!-- Tailwind Animation -->
-    <style>
+
         @keyframes fadeIn {
             0% {
                 opacity: 0;
@@ -104,6 +97,8 @@
             animation: fadeIn 0.3s ease-out;
         }
     </style>
+    @yield('style')
+ 
 </head>
 
 <body class="min-h-screen flex flex-col">
@@ -116,8 +111,9 @@
             @include('frontend.lawyer.common.header')
 
             @yield('content')
+            
             <div class="max-w-5xl mx-auto p-6">
-                <h2 class="text-2xl font-semibold mb-4">Incoming Consultations</h2>
+                <h2 class="text-2xl font-semibold mb-4 hidden">Incoming Consultations</h2>
                 <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full bg-black">
                     <div class="relative w-full flex-1 max-w-5xl bg-black">
                         <!-- Remote Video Large -->
@@ -137,8 +133,7 @@
                     </div>
 
                 <!-- Controls -->
-                <div
-                    class="flex items-center gap-8 bg-white border border-gray-200 drop-shadow-sm px-6 py-4 rounded-full backdrop-blur-sm">
+                <div class="flex items-center gap-8 bg-white border border-gray-200 drop-shadow-sm px-6 py-4 rounded-full backdrop-blur-sm">
                     <button id="toggle-audio-btn"
                         class="flex flex-col items-center text-gray-600 hover:text-blue-600 transition transform hover:scale-110">
                         <i id="audio-icon" class="fa-solid fa-microphone text-2xl"></i>
@@ -160,7 +155,7 @@
                     </div>
                 </div>
 
-              
+                
 
                 <div id="incomingPopup"
                     class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
@@ -245,8 +240,8 @@
                     </div>
                 </div>
             </div>
-
         </main>
+        
     </div>
 
     <!-- Banner -->
