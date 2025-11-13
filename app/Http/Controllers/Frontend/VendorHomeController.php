@@ -80,6 +80,7 @@ class VendorHomeController extends Controller
                                     ->where('request_success', 1)
                                     ->where('status', 'completed')
                                     ->count();
+
         $rejectedConsultations = ConsultationAssignment::whereIn('lawyer_id', $allLawyers)
                                     ->where('status', 'rejected')
                                     ->count();
@@ -97,8 +98,18 @@ class VendorHomeController extends Controller
                                 ->pluck('total', 'month')
                                 ->toArray();
 
-        $conQuery = Consultation::with(['user', 'lawyer', 'emirate'])->whereIn('lawyer_id', $allLawyers);
-        $consultations = $conQuery->where('request_success', 1)->orderBy('id', 'desc')->limit(10)->get();
+        // $conQuery = Consultation::with(['user', 'lawyer', 'emirate'])->whereIn('lawyer_id', $allLawyers);
+        // $consultations = $conQuery->where('request_success', 1)->orderBy('id', 'desc')->limit(10)->get();
+
+        $consultations = ConsultationAssignment::with([
+                                        'consultation.user',
+                                        'consultation.lawyer',
+                                        'consultation.emirate'
+                                    ])
+                                    ->whereIn('lawyer_id', $allLawyers)
+                                    ->whereIn('status', ['accepted', 'rejected'])
+                                    ->orderBy('id', 'desc')
+                                    ->limit(10)->get();
 
         return view('frontend.vendor.dashboard', compact('totalLawyers','totalJobs',
             'totalTranslations', 'acceptedConsultations', 'rejectedConsultations',
@@ -449,16 +460,28 @@ class VendorHomeController extends Controller
         return $lawyer->$fieldName;
     }
 
-    public function viewLawyer($id){
+    public function viewLawyer(Request $request,$id){
         $id = base64_decode($id);
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        $request->session()->put('last_page_consultations', url()->full());
+        
        
         $lawyer = Lawyer::with('lawfirm', 'emirate')->findOrFail($id);
     
         $specialityIds = $lawyer->dropdownOptions()->wherePivot('type', 'specialities')->pluck('dropdown_option_id')->toArray();
         $languageIds = $lawyer->dropdownOptions()->wherePivot('type', 'languages')->pluck('dropdown_option_id')->toArray();
 
-        return view('frontend.vendor.lawyers.show', compact('lang', 'lawyer','specialityIds','languageIds'));
+        $consultations = ConsultationAssignment::with([
+                                        'consultation.user',
+                                        'consultation.lawyer',
+                                        'consultation.emirate'
+                                    ])
+                                    ->where('lawyer_id', $id)
+                                    ->whereIn('status', ['accepted', 'rejected'])
+                                    ->orderBy('id', 'desc')
+                                    ->paginate(10);
+
+        return view('frontend.vendor.lawyers.show', compact('lang', 'lawyer','specialityIds','languageIds','consultations'));
     }
 
     public function trainingRequests(Request $request){
@@ -1423,35 +1446,51 @@ class VendorHomeController extends Controller
     public function consultationsIndex(Request $request)
     {
         $lawfirmId = Auth::guard('frontend')->user()->vendor?->id;
-
         $lang = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
-        $lawyers = Lawyer::where('lawfirm_id',$lawfirmId)->get();
-
+        // Get all lawyers for this lawfirm
+        $lawyers = Lawyer::where('lawfirm_id', $lawfirmId)->get();
         $allLawyers = $lawyers->pluck('id')->toArray();
 
+        // Store current page in session
         $request->session()->put('last_page_consultations', url()->full());
 
-        $conQuery = Consultation::with(['user', 'lawyer', 'emirate']);
-            
-        if($request->filled('lawyer_id')) {
+        // Base query — start from ConsultationAssignment
+        $conQuery = ConsultationAssignment::with([
+            'consultation.user',
+            'consultation.lawyer',
+            'consultation.emirate',
+            'consultation.caseType',
+            'consultation.youRepresent',
+            'consultation.languageValue'
+        ])->whereIn('lawyer_id', $allLawyers)
+        ->whereIn('status', ['accepted', 'rejected']);
+
+        // 🔍 Filter by lawyer
+        if ($request->filled('lawyer_id')) {
             $conQuery->where('lawyer_id', $request->lawyer_id);
-        }else{
-            $conQuery->whereIn('lawyer_id', $allLawyers);
         }
 
-        if($request->filled('specialities')) {
-            $conQuery->where('case_type', $request->specialities);
+        // 🔍 Filter by speciality
+        if ($request->filled('specialities')) {
+            $conQuery->whereHas('consultation', function ($q) use ($request) {
+                $q->where('case_type', $request->specialities);
+            });
         }
 
-        if($request->filled('language')) {
-            $conQuery->where('language', $request->language);
+        // 🔍 Filter by language
+        if ($request->filled('language')) {
+            $conQuery->whereHas('consultation', function ($q) use ($request) {
+                $q->where('language', $request->language);
+            });
         }
 
-        if($request->filled('status')) {
+        // 🔍 Filter by status (accepted / rejected)
+        if ($request->filled('status')) {
             $conQuery->where('status', $request->status);
         }
 
+        // 🔍 Filter by date range
         if ($request->filled('daterange')) {
             $dates = explode(' to ', $request->daterange);
             if (count($dates) === 2) {
@@ -1462,37 +1501,47 @@ class VendorHomeController extends Controller
             }
         }
 
-        if($request->filled('keyword')) {
+        // 🔍 Filter by keyword (search ref_code or user details)
+        if ($request->filled('keyword')) {
             $keyword = $request->keyword;
-            $conQuery->where(function ($q) use ($keyword){
-                $q->where('ref_code', 'like', "%{$keyword}%");
-                $q->orWhereHas('user', function ($userQuery) use ($keyword) {
+            $conQuery->whereHas('consultation', function ($q) use ($keyword) {
+                $q->where('ref_code', 'like', "%{$keyword}%")
+                ->orWhereHas('user', function ($userQuery) use ($keyword) {
                     $userQuery->where('name', 'like', "%{$keyword}%")
-                            ->orWhere('email', 'like', "%{$keyword}%")
-                            ->orWhere('phone', 'like', "%{$keyword}%");
+                                ->orWhere('email', 'like', "%{$keyword}%")
+                                ->orWhere('phone', 'like', "%{$keyword}%");
                 });
             });
         }
 
-        $consultations = $conQuery->where('request_success', 1)->orderBy('id', 'desc')
-                            ->paginate(15);
+        // ✅ Final query with pagination
+        $consultations = $conQuery->orderBy('id', 'desc')->paginate(15);
 
+        // Dropdowns for filters
         $dropdowns = Dropdown::with(['options.translations' => function ($q) {
             $q->where('language_code', 'en');
-        }])->whereIn('slug', ['specialities', 'case_stage','languages'])->get()->keyBy('slug');
+        }])->whereIn('slug', ['specialities', 'case_stage', 'languages'])->get()->keyBy('slug');
 
         return view('frontend.vendor.consultations.index', compact('consultations', 'lawyers', 'dropdowns'));
     }
 
+
     public function showConsultation($id)
     {
-        $consultation = Consultation::with([
-            'user', 'lawyer', 'emirate', 
-            'caseType', 'caseStage',
-            'assignments.lawyer', 
-            'payments'
-        ])->find($id);
+        $assignment = ConsultationAssignment::with([
+            'consultation.user',
+            'consultation.lawyer',
+            'consultation.emirate',
+            'consultation.caseType',
+            'consultation.caseStage',
+            'consultation.youRepresent',
+            'consultation.languageValue',
+            'consultation.payments',
+            'lawyer' // the lawyer who accepted/rejected
+        ])->findOrFail($id);
 
-        return view('frontend.vendor.consultations.show', compact('consultation'));
+        $consultation = $assignment->consultation;
+
+        return view('frontend.vendor.consultations.show', compact('consultation', 'assignment'));
     }
 }
