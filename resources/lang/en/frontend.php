@@ -462,4 +462,7 @@ return [
     'total_accepted_consultations' => 'Total Accepted Consultations',
     'total_rejected_consultations' => 'Total Rejected Consultations',
     'online_status_updated' => 'Status updated successfully',
+    'profile' => 'Profile',
+    'new_consultation_request' => 'A new consultation (Ref: :reference) has been assigned to you.',
+    'view_all' => 'View All',
 ];
