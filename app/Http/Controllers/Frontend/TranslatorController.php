@@ -502,7 +502,7 @@ class TranslatorController extends Controller
                     'message'   => __($notification->data['message'], [
                         'service'   => $serviceName,
                         'reference' => $data['reference_code'],
-                        'status'    => $data['status'] ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
+                        'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                     ]),
                     'time'      => $notification->created_at->format('d M, Y h:i A'),
                 ];

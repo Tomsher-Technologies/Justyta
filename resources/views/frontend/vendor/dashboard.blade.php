@@ -200,7 +200,7 @@
         <div class="bg-white rounded-lg p-6">
             <div class="flex items-center justify-between mb-8">
                 <h2 class="text-xl font-medium text-gray-900"> {{ __('frontend.notifications') }}</h2>
-                <a href="#" class="text-[#B9A572]">{{ __('frontend.clear_all') }}</a>
+                <a href="{{ route('vendor.notifications.index') }}" class="text-[#B9A572]">{{ __('frontend.view_all') }}</a>
             </div>
 
             @forelse($notifications as $notification)
@@ -212,7 +212,7 @@
                         <span class="text-[#7B7B7B] text-xs">{{ $notification['time'] }}</span>
                     </div>
 
-                    <a href="#">
+                    <a href="javascript:void(0)" class="delete-single" data-id="{{ $notification['id'] }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25"
                             fill="none">
                             <path
@@ -319,8 +319,12 @@
         </div>
     </div>
 @endsection
+@section('style')
+    <link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
+@endsection
 
 @section('script')
+    <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
     <script>
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const monthlyData = @json($monthlyData);
@@ -399,6 +403,52 @@
         });
 
         document.addEventListener('DOMContentLoaded', initializeChart);
+
+        document.querySelectorAll('.delete-single').forEach(btn => {
+            btn.addEventListener('click', function () {
+                let id = this.getAttribute('data-id');
+
+                Swal.fire({
+                    title: '{{ __('frontend.are_you_sure') }}',
+                    text: "{{ __('frontend.action_cannot_undone') }}",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '{{ __('frontend.yes_delete') }}',
+                    cancelButtonText: '{{ __('frontend.cancel') }}'
+                }).then(result => {
+
+                    if (result.isConfirmed) {
+
+                        fetch("{{ route('lawyer.notifications.delete.selected') }}", {
+                            method: "POST",
+                            headers: {
+                                'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                notification_ids: [id] // send single ID as array
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                toastr.success(data.message);
+                                setTimeout(() => location.reload(), 1500);
+                            } else {
+                                toastr.error(data.message);
+                            }
+                        })
+                        .catch(err => {
+                            toastr.error("{{ __('frontend.server_error') }}");
+                            console.error(err);
+                        });
+
+                    }
+                });
+            });
+        });
     </script>
 
 @endsection
