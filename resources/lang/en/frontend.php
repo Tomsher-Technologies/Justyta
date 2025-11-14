@@ -98,6 +98,7 @@ return [
     'contract_language' => 'Contract Language',
     'industry' => 'Industry',
     'sub_contract_type' => 'Subcontract Type',
+
     'company_type' => 'Company Type',
     'zone' => 'Preferred Zone',
     'mobile' => 'Mobile',
@@ -196,6 +197,7 @@ return [
     'submitted_date' => 'Submitted Date',
     'payment_status' => 'Payment Status',
     'documents' => 'Documents',
+
     'service' => 'Service',
     'priority' => 'Priority',
     'address' => 'Address',
@@ -298,9 +300,8 @@ return [
     'all' => 'All',
     'last_login' => 'Last login',
     'no_of_consultation' => 'No. of Consultation',
+
     'no_data_found' => 'No Data Found',
-
-
     'update_lawyer_information' => 'Update Lawyer Information',
     'lawyer_updated_successfully' => 'Lawyer details updated successfully.',
     'lawyer_limit_reached' => 'Lawyer limit reached. Please upgrade your membership plan to add more lawyers.',
@@ -374,7 +375,6 @@ return [
     "same_status_error" => 'Please select a different status. The new status cannot be the same as the current status.',
     "updated_successfully" => "Updated successfully!",
     "failed_to_update" => "Failed to update",
-
     "service_requests" => 'Service Requests',
     "search_here" => 'Search here',
     "date_from_and_to" => 'Date From and To',
@@ -398,25 +398,20 @@ return [
     "rejection_details" => "Rejection Details",
     "documents" => "documents",
     "reupload" => "Reupload",
+    
     'validation_failed' => 'Validation failed. Please check your submission.',
     'at_least_one_file_required' => 'Please upload at least one document (either Supporting Documents or Additional Documents).',
-
     'supporting_docs_must_be_file' => 'Supporting documents must be a valid file.',
     'supporting_docs_invalid_type' => 'Supporting documents must be PDF, JPG, JPEG, PNG, DOC, or DOCX.',
     'supporting_docs_too_large' => 'Supporting documents must not exceed 10MB.',
-
     'supporting_docs_any_must_be_file' => 'Additional documents must be a valid file.',
     'supporting_docs_any_invalid_type' => 'Additional documents must be PDF, JPG, JPEG, PNG, DOC, or DOCX.',
     'supporting_docs_any_too_large' => 'Additional documents must not exceed 10MB.',
-
     'rejection_reason' => "Rejection Reason",
-
     'status_required' => 'Status is required.',
     'status_invalid' => 'Invalid status selected.',
-
     'reason_required_when_rejected' => 'Reason is required when rejecting the request.',
     'reason_must_be_text' => 'Reason must be text.',
-
     'file_invalid_type' => 'File must be of type: PDF, DOC, DOCX, JPG, JPEG, or PNG.',
     'file_too_large' => 'File size must not exceed 10MB.',
     'job_post_limit_reached' => 'Job post limit based on your membership plan has reached.',
