@@ -91,8 +91,8 @@
                     d="m1 1 4 4 4-4" />
             </svg>
         </button>
-        <div id="userDropdown"
-            class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow p-6 w-64 !translate-x-[238px] !translate-y-[50px]">
+        <div id="userDropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow p-6 w-64 absolute right-0 mt-1">
+
             <a href="{{ route('lawyer.profile') }}" class="flex items-center justify-between w-full border-b">
                 <div class="pb-4">
                     <h3 class="text-[#353434] text-lg mb-0 leading-none">
