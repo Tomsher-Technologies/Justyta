@@ -255,6 +255,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
 
     <script>
+        
+        function changeOnlineStatus(status) {
+            $.ajax({
+                url: "{{ route('lawyer.changeOnlineStatus') }}",
+                type: "POST",
+                data: {
+                    status: status,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function (response) {
+                    toastr.success(response.message);
+                },
+                error: function (xhr) {
+                    toastr.error("{{ __('frontend.something_went_wrong') }}");
+                }
+            });
+        }
+
+
         window.consultationStatusUpdateUrl = "{{ route('consultation.status.update') }}";
         window.csrfToken = "{{ csrf_token() }}";
         // const ZoomVideo = window.ZoomVideo;

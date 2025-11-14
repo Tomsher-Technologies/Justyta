@@ -54,6 +54,8 @@ Route::post('/consultation/update-status', [LawyerController::class, 'updateCons
 // Protected Dashboards
 Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:lawyer'])->group(function () {
     Route::get('/dashboard', [LawyerController::class, 'lawyerDashboard'])->name('lawyer.dashboard');
+    Route::post('/user/change-online-status', [LawyerController::class, 'changeOnlineStatus'])->name('lawyer.changeOnlineStatus');
+
 
     Route::get('/lawyer/video', [LawyerController::class, 'lawyerDashboard'])->name('web.lawyer.video');
     Route::get('/web/lawyer/poll', [LawyerController::class, 'poll'])->name('web.lawyer.poll');

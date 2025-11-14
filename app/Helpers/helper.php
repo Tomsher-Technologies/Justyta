@@ -1349,3 +1349,10 @@ function getFullStatusHistory(ServiceRequest $serviceRequest): array
 
         return $jobCount < $subscription->job_post_count;
     }
+
+    function getOnlineStatus()
+    {
+        $userId = Auth::guard('frontend')->user()->id;
+        $user = User::find($userId);
+        return $user->is_online;
+    }
