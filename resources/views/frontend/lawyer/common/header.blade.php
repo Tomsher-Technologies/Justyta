@@ -1,4 +1,4 @@
-<nav class="grid grid-cols-2 gap-5 grid-cols-[2fr_1fr] items-center justify-between mb-5">
+<nav class="grid grid-cols-3 gap-5 items-center justify-between mb-5">
   
 
     <div class="relative hidden lg:block w-full">
@@ -19,7 +19,21 @@
         </div> --}}
     </div>
 
+    <div class="flex items-center">
+        <label for="switch-online" class="flex items-center cursor-pointer">
+            <span class="mr-3 text-sm font-medium text-gray-900 dark:text-gray-300">Online</span>
+            <div class="relative">
+                <input type="checkbox" class="sr-only peer" id="switch-online" onchange="changeOnlineStatus(this.checked)" <?php if (getOnlineStatus() == 1) { echo 'checked'; } ?>/>
+                <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-all">
+                </div>
+                <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-5">
+                </div>
+            </div>
+        </label>
+    </div>
+
     <div class="flex items-center justify-end gap-4">
+        
         <button type="button"
             class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="33" viewBox="0 0 28 33" fill="none">

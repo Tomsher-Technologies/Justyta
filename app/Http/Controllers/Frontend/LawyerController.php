@@ -114,6 +114,27 @@ class LawyerController extends Controller
         ];
     }
 
+    public function changeOnlineStatus(Request $request)
+    {
+        
+        $user = Auth::guard('frontend')->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Not authenticated'], 401);
+        }
+
+        $isOnline = filter_var($request->status, FILTER_VALIDATE_BOOLEAN);
+
+        $user->is_online = $isOnline ? 1 : 0;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => __('frontend.online_status_updated'),
+            'is_online' => $user->is_online
+        ]);
+    }
+
     public function consultationsIndex(Request $request)
     {
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 

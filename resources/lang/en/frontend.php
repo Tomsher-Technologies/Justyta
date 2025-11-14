@@ -461,4 +461,5 @@ return [
     'todays_consultations' => 'Todays Consultations',
     'total_accepted_consultations' => 'Total Accepted Consultations',
     'total_rejected_consultations' => 'Total Rejected Consultations',
+    'online_status_updated' => 'Status updated successfully',
 ];
