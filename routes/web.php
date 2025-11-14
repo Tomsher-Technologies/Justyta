@@ -127,7 +127,10 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
 
 Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {
     Route::get('/dashboard', [TranslatorController::class, 'dashboard'])->name('translator.dashboard');
-    Route::get('/my-account', [TranslatorController::class, 'account'])->name('translator.my-account');
+    // Route::get('/my-account', [TranslatorController::class, 'account'])->name('translator.my-account');
+    // Route::post('/translator-profile', [TranslatorController::class, 'updateProfile'])->name('translator.update.profile');
+    // Route::get('/change-password', [TranslatorController::class, 'changePassword'])->name('translator.change-password');
+    // Route::post('/update-password', [TranslatorController::class, 'updateNewPassword'])->name('translator.update-new-password');
 
     //Service Requests
     Route::get('/service-request/{id}', [TranslatorController::class, 'showServiceRequest'])->name('translator.service.details');

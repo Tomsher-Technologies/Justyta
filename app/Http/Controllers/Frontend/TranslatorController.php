@@ -96,7 +96,7 @@ class TranslatorController extends Controller
             ->sortByDesc(function ($item) {
                 return $item->serviceRequest ? $item->serviceRequest->created_at : $item->created_at;
             })
-            ->take(10)
+            ->take(5)
             ->map(function ($item) {
                 $serviceRequest = $item->serviceRequest;
                 return [

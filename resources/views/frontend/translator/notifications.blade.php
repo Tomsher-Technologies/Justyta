@@ -147,7 +147,7 @@
                 cancelButtonText: '{{ __('frontend.cancel') }}'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch("{{ route('user.notifications.delete.selected') }}", {
+                    fetch("{{ route('translator.notifications.delete.selected') }}", {
                             method: "POST",
                             headers: {
                                 'X-CSRF-TOKEN': "{{ csrf_token() }}",
@@ -191,7 +191,7 @@
             }).then((result) => {
 
                 if (result.isConfirmed) {
-                    fetch("{{ route('user.notifications.clear') }}", {
+                    fetch("{{ route('translator.notifications.clear') }}", {
                             method: "POST",
                             headers: {
                                 'X-CSRF-TOKEN': "{{ csrf_token() }}",
