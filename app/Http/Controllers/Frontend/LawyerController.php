@@ -91,7 +91,7 @@ class LawyerController extends Controller
                 return [
                     'id'   => $notification->id,
                     'message'   => __($notification->data['message'], [
-                        'reference' => $data['reference'],
+                        'reference' => $data['reference_code'] ?? $data['reference'] ?? "",
                     ]),
                     'time'      => $notification->created_at->format('d M, Y h:i A'),
                 ];
@@ -154,7 +154,7 @@ class LawyerController extends Controller
                 return [
                     'id'   => $notification->id,
                     'message'   => __($notification->data['message'], [
-                        'reference' => $data['reference'],
+                        'reference' => $data['reference_code'] ?? $data['reference'] ?? "",
                         'status' => $data['status'] ?? "",
                     ]),
                     'time'      => $notification->created_at->format('d M, Y h:i A'),

@@ -49,7 +49,7 @@ class ConsultationAssignedNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'reference' => $this->consultationRequest->ref_code,
+            'reference_code' => $this->consultationRequest->ref_code,
             'message' => 'frontend.new_consultation_request',
         ];
     }
