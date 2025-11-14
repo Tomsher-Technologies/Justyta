@@ -66,6 +66,7 @@ class AuthController extends Controller
         Auth::guard('frontend')->login($user);
 
         $user->update([
+            'is_online' => 1,
             'last_login_at' => now(),
             'last_login_ip' => request()->ip(),
         ]);
