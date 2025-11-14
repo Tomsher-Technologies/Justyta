@@ -56,6 +56,10 @@ Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:law
     Route::get('/dashboard', [LawyerController::class, 'lawyerDashboard'])->name('lawyer.dashboard');
     Route::post('/user/change-online-status', [LawyerController::class, 'changeOnlineStatus'])->name('lawyer.changeOnlineStatus');
 
+    Route::get('/profile', [LawyerController::class, 'lawyerProfile'])->name('lawyer.profile');
+    Route::get('/notifications', [LawyerController::class, 'notifications'])->name('lawyer.notifications.index');
+    Route::post('/notifications/clear', [LawyerController::class, 'clearAllNotifications'])->name('lawyer.notifications.clear');
+    Route::post('/notifications/delete-selected', [LawyerController::class, 'deleteSelectedNotifications'])->name('lawyer.notifications.delete.selected');
 
     Route::get('/lawyer/video', [LawyerController::class, 'lawyerDashboard'])->name('web.lawyer.video');
     Route::get('/web/lawyer/poll', [LawyerController::class, 'poll'])->name('web.lawyer.poll');

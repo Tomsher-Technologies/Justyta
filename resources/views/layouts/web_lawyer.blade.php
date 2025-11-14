@@ -160,11 +160,11 @@
                 <div id="incomingPopup"
                     class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                     <div
-                        class="bg-white rounded-2xl shadow-2xl w-[550px] max-w-[95vw] max-h-[90vh] overflow-y-auto border-l-4 border-blue-600 animate-fadeIn">
+                        class="bg-white rounded-2xl  w-[550px] max-w-[95vw] max-h-[90vh] overflow-y-auto  border-blue-600 animate-fadeIn">
 
                         <!-- Header -->
                         <div
-                            class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-500 rounded-t-2xl text-white">
+                            class="flex items-center justify-between px-6 py-4  bg-[#07683B] rounded-t-2xl text-white">
                             <div class="flex items-center gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-300" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">

@@ -77,32 +77,21 @@ class LawyerController extends Controller
         $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $services   = \App\Models\Service::with('translations')->get();
 
-        $serviceMap = [];
-
-        foreach ($services as $service) {
-            foreach ($service->translations as $translation) {
-                $serviceMap[$service->slug][$translation->lang] = $translation->title;
-            }
-        }
-
+       
         $allNotifications =  Auth::guard('frontend')->user()->notifications();
 
         $paginatedNot = (clone $allNotifications)
             ->orderByDesc('created_at')
-            ->paginate(10);
+            ->paginate(4);
 
         $notifications = collect($paginatedNot->items())
-            ->map(function ($notification) use ($lang, $serviceMap) {
+            ->map(function ($notification) use ($lang) {
                 $data = $notification->data;
-                $slug = $data['service'] ?? null;
-
-                $serviceName =  $slug && isset($serviceMap[$slug]) ? ($serviceMap[$slug][$lang] ?? $serviceMap[$slug][env('APP_LOCALE', 'en')] ?? $slug) : '';
-
+               
                 return [
                     'id'   => $notification->id,
                     'message'   => __($notification->data['message'], [
-                        'service'   => $serviceName,
-                        'reference' => $data['reference_code'],
+                        'reference' => $data['reference'],
                     ]),
                     'time'      => $notification->created_at->format('d M, Y h:i A'),
                 ];
@@ -134,6 +123,69 @@ class LawyerController extends Controller
             'is_online' => $user->is_online
         ]);
     }
+
+    public function lawyerProfile(){
+        $id = Auth::guard('frontend')->user()->lawyer->id;
+        $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
+        
+        $lawyer = Lawyer::with('lawfirm', 'emirate')->findOrFail($id);
+    
+        $specialityIds = $lawyer->dropdownOptions()->wherePivot('type', 'specialities')->pluck('dropdown_option_id')->toArray();
+        $languageIds = $lawyer->dropdownOptions()->wherePivot('type', 'languages')->pluck('dropdown_option_id')->toArray();
+
+        return view('frontend.lawyer.profile', compact('lang', 'lawyer','specialityIds','languageIds'));
+    }
+
+    public function notifications(Request $request)
+    {
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
+       
+        $allShownIds = [];
+        $allNotifications =  Auth::guard('frontend')->user()->notifications();
+
+        $paginatedNot = (clone $allNotifications)
+            ->orderByDesc('created_at')
+            ->paginate(10);
+
+        $notifications = collect($paginatedNot->items())
+            ->map(function ($notification) use ($lang) {
+                $data = $notification->data;
+            
+                return [
+                    'id'   => $notification->id,
+                    'message'   => __($notification->data['message'], [
+                        'reference' => $data['reference'],
+                        'status' => $data['status'] ?? "",
+                    ]),
+                    'time'      => $notification->created_at->format('d M, Y h:i A'),
+                ];
+            });
+
+        $allShownIds = collect($paginatedNot->items())
+            ->pluck('id');
+        Auth::guard('frontend')->user()->unreadNotifications()
+            ->whereIn('id', $allShownIds)
+            ->update(['read_at' => now()]);
+
+        return view('frontend.lawyer.notifications', compact('notifications', 'paginatedNot'));
+    }
+
+    public function clearAllNotifications()
+    {
+        Auth::guard('frontend')->user()->notifications()->delete();
+        return response()->json(['success' => true, 'message' =>  __('messages.notifications_cleared_successfully')]);
+    }
+
+    public function deleteSelectedNotifications(Request $request)
+    {
+        $ids = $request->notification_ids ?? [];
+
+        if (!empty($ids)) {
+            Auth::guard('frontend')->user()->notifications()->whereIn('id', $ids)->delete();
+        }
+        return response()->json(['success' => true, 'message' =>  __('messages.selected_notifications_cleared_successfully')]);
+    }
+
 
     public function consultationsIndex(Request $request)
     {

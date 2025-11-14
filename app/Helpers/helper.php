@@ -16,6 +16,7 @@ use App\Models\RequestTitle;
 use App\Models\UserOnlineLog;
 use App\Models\ConsultationAssignment;
 use App\Models\ServiceRequest;
+use App\Notifications\ConsultationAssignedNotification;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Request;
@@ -1110,8 +1111,10 @@ function assignLawyer($consultation, $lawyerId)
     $consultation->lawyer_id = $lawyerId;
     $consultation->save();
 
-    // Notify lawyer via notification system (placeholder)
-    // Notification::send($lawyer, new ConsultationRequest($consultation));
+    $lawyer = Lawyer::find($lawyerId);
+
+    $user = User::find($lawyer->user_id);
+    $user->notify(new ConsultationAssignedNotification($consultation));
 }
 
 

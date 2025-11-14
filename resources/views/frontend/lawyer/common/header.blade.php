@@ -91,7 +91,7 @@
         </button>
         <div id="userDropdown"
             class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow p-6 w-64 !translate-x-[238px] !translate-y-[50px]">
-            <a href="{{ route('user.my-account') }}" class="flex items-center justify-between w-full border-b">
+            <a href="{{ route('lawyer.profile') }}" class="flex items-center justify-between w-full border-b">
                 <div class="pb-4">
                     <h3 class="text-[#353434] text-lg mb-0 leading-none">
                         {{ Auth::guard('frontend')->user()->name ?? NULL }}
@@ -114,7 +114,7 @@
             </a>
             <ul class="py-2 text-sm text-gray-700 mb-0" aria-labelledby="userDropdownButton">
                 <li class="border-b">
-                    <a href="#" class="flex items-center gap-2 py-2">
+                    <a href="{{ route('lawyer.notifications.index') }}" class="flex items-center gap-2 py-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 28 30"
                             fill="none">
                             <path
