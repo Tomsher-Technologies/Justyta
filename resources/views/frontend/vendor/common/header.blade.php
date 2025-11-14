@@ -100,7 +100,7 @@
             </a>
             <ul class="py-2 text-sm text-gray-700 mb-0" aria-labelledby="userDropdownButton">
                 <li class="border-b">
-                    <a href="#" class="flex items-center gap-2 py-2">
+                    <a href="{{ route('vendor.notifications.index') }}" class="flex items-center gap-2 py-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 28 30"
                             fill="none">
                             <path

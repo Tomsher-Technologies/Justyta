@@ -77,6 +77,10 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
     Route::get('/create-lawyer', [VendorHomeController::class, 'createLawyer'])->name('vendor.create.lawyers');
     Route::post('/store-lawyer', [VendorHomeController::class, 'storeLawyer'])->name('vendor.store.lawyers');
 
+    Route::get('/notifications', [VendorHomeController::class, 'notifications'])->name('vendor.notifications.index');
+    Route::post('/notifications/clear', [VendorHomeController::class, 'clearAllNotifications'])->name('vendor.notifications.clear');
+    Route::post('/notifications/delete-selected', [VendorHomeController::class, 'deleteSelectedNotifications'])->name('vendor.notifications.delete.selected');
+
     Route::post('/check-lawyer-email', function (Illuminate\Http\Request $request) {
         $exists = \App\Models\User::where('email', $request->email)
             ->where('user_type', 'lawyer')

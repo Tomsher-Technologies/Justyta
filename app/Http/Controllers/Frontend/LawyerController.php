@@ -54,7 +54,7 @@ class LawyerController extends Controller
                                     ->where('lawyer_id', $lawyerId)
                                     ->whereIn('status', ['accepted', 'rejected'])
                                     ->orderBy('id', 'desc')
-                                    ->limit(10)->get();
+                                    ->limit(5)->get();
         
         $monthlyData = [];
         $monthlyData = Consultation::select(

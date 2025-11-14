@@ -110,7 +110,7 @@ class TranslatorController extends Controller
                 ];
             });
 
-        $notificationsResult = $result = $this->getTranslatorNotifications();
+        $notificationsResult = $result = $this->getTranslatorNotifications(5);
         $notifications = $notificationsResult['notifications'];
 
         return view('frontend.translator.dashboard', compact(
@@ -437,7 +437,7 @@ class TranslatorController extends Controller
 
     public function notifications(Request $request)
     {
-        $result = $this->getTranslatorNotifications();
+        $result = $this->getTranslatorNotifications(10);
         $paginated = $result['paginatedNot'];
         $allShownIds = collect($paginated->items())->pluck('id')->filter()->values();
 
@@ -471,7 +471,7 @@ class TranslatorController extends Controller
         return response()->json(['success' => true, 'message' =>  __('messages.selected_notifications_cleared_successfully')]);
     }
 
-    public function getTranslatorNotifications()
+    public function getTranslatorNotifications($limit = 10)
     {
         $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $services   = \App\Models\Service::with('translations')->get();
@@ -488,7 +488,7 @@ class TranslatorController extends Controller
 
         $paginatedNot = (clone $allNotifications)
             ->orderByDesc('created_at')
-            ->paginate(10);
+            ->paginate($limit);
 
         $notifications = collect($paginatedNot->items())
             ->map(function ($notification) use ($lang, $serviceMap) {
@@ -502,6 +502,7 @@ class TranslatorController extends Controller
                     'message'   => __($notification->data['message'], [
                         'service'   => $serviceName,
                         'reference' => $data['reference_code'],
+                        'status'    => $data['status'] ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                     ]),
                     'time'      => $notification->created_at->format('d M, Y h:i A'),
                 ];

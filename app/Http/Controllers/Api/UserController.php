@@ -190,6 +190,7 @@ class UserController extends Controller
                                         'service'   => $serviceName,
                                         'reference' => $data['reference_code'],
                                         // 'status' => __('messages.'.$data['status'] ?? ''),
+                                        'status' => $data['status'] ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                                     ]),
                     'time'      => $notification->created_at->format('h:i A'), 
                 ];
@@ -210,6 +211,7 @@ class UserController extends Controller
                                     'message'   => __($notification->data['message'], [
                                                         'service'   => $serviceName,
                                                         'reference' => $data['reference_code'],
+                                                        'status' => $data['status'] ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                                                     ]),
                                     'time'      => $notification->created_at->format('d,M Y h:i A'), 
                                 ];
@@ -231,6 +233,7 @@ class UserController extends Controller
                         'message'   => __($notification->data['message'], [
                                             'service'   => $serviceName,
                                             'reference' => $data['reference_code'],
+                                            'status' => $data['status'] ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                                         ]),
                         'time'      => $notification->created_at->format('d M, Y h:i A'), 
                     ];
