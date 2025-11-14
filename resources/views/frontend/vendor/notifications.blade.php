@@ -1,4 +1,4 @@
-@extends('layouts.web_translator', ['title' => __('frontend.notifications')])
+@extends('layouts.web_vendor_default', ['title' => __('frontend.notifications')])
 
 @section('content')
     <div class="container">
@@ -45,7 +45,7 @@
                                     {{ $key + 1 + ($paginatedNot->currentPage() - 1) * $paginatedNot->perPage() }}
                                 </td>
                                 <td class="px-6 py-4">
-                                    {{ $notification['message'] ?? '-' }}
+                                    {{ $notification['message'] ?? '-' }} {{ $notification['status'] ?? '' }}
                                 </td>
                                 <td class="px-6 py-4">
                                     {{ $notification['time'] }}
@@ -68,39 +68,6 @@
     </div>
 @endsection
 
-
-@section('ads')
-    @php
-        $ads = getActiveAd('notifications', 'web');
-    @endphp
-
-    @if ($ads && $ads->files->isNotEmpty())
-        <div class="w-full mb-12 px-[50px]">
-            {{-- <img src="{{ asset('assets/images/ad-img.jpg') }}" class="w-full" alt="" /> --}}
-            {{-- muted --}}
-            @php
-                $file = $ads->files->first();
-                $media =
-                    $file->file_type === 'video'
-                        ? '<video class="w-full h-100" autoplay loop>
-                        <source src="' .
-                            asset($file->file_path) .
-                            '" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>'
-                        : '<img src="' . asset($file->file_path) . '" class="w-full h-80" alt="Ad Image">';
-            @endphp
-
-            @if (!empty($ads->cta_url))
-                <a href="{{ $ads->cta_url }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
-                    {!! $media !!}
-                </a>
-            @else
-                {!! $media !!}
-            @endif
-        </div>
-    @endif
-@endsection
 
 @section('style')
     <link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
@@ -147,7 +114,7 @@
                 cancelButtonText: '{{ __('frontend.cancel') }}'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch("{{ route('translator.notifications.delete.selected') }}", {
+                    fetch("{{ route('vendor.notifications.delete.selected') }}", {
                             method: "POST",
                             headers: {
                                 'X-CSRF-TOKEN': "{{ csrf_token() }}",
@@ -191,7 +158,7 @@
             }).then((result) => {
 
                 if (result.isConfirmed) {
-                    fetch("{{ route('translator.notifications.clear') }}", {
+                    fetch("{{ route('vendor.notifications.clear') }}", {
                             method: "POST",
                             headers: {
                                 'X-CSRF-TOKEN': "{{ csrf_token() }}",

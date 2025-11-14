@@ -179,7 +179,7 @@
         <div class="bg-white rounded-lg p-6">
             <div class="flex items-center justify-between mb-8">
                 <h2 class="text-xl font-medium text-gray-900"> {{ __('frontend.notifications') }}</h2>
-                <a href="#" class="text-[#B9A572]">{{ __('frontend.clear_all') }}</a>
+                <a href="{{ route('translator.notifications.index')}}" class="text-[#B9A572]">{{ __('frontend.view_all') }}</a>
             </div>
 
             @forelse($notifications as $notification)

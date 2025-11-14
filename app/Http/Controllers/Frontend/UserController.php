@@ -752,7 +752,7 @@ class UserController extends Controller
 
         $paginatedNot = (clone $allNotifications)
             ->orderByDesc('created_at')
-            ->paginate(10);
+            ->paginate(15);
 
         $notifications = collect($paginatedNot->items())
             ->map(function ($notification) use ($lang, $serviceMap) {
@@ -766,7 +766,7 @@ class UserController extends Controller
                     'message'   => __($notification->data['message'], [
                         'service'   => $serviceName,
                         'reference' => $data['reference_code'],
-                        'status' => $data['status'] ?? "",
+                        'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                     ]),
                     'time'      => $notification->created_at->format('d M, Y h:i A'),
                 ];

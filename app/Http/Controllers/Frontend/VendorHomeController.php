@@ -137,7 +137,7 @@ class VendorHomeController extends Controller
 
         $paginatedNot = (clone $allNotifications)
             ->orderByDesc('created_at')
-            ->paginate(10);
+            ->paginate(3);
 
         $notifications = collect($paginatedNot->items())
             ->map(function ($notification) use ($lang, $serviceMap) {
@@ -151,6 +151,7 @@ class VendorHomeController extends Controller
                     'message'   => __($notification->data['message'], [
                         'service'   => $serviceName,
                         'reference' => $data['reference_code'],
+                        'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                     ]),
                     'time'      => $notification->created_at->format('d M, Y h:i A'),
                 ];
@@ -160,6 +161,70 @@ class VendorHomeController extends Controller
             'notifications' => $notifications,
             'paginatedNot'  => $paginatedNot,
         ];
+    }
+
+    public function notifications(Request $request)
+    {
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
+        $services   = \App\Models\Service::with('translations')->get();
+
+        $serviceMap = [];
+
+        foreach ($services as $service) {
+            foreach ($service->translations as $translation) {
+                $serviceMap[$service->slug][$translation->lang] = $translation->title;
+            }
+        }
+
+       
+        $allShownIds = [];
+        $allNotifications =  Auth::guard('frontend')->user()->notifications();
+
+        $paginatedNot = (clone $allNotifications)
+            ->orderByDesc('created_at')
+            ->paginate(10);
+
+        $notifications = collect($paginatedNot->items())
+                            ->map(function ($notification) use ($lang, $serviceMap) {
+                                $data = $notification->data;
+                                $slug = $data['service'] ?? null;
+
+                                $serviceName =  $slug && isset($serviceMap[$slug]) ? ($serviceMap[$slug][$lang] ?? $serviceMap[$slug][env('APP_LOCALE', 'en')] ?? $slug) : '';
+
+                                return [
+                                    'id'   => $notification->id,
+                                    'message'   => __($notification->data['message'], [
+                                        'service'   => $serviceName,
+                                        'reference' => $data['reference_code'],
+                                        'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
+                                    ]),
+                                    'time'      => $notification->created_at->format('d M, Y h:i A'),
+                                ];
+                            });
+
+        $allShownIds = collect($paginatedNot->items())
+            ->pluck('id');
+        Auth::guard('frontend')->user()->unreadNotifications()
+            ->whereIn('id', $allShownIds)
+            ->update(['read_at' => now()]);
+
+        return view('frontend.vendor.notifications', compact('notifications', 'paginatedNot'));
+    }
+
+    public function clearAllNotifications()
+    {
+        Auth::guard('frontend')->user()->notifications()->delete();
+        return response()->json(['success' => true, 'message' =>  __('messages.notifications_cleared_successfully')]);
+    }
+
+    public function deleteSelectedNotifications(Request $request)
+    {
+        $ids = $request->notification_ids ?? [];
+
+        if (!empty($ids)) {
+            Auth::guard('frontend')->user()->notifications()->whereIn('id', $ids)->delete();
+        }
+        return response()->json(['success' => true, 'message' =>  __('messages.selected_notifications_cleared_successfully')]);
     }
 
     public function lawyers(Request $request){
