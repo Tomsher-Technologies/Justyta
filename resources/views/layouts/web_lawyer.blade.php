@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/web/custom.css') }}">
 
 
-    <link type="text/css" rel="stylesheet" href="https://source.zoom.us/2.14.0/css/bootstrap.css" />
+    {{-- <link type="text/css" rel="stylesheet" href="https://source.zoom.us/2.14.0/css/bootstrap.css" /> --}}
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
