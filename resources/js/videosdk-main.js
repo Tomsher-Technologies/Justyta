@@ -20,6 +20,8 @@
         console.log("data", data);
         window.consultation_id = data.consultation_id;
         window.userRole = data.role;
+         console.log('role =================================== '+data.role);
+        console.log('duration =================================== '+data.duration);
         window.callDurationLimit = data.duration * 60 * 1000; 
         // window.callDurationLimit = 1 * 60 * 1000;
 
@@ -139,18 +141,21 @@
 
 
     async function leaveCall() {
-        const mediaStream = client.getMediaStream();
-        for (const user of client.getAllUser()) {
-            const element = await mediaStream.detachVideo(user.userId);
-            Array.isArray(element)
-                ? element.forEach((el) => el.remove())
-                : element && element.remove && element.remove();
-        }
-        client.off("peer-video-state-change", renderVideo);
-        document.querySelector("#guest-name").textContent = '';
-        document.querySelector("#user-name").innerHTML = '';
-        await client.leave();
-        stopCallTimer();
+        // const mediaStream = client.getMediaStream();
+        // for (const user of client.getAllUser()) {
+        //     const element = await mediaStream.detachVideo(user.userId);
+        //     Array.isArray(element)
+        //         ? element.forEach((el) => el.remove())
+        //         : element && element.remove && element.remove();
+        // }
+        // client.off("peer-video-state-change", renderVideo);
+        // document.querySelector("#guest-name").textContent = '';
+        // document.querySelector("#user-name").innerHTML = '';
+        // await client.leave();
+        // stopCallTimer();
+        
+        
+        
         // await fetch(window.consultationStatusUpdateUrl, {
         //     method: 'POST',
         //     headers: {
@@ -244,53 +249,60 @@
     let timerInterval = null;
 
     function startCallTimer(baseTime = null) {
-        const timerElement = document.getElementById("call-timer");
-        const countdownElement = document.getElementById("call-countdown");
+    const timerElement = document.getElementById("call-timer");
+    const countdownElement = document.getElementById("call-countdown");
 
-        callStartTime = baseTime ? new Date(baseTime).getTime() : Date.now();
+    callStartTime = baseTime ? new Date(baseTime).getTime() : Date.now();
 
-        if (timerInterval) clearInterval(timerInterval);
+    if (timerInterval) clearInterval(timerInterval);
 
-        timerInterval = setInterval(async () => {
-            const nowTime = Date.now();
-            const elapsedMs = nowTime - callStartTime;
+    timerInterval = setInterval(async () => {
+        const nowTime = Date.now();
+        const elapsedMs = nowTime - callStartTime;
 
-            console.log('********************************************************************************');
-            console.log("Start Time:", callStartTime);
-            console.log("Elapsed Time:", elapsedMs);
-            console.log("Duration:", window.callDurationLimit);
-            console.log('===============================================================================');
-            // If duration defined
-            // if (window.callDurationLimit) {
-            //     const remainingMs = window.callDurationLimit - elapsedMs;
+        // ---------------- COUNTDOWN LOGIC ----------------
+        if (window.callDurationLimit) {
+            const remainingMs = window.callDurationLimit - elapsedMs;
 
-            //     if (remainingMs <= 0) {
-            //         countdownElement.textContent = "Time Left: 00:00";
-            //         console.log("Meeting duration reached. Ending call...");
-            //         stopCallTimer();
-            //         await leaveCall();
-            //         alert("Your consultation time has ended.");
-            //         return;
-            //     }
+            if (remainingMs <= 0) {
+                countdownElement.textContent = "Time Left: 00:00";
 
-            //     const remainingSeconds = Math.floor(remainingMs / 1000);
-            //     const rMin = Math.floor(remainingSeconds / 60);
-            //     const rSec = remainingSeconds % 60;
-            //     console.log(`Remaining Time: ${rMin}:${rSec}`);
-            //     countdownElement.textContent =
-            //         `Time Left: ${String(rMin).padStart(2, "0")}:${String(rSec).padStart(2, "0")}`;
-            // }
+                stopCallTimer();
 
-            const totalSeconds = Math.floor(elapsedMs / 1000);
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
+                // END ONLY IF USER IS STILL INSIDE CALL
+                try {
+                    await leaveCall();
+                } catch (e) {
+                    console.warn("Leave call failed", e);
+                }
 
-            timerElement.textContent =
-                (hours > 0 ? `${String(hours).padStart(2, "0")}:` : "") +
-                `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-        }, 1000);
-    }
+                alert("Your consultation time has ended.");
+                return;
+            }
+
+            const remainingSeconds = Math.floor(remainingMs / 1000);
+            const rMin = Math.floor(remainingSeconds / 60);
+            const rSec = remainingSeconds % 60;
+
+            countdownElement.textContent =
+                `Time Left: ${String(rMin).padStart(2, "0")}:${String(rSec).padStart(2, "0")}`;
+        }
+        // --------------------------------------------------
+
+        // --- TIMER COUNT UP (OPTIONAL) ---
+        const totalSeconds = Math.floor(elapsedMs / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        timerElement.textContent =
+            (hours > 0 ? `${String(hours).padStart(2, "0")}:` : "") +
+            `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+        // ----------------------------------
+
+    }, 1000);
+}
+
 
 
     function stopCallTimer() {
