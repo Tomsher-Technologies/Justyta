@@ -34,18 +34,6 @@ function generateZoomSignature($meetingNumber, $userId, $role = 0)
     $sdkKey    = config('services.zoom.sdk_key');
     $sdkSecret = config('services.zoom.sdk_secret');
 
-    // $iat = time();
-    // $exp = $iat + 2 * 60; // valid for 2 minutes
-
-    // $payload = [
-    //     'sdkKey'   => $sdkKey,
-    //     'mn'       => (string)$meetingNumber,
-    //     'role'     => $role,
-    //     'iat'      => $iat,
-    //     'exp'      => $exp,
-    //     'tokenExp' => $exp,
-    // ];
-
     $payload = [
         "app_key" => $sdkKey,
         "tpc" => $meetingNumber,          // session name (e.g. Consultation-67, must not contain spaces)

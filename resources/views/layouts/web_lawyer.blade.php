@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/web/custom.css') }}">
 
 
-    {{-- <link type="text/css" rel="stylesheet" href="https://source.zoom.us/2.14.0/css/bootstrap.css" /> --}}
+    <link type="text/css" rel="stylesheet" href="https://source.zoom.us/2.14.0/css/bootstrap.css" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -110,133 +110,131 @@
             <!-- Header -->
             @include('frontend.lawyer.common.header')
 
-            @yield('content')
+            <div id="waitingMessage" class="">
+                @yield('content')
+            </div>
             
-            <div class="max-w-5xl mx-auto p-6">
-                <h2 class="text-2xl font-semibold mb-4 hidden">Incoming Consultations</h2>
-                <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full bg-black">
-                    <div class="relative w-full flex-1 max-w-5xl bg-black">
-                        <!-- Remote Video Large -->
-                        <video-player-container id="remote-video"
-                            class="relative w-full h-full bg-black rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(2,6,23,0.3)]">
-                            <div id="guest-name" class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white text-sm font-medium px-3 py-1 rounded-lg pointer-events-none max-w-[120px] truncate">
-                            </div>
-
-                            <!-- Local Video Small Floating INSIDE remote video -->
-                            <video-player-container id="local-video"
-                                class="absolute z-50 right-4 bottom-4 w-28 md:w-40 lg:w-52 aspect-video bg-black rounded-xl overflow-hidden shadow-[0_6px_18px_rgba(0,0,0,0.45)] border border-white/30 transition-transform transform-gpu hover:scale-[1.03] touch-none" style="position: absolute !important;">
-                                <div id="user-name"
-                                    class="absolute bottom-1 left-1 bg-black/65 text-white text-xs px-2 py-0.5 rounded max-w-[90px] truncate">
+            <div class="hidden grid grid-cols-1 gap-6" id="video-call-container">
+                <div class="bg-white p-4 rounded-[20px] border !border-[#FFE9B1] flex flex-col h-[calc(100vh-150px)]">
+                    <div  class=" flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full bg-black">
+                        <div class="relative w-full flex-1 max-w-5xl bg-black">
+                            <!-- Remote Video Large -->
+                            <video-player-container id="remote-video"
+                                class="relative w-full h-full bg-black rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(2,6,23,0.3)]">
+                                <div id="guest-name" class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white text-sm font-medium px-3 py-1 rounded-lg pointer-events-none max-w-[120px] truncate">
                                 </div>
+
+                                <!-- Local Video Small Floating INSIDE remote video -->
+                                <video-player-container id="local-video"
+                                    class="absolute z-50 right-4 bottom-4 w-28 md:w-40 lg:w-52 aspect-video bg-black rounded-xl overflow-hidden shadow-[0_6px_18px_rgba(0,0,0,0.45)] border border-white/30 transition-transform transform-gpu hover:scale-[1.03] touch-none" style="position: absolute !important;">
+                                    <div id="user-name"
+                                        class="absolute bottom-1 left-1 bg-black/65 text-white text-xs px-2 py-0.5 rounded max-w-[90px] truncate">
+                                    </div>
+                                </video-player-container>
                             </video-player-container>
-                        </video-player-container>
-                    </div>
+                        </div>
 
-                <!-- Controls -->
-                <div class="flex items-center gap-8 bg-white border border-gray-200 drop-shadow-sm px-6 py-4 rounded-full backdrop-blur-sm">
-                    <button id="toggle-audio-btn"
-                        class="flex flex-col items-center text-gray-600 hover:text-blue-600 transition transform hover:scale-110">
-                        <i id="audio-icon" class="fa-solid fa-microphone text-2xl"></i>
-                        <span id="audio-label" class="text-xs mt-1 font-medium">Mute</span>
-                    </button>
-                    <button id="toggle-video-btn"
-                        class="flex flex-col items-center text-gray-600 hover:text-blue-600 transition transform hover:scale-110">
-                        <i id="video-icon" class="fa-solid fa-video text-2xl"></i>
-                        <span id="video-label" class="text-xs mt-1 font-medium">Video</span>
-                    </button>
-                    <button id="end-call-btn"
-                        class="flex flex-col items-center text-red-600 hover:text-red-800 transition transform hover:scale-110">
-                            <i class="fa-solid fa-phone-slash text-2xl"></i>
-                            <span class="text-xs mt-1 font-medium">End</span>
+                    <!-- Controls -->
+                    <div class="flex items-center gap-8 bg-white border border-gray-200 drop-shadow-sm px-6 py-4 rounded-full backdrop-blur-sm">
+                        <button id="toggle-audio-btn"
+                            class="flex flex-col items-center text-gray-600 hover:text-blue-600 transition transform hover:scale-110">
+                            <i id="audio-icon" class="fa-solid fa-microphone text-2xl"></i>
+                            <span id="audio-label" class="text-xs mt-1 font-medium">Mute</span>
                         </button>
-                        <div id="call-timer" class="text-gray-700 font-bold text-lg min-w-[80px] text-center">00:00</div>
-                        <div id="call-countdown" class="text-sm text-gray-500"></div>
+                        <button id="toggle-video-btn"
+                            class="flex flex-col items-center text-gray-600 hover:text-blue-600 transition transform hover:scale-110">
+                            <i id="video-icon" class="fa-solid fa-video text-2xl"></i>
+                            <span id="video-label" class="text-xs mt-1 font-medium">Video</span>
+                        </button>
+                        <button id="end-call-btn"
+                            class="flex flex-col items-center text-red-600 hover:text-red-800 transition transform hover:scale-110">
+                                <i class="fa-solid fa-phone-slash text-2xl"></i>
+                                <span class="text-xs mt-1 font-medium">End</span>
+                            </button>
+                            <div id="call-timer" class="text-gray-700 font-bold text-lg min-w-[80px] text-center">00:00</div>
+                            <div id="call-countdown" class="text-sm text-gray-500"></div>
 
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                
+            <div id="incomingPopup" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                <div class="bg-white rounded-2xl  w-[550px] max-w-[95vw] max-h-[90vh] overflow-y-auto  border-blue-600 animate-fadeIn">
 
-                <div id="incomingPopup"
-                    class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                    <div
-                        class="bg-white rounded-2xl  w-[550px] max-w-[95vw] max-h-[90vh] overflow-y-auto  border-blue-600 animate-fadeIn">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between px-6 py-4  bg-[#07683B] rounded-t-2xl text-white">
+                        <div class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-300" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m0-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                            </svg>
+                            <h3 class="text-lg font-bold">New Consultation Request</h3>
+                        </div>
+                        <button id="popupClose" class="text-white hover:text-gray-200 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
 
-                        <!-- Header -->
-                        <div
-                            class="flex items-center justify-between px-6 py-4  bg-[#07683B] rounded-t-2xl text-white">
-                            <div class="flex items-center gap-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-300" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M13 16h-1v-4h-1m0-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-                                </svg>
-                                <h3 class="text-lg font-bold">New Consultation Request</h3>
-                            </div>
-                            <button id="popupClose" class="text-white hover:text-gray-200 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                    fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </button>
+                    <!-- Body -->
+                    <div class="p-6 space-y-4 text-gray-700">
+                        <div class="text-center mb-2">
+                            <h4 class="font-semibold text-lg text-gray-800">User: <span id="callerName"
+                                    class="text-blue-600"></span></h4>
                         </div>
 
-                        <!-- Body -->
-                        <div class="p-6 space-y-4 text-gray-700">
-                            <div class="text-center mb-2">
-                                <h4 class="font-semibold text-lg text-gray-800">User: <span id="callerName"
-                                        class="text-blue-600"></span></h4>
+                        <div class="grid grid-cols-1 gap-2">
+                            <div class="flex justify-between border-b py-2">
+                                <span class="font-medium">Applicant Type:</span>
+                                <span id="applicantType" class="text-gray-900 font-semibold"></span>
                             </div>
-
-                            <div class="grid grid-cols-1 gap-2">
-                                <div class="flex justify-between border-b py-2">
-                                    <span class="font-medium">Applicant Type:</span>
-                                    <span id="applicantType" class="text-gray-900 font-semibold"></span>
-                                </div>
-                                <div class="flex justify-between border-b py-2">
-                                    <span class="font-medium">Litigation Type:</span>
-                                    <span id="litigantType" class="text-gray-900 font-semibold"></span>
-                                </div>
-                                <div class="flex justify-between border-b py-2">
-                                    <span class="font-medium">Emirate:</span>
-                                    <span id="emirate" class="text-gray-900 font-semibold"></span>
-                                </div>
-                                <div class="flex justify-between border-b py-2">
-                                    <span class="font-medium">You Represent:</span>
-                                    <span id="youRepresent" class="text-gray-900 font-semibold"></span>
-                                </div>
-                                <div class="flex justify-between border-b py-2">
-                                    <span class="font-medium">Case Type:</span>
-                                    <span id="caseType" class="text-gray-900 font-semibold"></span>
-                                </div>
-                                <div class="flex justify-between border-b py-2">
-                                    <span class="font-medium">Case Stage:</span>
-                                    <span id="caseStage" class="text-gray-900 font-semibold"></span>
-                                </div>
-                                <div class="flex justify-between border-b py-2">
-                                    <span class="font-medium">Language:</span>
-                                    <span id="language" class="text-gray-900 font-semibold"></span>
-                                </div>
-                                <div class="flex justify-between py-2">
-                                    <span class="font-medium">Duration:</span>
-                                    <span id="duration" class="text-gray-900 font-semibold"></span>
-                                </div>
+                            <div class="flex justify-between border-b py-2">
+                                <span class="font-medium">Litigation Type:</span>
+                                <span id="litigantType" class="text-gray-900 font-semibold"></span>
+                            </div>
+                            <div class="flex justify-between border-b py-2">
+                                <span class="font-medium">Emirate:</span>
+                                <span id="emirate" class="text-gray-900 font-semibold"></span>
+                            </div>
+                            <div class="flex justify-between border-b py-2">
+                                <span class="font-medium">You Represent:</span>
+                                <span id="youRepresent" class="text-gray-900 font-semibold"></span>
+                            </div>
+                            <div class="flex justify-between border-b py-2">
+                                <span class="font-medium">Case Type:</span>
+                                <span id="caseType" class="text-gray-900 font-semibold"></span>
+                            </div>
+                            <div class="flex justify-between border-b py-2">
+                                <span class="font-medium">Case Stage:</span>
+                                <span id="caseStage" class="text-gray-900 font-semibold"></span>
+                            </div>
+                            <div class="flex justify-between border-b py-2">
+                                <span class="font-medium">Language:</span>
+                                <span id="language" class="text-gray-900 font-semibold"></span>
+                            </div>
+                            <div class="flex justify-between py-2">
+                                <span class="font-medium">Duration:</span>
+                                <span id="duration" class="text-gray-900 font-semibold"></span>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Buttons -->
-                        <div class="px-6 pb-6 flex justify-between gap-3">
-                            <button id="acceptBtn"
-                                class="flex-1 bg-green-600 hover:bg-green-700 transition text-white font-bold py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-lg">
-                                Accept
-                            </button>
-                            <button id="rejectBtn"
-                                class="flex-1 bg-red-600 hover:bg-red-700 transition text-white font-bold py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-lg">
-                                Reject
-                            </button>
-                        </div>
+                    <!-- Buttons -->
+                    <div class="px-6 pb-6 flex justify-between gap-3">
+                        <button id="acceptBtn"
+                            class="flex-1 bg-green-600 hover:bg-green-700 transition text-white font-bold py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-lg">
+                            Accept
+                        </button>
+                        <button id="rejectBtn"
+                            class="flex-1 bg-red-600 hover:bg-red-700 transition text-white font-bold py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-lg">
+                            Reject
+                        </button>
                     </div>
                 </div>
             </div>
@@ -373,6 +371,7 @@
                     //     startZoomVideo(data.data, '{{ addslashes(auth()->user()->name) }}');
                     // }, 3000);
 
+                    document.getElementById('waitingMessage').classList.add('hidden');
                     await startCall(data.data, '{{ addslashes(auth()->user()->name) }}');
 
                 }
