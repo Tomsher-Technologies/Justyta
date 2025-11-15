@@ -843,4 +843,9 @@ class UserController extends Controller
 
         return $this->fileService->download($id);
     }
+
+    public function endedCall()
+    {
+        return view('frontend.user.consultation-ended');
+    }
 }

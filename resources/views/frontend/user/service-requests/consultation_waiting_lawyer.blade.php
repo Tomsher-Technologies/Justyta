@@ -39,11 +39,10 @@
             color: #000;
         }
 
-        /* Zoom VideoSDK container sizing */
-        video-player-container {
+         video-player-container {
             display: block;
-            width: 80%;
-            margin: 0 auto 10px;
+            width: 100%;
+            margin: 0 auto 40px;
         }
 
         video-player-container>* {
@@ -57,7 +56,9 @@
         video,
         canvas {
             width: 100% !important;
+            height: auto !important;
         }
+
     </style>
 
     <div class="grid grid-cols-1 gap-6">
@@ -82,47 +83,76 @@
             </div>
 
             <!-- Video Call Container -->
-            <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full bg-black">
-                <div class="relative w-full flex-1 max-w-5xl">
+            <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full ">
+                <div class="relative w-full flex-1 max-w-5xl bg-black">
                     <!-- Remote Video Large -->
                     <video-player-container id="remote-video"
                         class="relative w-full h-full bg-black rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(2,6,23,0.3)]">
-                        <div id="guest-name" class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white text-sm font-medium px-3 py-1 rounded-lg pointer-events-none max-w-[120px] truncate">
+                        <div id="guest-name" class="absolute  h-10 bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white text-sm font-medium px-3 py-2 rounded-lg pointer-events-none max-w-[120px] truncate">
                         </div>
 
                         <!-- Local Video Small Floating INSIDE remote video -->
                         <video-player-container id="local-video"
                             class="absolute z-50 right-4 bottom-4 w-28 md:w-40 lg:w-52 aspect-video bg-black rounded-xl overflow-hidden shadow-[0_6px_18px_rgba(0,0,0,0.45)] border border-white/30 transition-transform transform-gpu hover:scale-[1.03] touch-none" style="position: absolute !important;">
                             <div id="user-name"
-                                class="absolute bottom-1 left-1 bg-black/65 text-white text-xs px-2 py-0.5 rounded max-w-[90px] truncate">
+                                class="absolute  h-10 bottom-1 left-1 bg-black/65 text-white text-xs px-2 py-2 rounded max-w-[90px] truncate">
                             </div>
                         </video-player-container>
                     </video-player-container>
                 </div>
 
                 <!-- Controls -->
-                <div
-                    class="flex items-center gap-8 bg-white border border-gray-200 drop-shadow-sm px-6 py-4 rounded-full backdrop-blur-sm">
+                <div class="flex items-center gap-8 bg-white border border-gray-200 drop-shadow-sm px-6 py-4 rounded-full backdrop-blur-sm">
                     <button id="toggle-audio-btn"
                         class="flex flex-col items-center text-gray-600 hover:text-blue-600 transition transform hover:scale-110">
                         <i id="audio-icon" class="fa-solid fa-microphone text-2xl"></i>
-                        <span id="audio-label" class="text-xs mt-1 font-medium">Mute</span>
+                        <span id="audio-label" class="text-xs mt-1 font-medium">{{ __('frontend.mute') }}</span>
                     </button>
                     <button id="toggle-video-btn"
                         class="flex flex-col items-center text-gray-600 hover:text-blue-600 transition transform hover:scale-110">
                         <i id="video-icon" class="fa-solid fa-video text-2xl"></i>
-                        <span id="video-label" class="text-xs mt-1 font-medium">Video</span>
+                        <span id="video-label" class="text-xs mt-1 font-medium">{{ __('frontend.video') }}</span>
                     </button>
                     <button id="end-call-btn"
                         class="flex flex-col items-center text-red-600 hover:text-red-800 transition transform hover:scale-110">
-                        <i class="fa-solid fa-phone-slash text-2xl"></i>
-                        <span class="text-xs mt-1 font-medium">End</span>
-                    </button>
-                    <div id="call-timer" class="text-gray-700 font-bold text-lg min-w-[80px] text-center">00:00</div>
-                    <div id="call-countdown" class="text-sm text-gray-500"></div>
+                            <i class="fa-solid fa-phone-slash text-2xl"></i>
+                            <span class="text-xs mt-1 font-medium">{{ __('frontend.end') }}</span>
+                        </button>
+                        <div id="call-timer" class="text-gray-700 font-bold text-lg min-w-[80px] text-center">00:00</div>
+                        <div id="call-countdown" class="text-sm text-gray-500"></div>
 
+                    </div>
+                </div>
+
+                <button id="extend-call-btn" data-consultation-id="{{ $consultation->id }}" data-consultant-type="{{ $consultation->consultant_type }}" class="hidden px-4 py-2 bg-yellow-500 text-white rounded">
+                    Extend Call
+                </button>
+            </div>
+
+
+            <!-- Extension Modal -->
+            <div id="extendModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                <div class="bg-white p-6 rounded-xl w-96 relative">
+                    <h3 class="text-lg font-semibold mb-4">Extend Consultation</h3>
+                    <input type="hidden" id="modal-consultation-id">
+                    <input type="hidden" id="modal-consultant-type">
+
+                    <label for="timeslot-select" class="block mb-2 font-medium">Select Duration:</label>
+                    <select id="timeslot-select" class="w-full border px-3 py-2 rounded mb-4">
+                        <option value="">Select a timeslot</option>
+                    </select>
+
+                    <div id="extension-price" class="mb-4">Amount: $0</div>
+
+                    <div class="flex justify-end gap-3">
+                        <button id="extension-cancel" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                        <button id="extension-pay" class="px-4 py-2 bg-blue-600 text-white rounded">Pay & Extend</button>
+                    </div>
                 </div>
             </div>
+
+
+
         </div>
     </div>
 @endsection
@@ -164,5 +194,68 @@
             }
         }
         setInterval(pollUser, 4000);
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("extend-call-btn").addEventListener("click", () => {
+                const btn = document.getElementById("extend-call-btn");
+                const consultationId = btn.dataset.consultationId;
+                const consultantType = btn.dataset.consultantType;
+
+                extendCall(consultationId, consultantType);
+            });
+
+            const durationSelect = document.getElementById("extension-duration");
+            const amountDiv = document.getElementById("extension-amount");
+
+            durationSelect.addEventListener("change", () => {
+                const duration = parseInt(durationSelect.value);
+                const ratePerMinute = 2; // replace with your pricing logic
+                amountDiv.textContent = `Amount: $${duration * ratePerMinute}`;
+            });
+
+
+            $("#timeslot-select").on("change", function() {
+                const duration = $(this).val();
+                const consultationId = $("#modal-consultation-id").val();
+                const consultantType = $("#modal-consultant-type").val();
+
+                if (!duration) {
+                    $("#extension-price").text("Amount: $0");
+                    return;
+                }
+
+                $.ajax({
+                    url: '/consultation/price',
+                    type: 'GET',
+                    data: { consultation_id: consultationId, duration: duration, consultant_type: consultantType },
+                    success: function(res) {
+                        if (res.status) {
+                            $("#extension-price").text("Amount: $" + res.data.total);
+                        } else {
+                            $("#extension-price").text("Amount: $0");
+                        }
+                    }
+                });
+            });
+
+            // Cancel button
+            $("#extension-cancel").on("click", function() {
+                $("#extendModal").addClass("hidden");
+            });
+
+            // Pay & Extend button (example)
+            $("#extension-pay").on("click", function() {
+                const consultationId = $("#modal-consultation-id").val();
+                const duration = $("#timeslot-select").val();
+                const price = $("#extension-price").text().replace("Amount: $", "");
+
+                // Call your payment logic here
+                console.log("Pay for consultation", consultationId, "Duration:", duration, "Price:", price);
+
+                // Close modal
+                $("#extendModal").addClass("hidden");
+            });
+
+        });
     </script>
 @endsection

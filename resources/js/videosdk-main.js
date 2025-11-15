@@ -11,6 +11,12 @@
     const username = "User-" + String(Date.now()).slice(6);
     const client = ZoomVideo.createClient();
 
+    let callStartTime = null;
+    let timerInterval = null;
+    let isTimerPaused = false;
+    let remainingHoldTime = 0;
+    let commandChannel = null;
+
     const isLocalhost = ["localhost", "127.0.0.1", "::1"].includes(
         location.hostname
     );
@@ -20,14 +26,13 @@
         console.log("data", data);
         window.consultation_id = data.consultation_id;
         window.userRole = data.role;
-         console.log('role =================================== '+data.role);
-        console.log('duration =================================== '+data.duration);
+      
         window.callDurationLimit = data.duration * 60 * 1000; 
         // window.callDurationLimit = 1 * 60 * 1000;
 
         if (!isSecure) {
             alert(
-                "This app requires a secure context for camera/mic. Open via HTTPS or run on localhost."
+                "This app requires a secure context for camera/mic. Open via HTTPS."
             );
             return;
         }
@@ -35,8 +40,24 @@
       
         client.on("peer-video-state-change", renderVideo);
         client.on("user-added", onUserJoined);
-        client.on("user-removed", onUserLeft);
+        
         await client.join(data.meeting_number, data.signature, username);
+        commandChannel = client.getCommandClient();
+
+        client.on("command-channel-message", (payload) => {
+            try {
+                const data = JSON.parse(payload.text); // assuming JSON string
+                if (data.action === "pause-timer") {
+                    stopCallTimer(true); // pause locally
+                } else if (data.action === "resume-timer") {
+                    resumeCallTimer(data.additionalMs || 0);
+                }
+            } catch (e) {
+                console.warn("Invalid command data", payload.text);
+            }
+        });
+
+
         const mediaStream = client.getMediaStream();
         await mediaStream.startAudio();
         await mediaStream.startVideo();
@@ -82,16 +103,13 @@
         }
     }
 
-    function onUserLeft() {
-        stopCallTimer();
-        leaveCall();
-    }
+  
 
     async function renderVideo(event) {
         const mediaStream = client.getMediaStream();
         const userId = event.userId;
 
-        console.log("user data", client.getCurrentUserInfo());
+        // console.log("user data", client.getCurrentUserInfo());
 
         const targetContainer = userId === client.getCurrentUserInfo().userId
             ? document.querySelector("#local-video")
@@ -109,7 +127,7 @@
             if (userVideo && targetContainer && !targetContainer.contains(userVideo)) {
                 targetContainer.appendChild(userVideo);
 
-                console.log("client ----------------------", client);
+                // console.log("client ----------------------", client);
                 if(userId === client.getCurrentUserInfo().userId) {
                     document.querySelector("#user-name").textContent = client.getCurrentUserInfo().displayName;
                 }else {
@@ -122,52 +140,79 @@
                         document.querySelector("#guest-name").textContent = 'Guest';
                     }
                 }
-                console.log(
-                    "Attached video element:",
-                    userVideo.tagName || userVideo.nodeName
-                );
+                console.log("Attached video element:", userVideo.tagName || userVideo.nodeName);
 
                 // Small delay to ensure layout calculated
                 setTimeout(() => {
-                    console.log("Video rect:", userVideo.getBoundingClientRect());
+                    // console.log("Video rect:", userVideo.getBoundingClientRect());
                 }, 150);
             } else if (!userVideo) {
-                console.warn("attachVideo returned no element");
+                // console.warn("attachVideo returned no element");
             }
         } catch (err) {
-            console.error("Error attaching video:", err);
+            // console.error("Error attaching video:", err);
         }
     }
 
 
     async function leaveCall() {
-        // const mediaStream = client.getMediaStream();
-        // for (const user of client.getAllUser()) {
-        //     const element = await mediaStream.detachVideo(user.userId);
-        //     Array.isArray(element)
-        //         ? element.forEach((el) => el.remove())
-        //         : element && element.remove && element.remove();
-        // }
-        // client.off("peer-video-state-change", renderVideo);
-        // document.querySelector("#guest-name").textContent = '';
-        // document.querySelector("#user-name").innerHTML = '';
-        // await client.leave();
-        // stopCallTimer();
-        
-        
-        
-        // await fetch(window.consultationStatusUpdateUrl, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'X-CSRF-TOKEN': window.csrfToken
-        //     },
-        //     body: JSON.stringify({
-        //         consultation_id: window.consultation_id,
-        //         status: 'completed'
-        //     })
-        // });
+        const mediaStream = client.getMediaStream();
+
+        client.off("peer-video-state-change", renderVideo);
+        client.off("video-active-change", renderVideo);
+        client.off("user-added", renderVideo);
+        client.off("user-removed", renderVideo);
+
+        const users = client.getAllUser() || [];
+
+        for (const user of users) {
+            try {
+                const result = await mediaStream.detachVideo(user.userId);
+
+                if (Array.isArray(result)) {
+                    result.forEach(el => el?.remove?.());
+                } else if (result) {
+                    result.remove?.();
+                }
+
+            } catch (e) {
+                console.warn("Detach failed for user", user.userId, e);
+            }
+        }
+
+        document.querySelectorAll("video, canvas").forEach(el => {
+            try { el.remove(); } catch {}
+        });
+
+        document.querySelector("#guest-name").textContent = '';
+        document.querySelector("#user-name").textContent = '';
+
+        try {
+            await client.leave();
+        } catch (e) {
+            console.warn("Zoom leave failed", e);
+        }
+
+        stopCallTimer();
+
+        const response = await fetch(window.consultationStatusUpdateUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': window.csrfToken
+            },
+            body: JSON.stringify({
+                consultation_id: window.consultation_id,
+                status: 'completed'
+            })
+        });
+
+        const result = await response.json();
+        if (result.redirect_url) {
+            window.location.href = result.redirect_url;
+        }
     }
+
 
     async function toggleVideo() {
         const mediaStream = client.getMediaStream();
@@ -211,7 +256,7 @@
                 icon.classList.add("fa-microphone-slash", "text-red-500");
             }
         } catch (error) {
-            console.error("Audio toggle failed:", error);
+            // console.error("Audio toggle failed:", error);
         }
     }
 
@@ -243,74 +288,144 @@
     window.renderVideo = renderVideo;
     window.leaveCall = leaveCall;
     window.toggleVideo = toggleVideo;
+    window.extendCall = extendCall;
 
-
-    let callStartTime = null;
-    let timerInterval = null;
 
     function startCallTimer(baseTime = null) {
-    const timerElement = document.getElementById("call-timer");
-    const countdownElement = document.getElementById("call-countdown");
+        const timerElement = document.getElementById("call-timer");
+        callStartTime = baseTime ? new Date(baseTime).getTime() : Date.now();
 
-    callStartTime = baseTime ? new Date(baseTime).getTime() : Date.now();
+        if (timerInterval) clearInterval(timerInterval);
 
-    if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(async () => {
+            if (isTimerPaused) return; // skip while paused
 
-    timerInterval = setInterval(async () => {
-        const nowTime = Date.now();
-        const elapsedMs = nowTime - callStartTime;
+            const nowTime = Date.now();
+            const elapsedMs = nowTime - callStartTime;
 
-        // ---------------- COUNTDOWN LOGIC ----------------
-        if (window.callDurationLimit) {
-            const remainingMs = window.callDurationLimit - elapsedMs;
+            if (window.callDurationLimit) {
+                const remainingMs = window.callDurationLimit - elapsedMs;
 
-            if (remainingMs <= 0) {
-                countdownElement.textContent = "Time Left: 00:00";
-
-                stopCallTimer();
-
-                // END ONLY IF USER IS STILL INSIDE CALL
-                try {
-                    await leaveCall();
-                } catch (e) {
-                    console.warn("Leave call failed", e);
+                const extendBtn = document.getElementById("extend-call-btn");
+                // if (remainingMs <= 5 * 60 * 1000 && extendBtn) {
+                if (remainingMs <= 30 * 1000 && extendBtn) {
+                    // extendBtn.classList.remove("hidden");
                 }
 
-                alert("Your consultation time has ended.");
-                return;
+                if (remainingMs <= 0) {
+                    stopCallTimer();
+                    try { await leaveCall(); } catch {}
+                    // alert("Your consultation time has ended.");
+                    return;
+                }
+
+                const remainingSeconds = Math.floor(remainingMs / 1000);
+                const rMin = Math.floor(remainingSeconds / 60);
+                const rSec = remainingSeconds % 60;
+
+                timerElement.textContent =
+                    `${String(rMin).padStart(2, "0")}:${String(rSec).padStart(2, "0")}`;
             }
+        }, 1000);
+    }
 
-            const remainingSeconds = Math.floor(remainingMs / 1000);
-            const rMin = Math.floor(remainingSeconds / 60);
-            const rSec = remainingSeconds % 60;
-
-            countdownElement.textContent =
-                `Time Left: ${String(rMin).padStart(2, "0")}:${String(rSec).padStart(2, "0")}`;
-        }
-        // --------------------------------------------------
-
-        // --- TIMER COUNT UP (OPTIONAL) ---
-        const totalSeconds = Math.floor(elapsedMs / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-
-        timerElement.textContent =
-            (hours > 0 ? `${String(hours).padStart(2, "0")}:` : "") +
-            `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-        // ----------------------------------
-
-    }, 1000);
-}
-
-
-
-    function stopCallTimer() {
+   
+    function stopCallTimer(pause = false) {
         if (timerInterval) clearInterval(timerInterval);
         timerInterval = null;
-        const timerElement = document.getElementById("call-timer");
-        if (timerElement) timerElement.textContent = "00:00";
+
+        if (pause) {
+            isTimerPaused = true;
+            const elapsedMs = Date.now() - callStartTime;
+            remainingHoldTime = window.callDurationLimit - elapsedMs;
+        } else {
+            document.getElementById("call-timer").textContent = "00:00";
+        }
+    }
+
+    function resumeCallTimer(additionalMs = 0) {
+        window.callDurationLimit = remainingHoldTime + additionalMs;
+        callStartTime = Date.now();
+        isTimerPaused = false;
+    }
+
+
+    // function resumeCallTimer() {
+    //     console.log("Resuming timer...");
+
+    //     isTimerPaused = false;
+
+    //     // Get the current remaining time from the displayed timer
+    //     const timerText = document.getElementById("call-timer").textContent; // "MM:SS"
+    //     const [min, sec] = timerText.split(":").map(Number);
+    //     const remainingMs = (min * 60 + sec) * 1000;
+
+    //     // Rebuild start time so countdown resumes properly
+    //     callStartTime = Date.now() - (window.callDurationLimit - remainingMs);
+
+    //     // Restart the countdown loop
+    //     startCallTimer(callStartTime);
+    // }
+
+
+    async function extendCall(consultationId, consultantType) {
+        if (!commandChannel) return;
+
+        // pause timers for all participants
+        const commandData = JSON.stringify({ action: "pause-timer" });
+        await commandChannel.send(commandData); // sends to all
+
+        // pause local timer
+        stopCallTimer(true);
+
+        // show modal to select duration & payment
+        showExtensionModal(consultationId, consultantType);
+    }
+
+    function showExtensionModal(consultationId, consultantType) {
+        const $modal = $("#extendModal");
+        $modal.removeClass("hidden");
+
+        // Set hidden fields
+        $("#modal-consultation-id").val(consultationId);
+        $("#modal-consultant-type").val(consultantType);
+
+        const $select = $("#timeslot-select");
+        $select.empty().append('<option value="">Select a timeslot</option>');
+        $("#extension-price").text("Amount: $0");
+
+        // Fetch timeslots via AJAX
+        $.ajax({
+            url: '/consultation/timeslots',
+            type: 'GET',
+            data: { consultation_id: consultationId, consultant_type: consultantType },
+            success: function(res) {
+                if (res.timeslots && res.timeslots.length) {
+                    $.each(res.timeslots, function(i, slot) {
+                        $select.append('<option value="'+slot.duration+'">'+slot.value+' ('+slot.duration+' mins)</option>');
+                    });
+                }
+            }
+        });
     }
 
     
+    async function resumeAfterPayment(extendedMinutes) {
+        const additionalMs = extendedMinutes * 60 * 1000;
+
+        // resume local timer
+        resumeCallTimer(additionalMs);
+
+        // broadcast resume to all participants
+        if (commandChannel) {
+            const commandData = JSON.stringify({
+                action: "resume-timer",
+                additionalMs
+            });
+            await commandChannel.send(commandData);
+        }
+
+        // hide extend button/modal
+        document.getElementById("extend-call-btn").classList.add("hidden");
+    }
 });

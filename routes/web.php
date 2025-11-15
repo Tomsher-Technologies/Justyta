@@ -51,6 +51,7 @@ Route::post('/consultation/start-time', [HomeController::class, 'saveStartTime']
 Route::get('/consultation/start-time/{id}', [HomeController::class, 'getStartTime']);
 Route::post('/consultation/update-status', [LawyerController::class, 'updateConsultationStatus'])->name('consultation.status.update');
 
+
 // Protected Dashboards
 Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:lawyer'])->group(function () {
     Route::get('/dashboard', [LawyerController::class, 'lawyerDashboard'])->name('lawyer.dashboard');
@@ -64,6 +65,7 @@ Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:law
     Route::get('/lawyer/video', [LawyerController::class, 'lawyerDashboard'])->name('web.lawyer.video');
     Route::get('/web/lawyer/poll', [LawyerController::class, 'poll'])->name('web.lawyer.poll');
     Route::post('/web/lawyer/response', [LawyerController::class, 'lawyerResponse'])->name('web.lawyer.response');
+    Route::get('/lawyer/consultation/ended', [LawyerController::class, 'endedCall'])->name('lawyer.consultation.ended');
     
     // Consultation Requests
     Route::get('/consultations', [LawyerController::class, 'consultationsIndex'])->name('lawyer.consultations.index');
@@ -172,6 +174,11 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
 
     Route::get('/online-live-consultancy', [ServiceRequestController::class, 'showConsultationForm'])->name('service.online.consultation');
     Route::post('/request-consultation', [ServiceRequestController::class,'requestConsultation'])->name('service.request.consultation');
+    Route::get('/user/consultation/ended', [UserController::class, 'endedCall'])->name('user.consultation.ended');
+    Route::get('/consultation/timeslots', [ServiceRequestController::class, 'getTimeslots'])->name('consultation.timeslots');
+    Route::get('/consultation/price', [ServiceRequestController::class, 'getPrice'])->name('consultation.price');
+
+
 
     // Get sub dropdowns and general links related to service requests
     Route::post('/get-request-types', [ServiceRequestController::class, 'getRequestTypes'])->name('get.request.types');

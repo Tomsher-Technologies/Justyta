@@ -460,4 +460,9 @@ return [
     'profile' => 'Profile',
     'new_consultation_request' => 'A new consultation (Ref: :reference) has been assigned to you.',
     'view_all' => 'View All',
+
+    'call_ended' => 'Call ended',
+    'mute' => 'Mute',
+    'video' => 'Video',
+    'End' => 'End',
 ];
