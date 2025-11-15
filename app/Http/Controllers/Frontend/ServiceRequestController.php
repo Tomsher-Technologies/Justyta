@@ -63,6 +63,49 @@ use Carbon\Carbon;
 
 class ServiceRequestController extends Controller
 {
+    public function getPrice(Request $request)
+    {
+        $consultant_type = $request->query('consultant_type');
+        $duration = $request->query('duration');
+        $consultationId = $request->query('consultation_id');
+
+        $base = ConsultationDuration::where('type', $consultant_type)
+            ->where('duration', $duration)
+            ->where('status', 1)
+            ->first();
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'total' => (float)($base->amount ?? 0),
+            ]
+        ]);
+    }
+
+    public function getTimeslots(Request $request)
+    {
+        $consultationId = $request->query('consultation_id');
+        $consultantType  = $request->query('consultant_type');
+        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
+
+        $timeslots = ConsultationDuration::where('status', 1)
+            ->where('type', $consultantType)
+            ->orderBy('id')
+            ->get();
+
+        $response['timeslots'] = $timeslots->map(function ($timeslot) use($lang) {
+            return [
+                'duration' => $timeslot->duration,
+                'value'    => $timeslot->getTranslation('name', $lang),
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'timeslots' => $response['timeslots']
+        ]);
+    }
+
     public function getEmirates(Request $request)
     {
         $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');

@@ -376,11 +376,21 @@ class LawyerController extends Controller
             if($request->status == 'completed' || $request->status == 'rejected' || $request->status == 'cancelled' || $request->status == 'no_lawyer_available'){
                 unreserveLawyer($consultation->lawyer_id);
             }
+
+            if (Auth::guard('frontend')->user()->user_type === 'lawyer') {
+                $redirectUrl = route('lawyer.consultation.ended', $consultation->id);
+            } else {
+                $redirectUrl = route('user.consultation.ended', $consultation->id);
+            }
             
-            return response()->json(['status' => true]);
+            return response()->json(['status' => true,'redirect_url' => $redirectUrl]);
         }
 
-        return response()->json(['status' => false], 404);
+        return response()->json(['status' => false, 'redirect_url' => ''], 404);
     }
 
+    public function endedCall()
+    {
+        return view('frontend.lawyer.consultation-ended');
+    }
 }
