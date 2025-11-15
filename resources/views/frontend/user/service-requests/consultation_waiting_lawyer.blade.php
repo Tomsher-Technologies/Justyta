@@ -155,6 +155,7 @@
                 if (data.status && data.data && !videoFlag) {
                     videoFlag = true;
                     document.getElementById('waitingMessage').classList.add('hidden');
+                    document.getElementById('video-call-container').classList.remove('hidden');
                     
                     await startCall(data.data, '{{ addslashes(auth()->user()->name) }}');
                 }
