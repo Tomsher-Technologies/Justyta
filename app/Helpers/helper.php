@@ -938,7 +938,7 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
     return $response->json(); // returns _id, reference, _links etc.
 }
 
-function createConsultationWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+function createConsultationWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null, ?string $type = 'initial')
 {
     
     $accessToken = getAccessToken();
@@ -956,8 +956,8 @@ function createConsultationWebOrder($customer, float $amount, string $currency =
         'merchantOrderReference' => $orderReference,
         'merchantAttributes' => [
             'merchantOrderReference' => $orderReference,
-            'redirectUrl' => route('consultationSuccessPayment'),
-            'cancelUrl'   => route('consultationCancelPayment')
+            'redirectUrl' => ($type == 'initial') ? route('consultationSuccessPayment') : route('consultation.payment-extend-success'),
+            'cancelUrl'   => ($type == 'initial') ? route('consultationCancelPayment') : route('consultation.payment-extend-cancel')
         ],
         'emailAddress' => $customer['email'],
         'billingAddress' => [

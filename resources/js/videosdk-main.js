@@ -40,24 +40,24 @@
       
         client.on("peer-video-state-change", renderVideo);
         client.on("user-added", onUserJoined);
-        
-        await client.join(data.meeting_number, data.signature, username);
         commandChannel = client.getCommandClient();
-
         client.on("command-channel-message", (payload) => {
+            console.log("Received command   :", payload.text);
             try {
                 const data = JSON.parse(payload.text); // assuming JSON string
                 if (data.action === "pause-timer") {
                     stopCallTimer(true); // pause locally
                 } else if (data.action === "resume-timer") {
-                    resumeCallTimer(data.additionalMs || 0);
+                    resumeCallTimer(data.additionalMs || 0, false);
                 }
             } catch (e) {
                 console.warn("Invalid command data", payload.text);
             }
         });
-
-
+        window.commandChannel = commandChannel;
+        
+        await client.join(data.meeting_number, data.signature, username);
+        
         const mediaStream = client.getMediaStream();
         await mediaStream.startAudio();
         await mediaStream.startVideo();
@@ -289,83 +289,93 @@
     window.leaveCall = leaveCall;
     window.toggleVideo = toggleVideo;
     window.extendCall = extendCall;
-
+    window.resumeCallTimer = resumeCallTimer;
 
     function startCallTimer(baseTime = null) {
         const timerElement = document.getElementById("call-timer");
         callStartTime = baseTime ? new Date(baseTime).getTime() : Date.now();
 
+        if (!window.callDurationLimit) window.callDurationLimit = 0;
         if (timerInterval) clearInterval(timerInterval);
 
         timerInterval = setInterval(async () => {
             if (isTimerPaused) return; // skip while paused
 
-            const nowTime = Date.now();
-            const elapsedMs = nowTime - callStartTime;
+            const now = Date.now();
+            const elapsedMs = now - callStartTime; // how long since start/resume
+            const remainingMs = window.callDurationLimit - elapsedMs;
 
-            if (window.callDurationLimit) {
-                const remainingMs = window.callDurationLimit - elapsedMs;
 
-                const extendBtn = document.getElementById("extend-call-btn");
-                // if (remainingMs <= 5 * 60 * 1000 && extendBtn) {
-                if (remainingMs <= 30 * 1000 && extendBtn) {
-                    // extendBtn.classList.remove("hidden");
-                }
-
-                if (remainingMs <= 0) {
-                    stopCallTimer();
-                    try { await leaveCall(); } catch {}
-                    // alert("Your consultation time has ended.");
-                    return;
-                }
-
-                const remainingSeconds = Math.floor(remainingMs / 1000);
-                const rMin = Math.floor(remainingSeconds / 60);
-                const rSec = remainingSeconds % 60;
-
-                timerElement.textContent =
-                    `${String(rMin).padStart(2, "0")}:${String(rSec).padStart(2, "0")}`;
+            const extendBtn = document.getElementById("extend-call-btn");
+            // if (remainingMs <= 5 * 60 * 1000 && extendBtn) {
+            if (remainingMs <= 45 * 1000 && extendBtn) {
+                extendBtn.classList.remove("hidden");
             }
+
+            if (remainingMs <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                stopCallTimer(false);
+                leaveCall().catch(()=>{});
+                return;
+            }
+
+            const totalSeconds = Math.floor(remainingMs / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            timerElement.textContent =
+                (hours > 0 ? `${String(hours).padStart(2,"0")}:` : "") +
+                `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
         }, 1000);
     }
 
    
     function stopCallTimer(pause = false) {
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = null;
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
 
         if (pause) {
             isTimerPaused = true;
             const elapsedMs = Date.now() - callStartTime;
             remainingHoldTime = window.callDurationLimit - elapsedMs;
+            // clamp
+            if (remainingHoldTime < 0) remainingHoldTime = 0;
+            console.log("Timer paused. remainingHoldTime (ms):", remainingHoldTime);
         } else {
+            // full stop: reset display
+            isTimerPaused = false;
+            remainingHoldTime = 0;
             document.getElementById("call-timer").textContent = "00:00";
         }
     }
 
-    function resumeCallTimer(additionalMs = 0) {
-        window.callDurationLimit = remainingHoldTime + additionalMs;
+    function resumeCallTimer(additionalMinutesOrMs = 0, isMinutes = true) {
+        // Convert to ms
+        const additionalMs = isMinutes ? (Number(additionalMinutesOrMs) * 60 * 1000) : Number(additionalMinutesOrMs) || 0;
+
+        console.log("resumeCallTimer called. additionalMs:", additionalMs, "remainingHoldTime:", remainingHoldTime);
+
+        // compute new remaining duration (ms) after adding extension
+        const newRemainingMs = (typeof remainingHoldTime === "number" ? remainingHoldTime : 0) + additionalMs;
+
+        // Update the duration value (callDurationLimit should be a duration in ms)
+        window.callDurationLimit = Number(newRemainingMs);
+
+        // reset start time from now (we will measure elapsed from now)
         callStartTime = Date.now();
+
+        // clear paused flag and (re)start interval
         isTimerPaused = false;
+        if (timerInterval) clearInterval(timerInterval);
+        startCallTimer(); // no baseTime needed since we set callStartTime above
+        document.getElementById("extend-call-btn").classList.add("hidden");
     }
 
 
-    // function resumeCallTimer() {
-    //     console.log("Resuming timer...");
-
-    //     isTimerPaused = false;
-
-    //     // Get the current remaining time from the displayed timer
-    //     const timerText = document.getElementById("call-timer").textContent; // "MM:SS"
-    //     const [min, sec] = timerText.split(":").map(Number);
-    //     const remainingMs = (min * 60 + sec) * 1000;
-
-    //     // Rebuild start time so countdown resumes properly
-    //     callStartTime = Date.now() - (window.callDurationLimit - remainingMs);
-
-    //     // Restart the countdown loop
-    //     startCallTimer(callStartTime);
-    // }
 
 
     async function extendCall(consultationId, consultantType) {
@@ -396,13 +406,13 @@
 
         // Fetch timeslots via AJAX
         $.ajax({
-            url: '/consultation/timeslots',
+            url: window.extendTimeSlots,
             type: 'GET',
             data: { consultation_id: consultationId, consultant_type: consultantType },
             success: function(res) {
                 if (res.timeslots && res.timeslots.length) {
                     $.each(res.timeslots, function(i, slot) {
-                        $select.append('<option value="'+slot.duration+'">'+slot.value+' ('+slot.duration+' mins)</option>');
+                        $select.append('<option value="'+slot.duration+'">'+slot.value+'</option>');
                     });
                 }
             }
@@ -410,22 +420,5 @@
     }
 
     
-    async function resumeAfterPayment(extendedMinutes) {
-        const additionalMs = extendedMinutes * 60 * 1000;
-
-        // resume local timer
-        resumeCallTimer(additionalMs);
-
-        // broadcast resume to all participants
-        if (commandChannel) {
-            const commandData = JSON.stringify({
-                action: "resume-timer",
-                additionalMs
-            });
-            await commandChannel.send(commandData);
-        }
-
-        // hide extend button/modal
-        document.getElementById("extend-call-btn").classList.add("hidden");
-    }
+    
 });

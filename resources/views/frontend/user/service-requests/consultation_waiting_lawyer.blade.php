@@ -119,14 +119,14 @@
                             <span class="text-xs mt-1 font-medium">{{ __('frontend.end') }}</span>
                         </button>
                         <div id="call-timer" class="text-gray-700 font-bold text-lg min-w-[80px] text-center">00:00</div>
-                        <div id="call-countdown" class="text-sm text-gray-500"></div>
 
+                        <button id="extend-call-btn" data-consultation-id="{{ $consultation->id }}" data-consultant-type="{{ $consultation->consultant_type }}" class="hidden px-4 py-2 bg-primary text-white rounded">
+                            Extend Call
+                        </button>
                     </div>
                 </div>
 
-                <button id="extend-call-btn" data-consultation-id="{{ $consultation->id }}" data-consultant-type="{{ $consultation->consultant_type }}" class="hidden px-4 py-2 bg-yellow-500 text-white rounded">
-                    Extend Call
-                </button>
+                
             </div>
 
 
@@ -134,8 +134,8 @@
             <div id="extendModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                 <div class="bg-white p-6 rounded-xl w-96 relative">
                     <h3 class="text-lg font-semibold mb-4">Extend Consultation</h3>
-                    <input type="hidden" id="modal-consultation-id">
-                    <input type="hidden" id="modal-consultant-type">
+                    <input type="hidden" id="modal-consultation-id" value="{{ $consultation->id }}">
+                    <input type="hidden" id="modal-consultant-type" value="{{ $consultation->consultant_type }}">
 
                     <label for="timeslot-select" class="block mb-2 font-medium">Select Duration:</label>
                     <select id="timeslot-select" class="w-full border px-3 py-2 rounded mb-4">
@@ -150,8 +150,6 @@
                     </div>
                 </div>
             </div>
-
-
 
         </div>
     </div>
@@ -169,6 +167,7 @@
 
     <script>
         window.consultationStatusUpdateUrl = "{{ route('consultation.status.update') }}";
+        window.extendTimeSlots = "{{ route('consultation.timeslots') }}";
         window.csrfToken = "{{ csrf_token() }}";
         let consultationId = {{ $consultation->id }};
         let videoFlag = false;
@@ -204,16 +203,6 @@
                 extendCall(consultationId, consultantType);
             });
 
-            const durationSelect = document.getElementById("extension-duration");
-            const amountDiv = document.getElementById("extension-amount");
-
-            durationSelect.addEventListener("change", () => {
-                const duration = parseInt(durationSelect.value);
-                const ratePerMinute = 2; // replace with your pricing logic
-                amountDiv.textContent = `Amount: $${duration * ratePerMinute}`;
-            });
-
-
             $("#timeslot-select").on("change", function() {
                 const duration = $(this).val();
                 const consultationId = $("#modal-consultation-id").val();
@@ -225,7 +214,7 @@
                 }
 
                 $.ajax({
-                    url: '/consultation/price',
+                    url: "{{ route('consultation.price') }}",
                     type: 'GET',
                     data: { consultation_id: consultationId, duration: duration, consultant_type: consultantType },
                     success: function(res) {
@@ -238,23 +227,108 @@
                 });
             });
 
-            // Cancel button
             $("#extension-cancel").on("click", function() {
                 $("#extendModal").addClass("hidden");
+                resumeCallTimer(0, true);
+                if (commandChannel) {
+                    const commandData = JSON.stringify({
+                        action: "resume-timer",
+                        additionalMs: 0
+                    });
+                    try {
+                        commandChannel.send(commandData);
+                    } catch (e) {
+                        console.warn("commandChannel.send failed", e);
+                    }
+                }
             });
 
-            // Pay & Extend button (example)
+            let checkInterval = null;
+
             $("#extension-pay").on("click", function() {
                 const consultationId = $("#modal-consultation-id").val();
                 const duration = $("#timeslot-select").val();
-                const price = $("#extension-price").text().replace("Amount: $", "");
 
-                // Call your payment logic here
-                console.log("Pay for consultation", consultationId, "Duration:", duration, "Price:", price);
+                if (!duration) {
+                    alert("Please select a duration");
+                    return;
+                }
 
-                // Close modal
-                $("#extendModal").addClass("hidden");
+                // $("#extension-pay").prop("disabled", true).text("Processing...");
+
+                $.ajax({
+                    url: "{{ route('consultation.extend.pay') }}",  // new route
+                    type: "POST",
+                    data: {
+                        consultation_id: consultationId,
+                        duration: duration,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(res) {
+                        if (res.status && res.payment_url) {
+
+                            // Hide modal
+                            // $("#extendModal").addClass("hidden");
+
+                            const paymentTab = window.open(res.payment_url, "_blank");
+
+                            if (checkInterval) clearInterval(checkInterval);
+                            checkInterval = setInterval(() => {
+                                checkPaymentStatus(consultationId);
+                            }, 2000);
+                        } else {
+                            $("#extension-pay").prop("disabled", false).text("Pay & Extend");
+                            alert(res.message);
+                        }
+                    },
+                    error: function() {
+                        $("#extension-pay").prop("disabled", false).text("Pay & Extend");
+                        alert("Server error. Try again.");
+                    }
+                });
             });
+
+           
+
+
+            function checkPaymentStatus(consultationId) {
+                $.ajax({
+                    url: "{{ route('consultation.payment-status') }}",
+                    type: "GET",
+                    data: { consultation_id: consultationId },
+                    success: function(res) {
+                        if (res.success) {
+
+                            if (typeof checkInterval !== 'undefined' && checkInterval) {
+                                clearInterval(checkInterval);
+                                checkInterval = null;
+                            }
+                            
+                            const extendedMinutes = Number(res.extended_minutes) || 0;
+                            resumeCallTimer(extendedMinutes, true);
+
+                            if (commandChannel) {
+                                const commandData = JSON.stringify({
+                                    action: "resume-timer",
+                                    additionalMs: extendedMinutes * 60 * 1000
+                                });
+                                try {
+                                    commandChannel.send(commandData);
+                                } catch (e) {
+                                    console.warn("commandChannel.send failed", e);
+                                }
+                            }
+
+                            $("#extendModal").addClass("hidden");
+
+                            console.log("Consultation extended successfully!");
+                        } else {
+                             console.log("Payment not completed.");
+                        }
+                    }
+                });
+            }
+
 
         });
     </script>

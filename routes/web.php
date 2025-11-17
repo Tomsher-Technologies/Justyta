@@ -177,6 +177,11 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/user/consultation/ended', [UserController::class, 'endedCall'])->name('user.consultation.ended');
     Route::get('/consultation/timeslots', [ServiceRequestController::class, 'getTimeslots'])->name('consultation.timeslots');
     Route::get('/consultation/price', [ServiceRequestController::class, 'getPrice'])->name('consultation.price');
+    Route::post('/consultation/extend/pay', [ServiceRequestController::class, 'extendPay'])->name('consultation.extend.pay');
+    Route::get('/consultation/payment-extend-success', [ServiceRequestController::class,'paymentExtendSuccess'])->name('consultation.payment-extend-success');
+    Route::get('/consultation/payment-extend-cancel', [ServiceRequestController::class, 'paymentExtendCancel'])->name('consultation.payment-extend-cancel');
+    Route::get('/consultation/payment-status', [ServiceRequestController::class, 'checkPayment'])->name('consultation.payment-status');
+
 
 
 
