@@ -121,6 +121,7 @@ class ConsultationController extends Controller
             // ], 200);
 
             $consultation->refresh();
+            $consultation->request_success = 1;
 
             if ($consultation->lawyer_id) {
                 assignLawyer($consultation, $consultation->lawyer_id);

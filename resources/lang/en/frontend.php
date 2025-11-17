@@ -464,5 +464,5 @@ return [
     'call_ended' => 'Call ended',
     'mute' => 'Mute',
     'video' => 'Video',
-    'End' => 'End',
+    'end' => 'End',
 ];

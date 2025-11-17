@@ -144,22 +144,22 @@ class LawyerController extends Controller
         $allNotifications =  Auth::guard('frontend')->user()->notifications();
 
         $paginatedNot = (clone $allNotifications)
-            ->orderByDesc('created_at')
-            ->paginate(10);
+                        ->orderByDesc('created_at')
+                        ->paginate(20);
 
         $notifications = collect($paginatedNot->items())
-            ->map(function ($notification) use ($lang) {
-                $data = $notification->data;
-            
-                return [
-                    'id'   => $notification->id,
-                    'message'   => __($notification->data['message'], [
-                        'reference' => $data['reference_code'] ?? $data['reference'] ?? "",
-                        'status' => $data['status'] ?? "",
-                    ]),
-                    'time'      => $notification->created_at->format('d M, Y h:i A'),
-                ];
-            });
+                            ->map(function ($notification) use ($lang) {
+                                $data = $notification->data;
+                            
+                                return [
+                                    'id'   => $notification->id,
+                                    'message'   => __($notification->data['message'], [
+                                        'reference' => $data['reference_code'] ?? $data['reference'] ?? "",
+                                        'status' => $data['status'] ?? "",
+                                    ]),
+                                    'time'      => $notification->created_at->format('d M, Y h:i A'),
+                                ];
+                            });
 
         $allShownIds = collect($paginatedNot->items())
             ->pluck('id');
