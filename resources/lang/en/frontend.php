@@ -468,4 +468,5 @@ return [
     'go_back_to_call' => 'Go back to call',
     'consultation_request_cancelled_timeout' => 'The consultation request has been cancelled due to inactivity.',
     'consultation_request_cancelled' => 'The consultation request has been rejected.',
+    'consultation_extend_failed' => 'Consultation extention failed.',
 ];

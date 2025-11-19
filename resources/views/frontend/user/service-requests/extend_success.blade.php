@@ -6,10 +6,15 @@
             <div class="bg-[#FFFAF0] border !border-[#FFE9B1] rounded-xl p-8 max-w-xl m-auto w-full text-center">
 
                 <div class="w-20 h-20 mx-auto bg-custom-brown rounded-full flex items-center justify-center mb-6">
-                    <img src="{{ asset('assets/images/check-icon.svg') }}" alt="{{ __('frontend.success') }}">
+                    @if($success == 1)
+                        <img src="{{ asset('assets/images/check-icon.svg') }}" alt="{{ __('frontend.success') }}">
+                    @else
+                        <img src="{{ asset('assets/images/failed.png') }}" alt="{{ __('frontend.failed') }}">
+                    @endif
+                    
                 </div>
 
-                <h1 class="text-2xl font-light text-gray-800 mb-4">{{ __('frontend.success') }}</h1>
+                <h1 class="text-2xl font-light text-gray-800 mb-4">{{ __('frontend.failed') }}</h1>
 
                 
                 <div class="text-gray-600 mb-6">{!! $message !!}</div>
