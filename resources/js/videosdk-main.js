@@ -22,6 +22,9 @@
     );
     const isSecure = window.isSecureContext || isLocalhost;
 
+    
+
+
     async function startCall(data, username) {
         console.log("data", data);
         window.consultation_id = data.consultation_id;
@@ -41,15 +44,27 @@
         client.on("peer-video-state-change", renderVideo);
         client.on("user-added", onUserJoined);
         commandChannel = client.getCommandClient();
-        client.on("command-channel-message", (payload) => {
+        client.on("command-channel-message", async (payload) => {
             console.log("Received command   :", payload.text);
             try {
-                const data = JSON.parse(payload.text); // assuming JSON string
+                const data = JSON.parse(payload.text); 
                 if (data.action === "pause-timer") {
-                    stopCallTimer(true); // pause locally
+                    stopCallTimer(true); 
                 } else if (data.action === "resume-timer") {
                     resumeCallTimer(data.additionalMs || 0, false);
+                }else if (data.action === "end-call") {
+                    console.log("Received end-call command");
+                    await leaveCall();
                 }
+
+                if (data.action === "pause-av") {
+                    pauseLocalAV();
+                }
+
+                if (data.action === "resume-av") {
+                    resumeLocalAV();
+                }
+
             } catch (e) {
                 console.warn("Invalid command data", payload.text);
             }
@@ -75,6 +90,8 @@
             window.zoomCallStartTime = result.start_time;
             startCallTimer(result.start_time);
         }
+
+        startStatusPolling();
     }
 
     let callStarted = false;
@@ -156,6 +173,7 @@
 
 
     async function leaveCall() {
+        if (window.statusCheckInterval) clearInterval(window.statusCheckInterval);
         const mediaStream = client.getMediaStream();
 
         client.off("peer-video-state-change", renderVideo);
@@ -271,7 +289,11 @@
             toggleVideoBtn.style.display = "none";
             mute.style.display = "none";
             stopCallTimer();
-            await leaveCall();
+
+            if (commandChannel) {
+                const commandData = JSON.stringify({ action: "end-call" });
+                await commandChannel.send(commandData);
+            }
             stopBtn.style.display = "none";
            
         });
@@ -290,6 +312,7 @@
     window.toggleVideo = toggleVideo;
     window.extendCall = extendCall;
     window.resumeCallTimer = resumeCallTimer;
+    window.startStatusPolling = startStatusPolling;
 
     function startCallTimer(baseTime = null) {
         const timerElement = document.getElementById("call-timer");
@@ -373,10 +396,34 @@
         if (timerInterval) clearInterval(timerInterval);
         startCallTimer(); // no baseTime needed since we set callStartTime above
         document.getElementById("extend-call-btn").classList.add("hidden");
+
+        resumeLocalAV();
+
+        // Notify others
+        if (commandChannel) {
+            const resumeData = JSON.stringify({ action: "resume-av" });
+            commandChannel.send(resumeData);
+        }
     }
 
 
+    function startStatusPolling() {
+        if (!window.consultation_id) return;
 
+        // store interval ID to clear later
+        window.statusCheckInterval = setInterval(async () => {
+            try {
+                const res = await fetch(`/consultation/status/${window.consultation_id}`);
+                const data = await res.json();
+                if (data.status === 'completed') {
+                    console.log("Consultation ended via backend");
+                    await leaveCall();
+                }
+            } catch (err) {
+                console.warn("Failed to check consultation status", err);
+            }
+        }, 5000); // every 5 seconds
+    }
 
     async function extendCall(consultationId, consultantType) {
         if (!commandChannel) return;
@@ -384,6 +431,12 @@
         // pause timers for all participants
         const commandData = JSON.stringify({ action: "pause-timer" });
         await commandChannel.send(commandData); // sends to all
+
+        const commandDataPause = JSON.stringify({ action: "pause-av" });
+        await commandChannel.send(commandDataPause);
+
+        // pause local AV (important)
+        pauseLocalAV();
 
         // pause local timer
         stopCallTimer(true);
@@ -419,6 +472,46 @@
         });
     }
 
-    
+    async function pauseLocalAV() {
+        const mediaStream = client.getMediaStream();
+
+        try {
+            let iconVideo = document.getElementById("video-icon");
+            let iconAudio = document.getElementById("audio-icon");
+
+            if (mediaStream.isCapturingVideo()) {
+                await mediaStream.stopVideo();
+                iconVideo.classList.remove("fa-video");
+                iconVideo.classList.add("fa-video-slash", "text-red-500");
+            }
+
+            if (!mediaStream.isAudioMuted()) {
+                await mediaStream.muteAudio();
+                iconAudio.classList.remove("fa-microphone");
+                iconAudio.classList.add("fa-microphone-slash", "text-red-500");
+            }
+        } catch (e) {
+            console.log("Pause AV error", e);
+        }
+    }
+
+    async function resumeLocalAV() {
+        const mediaStream = client.getMediaStream();
+
+        try {
+            let iconVideo = document.getElementById("video-icon");
+            let iconAudio = document.getElementById("audio-icon");
+
+            await mediaStream.startVideo();
+            iconVideo.classList.remove("fa-video-slash", "text-red-500");
+            iconVideo.classList.add("fa-video");
+
+            await mediaStream.unmuteAudio();
+            iconAudio.classList.remove("fa-microphone-slash", "text-red-500");
+            iconAudio.classList.add("fa-microphone");
+        } catch (e) {
+            console.log("Resume AV error:", e);
+        }
+    }
     
 });

@@ -50,6 +50,7 @@ Route::post('network-webhook', [ServiceRequestController::class, 'networkWebhook
 Route::post('/consultation/start-time', [HomeController::class, 'saveStartTime']);
 Route::get('/consultation/start-time/{id}', [HomeController::class, 'getStartTime']);
 Route::post('/consultation/update-status', [LawyerController::class, 'updateConsultationStatus'])->name('consultation.status.update');
+Route::get('/consultation/status/{consultation}', [HomeController::class, 'statusConsultation'])->name('consultation.status');
 
 
 // Protected Dashboards

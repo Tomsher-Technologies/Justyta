@@ -56,7 +56,7 @@
                         <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.lawyer') }}</th>
                         <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.duration') }}</th>
                         <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.client_name') }}</th>
-                        <th class="px-6 py-5 font-semibold text-center" >{{ __('frontend.amount') }}</th>
+                        {{-- <th class="px-6 py-5 font-semibold text-center" >{{ __('frontend.amount') }}</th> --}}
                         <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.status') }}</th>
                         <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.actions') }}</th>
                     </tr>
@@ -95,13 +95,13 @@
                                 {{ $consultation->user?->name ?? '—' }}
                             </td>
                             
-                            <td class="px-6 py-4 text-center">
+                            {{-- <td class="px-6 py-4 text-center">
                                 @if($assignment->status == 'accepted')
                                     AED {{ number_format($consultation->lawyer_amount, 2) }}
                                 @else
                                     AED 0.00
                                 @endif
-                            </td>
+                            </td> --}}
                         
                             <td class="px-6 py-4 text-center">
                                 @php

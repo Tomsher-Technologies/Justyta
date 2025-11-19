@@ -465,4 +465,5 @@ return [
     'mute' => 'Mute',
     'video' => 'Video',
     'end' => 'End',
+    'go_back_to_call' => 'Go back to call',
 ];

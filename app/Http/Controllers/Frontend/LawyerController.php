@@ -24,7 +24,8 @@ use Carbon\Carbon;
 
 class LawyerController extends Controller
 {
-    public function lawyerDashboard(){
+    public function lawyerDashboard(Request $request){
+        $request->session()->put('last_page_consultations', url()->full());
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
 
         $lawyerId = Auth::guard('frontend')->user()->lawyer->id;

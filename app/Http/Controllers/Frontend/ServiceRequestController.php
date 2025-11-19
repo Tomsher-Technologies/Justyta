@@ -206,14 +206,10 @@ class ServiceRequestController extends Controller
                 $consultation->status = 'in_progress';
                 $consultation->save();
 
-                return response()->json([
-                    'status' => true,
-                    'message'=> __('frontend.consultation_extended_successfully'),
-                    'data' => [
-                        'consultation_id' => $consultation->id ?? null,
-                        'duration' => $servicePayment?->duration ?? 0
-                    ]
-                ],200);
+                $message = __('frontend.consultation_extended_successfully');
+
+                return view('frontend.user.service-requests.extend_success', compact('message'));
+
             }else{
                 $servicePayment = ConsultationPayment::where('payment_reference', $paymentReference)
                                                 ->where('consultation_id', $consultationId)
