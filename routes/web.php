@@ -184,6 +184,7 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/consultation/payment-extend-success', [ServiceRequestController::class,'paymentExtendSuccess'])->name('consultation.payment-extend-success');
     Route::get('/consultation/payment-extend-cancel', [ServiceRequestController::class, 'paymentExtendCancel'])->name('consultation.payment-extend-cancel');
     Route::get('/consultation/payment-status', [ServiceRequestController::class, 'checkPayment'])->name('consultation.payment-status');
+    Route::get('/get-available-lawyers', [ServiceRequestController::class, 'getAvailableLawyers'])->name('get.available.lawyers');
 
 
 

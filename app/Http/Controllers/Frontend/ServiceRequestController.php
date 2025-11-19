@@ -64,6 +64,29 @@ use Carbon\Carbon;
 class ServiceRequestController extends Controller
 {
 
+    public function getAvailableLawyers(Request $request)
+    {
+        $language = $request->language;
+        $caseType = $request->case_type;
+        $lang       = $request->header('lang') ?? env('APP_LOCALE', 'en');
+
+        $lawyers = findAvailableLawyer($caseType, $language);
+
+        $lawyerData = Lawyer::whereIn('id', $lawyers)
+                        ->with('translations') // eager load to avoid N+1 queries
+                        ->get()
+                        ->map(function ($lawyer) use ($lang) {
+                            return [
+                                'id'   => $lawyer->id,
+                                'name' => $lawyer->getTranslation('full_name', $lang),
+                            ];
+                        })
+                        ->toArray();
+
+        return response()->json($lawyerData);
+    }
+
+
     public function extendPay(Request $request) {
         $data = $request->validate([
             'consultation_id' => 'required|exists:consultations,id',
