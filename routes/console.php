@@ -1,11 +1,13 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+Schedule::command('ads:deactivate-expired')->daily();
+Schedule::command('check:vendor-expiry')->daily();
+Schedule::command('subscriptions:check-expiry')->daily();
+Schedule::command('membership:send-expiry-reminders')->everyMinute();
+Schedule::command('consultations:release-expired')->everyMinute();
+Schedule::command('consultation:auto-cancel')->everyMinute();
+Schedule::command('queue:work --stop-when-empty')->everyMinute()->withoutOverlapping();
 
 
