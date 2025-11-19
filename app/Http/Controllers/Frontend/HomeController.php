@@ -51,26 +51,32 @@ class HomeController extends Controller
         $user = $request->user();
         $consultation = Consultation::where('id',$request->consultation_id)
                             ->where('user_id',$user->id)
-                            ->where('status','accepted')
                             ->first();
 
-        if(!$consultation){
-            return response()->json(['status'=>false,'message'=>'No active consultation'],200);
+        if($consultation && $consultation->status == 'accepted') {
+            $signature = generateZoomSignature($consultation->zoom_meeting_id, $user->id, 0);
+
+            return response()->json([
+                'status'=>true,
+                'data'=>[
+                    'consultation_id'=>$consultation->id,
+                    'meeting_number'=>$consultation->zoom_meeting_id,
+                    'role'=> 0,
+                    'sdk_key'=>config('services.zoom.sdk_key'),
+                    'signature'=>$signature,
+                    'duration'=>$consultation->duration ?? 0
+                ]
+            ]);
+        } else {
+            return response()->json(['status'=>false,'message'=>'No active consultation', 'data' => $consultation->status],200);
         }
+    }
 
-        $signature = generateZoomSignature($consultation->zoom_meeting_id, $user->id, 0);
-
-        return response()->json([
-            'status'=>true,
-            'data'=>[
-                'consultation_id'=>$consultation->id,
-                'meeting_number'=>$consultation->zoom_meeting_id,
-                'role'=> 0,
-                'sdk_key'=>config('services.zoom.sdk_key'),
-                'signature'=>$signature,
-                'duration'=>$consultation->duration ?? 0
-            ]
-        ]);
+    public function consultationCancel(Request $request)
+    {
+        $lang = app()->getLocale() ?? env('APP_LOCALE','en');
+        $data = getPageDynamicContent('consultancy_request_failed',$lang);
+        return view('frontend.user.consultation-cancel', compact('data'));
     }
 
     public function saveStartTime(Request $request)

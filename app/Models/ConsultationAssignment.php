@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ConsultationAssignment extends Model
 {
     protected $fillable = [
-        'consultation_id','lawyer_id','status','assigned_at','responded_at'
+        'consultation_id','lawyer_id','status', 'auto_rejection','assigned_at','responded_at'
     ];
 
     public function consultation() {

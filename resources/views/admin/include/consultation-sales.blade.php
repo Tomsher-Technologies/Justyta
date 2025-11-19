@@ -2,7 +2,7 @@
     $statusClass = [
                 // 'reserved' => ['bg' => '#808080', 'text' => '#ffffff'],
                 'waiting_lawyer' => ['bg' => '#ADD8E6', 'text' => '#000000'],
-                'assigned' => ['bg' => '#FFF44F', 'text' => '#000000'],
+                // 'assigned' => ['bg' => '#FFF44F', 'text' => '#000000'],
                 'accepted' => ['bg' => '#90EE90', 'text' => '#000000'],
                 'rejected' => ['bg' => '#FF0000', 'text' => '#ffffff'],
                 'completed' => ['bg' => '#008000', 'text' => '#ffffff'],

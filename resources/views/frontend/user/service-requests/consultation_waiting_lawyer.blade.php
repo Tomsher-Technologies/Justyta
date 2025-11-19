@@ -187,6 +187,8 @@
                     document.getElementById('video-call-container').classList.remove('hidden');
                     
                     await startCall(data.data, '{{ addslashes(auth()->user()->name) }}');
+                }else if(data.data === 'rejected' || data.data === 'no_lawyer_available' || data.data === 'cancelled'){
+                    window.location.href = "{{ route('consultation.cancel') }}";
                 }
             } catch (err) {
                 console.error(err);
