@@ -207,8 +207,9 @@ class ServiceRequestController extends Controller
                 $consultation->save();
 
                 $message = __('frontend.consultation_extended_successfully');
+                $success = 1;
 
-                return view('frontend.user.service-requests.extend_success', compact('message'));
+                return view('frontend.user.service-requests.extend_success', compact('message','success'));
 
             }else{
                 $servicePayment = ConsultationPayment::where('payment_reference', $paymentReference)
@@ -220,11 +221,17 @@ class ServiceRequestController extends Controller
                 }
                 $consultation->status = 'in_progress';
                 $consultation->save();
-                return response()->json(['status'=>false, 'message'=>__('frontend.payment_failed')],200);
+                $message = __('frontend.consultation_extend_failed');
+                $success = 0;
+
+                return view('frontend.user.service-requests.extend_success', compact('message','success'));
             }
         }
         
-        return response()->json(['status'=>false, 'message'=>__('frontend.payment_failed')],200);
+        $message = __('frontend.consultation_extend_failed');
+        $success = 0;
+
+        return view('frontend.user.service-requests.extend_success', compact('message','success'));
     }
 
     public function paymentExtendCancel(Request $request) {
@@ -237,6 +244,11 @@ class ServiceRequestController extends Controller
         if ($servicePayment) {
             $servicePayment->update(['status' => 'failed']);
         }
+
+        $message = __('frontend.consultation_extend_failed');
+        $success = 0;
+
+        return view('frontend.user.service-requests.extend_success', compact('message','success'));
     }
 
     public function checkPayment(Request $request) {
