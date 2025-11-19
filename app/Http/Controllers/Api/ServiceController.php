@@ -250,6 +250,7 @@ class ServiceController extends Controller
                 'url' => $ads->cta_url
             ];
         }
+        
         return response()->json([
             'status'    => true,
             'message'   => 'Success',

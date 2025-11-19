@@ -6,8 +6,8 @@
         
         <div class="bg-white rounded-2xl  p-8 pb-12">
 
-        <div class="grid grid-cols-12 border-b border-gray-200 pb-8 mb-8">
-            <div class="flex items-center gap-6 col-span-4">
+        <div class="grid grid-cols-1 border-b border-gray-200 pb-8 mb-8">
+            <div class="flex items-center gap-6 col-span-12">
                 <img class="w-24 h-24 rounded-full object-cover shadow-md"
                     src="{{ asset(getUploadedUserImage($lawyer->profile_photo)) }}"
                     alt="{{ $lawyer->getTranslation('full_name', app()->getLocale()) }}">
@@ -25,6 +25,7 @@
                         @endif
                     </h2>
                     <p class="text-base text-gray-500">{{ $lawyer->ref_no }}</p>
+                    <p class="text-base text-gray-500">{{ $lawyer->lawfirm?->law_firm_name ?? '-' }}</p>
                 </div>
             </div>
         </div>

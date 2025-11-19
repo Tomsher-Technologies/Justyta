@@ -227,6 +227,7 @@
                 });
             });
 
+           
             $("#extension-cancel").on("click", function() {
                 $("#extendModal").addClass("hidden");
                 resumeCallTimer(0, true);
@@ -266,10 +267,6 @@
                     },
                     success: function(res) {
                         if (res.status && res.payment_url) {
-
-                            // Hide modal
-                            // $("#extendModal").addClass("hidden");
-
                             const paymentTab = window.open(res.payment_url, "_blank");
 
                             if (checkInterval) clearInterval(checkInterval);
@@ -278,7 +275,6 @@
                             }, 2000);
                         } else {
                             $("#extension-pay").prop("disabled", false).text("Pay & Extend");
-                            alert(res.message);
                         }
                     },
                     error: function() {

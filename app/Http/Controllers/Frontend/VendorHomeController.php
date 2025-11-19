@@ -50,8 +50,9 @@ class VendorHomeController extends Controller
     {
         $this->fileService = $fileService;
     }
-    public function dashboard()
+    public function dashboard(Request $request)
     {
+        $request->session()->put('last_page_consultations', url()->full());
         $lawfirmId = Auth::guard('frontend')->user()->vendor?->id;
 
         $lang = app()->getLocale() ?? env('APP_LOCALE', 'en');

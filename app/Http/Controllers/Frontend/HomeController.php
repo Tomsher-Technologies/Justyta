@@ -96,4 +96,21 @@ class HomeController extends Controller
         ]);
     }
 
+    public function statusConsultation($consultationId)
+    {
+        // Fetch consultation by ID
+        $consultation = Consultation::find($consultationId);
+
+        if (!$consultation) {
+            return response()->json([
+                'status' => 'not_found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => $consultation->status, // e.g., 'completed', 'ongoing'
+        ]);
+    }
+
+
 }
