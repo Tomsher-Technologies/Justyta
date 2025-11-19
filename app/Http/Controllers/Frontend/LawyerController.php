@@ -323,42 +323,47 @@ class LawyerController extends Controller
                         ->where('lawyer_id',$lawyer->id)
                         ->first();
 
-        $assignment->status = $request->action == 'accept' ? 'accepted' : 'rejected';
-        $assignment->responded_at = now();
-        $assignment->save();
-
-        if($request->action == 'accept'){
-            $consultation->status = 'accepted';
-            $consultation->lawyer_id = $lawyer->id;
-            $consultation->zoom_meeting_id = $consultation->id.rand(1000,9999);
-            $consultation->save();
-
-            $signature = generateZoomSignature($consultation->zoom_meeting_id, $lawyer->id, 1);
-
-            return response()->json([
-                'status'=>true,
-                'data'=>[
-                    'consultation_id' => $consultation->id,
-                    'meeting_number' => $consultation->zoom_meeting_id,
-                    'role' => 1,
-                    'sdk_key' => config('services.zoom.sdk_key'),
-                    'signature' => $signature,
-                    'duration' => $consultation->duration ?? 0
-                ]
-            ]);
-        }
-
-        $lawyer->is_busy = 0;
-        $lawyer->save();
-
-        $nextLawyer = findBestFitLawyer($consultation);
-        if($nextLawyer){
-            assignLawyer($consultation, $nextLawyer->id);
-            return response()->json(['status'=> false, 'message'=>'Lawyer rejected, next lawyer assigned']);
+        if($assignment->status == 'rejected'){
+            return response()->json(['status'=>false,'message'=> __('frontend.consultation_request_cancelled_timeout')],200);
         }else{
-            $consultation->status = 'rejected';
-            $consultation->save();
-            return response()->json(['status'=> false, 'message'=> __('frontend.rejected_no_lawyer_available')]);
+            
+            $assignment->status = $request->action == 'accept' ? 'accepted' : 'rejected';
+            $assignment->responded_at = now();
+            $assignment->save();
+
+            if($request->action == 'accept'){
+                $consultation->status = 'accepted';
+                $consultation->lawyer_id = $lawyer->id;
+                $consultation->zoom_meeting_id = $consultation->id.rand(1000,9999);
+                $consultation->save();
+
+                $signature = generateZoomSignature($consultation->zoom_meeting_id, $lawyer->id, 1);
+
+                return response()->json([
+                    'status'=>true,
+                    'data'=>[
+                        'consultation_id' => $consultation->id,
+                        'meeting_number' => $consultation->zoom_meeting_id,
+                        'role' => 1,
+                        'sdk_key' => config('services.zoom.sdk_key'),
+                        'signature' => $signature,
+                        'duration' => $consultation->duration ?? 0
+                    ]
+                ]);
+            }
+
+            $lawyer->is_busy = 0;
+            $lawyer->save();
+
+            $nextLawyer = findBestFitLawyer($consultation);
+            if($nextLawyer){
+                assignLawyer($consultation, $nextLawyer->id);
+                return response()->json(['status'=> true, 'message'=> __('frontend.consultation_request_cancelled')]);
+            }else{
+                $consultation->status = 'rejected';
+                $consultation->save();
+                return response()->json(['status'=> true, 'message'=> __('frontend.consultation_request_cancelled')]);
+            }
         }
     }
 

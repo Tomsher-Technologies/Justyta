@@ -375,13 +375,17 @@
                     document.getElementById('video-call-container').classList.remove('hidden');
                     await startCall(data.data, '{{ addslashes(auth()->user()->name) }}');
 
+                }else {
+                    document.getElementById('incomingPopup').classList.add('hidden');
+                    currentConsultation = null;
+                    toastr.error(data.message);
                 }
             });
 
             // Reject
             document.getElementById('rejectBtn').addEventListener('click', async () => {
                 if (!currentConsultation) return;
-                await fetch("{{ route('web.lawyer.response') }}", {
+                const resReject = await fetch("{{ route('web.lawyer.response') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -392,8 +396,16 @@
                         action: 'reject'
                     })
                 });
-                document.getElementById('incomingPopup').classList.add('hidden');
-                currentConsultation = null;
+                const dataRej = await resReject.json();
+                if (dataRej.status) {
+                    document.getElementById('incomingPopup').classList.add('hidden');
+                    currentConsultation = null;
+                    toastr.success(dataRej.message);
+                }else {
+                    document.getElementById('incomingPopup').classList.add('hidden');
+                    currentConsultation = null;
+                    toastr.error(dataRej.message);
+                }
             });
 
 

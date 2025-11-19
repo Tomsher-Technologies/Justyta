@@ -153,6 +153,8 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     // Online Video Call
     Route::get('/user/video', [HomeController::class, 'userDashboard'])->name('web.user.video');
     Route::get('/web/user/check-consultation', [HomeController::class, 'checkUserConsultationStatus'])->name('web.user.check');
+    Route::get('/user/consultation-cancel', [HomeController::class, 'consultationCancel'])->name('consultation.cancel');
+    
 
     Route::get('/services', [HomeController::class, 'services'])->name('user.services');
 
