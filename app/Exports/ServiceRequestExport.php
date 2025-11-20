@@ -47,16 +47,31 @@ class ServiceRequestExport implements FromArray, WithHeadings, WithStyles, WithE
             }
 
             if(in_array($request->service_slug, ['expert-report','annual-retainer-agreement','legal-translation','immigration-requests','request-submission']) ){
-                $row = [
-                    'Sl No.' => $i+1,
-                    'Reference Code' => $request->reference_code,
-                    'Request Status' => ucfirst($request->status),
-                    'Payment Status' => $paymentStatus,
-                    'Amount' => number_format((float) $request->amount, 2) ?? '0.00',
-                    'Paid Date ' => $request->paid_at ? date('d, M Y h:i A', strtotime($request->paid_at)) : '',
-                    'User' => $request->user?->name ?? '',
-                    'Submitted At' => date('d, M Y h:i A', strtotime($request->submitted_at)),
-                ];
+                if($request->service_slug === 'legal-translation'){
+                    $row = [
+                        'Sl No.' => $i+1,
+                        'Reference Code' => $request->reference_code,
+                        'Request Status' => ucfirst($request->status),
+                        'Payment Status' => $paymentStatus,
+                        'Amount' => number_format((float) $request->amount, 2) ?? '0.00',
+                        'Paid Date ' => $request->paid_at ? date('d, M Y h:i A', strtotime($request->paid_at)) : '',
+                        'User' => $request->user?->name ?? '',
+                        'Submitted At' => date('d, M Y h:i A', strtotime($request->submitted_at)),
+                        'Translator' => $request->legalTranslation?->assignedTranslator?->name ?? '',
+                    ];
+                }else{
+                    $row = [
+                        'Sl No.' => $i+1,
+                        'Reference Code' => $request->reference_code,
+                        'Request Status' => ucfirst($request->status),
+                        'Payment Status' => $paymentStatus,
+                        'Amount' => number_format((float) $request->amount, 2) ?? '0.00',
+                        'Paid Date ' => $request->paid_at ? date('d, M Y h:i A', strtotime($request->paid_at)) : '',
+                        'User' => $request->user?->name ?? '',
+                        'Submitted At' => date('d, M Y h:i A', strtotime($request->submitted_at)),
+                    ];
+                }
+                
             }else{
                 $row = [
                     'Sl No.' => $i+1,
@@ -104,6 +119,19 @@ class ServiceRequestExport implements FromArray, WithHeadings, WithStyles, WithE
     public function headings(): array
     {
          if(in_array($this->serviceSlug, ['expert-report','annual-retainer-agreement','legal-translation','immigration-requests','request-submission']) ){
+            if($this->serviceSlug === 'legal-translation'){
+                return array_values(array_merge([
+                    'Sl No.',
+                    'Reference Code',
+                    'Request Status',
+                    'Payment Status',
+                    'Amount',
+                    'Paid Date',
+                    'User',
+                    'Submitted At',
+                    'Translator',
+                ], $this->customFields));
+            }
             return array_values(array_merge([
                 'Sl No.',
                 'Reference Code',
@@ -175,7 +203,7 @@ class ServiceRequestExport implements FromArray, WithHeadings, WithStyles, WithE
                     'Reference Code' => 25,
                     'Request Status' => 15,
                     'Payment Status' => 15,
-                    'Lawfirm' => 30,
+                    'Law firm' => 30,
                     'Address' => 30,
                     'Zone' => 30,
                     'Licence Type' => 30,

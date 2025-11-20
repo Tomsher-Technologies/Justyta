@@ -106,7 +106,7 @@
                                                         <td class="text-center">
                                                             @can('edit_dropdown_option')
                                                                 <div class="table-actions">
-                                                                    <a class="edit-btn" data-id="{{ $type->id }}"  title="Edit Contract Type">
+                                                                    <a class="edit-btn" data-id="{{ $type->id }}"  title="Edit Contract Type" style="cursor: pointer;">
                                                                         <span data-feather="edit"></span></a>
                                                                 </div>
                                                             @endcan
@@ -259,7 +259,7 @@
 @endsection
 
 @section('script')
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="{{ asset('assets/js/bootstrap/popper.js') }}" ></script>
     <script>
         $(document).ready(function() {
             let modal = new bootstrap.Modal(document.getElementById('contractTypeModal'));

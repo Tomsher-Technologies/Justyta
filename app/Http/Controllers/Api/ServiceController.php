@@ -15,10 +15,12 @@ use App\Models\ConsultationDuration;
 use App\Models\Vendor;
 use App\Models\AnnualRetainerBaseFee;
 use App\Models\User;
+use App\Models\Lawyer;
 use App\Models\Page;
 use App\Models\CourtRequest;
 use App\Models\PublicProsecution;
 use App\Models\TranslationLanguage;
+use App\Models\TranslationAssignmentHistory;
 use App\Models\DocumentType;
 use App\Models\ServiceRequest;
 use App\Models\RequestCourtCase;
@@ -37,17 +39,23 @@ use App\Models\RequestLegalTranslation;
 use App\Models\DefaultTranslatorAssignment;
 use App\Models\TranslatorLanguageRate;
 use App\Models\RequestLastWill;
+use App\Models\AnnualAgreementInstallment;
+use App\Models\ExpertReportPricing;
+use App\Models\RequestSubmissionPricing;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\ServiceRequestSubmitted;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use GuzzleHttp\Client;
 use Carbon\Carbon;
 
 class ServiceController extends Controller
 {
     public function getCourtCaseFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -58,16 +66,9 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['case_type', 'you_represent'])->get()->keyBy('slug');
        
-        // Transform each dropdown
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
-
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
-        });
+    
+        $response['emirates'] = [];
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -78,6 +79,19 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+
+        $ads = getActiveAd('court_case_submission', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -86,7 +100,7 @@ class ServiceController extends Controller
     }
 
     public function getCriminalComplaintFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -97,16 +111,9 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['case_type', 'you_represent'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+       
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
-
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
-        });
+        $response['emirates'] = [];
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -117,6 +124,18 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+
+        $ads = getActiveAd('criminal_complaint', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -125,7 +144,7 @@ class ServiceController extends Controller
     }
 
     public function getPowerOfAttorneyFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -136,9 +155,10 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['poa_type', 'poa_relationships'])->get()->keyBy('slug');
        
-        // Transform each dropdown
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'power-of-attorney')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -156,6 +176,19 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+
+        $ads = getActiveAd('power_of_attorney', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -164,7 +197,7 @@ class ServiceController extends Controller
     }
 
     public function getLastWillFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -175,9 +208,10 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['you_represent','religion'])->get()->keyBy('slug');
        
-        // Transform each dropdown
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'last-will-and-testament')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -204,6 +238,19 @@ class ServiceController extends Controller
                 ];
         });
         $response['payment'] = [];
+
+        $ads = getActiveAd('last_will', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+        
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -212,7 +259,7 @@ class ServiceController extends Controller
     }
 
     public function getMemoWritingFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -223,16 +270,10 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['case_type', 'you_represent'])->get()->keyBy('slug');
        
-        // Transform each dropdown
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = [];
 
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
-        });
+        $response['emirates'] = $emirates;
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -243,6 +284,18 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+        $ads = getActiveAd('memo_writing', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -251,7 +304,7 @@ class ServiceController extends Controller
     }
 
     public function getExpertReportsFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -262,16 +315,11 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['expert_report_type', 'expert_report_languages'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = [];
 
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
-        });
+        $response['emirates'] = $emirates;
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -290,6 +338,18 @@ class ServiceController extends Controller
             'tax'               => $service->tax ?? 0,
             'total_amount'      => $service->total_amount ?? 0
         ];
+
+        $ads = getActiveAd('expert_report', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -298,7 +358,7 @@ class ServiceController extends Controller
     }
 
     public function getContractsDraftingFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -309,9 +369,10 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['contract_languages', 'industries'])->get()->keyBy('slug');
        
-        // Transform each dropdown
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'contract-drafting')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -338,6 +399,18 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+
+        $ads = getActiveAd('contract_drafting', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -346,7 +419,7 @@ class ServiceController extends Controller
     }
 
     public function getEscrowAccountsFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -357,7 +430,6 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['industries'])->get()->keyBy('slug');
        
-        // Transform each dropdown
         $response = [];
        
         foreach ($dropdowns as $slug => $dropdown) {
@@ -380,6 +452,18 @@ class ServiceController extends Controller
 
         $response['payment'] = [];
 
+        $ads = getActiveAd('escrow_accounts', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -388,7 +472,7 @@ class ServiceController extends Controller
     }
     
     public function getDebtsCollectionFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -399,9 +483,11 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['debt_type','debt_category'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'debts-collection')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -419,6 +505,19 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+
+        $ads = getActiveAd('debt_collection', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -427,7 +526,7 @@ class ServiceController extends Controller
     }
 
     public function getCompanySetupFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -438,9 +537,11 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['company_type','industries'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'company-setup')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -467,6 +568,18 @@ class ServiceController extends Controller
             });
         }
         $response['payment'] = [];
+
+        $ads = getActiveAd('company_setup', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -546,7 +659,7 @@ class ServiceController extends Controller
     }
     
     public function getOnlineConsultationFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -555,18 +668,10 @@ class ServiceController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['case_type', 'case_stage', 'you_represent','languages'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['specialities', 'case_stage', 'you_represent','languages'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
-
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
-        });
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -575,6 +680,11 @@ class ServiceController extends Controller
                     'value' => $option->getTranslation('name',$lang),
                 ];
             });
+        }
+
+        if(isset($response['specialities'])){
+            $response['case_types'] = $response['specialities'];
+            unset($response['specialities']);
         }
 
         $timeslots = ConsultationDuration::where('status',1)->where('type','normal')->orderBy('id')->get();
@@ -586,6 +696,18 @@ class ServiceController extends Controller
                 ];
         });
 
+        $ads = getActiveAd('online_consultancy', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -594,7 +716,7 @@ class ServiceController extends Controller
     }
 
     public function getRequestSubmissionFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -605,16 +727,11 @@ class ServiceController extends Controller
                         }
                     ])->whereIn('slug', ['case_type'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response = [];
-        $emirates = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates = [];
 
-        $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
-                return [
-                    'id'    => $emirate->id,
-                    'value' => $emirate->getTranslation('name',$lang),
-                ];
-        });
+        $response['emirates'] = $emirates;
 
         foreach ($dropdowns as $slug => $dropdown) {
             $response[$slug] = $dropdown->options->map(function ($option) use ($lang){
@@ -638,6 +755,18 @@ class ServiceController extends Controller
             'total_amount'      => $service->total_amount ?? 0
         ];
 
+        $ads = getActiveAd('request_submission', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -648,75 +777,39 @@ class ServiceController extends Controller
     public function getRequestTypes(Request $request){
         $lang               = $request->header('lang') ?? env('APP_LOCALE', 'en');
         $litigation_place   = $request->litigation_place ?? NULL;
-        $requestTypes       = [];
-        if(trim(strtolower($litigation_place)) === 'court'){
-            $requestTypes = CourtRequest::with('translations')->where('status', 1)
-                            ->whereNull('parent_id')
-                            ->orderBy('sort_order')
-                            ->get();
-        }elseif(trim(strtolower($litigation_place)) === 'public_prosecution'){
-            $requestTypes = PublicProsecution::with('translations')->where('status', 1)
-                            ->whereNull('parent_id')
-                            ->orderBy('sort_order')
-                            ->get();
+        $litigation_type    = $request->litigation_type ?? NULL;    
+
+        if ($litigation_type === NULL || $litigation_place === NULL) {
+            return response()->json([
+                'status'    => false,
+                'message'   => __('messages.fill_all_fields'),
+            ], 200);
         }
 
-        $response = [];
-        if(!empty($requestTypes)){
-            $response = $requestTypes->map(function ($type) use ($lang, $litigation_place) {    
-                return [
-                    'id'                => $type->id,
-                    'litigation_place'  => $litigation_place,
-                    'value'             => $type->getTranslation('name', $lang),
-                ];
-            });
-        }
+        $requestTypes = getRequestTypes($litigation_type, $litigation_place, $lang);
 
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
-            'data'      => $response,
+            'data'      => $requestTypes,
         ], 200);
     }
     
     public function getRequestTitles(Request $request){
         $lang               = $request->header('lang') ?? env('APP_LOCALE', 'en');
-        $litigation_place   = $request->litigation_place ?? NULL;
         $request_type       = $request->request_type ?? NULL;
 
-        $requestTypes       = [];
-        if(trim(strtolower($litigation_place)) === 'court'){
-            $requestTypes = CourtRequest::with('translations')->where('status', 1)
-                            ->where('parent_id', $request_type)
-                            ->orderBy('sort_order')
-                            ->get();
-        }elseif(trim(strtolower($litigation_place)) === 'public_prosecution'){
-            $requestTypes = PublicProsecution::with('translations')->where('status', 1)
-                            ->where('parent_id', $request_type)
-                            ->orderBy('sort_order')
-                            ->get();
-        }
-
-        $response = [];
-        if(!empty($requestTypes)){
-            $response = $requestTypes->map(function ($type) use ($lang, $litigation_place) {    
-                return [
-                    'id'                => $type->id,
-                    'litigation_place'  => $litigation_place,
-                    'value'             => $type->getTranslation('name', $lang),
-                ];
-            });
-        }
+        $requestTitles = getRequestTitles($request_type, $lang);
 
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
-            'data'      => $response,
+            'data'      => $requestTitles,
         ], 200);
     }
 
     public function getLegalTranslationFormData(Request $request){
-        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $response       = [];
         $transLanguages = TranslationLanguage::where('status',1)->orderBy('sort_order')->get();
@@ -728,7 +821,6 @@ class ServiceController extends Controller
                 ];
         });
 
-        // Filter only 'en' and 'ar' for translation_language
         $translationLanguages = $transLanguages->filter(function ($lang) {
             return in_array($lang->lang_code, ['en', 'ar']);
         });
@@ -751,6 +843,21 @@ class ServiceController extends Controller
                     'value' => $doc->getTranslation('name',$lang),
                 ];
         });
+
+        $pageData = getPageDynamicContent('translation_calculator_page',$lang);
+        $response['info'] = $pageData;
+
+        $ads = getActiveAd('legal_translation', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
 
         return response()->json([
             'status'    => true,
@@ -791,7 +898,7 @@ class ServiceController extends Controller
     }
     
     public function getImmigrationRequestFormData(Request $request){
-        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns = Dropdown::with([
                         'options' => function ($q) {
@@ -800,9 +907,9 @@ class ServiceController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['positions','residency_status','immigration_type'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['immigration_positions','residency_status','immigration_type'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response = [];
        
         foreach ($dropdowns as $slug => $dropdown) {
@@ -812,6 +919,11 @@ class ServiceController extends Controller
                     'value' => $option->getTranslation('name',$lang),
                 ];
             });
+        }
+
+        if(isset($response['immigration_positions'])){
+            $response['positions'] = $response['immigration_positions'];
+            unset($response['immigration_positions']);
         }
 
         $countries = Country::where('status',1)->orderBy('id')->get();
@@ -834,6 +946,22 @@ class ServiceController extends Controller
             'tax'               => $service->tax ?? 0,
             'total_amount'      => $service->total_amount ?? 0
         ];
+
+        $pageData = getPageDynamicContent('immigration_page',$lang);
+        $response['info'] = $pageData;
+
+        $ads = getActiveAd('immigration_request', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -842,7 +970,7 @@ class ServiceController extends Controller
     }
 
     public function getAnnualAgreementFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -851,9 +979,9 @@ class ServiceController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['industries','no_of_employees','case_type'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['industries','no_of_employees'])->get()->keyBy('slug');
        
-        // Transform each dropdown
+        
         $response = [];
        
         foreach ($dropdowns as $slug => $dropdown) {
@@ -865,7 +993,9 @@ class ServiceController extends Controller
             });
         }
 
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'annual-retainer-agreement')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -873,6 +1003,8 @@ class ServiceController extends Controller
                     'value' => $emirate->getTranslation('name',$lang),
                 ];
         });
+
+        $response['case_type'] = getCaseTypesValue('local', 'court', $lang);
 
         $licenseTypes = LicenseType::where('status',1)->whereNull('parent_id')->orderBy('sort_order')->get();
 
@@ -887,23 +1019,20 @@ class ServiceController extends Controller
         $response['visits']         = [0,1,2,3,4];
         $response['installments']   = [1, 2, 4];
 
-        $lawFirms = Vendor::whereHas('subscriptions', function ($query) {
-                                $query->where('status', 'active')
-                                    ->whereDate('subscription_end', '>=', Carbon::today());
-                            })
-                            ->whereHas('user', function ($query) {
-                                $query->where('banned', 0);
-                            })
-                            ->with(['subscriptions', 'user'])
-                            ->orderBy('law_firm_name', 'ASC')
-                            ->get();
+        $pageData = getPageDynamicContent('company_retainership',$lang);
+        $response['info'] = $pageData;
 
-        $response['law_firms'] = $lawFirms->map(function ($lawfirm) use($lang) {
-            return [
-                'id'    => $lawfirm->id,
-                'value' => $lawfirm->getTranslation('law_firm_name',$lang),
+        $ads = getActiveAd('company_annual_agreement', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
             ];
-        });
+        }
 
         return response()->json([
             'status'    => true,
@@ -913,7 +1042,7 @@ class ServiceController extends Controller
     }
 
     public function getAnnualAgreementPrice(Request $request){
-        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); 
         
         $calls          = $request->query('calls');
         $visits         = $request->query('visits');
@@ -962,8 +1091,7 @@ class ServiceController extends Controller
                         ]
         ], 200);
     }
-    // Request submission
-
+    
     public function requestCourtCase(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -975,11 +1103,11 @@ class ServiceController extends Controller
             'memo'              => 'nullable|array',
             'documents'         => 'nullable|array',
             'eid'               => 'required|array',
-            'trade_license'     => 'required|array',
-            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'trade_license'     => 'required_if:applicant_type,company|array',
+            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'litigation_type.required'  => __('messages.litigation_type_required'),
@@ -1023,18 +1151,19 @@ class ServiceController extends Controller
             'service_slug'      => 'court-case-submission',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
         $courtCase = RequestCourtCase::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'applicant_type'        => $request->input('applicant_type'),
-            'litigation_type'       => $request->input('litigation_type'),
-            'emirate_id'            => $request->input('emirate_id'),
-            'case_type'             => $request->input('case_type'),
-            'you_represent'         => $request->input('you_represent'),
-            'about_case'            => $request->input('about_case'),
+            'applicant_type'        => $request->input('applicant_type') ?? NULL,
+            'litigation_type'       => $request->input('litigation_type') ?? NULL,
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'case_type'             => $request->input('case_type') ?? NULL,
+            'you_represent'         => $request->input('you_represent') ?? NULL,
+            'about_case'            => $request->input('about_case') ?? NULL,
             'memo'                  => [],
             'documents'             => [],
             'eid'                   => [],
@@ -1071,12 +1200,11 @@ class ServiceController extends Controller
 
         $courtCase->update($filePaths);
 
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view-court-case-submission', 'change-status-court-case-submission']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1101,11 +1229,11 @@ class ServiceController extends Controller
             'memo'              => 'nullable|array',
             'documents'         => 'required|array',
             'eid'               => 'required|array',
-            'trade_license'     => 'required|array',
-            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'trade_license'     => 'required_if:applicant_type,company|array',
+            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'litigation_type.required'  => __('messages.litigation_type_required'),
@@ -1150,18 +1278,19 @@ class ServiceController extends Controller
             'service_slug'      => 'criminal-complaint',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
         $criminalComplaint = RequestCriminalComplaint::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'applicant_type'        => $request->input('applicant_type'),
-            'litigation_type'       => $request->input('litigation_type'),
-            'emirate_id'            => $request->input('emirate_id'),
-            'case_type'             => $request->input('case_type'),
-            'you_represent'         => $request->input('you_represent'),
-            'about_case'            => $request->input('about_case'),
+            'applicant_type'        => $request->input('applicant_type') ?? NULL,
+            'litigation_type'       => $request->input('litigation_type') ?? NULL,
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'case_type'             => $request->input('case_type') ?? NULL,
+            'you_represent'         => $request->input('you_represent') ?? NULL,
+            'about_case'            => $request->input('about_case') ?? NULL,
             'memo'                  => [],
             'documents'             => [],
             'eid'                   => [],
@@ -1198,12 +1327,11 @@ class ServiceController extends Controller
 
         $criminalComplaint->update($filePaths);
 
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view-criminal-complaint', 'change-status-criminal-complaint']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1227,7 +1355,7 @@ class ServiceController extends Controller
             'you_represent'     => 'required',
             'full_name'         => 'required',
             'eid'               => 'required|array',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'testament_place.required'  => __('messages.testament_place_required'),
             'nationality.required'      => __('messages.nationality_required'),
@@ -1261,6 +1389,7 @@ class ServiceController extends Controller
             'service_id'        => $service->id,
             'service_slug'      => 'last-will-and-testament',
             'reference_code'    => $referenceCode,
+            'request_success'   => 1,
             'source'            => 'mob',
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
@@ -1268,13 +1397,13 @@ class ServiceController extends Controller
         $lastWill = RequestLastWill::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'testament_place'       => $request->input('testament_place'),
-            'nationality'           => $request->input('nationality'),
-            'emirate_id'            => $request->input('emirate_id'),
-            'religion'              => $request->input('religion'),
-            'you_represent'         => $request->input('you_represent'),
-            'about_case'            => $request->input('about_case'),
-            'full_name'             => $request->input('full_name'),
+            'testament_place'       => $request->input('testament_place') ?? NULL,
+            'nationality'           => $request->input('nationality') ?? NULL,
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'religion'              => $request->input('religion') ?? NULL,
+            'you_represent'         => $request->input('you_represent') ?? NULL,
+            'about_case'            => $request->input('about_case') ?? NULL,
+            'full_name'             => $request->input('full_name') ?? NULL,
             'eid'                   => [],
         ]);
 
@@ -1304,12 +1433,11 @@ class ServiceController extends Controller
         }
 
         $lastWill->update($filePaths);
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view-last-will-and-testament','change-status-last-will-and-testament']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1339,9 +1467,9 @@ class ServiceController extends Controller
             'authorized_passport'   => 'nullable|array',
             'appointer_id'          => 'required|array',
             'authorized_id'         => 'required|array',
-            'authorized_passport.*' => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'appointer_id.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'authorized_id.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'authorized_passport.*' => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'appointer_id.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'authorized_id.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'       => __('messages.applicant_type_required'),
             'appointer_name.required'       => __('messages.appointer_name_required'),
@@ -1388,23 +1516,24 @@ class ServiceController extends Controller
             'service_slug'      => 'power-of-attorney',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
         $powerOA = RequestPowerOfAttorney::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'applicant_type'        => $request->input('applicant_type'), 
-            'appointer_name'        => $request->input('appointer_name'), 
-            'id_number'             => $request->input('id_number'), 
-            'appointer_mobile'      => $request->input('appointer_mobile'), 
-            'emirate_id'            => $request->input('emirate_id'), 
-            'poa_type'              => $request->input('poa_type'), 
-            'name_of_authorized'    => $request->input('name_of_authorized'), 
-            'authorized_mobile'     => $request->input('authorized_mobile'), 
-            'id_number_authorized'  => $request->input('id_number_authorized'), 
-            'authorized_address'    => $request->input('authorized_address'), 
-            'relationship'          => $request->input('relationship'),
+            'applicant_type'        => $request->input('applicant_type') ?? NULL, 
+            'appointer_name'        => $request->input('appointer_name') ?? NULL, 
+            'id_number'             => $request->input('id_number') ?? NULL, 
+            'appointer_mobile'      => $request->input('appointer_mobile') ?? NULL, 
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'poa_type'              => $request->input('poa_type') ?? NULL, 
+            'name_of_authorized'    => $request->input('name_of_authorized') ?? NULL, 
+            'authorized_mobile'     => $request->input('authorized_mobile') ?? NULL, 
+            'id_number_authorized'  => $request->input('id_number_authorized') ?? NULL, 
+            'authorized_address'    => $request->input('authorized_address') ?? NULL, 
+            'relationship'          => $request->input('relationship') ?? NULL,
             'appointer_id'          => [],
             'authorized_id'         => [],
             'authorized_passport'   => [],
@@ -1426,7 +1555,7 @@ class ServiceController extends Controller
             if ($request->hasFile($inputName)) {
                 $files = $request->file($inputName);
 
-                // If it's a single file, wrap it as an array
+                
                 if (!is_array($files)) {
                     $files = [$files];
                 }
@@ -1442,12 +1571,11 @@ class ServiceController extends Controller
         }
 
         $powerOA->update($filePaths);
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view-power-of-attorney','change-status-power-of-attorney']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1472,10 +1600,10 @@ class ServiceController extends Controller
             'full_name'         => 'required',
             'documents'         => 'required|array',
             'eid'               => 'required|array',
-            'trade_license'     => 'required|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'trade_license'     => 'required_if:applicant_type,company|array',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'litigation_type.required'  => __('messages.litigation_type_required'),
@@ -1518,19 +1646,20 @@ class ServiceController extends Controller
             'service_slug'      => 'memo-writing',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
         $memoWriting = RequestMemoWriting::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'applicant_type'        => $request->input('applicant_type'),
-            'litigation_type'       => $request->input('litigation_type'),
-            'emirate_id'            => $request->input('emirate_id'),
-            'case_type'             => $request->input('case_type'),
-            'you_represent'         => $request->input('you_represent'),
-            'full_name'             => $request->input('full_name'),
-            'about_case'            => $request->input('about_case'),
+            'applicant_type'        => $request->input('applicant_type') ?? NULL,
+            'litigation_type'       => $request->input('litigation_type') ?? NULL,
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'case_type'             => $request->input('case_type') ?? NULL,
+            'you_represent'         => $request->input('you_represent') ?? NULL,
+            'full_name'             => $request->input('full_name') ?? NULL,
+            'about_case'            => $request->input('about_case') ?? NULL,
             'memo'                  => [],
             'documents'             => [],
             'eid'                   => [],
@@ -1553,7 +1682,7 @@ class ServiceController extends Controller
             if ($request->hasFile($inputName)) {
                 $files = $request->file($inputName);
 
-                // If it's a single file, wrap it as an array
+                
                 if (!is_array($files)) {
                     $files = [$files];
                 }
@@ -1569,12 +1698,11 @@ class ServiceController extends Controller
         }
 
         $memoWriting->update($filePaths);
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view-memo-writing', 'change-status-memo-writing']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1627,26 +1755,26 @@ class ServiceController extends Controller
             'service_slug'      => 'escrow-accounts',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
         $escrowAccounts = RequestEscrowAccount::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'applicant_type'        => $request->input('applicant_type'),
-            'company_name'          => $request->input('company_name'),
-            'company_activity'      => $request->input('company_activity'),
-            'company_origin'        => $request->input('company_origin'),
-            'amount'                => $request->input('amount'),
-            'about_deal'            => $request->input('about_deal')
+            'applicant_type'        => $request->input('applicant_type') ?? NULL,
+            'company_name'          => $request->input('company_name') ?? NULL,
+            'company_activity'      => $request->input('company_activity') ?? NULL,
+            'company_origin'        => $request->input('company_origin') ?? NULL,
+            'amount'                => $request->input('amount') ?? NULL,
+            'about_deal'            => $request->input('about_deal') ?? NULL
         ]);
 
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view-escrow-accounts','change-status-escrow-accounts']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
 
@@ -1671,10 +1799,10 @@ class ServiceController extends Controller
             'debt_category'     => 'required',
             'documents'         => 'nullable|array',
             'eid'               => 'required|array',
-            'trade_license'     => 'required|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'trade_license'     => 'required_if:applicant_type,company|array',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'debt_type.required'        => __('messages.debt_type_required'),
@@ -1718,17 +1846,18 @@ class ServiceController extends Controller
             'service_slug'      => 'debts-collection',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
         $debtCollection = RequestDebtCollection::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'applicant_type'        => $request->input('applicant_type'),
-            'emirate_id'            => $request->input('emirate_id'),
-            'debt_type'             => $request->input('debt_type'),
-            'debt_amount'           => $request->input('debt_amount'),
-            'debt_category'         => $request->input('debt_category'),
+            'applicant_type'        => $request->input('applicant_type') ?? NULL,
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'debt_type'             => $request->input('debt_type') ?? NULL,
+            'debt_amount'           => $request->input('debt_amount') ?? NULL,
+            'debt_category'         => $request->input('debt_category') ?? NULL,
             'documents'             => [],
             'eid'                   => [],
             'trade_license'         => [],
@@ -1762,12 +1891,11 @@ class ServiceController extends Controller
         }
 
         $debtCollection->update($filePaths);
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view-debts-collection','change-status-debts-collection']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1795,7 +1923,7 @@ class ServiceController extends Controller
             'mobile'            => 'required',
             'email'             => 'required',
             'documents'         => 'nullable|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'zone.required'             => __('messages.zone_required'),
@@ -1833,22 +1961,23 @@ class ServiceController extends Controller
             'service_slug'      => 'company-setup',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
         $companySetup = RequestCompanySetup::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'applicant_type'        => $request->input('applicant_type'),
-            'emirate_id'            => $request->input('emirate_id'),
-            'zone'                  => $request->input('zone'),
-            'license_type'          => $request->input('license_type'),
-            'license_activity'      => $request->input('license_activity'),
-            'company_type'          => $request->input('company_type'),
-            'industry'              => $request->input('industry'),
-            'company_name'          => $request->input('company_name'),
-            'mobile'                => $request->input('mobile'),
-            'email'                 => $request->input('email'),
+            'applicant_type'        => $request->input('applicant_type') ?? NULL,
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'zone'                  => $request->input('zone') ?? NULL,
+            'license_type'          => $request->input('license_type') ?? NULL,
+            'license_activity'      => $request->input('license_activity') ?? NULL,
+            'company_type'          => $request->input('company_type') ?? NULL,
+            'industry'              => $request->input('industry') ?? NULL,
+            'company_name'          => $request->input('company_name') ?? NULL,
+            'mobile'                => $request->input('mobile') ?? NULL,
+            'email'                 => $request->input('email') ?? NULL,
             'documents'             => []
         ]);
 
@@ -1878,12 +2007,11 @@ class ServiceController extends Controller
         }
 
         $companySetup->update($filePaths);
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view-company-setup', 'change-status-company-setup']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -1911,10 +2039,10 @@ class ServiceController extends Controller
             'priority'     => 'required',
             'documents'         => 'nullable|array',
             'eid'               => 'required|array',
-            'trade_license'     => 'required|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'trade_license'     => 'required_if:applicant_type,company|array',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'       => __('messages.applicant_type_required'),
             'contract_type.required'        => __('messages.contract_type_required'),
@@ -1959,21 +2087,22 @@ class ServiceController extends Controller
             'service_slug'      => 'contract-drafting',
             'reference_code'    => $referenceCode,
             'source'            => 'mob',
+            'request_success'   => 1,
             'submitted_at'      => date('Y-m-d H:i:s')
         ]);
 
         $contractDrafting = RequestContractDrafting::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'applicant_type'        => $request->input('applicant_type'),
-            'contract_type'         => $request->input('contract_type'),
-            'emirate_id'            => $request->input('emirate_id'),
-            'sub_contract_type'     => $request->input('sub_contract_type'),
-            'contract_language'     => $request->input('contract_language'),
-            'company_name'          => $request->input('company_name'),
-            'industry'              => $request->input('industry'),
-            'email'                 => $request->input('email'),
-            'priority'              => $request->input('priority'),
+            'applicant_type'        => $request->input('applicant_type') ?? NULL,
+            'contract_type'         => $request->input('contract_type') ?? NULL,
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'sub_contract_type'     => $request->input('sub_contract_type') ?? NULL,
+            'contract_language'     => $request->input('contract_language') ?? NULL,
+            'company_name'          => $request->input('company_name') ?? NULL,
+            'industry'              => $request->input('industry') ?? NULL,
+            'email'                 => $request->input('email') ?? NULL,
+            'priority'              => $request->input('priority') ?? NULL,
             'documents'             => [],
             'eid'                   => [],
             'trade_license'         => [],
@@ -2007,12 +2136,11 @@ class ServiceController extends Controller
         }
 
         $contractDrafting->update($filePaths);
-        // Notify the user
+        
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        // Notify the admin (single or multiple)
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $usersToNotify = getUsersWithPermissions(['view-contract-drafting','change-status-contract-drafting']);
+        Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
         $response = [
@@ -2036,10 +2164,10 @@ class ServiceController extends Controller
             'expert_report_language'    => 'required',
             'documents'                 => 'required|array',
             'eid'                       => 'required|array',
-            'trade_license'             => 'required|array',
-            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'                     => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'trade_license'             => 'required_if:applicant_type,company|array',
+            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'                     => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'           => __('messages.applicant_type_required'),
             'applicant_place.required'          => __('messages.applicant_place_required'),
@@ -2086,12 +2214,12 @@ class ServiceController extends Controller
         $expertReport = RequestExpertReport::create([
             'user_id'                   => $user->id,
             'service_request_id'        => $service_request->id,
-            'applicant_type'            => $request->input('applicant_type'),
-            'applicant_place'           => $request->input('applicant_place'),
-            'emirate_id'                => $request->input('emirate_id'),
-            'expert_report_type'        => $request->input('expert_report_type'),
-            'expert_report_language'    => $request->input('expert_report_language'),
-            'about_case'                => $request->input('about_case'),
+            'applicant_type'            => $request->input('applicant_type') ?? NULL,
+            'applicant_place'           => $request->input('applicant_place') ?? NULL,
+            'emirate_id'                => $request->input('emirate_id') ?? NULL,
+            'expert_report_type'        => $request->input('expert_report_type') ?? NULL,
+            'expert_report_language'    => $request->input('expert_report_language') ?? NULL,
+            'about_case'                => $request->input('about_case') ?? NULL,
             'documents'                 => [],
             'eid'                       => [],
             'trade_license'             => [],
@@ -2126,23 +2254,56 @@ class ServiceController extends Controller
 
         $expertReport->update($filePaths);
 
-        // // Notify the user
-        // $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        $base = ExpertReportPricing::where('litigation_type', $request->input('applicant_place'))
+                                    ->where('expert_report_type_id', $request->input('expert_report_type'))
+                                    ->where('language_id', $request->input('expert_report_language'))
+                                    ->where('status', 1)
+                                    ->first();
 
-        // // Notify the admin (single or multiple)
-        // $admins = User::where('user_type', 'admin')->get();
-        // Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $total_amount = (float)($base->total ?? 0);
 
-        $pageData = getPageDynamicContent('request_payment_success',$lang);
-        $response = [
-            'reference' => $service_request->reference_code,
-            'message'   => $pageData['content']
-        ];
-        return response()->json([
-            'status'    => true,
-            'message'   => __('messages.request_submit_success'),
-            'data'      => $response,
-        ], 200);
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
+        if($total_amount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone,
+                'address' => $user->address
+            ];
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+
+            $payment = createMobOrder($customer, $total_amount, $currency, $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => (float)($base->total ?? 0),
+                    'service_fee' => (float)($base->admin_fee ?? 0),
+                    'govt_fee' => 0,
+                    'tax' => (float)($base->vat ?? 0),
+                ]);
+
+                return response()->json([
+                    'status'    => true,
+                    'message'   => __('messages.request_submit_success'),
+                    'data'      => json_encode($payment),
+                ], 200);
+
+            }else{
+                return response()->json([
+                    'status'    => false,
+                    'message'   => __('frontend.request_submit_failed'),
+                    'data'      => json_encode($payment),
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => __('frontend.request_submit_failed'),
+                'data'      => json_encode($payment),
+            ], 200);
+        }
     }
 
     public function requestImmigration(Request $request){
@@ -2162,11 +2323,11 @@ class ServiceController extends Controller
             'passport'              => 'required|array',
             'photo'                 => 'required|array',
             'account_statement'     => 'required|array',
-            'cv.*'                  => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'certificates.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'account_statement.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'passport.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'photo.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'cv.*'                  => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'certificates.*'        => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'account_statement.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'passport.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'photo.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'preferred_country.required'    => __('messages.preferred_country_required'),
             'position.required'             => __('messages.position_required'),
@@ -2225,15 +2386,15 @@ class ServiceController extends Controller
         $immigration = RequestImmigration::create([
             'service_request_id'    => $service_request->id, 
             'user_id'               => $user->id, 
-            'preferred_country'     => $request->input('preferred_country'),
-            'position'              => $request->input('position'),
-            'age'                   => $request->input('age'),
-            'nationality'           => $request->input('nationality'),
-            'years_of_experience'   => $request->input('years_of_experience'),
-            'address'               => $request->input('address'),
-            'residency_status'      => $request->input('residency_status'),
-            'current_salary'        => $request->input('current_salary'),
-            'application_type'      => $request->input('application_type'),
+            'preferred_country'     => $request->input('preferred_country') ?? NULL,
+            'position'              => $request->input('position') ?? NULL,
+            'age'                   => $request->input('age') ?? NULL,
+            'nationality'           => $request->input('nationality') ?? NULL,
+            'years_of_experience'   => $request->input('years_of_experience') ?? NULL,
+            'address'               => $request->input('address') ?? NULL,
+            'residency_status'      => $request->input('residency_status') ?? NULL,
+            'current_salary'        => $request->input('current_salary') ?? NULL,
+            'application_type'      => $request->input('application_type') ?? NULL,
             'cv'                    => [],
             'certificates'          => [],
             'passport'              => [],
@@ -2272,23 +2433,50 @@ class ServiceController extends Controller
 
         $immigration->update($filePaths);
 
-        // // Notify the user
-        // $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        $total_amount = $service->total_amount ?? 0;
 
-        // // Notify the admin (single or multiple)
-        // $admins = User::where('user_type', 'admin')->get();
-        // Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
+        if($total_amount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone,
+                'address' => $user->address
+            ];
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
-        $pageData = getPageDynamicContent('request_payment_success',$lang);
-        $response = [
-            'reference' => $service_request->reference_code,
-            'message'   => $pageData['content']
-        ];
-        return response()->json([
-            'status'    => true,
-            'message'   => __('messages.request_submit_success'),
-            'data'      => $response,
-        ], 200);
+            $payment = createMobOrder($customer, $total_amount, $currency, $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $service->total_amount ?? 0,
+                    'service_fee' => $service->service_fee ?? 0,
+                    'govt_fee' => $service->govt_fee ?? 0,
+                    'tax' => $service->tax ?? 0,
+                ]);
+
+                return response()->json([
+                    'status'    => true,
+                    'message'   => __('messages.request_submit_success'),
+                    'data'      => json_encode($payment),
+                ], 200);
+
+            }else{
+                return response()->json([
+                    'status'    => false,
+                    'message'   => __('frontend.request_submit_failed'),
+                    'data'      => json_encode($payment),
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => __('frontend.request_submit_failed'),
+                'data'      => json_encode($payment),
+            ], 200);
+        }
     }
 
     public function requestRequestSubmission(Request $request){
@@ -2305,11 +2493,11 @@ class ServiceController extends Controller
             'memo'              => 'nullable|array',
             'documents'         => 'nullable|array',
             'eid'               => 'required|array',
-            'trade_license'     => 'required|array',
-            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
-            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'trade_license'     => 'required_if:applicant_type,company|array',
+            'memo.*'            => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'eid.*'             => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'   => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'applicant_type.required'   => __('messages.applicant_type_required'),
             'litigation_type.required'  => __('messages.litigation_type_required'),
@@ -2363,14 +2551,14 @@ class ServiceController extends Controller
         $requestSubmission = RequestRequestSubmission::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'applicant_type'        => $request->input('applicant_type'),
-            'litigation_type'       => $request->input('litigation_type'),
-            'litigation_place'      => $request->input('litigation_place'),
-            'emirate_id'            => $request->input('emirate_id'),
-            'case_type'             => $request->input('case_type'),
-            'request_type'          => $request->input('request_type'),
-            'request_title'         => $request->input('request_title'),
-            'case_number'           => $request->input('case_number'),
+            'applicant_type'        => $request->input('applicant_type') ?? NULL,
+            'litigation_type'       => $request->input('litigation_type') ?? NULL,
+            'litigation_place'      => $request->input('litigation_place') ?? NULL,
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'case_type'             => $request->input('case_type') ?? NULL,
+            'request_type'          => $request->input('request_type') ?? NULL,
+            'request_title'         => $request->input('request_title') ?? NULL,
+            'case_number'           => $request->input('case_number') ?? NULL,
             'memo'                  => [],
             'documents'             => [],
             'eid'                   => [],
@@ -2407,23 +2595,58 @@ class ServiceController extends Controller
 
         $requestSubmission->update($filePaths);
 
-        // // Notify the user
-        // $request->user()->notify(new ServiceRequestSubmitted($service_request));
+        $base = RequestSubmissionPricing::where('litigation_type', $request->input('litigation_type'))
+                                    ->where('litigation_place', $request->input('litigation_place'))
+                                    ->where('case_type_id', $request->input('case_type'))
+                                    ->where('request_type_id', $request->input('request_type'))
+                                    ->where('request_title_id', $request->input('request_title'))
+                                    ->where('status', 1)
+                                    ->first();
 
-        // // Notify the admin (single or multiple)
-        // $admins = User::where('user_type', 'admin')->get();
-        // Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+        $total_amount = (float)($base->total_amount ?? 0);
 
-        $pageData = getPageDynamicContent('request_payment_success',$lang);
-        $response = [
-            'reference' => $service_request->reference_code,
-            'message'   => $pageData['content']
-        ];
-        return response()->json([
-            'status'    => true,
-            'message'   => __('messages.request_submit_success'),
-            'data'      => $response,
-        ], 200);
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
+        if($total_amount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone,
+                'address' => $user->address
+            ];
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+
+            $payment = createMobOrder($customer, $total_amount, $currency, $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => (float)($base->total_amount ?? 0),
+                    'service_fee' => (float)($base->admin_fee ?? 0),
+                    'govt_fee' => (float)($base->govt_fee ?? 0),
+                    'tax' => (float)($base->vat ?? 0),
+                ]);
+
+                return response()->json([
+                    'status'    => true,
+                    'message'   => __('messages.request_submit_success'),
+                    'data'      => json_encode($payment),
+                ], 200);
+
+            }else{
+                return response()->json([
+                    'status'    => false,
+                    'message'   => __('frontend.request_submit_failed'),
+                    'data'      => json_encode($payment),
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => __('frontend.request_submit_failed'),
+                'data'      => json_encode($payment),
+            ], 200);
+        }
     }
 
     public function requestAnnualAgreement(Request $request){
@@ -2436,9 +2659,9 @@ class ServiceController extends Controller
             'no_of_employees'   => 'required',
             'case_type'         => 'required',
             'no_of_calls'       => 'required',
-            'no_of_visits'      => 'required',
+            // 'no_of_visits'      => 'required',
             'no_of_installment' => 'required',
-            'lawfirm'           => 'required',
+            // 'lawfirm'           => 'required',
         ], [
             'company_name.required'         => __('messages.company_name_required'),
             'emirate_id.required'           => __('messages.emirate_required'),
@@ -2447,9 +2670,9 @@ class ServiceController extends Controller
             'no_of_employees.required'      => __('messages.no_of_employees_required'),
             'case_type.required'            => __('messages.case_type_required'),
             'no_of_calls.required'          => __('messages.no_of_calls_required'),
-            'no_of_visits.required'         => __('messages.no_of_visits_required'),
+            // 'no_of_visits.required'         => __('messages.no_of_visits_required'),
             'no_of_installment.required'    => __('messages.no_of_installment_required'),
-            'lawfirm.required'              => __('messages.lawfirm_required'),
+            // 'lawfirm.required'              => __('messages.lawfirm_required'),
         ]);
 
         if ($validator->fails()) {
@@ -2478,39 +2701,95 @@ class ServiceController extends Controller
         ]);
         $casetype = explode(',',$request->input('case_type'));
         
+        $total_amount = $service_fee = $govt_fee = $tax = 0;
+        $amountToBePaidNow = $finalTotal = 0;
+
+        $installments   = $request->input('no_of_installment') ?? 1;
+
+        $base = AnnualRetainerBaseFee::where('calls_per_month', $request->input('no_of_calls'))
+                                    ->where('visits_per_year', $request->input('no_of_visits'))
+                                    ->first();
+        if($base){
+            $installment = $base->installments()->where('installments', $request->input('no_of_installment'))->first();
+            if($installment){
+                $total_amount   = (float)($installment->final_total ?? 0);
+                $service_fee    = (float)($base->service_fee ?? 0);
+                $govt_fee       = (float)($base->govt_fee ?? 0);
+                $tax            = (float)($base->tax ?? 0);
+                $finalTotal          = $installment?->final_total ?? 0;
+                $amountToBePaidNow   = $installments > 0 ? $finalTotal / $installments : $finalTotal;
+            }
+        }
+
         $annualAgreement = RequestAnnualAgreement::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'company_name'          => $request->input('company_name'),
-            'emirate_id'            => $request->input('emirate_id'),
-            'license_type'          => $request->input('license_type'),
-            'license_activity'      => $request->input('license_activity'),
-            'industry'              => $request->input('industry'),
-            'no_of_employees'       => $request->input('no_of_employees'),
+            'company_name'          => $request->input('company_name') ?? NULL,
+            'emirate_id'            => $request->input('emirate_id') ?? NULL,
+            'license_type'          => $request->input('license_type') ?? NULL,
+            'license_activity'      => $request->input('license_activity') ?? NULL,
+            'industry'              => $request->input('industry') ?? NULL,
+            'no_of_employees'       => $request->input('no_of_employees') ?? NULL,
             'case_type'             => $casetype,
-            'no_of_calls'           => $request->input('no_of_calls'),
-            'no_of_visits'          => $request->input('no_of_visits'),
-            'no_of_installment'     => $request->input('no_of_installment'),
-            'lawfirm'               => $request->input('lawfirm'),
+            'no_of_calls'           => $request->input('no_of_calls') ?? NULL,
+            'no_of_visits'          => $request->input('no_of_visits') ?? NULL,
+            'no_of_installment'     => $request->input('no_of_installment') ?? NULL,
+            // 'lawfirm'               => $request->input('lawfirm'),
+            'final_total'           => $finalTotal
         ]);
+    
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
+        if($amountToBePaidNow != 0){
+            for ($i = 1; $i <= $installments; $i++) {
+                AnnualAgreementInstallment::create([
+                    'service_request_id' => $service_request->id,
+                    'installment_no'     => $i,
+                    'amount'             => round($finalTotal / $installments, 2),
+                    'status'             => 'pending',
+                    'due_date'           => now()->addMonths($i - 1),
+                ]);
+            }
 
-        // // Notify the user
-        // $request->user()->notify(new ServiceRequestSubmitted($service_request));
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone,
+                'address' => $user->address
+            ];
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
-        // // Notify the admin (single or multiple)
-        // $admins = User::where('user_type', 'admin')->get();
-        // Notification::send($admins, new ServiceRequestSubmitted($service_request, true));
+            $payment = createMobOrder($customer, $amountToBePaidNow, $currency, $orderReference);
 
-        $pageData = getPageDynamicContent('request_payment_success',$lang);
-        $response = [
-            'reference' => $service_request->reference_code,
-            'message'   => $pageData['content']
-        ];
-        return response()->json([
-            'status'    => true,
-            'message'   => __('messages.request_submit_success'),
-            'data'      => $response,
-        ], 200);
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $total_amount ?? 0,
+                    'service_fee' => $service_fee ?? 0,
+                    'govt_fee' => $govt_fee ?? 0,
+                    'tax' => $tax ?? 0,
+                ]);
+
+                return response()->json([
+                    'status'    => true,
+                    'message'   => __('messages.request_submit_success'),
+                    'data'      => json_encode($payment),
+                ], 200);
+
+            }else{
+                return response()->json([
+                    'status'    => false,
+                    'message'   => __('frontend.request_submit_failed'),
+                    'data'      => json_encode($payment),
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => __('frontend.request_submit_failed'),
+                'data'      => json_encode($payment),
+            ], 200);
+        }
     }
 
     public function requestLegalTranslation(Request $request){
@@ -2527,10 +2806,10 @@ class ServiceController extends Controller
             'documents'                 => 'required|array',
             'additional_documents'      => 'nullable|array',
             'trade_license'             => 'nullable|array',
-            'memo.*'                    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
-            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:2048',
-            'additional_documents.*'    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:2048',
-            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg|max:500',
+            'memo.*'                    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'documents.*'               => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'additional_documents.*'    => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
+            'trade_license.*'           => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'priority_level.required'       => __('messages.priority_level_required'),
             'document_language.required'    => __('messages.document_language_required'),
@@ -2583,13 +2862,13 @@ class ServiceController extends Controller
         $legalTranslation = RequestLegalTranslation::create([
             'user_id'               => $user->id,
             'service_request_id'    => $service_request->id,
-            'priority_level'        => $request->input('priority_level'),
-            'document_language'     => $request->input('document_language'),
-            'translation_language'  => $request->input('translation_language'),
-            'document_type'         => $request->input('document_type'),
-            'document_sub_type'     => $request->input('document_sub_type'),
-            'receive_by'            => $request->input('receive_by'),
-            'no_of_pages'           => $request->input('no_of_pages'),
+            'priority_level'        => $request->input('priority_level') ?? NULL,
+            'document_language'     => $request->input('document_language') ?? NULL,
+            'translation_language'  => $request->input('translation_language') ?? NULL,
+            'document_type'         => $request->input('document_type') ?? NULL,
+            'document_sub_type'     => $request->input('document_sub_type') ?? NULL,
+            'receive_by'            => $request->input('receive_by') ?? NULL,
+            'no_of_pages'           => $request->input('no_of_pages') ?? NULL,
             'memo'                  => [],
             'documents'             => [],
             'additional_documents'  => [],
@@ -2629,39 +2908,124 @@ class ServiceController extends Controller
         $from           = $request->input('document_language');
         $to             = $request->input('translation_language');
         $pages          = $request->input('no_of_pages') ?? 0;
-        $totalAmount    = 0;
+        $priority       = $request->priority_level ?? null;
+        $doc_type       = $request->document_type;
+        $subdoc_type    = $request->document_sub_type;
+        $receive_by     = $request->receive_by ?? null;
+        
+        $totalAmount  = $totalHours  = 0;
 
         $assignment = DefaultTranslatorAssignment::where([
-                                    'from_language_id' => $from,
-                                    'to_language_id'   => $to,
-                                ])->first();
-
+                            'from_language_id' => $from,
+                            'to_language_id'   => $to,
+                        ])->first();
+        
         if ($assignment) {
-            $rate = TranslatorLanguageRate::where([
-                                            'translator_id'     => $assignment->translator_id,
-                                            'from_language_id'  => $from,
-                                            'to_language_id'    => $to,
-                                        ])->first();
+            $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
+                                            $q->where('priority_type', $priority)
+                                            ->where('delivery_type', $receive_by);
+                                        }])
+                                        ->where('translator_id', $assignment->translator_id)
+                                        ->where('from_language_id', $from)
+                                        ->where('to_language_id', $to)
+                                        ->where('doc_type_id', $doc_type)
+                                        ->where('doc_subtype_id', $subdoc_type)
+                                        ->where('status', 1)
+                                        ->first();
 
             if ($rate) {
-                $totalAmount = $rate->total_amount * $pages;
+                if ($priority === 'normal') {
+                    if ($pages <= 10) {
+                        $totalHours = $rate->normal_hours_1_10;
+                    } elseif ($pages <= 20) {
+                        $totalHours = $rate->normal_hours_11_20;
+                    } elseif ($pages <= 30) {
+                        $totalHours = $rate->normal_hours_21_30;
+                    } elseif ($pages <= 50) {
+                        $totalHours = $rate->normal_hours_31_50;
+                    } else {
+                        $totalHours = $rate->normal_hours_above_50;
+                    }
+                } else {
+                    if ($pages <= 10) {
+                        $totalHours = $rate->urgent_hours_1_10;
+                    } elseif ($pages <= 20) {
+                        $totalHours = $rate->urgent_hours_11_20;
+                    } elseif ($pages <= 30) {
+                        $totalHours = $rate->urgent_hours_21_30;
+                    } elseif ($pages <= 50) {
+                        $totalHours = $rate->urgent_hours_31_50;
+                    } else {
+                        $totalHours = $rate->urgent_hours_above_50;
+                    }
+                }
+
+                $delivery = $rate->deliveries->first();
+                $admin_amount = $delivery->admin_amount * $pages;
+                $translator_amount = $delivery->translator_amount * $pages;
+
+                $totalAmountNoTax = ($admin_amount + $translator_amount + $delivery->delivery_amount);
+
+                $tax = ($totalAmountNoTax/100) * 5;
+
+                $totalAmount = $totalAmountNoTax + $tax;
+                
+
+                $legalTranslation->update([
+                    'admin_amount' => $admin_amount,
+                    'translator_amount' => $translator_amount,
+                    'delivery_amount' => $delivery->delivery_amount,
+                    'tax' => $tax,
+                    'total_amount' => $totalAmount,
+                    'hours_per_page' => $totalHours
+                ]);
             }
         }
 
-        if($totalAmount != 0){
+        $total_amount = $totalAmount ?? 0;
 
+        $currency = env('APP_CURRENCY','AED');
+        $payment = [];
+        if($total_amount != 0){
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone,
+                'address' => $user->address
+            ];
+            $orderReference = $service_request->id .'--'.$service_request->reference_code;
+
+            $payment = createMobOrder($customer, $total_amount, $currency, $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $service_request->update([
+                    'payment_reference' => $payment['reference'] ?? null,
+                    'amount' => $total_amount ?? 0,
+                    'service_fee' => $total_amount ?? 0,
+                    'govt_fee' => 0,
+                    'tax' => 0,
+                ]);
+
+                return response()->json([
+                    'status'    => true,
+                    'message'   => __('messages.request_submit_success'),
+                    'data'      => json_encode($payment),
+                ], 200);
+
+            }else{
+                return response()->json([
+                    'status'    => false,
+                    'message'   => __('frontend.request_submit_failed'),
+                    'data'      => json_encode($payment),
+                ], 200);
+            }
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => __('frontend.request_submit_failed'),
+                'data'      => json_encode($payment),
+            ], 200);
         }
-
-        $pageData = getPageDynamicContent('request_payment_success',$lang);
-        $response = [
-            'reference' => $service_request->reference_code,
-            'message'   => $pageData['content']
-        ];
-        return response()->json([
-            'status'    => true,
-            'message'   => __('messages.request_submit_success'),
-            'data'      => $response,
-        ], 200);
     }
 
     public function calculateTranslationPrice(Request $request)
@@ -2670,6 +3034,10 @@ class ServiceController extends Controller
             'from_language_id' => 'required|integer|exists:translation_languages,id',
             'to_language_id'   => 'required|integer|exists:translation_languages,id',
             'no_of_pages'      => 'required|integer|min:1',
+            'priority'         => 'required',
+            'doc_type'         => 'required',   
+            'subdoc_type'      => 'required',
+            'receive_by'       => 'required',
         ],[
             'from_language_id.required' => __('messages.from_language_id_required'),
             'from_language_id.exists'   => __('messages.from_language_id_exists'),
@@ -2678,6 +3046,10 @@ class ServiceController extends Controller
             'no_of_pages.required'      => __('messages.no_of_pages_required'),
             'no_of_pages.integer'       => __('messages.no_of_pages_integer'),
             'no_of_pages.min'           => __('messages.no_of_pages_min'),
+            'priority.required'         => __('messages.priority_required'),
+            'doc_type.required'         => __('messages.doc_type_required'),
+            'subdoc_type.required'      => __('messages.subdoc_type_required'),
+            'receive_by.required'       => __('messages.receive_by_required'),
         ]);
 
         if ($validator->fails()) {
@@ -2692,8 +3064,11 @@ class ServiceController extends Controller
         $from   = $request->from_language_id;
         $to     = $request->to_language_id;
         $pages  = $request->no_of_pages;
+        $priority = $request->priority ?? null;
+        $doc_type = $request->doc_type;
+        $subdoc_type = $request->subdoc_type;
+        $receive_by = $request->receive_by ?? null;
 
-        // Step 1: Get default translator
         $assignment = DefaultTranslatorAssignment::where([
             'from_language_id' => $from,
             'to_language_id'   => $to,
@@ -2705,13 +3080,18 @@ class ServiceController extends Controller
                 'message'   => __('messages.no_default_translators'),
             ], 200);
         }
-
-        // Step 2: Get rate from translator_language_rates
-        $rate = TranslatorLanguageRate::where([
-            'translator_id'     => $assignment->translator_id,
-            'from_language_id'  => $from,
-            'to_language_id'    => $to,
-        ])->first();
+        
+        $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
+                                            $q->where('priority_type', $priority)
+                                            ->where('delivery_type', $receive_by);
+                                        }])
+                                        ->where('translator_id', $assignment->translator_id)
+                                        ->where('from_language_id', $from)
+                                        ->where('to_language_id', $to)
+                                        ->where('doc_type_id', $doc_type)
+                                        ->where('doc_subtype_id', $subdoc_type)
+                                        ->where('status', 1)
+                                        ->first();
 
         if (!$rate) {
             return response()->json([
@@ -2720,18 +3100,49 @@ class ServiceController extends Controller
             ], 200);
         }
 
-        // Step 3: Calculate
-        $totalAmount = $rate->total_amount * $pages;
-        $totalHours  = $rate->hours_per_page * $pages;
+        if ($priority === 'normal') {
+            if ($pages <= 10) {
+                $totalHours = $rate->normal_hours_1_10;
+            } elseif ($pages <= 20) {
+                $totalHours = $rate->normal_hours_11_20;
+            } elseif ($pages <= 30) {
+                $totalHours = $rate->normal_hours_21_30;
+            } elseif ($pages <= 50) {
+                $totalHours = $rate->normal_hours_31_50;
+            } else {
+                $totalHours = $rate->normal_hours_above_50;
+            }
+        } else {
+            if ($pages <= 10) {
+                $totalHours = $rate->urgent_hours_1_10;
+            } elseif ($pages <= 20) {
+                $totalHours = $rate->urgent_hours_11_20;
+            } elseif ($pages <= 30) {
+                $totalHours = $rate->urgent_hours_21_30;
+            } elseif ($pages <= 50) {
+                $totalHours = $rate->urgent_hours_31_50;
+            } else {
+                $totalHours = $rate->urgent_hours_above_50;
+            }
+        }
+
+        $delivery = $rate->deliveries->first();
+        
+        $admin_amount = $delivery->admin_amount * $pages;
+        $translator_amount = $delivery->translator_amount * $pages;
+
+        $totalAmountNoTax = ($admin_amount + $translator_amount + $delivery->delivery_amount);
+
+        $tax = ($totalAmountNoTax/100) * 5;
+
+        $totalAmount = $totalAmountNoTax + $tax;
 
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
             'data'      => [
                             'total_amount'      => $totalAmount,
-                            'total_hours'       => $totalHours,
-                            'amount_per_page'   => $rate->total_amount,
-                            'hours_per_page'    => $rate->hours_per_page 
+                            'total_hours'       => $totalHours
                         ]
         ],200);
     }
@@ -2743,10 +3154,13 @@ class ServiceController extends Controller
         $customer = [
             'email' => 'jisha.tomsher@gmail.com',
             'name'  => 'Jisha P',
-            'phone' => '971568650838'
+            'phone' => '971568650838',
+            'address' => 'Abu Dhabi'
         ];
 
         $order = createOrder($customer, $amount, $currency, $orderReference);
+        echo json_encode($order);
+        die;
         if (!$order || !isset($order['reference'])) {
             return response()->json([
                 'status' => false,
@@ -2758,11 +3172,10 @@ class ServiceController extends Controller
             'status' => true,
             'message' => 'success',
             'data' => [
-                'order_id' => $order['reference'], // Required by mobile SDK
+                'order_id' => $order['reference'],
                 'merchant_reference' => $order['merchantOrderReference'] ?? null,
-                'amount' => $order['amount']['value'] / 100, // AED format
+                'amount' => $order['amount']['value'] / 100, 
                 'currency' => $order['amount']['currencyCode'],
-                // 'payment_url' => $order['_links']['payment']['href'] ?? null, // Optional
             ]
         ]);
     }
@@ -2786,39 +3199,428 @@ class ServiceController extends Controller
         $paymentData = $order['_embedded']['payment'][0] ?? [];
         $amount = ($order['amount']['value'] ?? 0) / 100;
 
-        // DB::beginTransaction();
-        // try {
-        //     $serviceRequest = ServiceRequest::create([
-        //         'user_id' => auth()->id(),
-        //         'service_id' => 1, // set accordingly
-        //         'service_slug' => 'example-service',
-        //         'reference_code' => Str::upper(Str::random(10)),
-        //         'status' => 'pending',
-        //         'payment_status' => 'paid',
-        //         'payment_reference' => $paymentData['paymentReference'] ?? null,
-        //         'amount' => $amount,
-        //         'paid_at' => now(),
-        //         'submitted_at' => now(),
-        //         'source' => 'mobile',
-        //     ]);
-
-        //     DB::commit();
-
-        //     return response()->json([
-        //         'success' => true,
-        //         'message' => 'Payment confirmed',
-        //         'data' => $serviceRequest
-        //     ]);
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     \Log::error('Service request creation failed', ['error' => $e->getMessage()]);
-        //     return response()->json(['success' => false, 'message' => 'Something went wrong'], 500);
-        // }
+       
     }
 
     public function test(Request $request){
 
         print_r($request->all());
 
+    }
+
+    public function paymentSuccess(Request $request) //network international
+    {
+        $paymentReference = $request->query('ref') ?? NULL;
+        if($paymentReference){
+            $token = getAccessToken();
+
+            $baseUrl = config('services.ngenius.base_url');
+            $outletRef = config('services.ngenius.outlet_ref');
+
+            $response = Http::withToken($token)->get("{$baseUrl}/transactions/outlets/" . $outletRef . "/orders/{$paymentReference}");
+            $data = $response->json();
+
+            $orderRef = $data['merchantOrderReference'] ?? NULL;
+            $serviceData = explode('--', $orderRef);
+
+            $serviceRequestId = $serviceData[0];
+            $serviceRequestCode = $serviceData[1];
+            
+            $status = $data['_embedded']['payment'][0]['state'] ?? null;
+            $paid_amount = $data['_embedded']['payment'][0]['amount']['value'] ?? 0;
+
+            $paidAmount = ($paid_amount != 0) ? $paid_amount/100 : 0;
+            $serviceRequest = ServiceRequest::findOrFail($serviceRequestId);
+
+            $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+
+            if ($status === 'PURCHASED' || $status === 'CAPTURED') {
+
+                $pageData = getPageDynamicContent('request_payment_success',$lang);
+                $returnResponse = [
+                                'reference' => $serviceRequest->reference_code ?? '',
+                                'message'   => $pageData['content']
+                ];
+         
+                if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+                    $annualRequest = RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
+                    if($annualRequest->no_of_installment != 1){
+                        $serviceRequest->update([
+                            'payment_status' => 'partial',
+                            'payment_response' => $data,
+                            'request_success'   => 1,
+                            'paid_at' => date('Y-m-d h:i:s')
+                        ]);
+                    }else{
+                        $serviceRequest->update([
+                            'payment_status' => 'success',
+                            'payment_response' => $data,
+                            'request_success'   => 1,
+                            'paid_at' => date('Y-m-d h:i:s')
+                        ]);
+                    }
+                }else{
+                    $serviceRequest->update([
+                        'payment_status' => 'success',
+                        'payment_response' => $data,
+                        'request_success'   => 1,
+                        'paid_at' => date('Y-m-d h:i:s')
+                    ]);
+                }
+
+                if($serviceRequest->service_slug === 'legal-translation'){
+                    $legalTranslation = requestLegalTranslation::where('service_request_id', $serviceRequest->id)->first();
+
+                    $from = $legalTranslation->document_language;
+                    $to = $legalTranslation->translation_language;
+                    $pages = $legalTranslation->no_of_pages;
+                    $priority = $legalTranslation->priority_level;
+                    $receive_by = $legalTranslation->receive_by;
+                    $doc_type = $legalTranslation->document_type;
+                    $subdoc_type = $legalTranslation->document_sub_type;
+
+                    $assignment = DefaultTranslatorAssignment::where([
+                                        'from_language_id' => $from,
+                                        'to_language_id'   => $to,
+                                    ])->first();
+
+                    if ($assignment) {
+                        $rate = TranslatorLanguageRate::with(['deliveries' => function($q) use ($priority, $receive_by) {
+                                            $q->where('priority_type', $priority)
+                                            ->where('delivery_type', $receive_by);
+                                        }])
+                                        ->where('translator_id', $assignment->translator_id)
+                                        ->where('from_language_id', $from)
+                                        ->where('to_language_id', $to)
+                                        ->where('doc_type_id', $doc_type)
+                                        ->where('doc_subtype_id', $subdoc_type)
+                                        ->where('status', 1)
+                                        ->first();
+
+                        if ($rate) {
+                            $totalHours = 0;
+                            if ($priority === 'normal') {
+                                if ($pages <= 10) {
+                                    $totalHours = $rate->normal_hours_1_10;
+                                } elseif ($pages <= 20) {
+                                    $totalHours = $rate->normal_hours_11_20;
+                                } elseif ($pages <= 30) {
+                                    $totalHours = $rate->normal_hours_21_30;
+                                } elseif ($pages <= 50) {
+                                    $totalHours = $rate->normal_hours_31_50;
+                                } else {
+                                    $totalHours = $rate->normal_hours_above_50;
+                                }
+                            } else {
+                                if ($pages <= 10) {
+                                    $totalHours = $rate->urgent_hours_1_10;
+                                } elseif ($pages <= 20) {
+                                    $totalHours = $rate->urgent_hours_11_20;
+                                } elseif ($pages <= 30) {
+                                    $totalHours = $rate->urgent_hours_21_30;
+                                } elseif ($pages <= 50) {
+                                    $totalHours = $rate->urgent_hours_31_50;
+                                } else {
+                                    $totalHours = $rate->urgent_hours_above_50;
+                                }
+                            }
+
+                            $delivery = $rate->deliveries->first();
+                            $admin_amount = $delivery->admin_amount * $pages;
+                            $translator_amount = $delivery->translator_amount * $pages;
+
+                            $totalAmountNoTax = ($admin_amount + $translator_amount + $delivery->delivery_amount);
+
+                            $tax = ($totalAmountNoTax/100) * 5;
+
+                            $totalAmount = $totalAmountNoTax + $tax;
+
+                            $legalTranslation->update([
+                                'assigned_translator_id'    => $assignment->translator_id
+                            ]);
+
+                            TranslationAssignmentHistory::create([
+                                'request_id'         => $legalTranslation->id,
+                                'translator_id'      => $assignment->translator_id,
+                                'assigned_by'        => NULL,
+                                'hours_per_page'     => $totalHours ?? 0,
+                                'admin_amount'       => $admin_amount ?? 0,
+                                'translator_amount'  => $translator_amount ?? 0,
+                                'delivery_amount'    => $delivery->delivery_amount ?? 0,
+                                'tax'               => $tax ?? 0,
+                                'total_amount'       => $totalAmount ?? 0,
+                            ]);
+                        }
+                    }
+                }
+
+                if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+                    $annualRequest = RequestAnnualAgreement::where('service_request_id', $serviceRequest->id)->first();
+                    $annualRequest->amount_paid = $paidAmount;
+                    $annualRequest->save();
+
+                    $installment = AnnualAgreementInstallment::where('service_request_id', $serviceRequest->id)
+                                        ->where('installment_no', 1)->first();
+                    $installment->status = 'paid';
+                    $installment->save();              
+                }
+
+                $request->user()->notify(new ServiceRequestSubmitted($serviceRequest));
+
+                $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
+                Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
+                
+                return response()->json([
+                    'status' => true,
+                    'message' => $pageData['content'],
+                    'data' => $returnResponse
+                ], 200);
+            }else{
+                $pageData = getPageDynamicContent('request_payment_failed',$lang);
+            
+                if($serviceRequest->service_slug === 'expert-report'){
+                    $serviceRequest->update([
+                        'payment_status' => 'failed',
+                        'request_success'   => 1,
+                        'payment_response' => $data,
+                    ]);
+                    $referenceCode = $serviceRequest->reference_code;
+                    return response()->json([
+                        'status' => true,
+                        'message' => $pageData['content'],
+                        'data' => [
+                                'reference' => $referenceCode ?? '',
+                                'message'   => $pageData['content']
+                                ]
+                    ], 200);
+                }else{
+
+                    $serviceSlug = $serviceRequest->service_slug;
+                    $requestId   = $serviceRequest->id;
+
+                    $serviceModelMap = [
+                        'legal-translation' => \App\Models\RequestLegalTranslation::class,
+                        'expert-report'     => \App\Models\RequestExpertReport::class,
+                        'request-submission' => \App\Models\RequestRequestSubmission::class,
+                        'annual-retainer-agreement' => \App\Models\RequestAnnualAgreement::class,
+                        'immigration-requests' => \App\Models\RequestImmigration::class
+                    ];
+                    $filePath = [
+                        'legal-translation' => 'legal_translation',
+                        'expert-report'     => 'expert_report',
+                        'request-submission' => 'request_submission',
+                        'annual-retainer-agreement' => 'annual_retainer_agreement',
+                        'immigration-requests' => 'immigration'
+                    ];
+
+                    if (isset($serviceModelMap[$serviceSlug])) {
+                        $modelClass = $serviceModelMap[$serviceSlug];
+                        $serviceReq = $modelClass::where('service_request_id', $serviceRequest->id)->first();
+                        $serviceReqId = $serviceReq->id;
+
+                        $serviceReq->delete();
+
+                        deleteRequestFolder($filePath[$serviceSlug], $serviceReqId);
+                    }
+                    $serviceRequest->delete();
+                
+                    $referenceCode = '';
+                    return response()->json([
+                        'status' => false,
+                        'message' => $pageData['content'],
+                        'data' => [
+                                'reference' => $referenceCode ?? '',
+                                'message'   => $pageData['content']
+                                ]
+                    ], 200);
+                }
+            }
+        }
+        
+        return response()->json([
+                    'status' => false,
+                    'message' => 'Payment reference is missing',
+                    'data' => []
+                ], 200);
+    }
+
+    public function paymentCancel(Request $request){
+        $ref = $request->ref ?? NULL; 
+
+        if($ref){
+            $serviceRequest = ServiceRequest::where('payment_reference', $ref)->first();
+
+            if ($serviceRequest) {
+                $serviceSlug = $serviceRequest->service_slug;
+                $requestId   = $serviceRequest->id;
+
+                $serviceModelMap = [
+                    'legal-translation' => \App\Models\RequestLegalTranslation::class,
+                    'expert-report'     => \App\Models\RequestExpertReport::class,
+                    'request-submission' => \App\Models\RequestRequestSubmission::class,
+                    'annual-retainer-agreement' => \App\Models\RequestAnnualAgreement::class,
+                    'immigration-requests' => \App\Models\RequestImmigration::class
+                ];
+                $filePath = [
+                    'legal-translation' => 'legal_translation',
+                    'expert-report'     => 'expert_report',
+                    'request-submission' => 'request_submission',
+                    'annual-retainer-agreement' => 'annual_retainer_agreement',
+                    'immigration-requests' => 'immigration'
+                ];
+
+                if (isset($serviceModelMap[$serviceSlug])) {
+                    $modelClass = $serviceModelMap[$serviceSlug];
+                    $serviceReq = $modelClass::where('service_request_id', $serviceRequest->id)->first();
+                    $serviceReqId = $serviceReq->id;
+
+                    $serviceReq->delete();
+
+                    deleteRequestFolder($filePath[$serviceSlug], $serviceReqId);
+                }
+                $serviceRequest->delete();
+            }
+            return response()->json([
+                    'status' => true,
+                    'message' =>  __('frontend.request_cancelled'),
+                    'data' => []
+                ], 200);
+        }else{
+            return response()->json([
+                    'status' => false,
+                    'message' => 'Payment reference is missing',
+                    'data' => []
+                ], 200);
+        }
+    }
+
+    public function getExpertReportPrice(Request $request){
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); 
+        
+        $litigation_type    = $request->query('litigation_type') ?? NULL;
+        $report_type        = $request->query('report_type') ?? NULL;
+        $report_language    = $request->query('report_language') ?? NULL;
+
+        if ($litigation_type === NULL || $report_type === NULL || $report_language === NULL) {
+            return response()->json([
+                'status'    => true,
+                'message'   => 'Success',
+                'data'      => [
+                                'admin_fee' => 0,
+                                'tax'       => 0,
+                                'total'     => 0,
+                            ]
+            ], 200);
+        }
+
+        $base = ExpertReportPricing::where('litigation_type', $litigation_type)
+                                    ->where('expert_report_type_id', $report_type)
+                                    ->where('language_id', $report_language)
+                                    ->where('status', 1)
+                                    ->first();
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'admin_fee' => (float)($base->admin_fee ?? 0),
+                            'tax'       => (float)($base->vat ?? 0),
+                            'total'     => (float)($base->total ?? 0),
+                        ]
+        ], 200);
+    }
+
+    public function getRequestSubmissionPrice(Request $request){
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); 
+        
+        $litigation_type    = $request->query('litigation_type') ?? NULL;
+        $litigation_place   = $request->query('litigation_place') ?? NULL;
+        $case_type          = $request->query('case_type') ?? NULL;
+        $request_type       = $request->query('request_type') ?? NULL;
+        $request_title      = $request->query('request_title') ?? NULL;
+
+        if ($litigation_type === NULL || $litigation_place === NULL || $case_type === NULL || $request_type === NULL || $request_title === NULL) {
+            return response()->json([
+                'status'    => true,
+                'message'   => 'Success',
+                'data'      => [
+                                'admin_fee' => 0,
+                                'govt_fee' => 0,
+                                'tax'       => 0,
+                                'total'     => 0,
+                            ]
+            ], 200);
+        }
+
+         $base = RequestSubmissionPricing::where('litigation_type', $litigation_type)
+                                    ->where('litigation_place', $litigation_place)
+                                    ->where('case_type_id', $case_type)
+                                    ->where('request_type_id', $request_type)
+                                    ->where('request_title_id', $request_title)
+                                    ->where('status', 1)
+                                    ->first();
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'admin_fee' => (float)($base->admin_fee ?? 0),
+                            'govt_fee' => (float)($base->govt_fee ?? 0),
+                            'tax'       => (float)($base->vat ?? 0),
+                            'total'     => (float)($base->total_amount ?? 0),
+                        ]
+        ], 200);
+    }
+    
+    public function getOnlineConsultationPrice(Request $request){
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en'); 
+        
+        $consultant_type    = $request->query('consultant_type') ?? NULL;
+        $duration           = $request->query('duration') ?? NULL;
+        $case_type          = $request->query('case_type') ?? NULL;
+        $language           = $request->query('language') ?? NULL;
+
+        $lawyerData = [];
+        if($consultant_type == 'vip'){
+            $lawyers = findAvailableLawyer($case_type, $language);
+
+            $lawyerData = Lawyer::whereIn('id', $lawyers)
+                            ->with('translations') // eager load to avoid N+1 queries
+                            ->get()
+                            ->map(function ($lawyer) use ($lang) {
+                                return [
+                                    'id'   => $lawyer->id,
+                                    'name' => $lawyer->getTranslation('full_name', $lang),
+                                ];
+                            })
+                            ->toArray();
+        }
+        
+        if ($consultant_type === NULL || $duration === NULL) {
+            return response()->json([
+                'status'    => true,
+                'message'   => 'Success',
+                'data'      => [
+                                'admin_fee' => 0,
+                                'govt_fee' => 0,
+                                'tax'       => 0,
+                                'total'     => 0,
+                            ]
+            ], 200);
+        }
+
+        $base = ConsultationDuration::where('type', $consultant_type)
+                                    ->where('duration', $duration)
+                                    ->where('status', 1)
+                                    ->first();
+        return response()->json([
+            'status'    => true,
+            'message'   => 'Success',
+            'data'      => [
+                            'admin_fee' => 0,
+                            'govt_fee' => 0,
+                            'tax'       => 0,
+                            'total'     => (float)($base->amount ?? 0),
+                            'lawyers'   => $lawyerData
+                        ]
+        ], 200);
     }
 }

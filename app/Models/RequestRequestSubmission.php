@@ -39,28 +39,16 @@ class RequestRequestSubmission extends Model
 
     public function caseType()
     {
-        return $this->belongsTo(DropdownOption::class, 'case_type');
+        return $this->belongsTo(CaseType::class, 'case_type');
     }
 
     public function requestType()
     {
-        if ($this->litigation_place === 'court') {
-            return $this->belongsTo(CourtRequest::class, 'request_type');
-        } elseif ($this->litigation_place === 'public_prosecution') {
-            return $this->belongsTo(PublicProsecution::class, 'request_type');
-        }
-
-        return null;
+        return $this->belongsTo(RequestType::class, 'request_type');
     }
 
     public function requestTitle()
     {
-        if ($this->litigation_place === 'court') {
-            return $this->belongsTo(CourtRequest::class, 'request_title');
-        } elseif ($this->litigation_place === 'public_prosecution') {
-            return $this->belongsTo(PublicProsecution::class, 'request_title');
-        }
-
-        return null;
+        return $this->belongsTo(RequestTitle::class, 'request_title');
     }
 }

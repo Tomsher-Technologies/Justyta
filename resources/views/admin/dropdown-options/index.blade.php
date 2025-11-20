@@ -130,7 +130,7 @@
                                                                     data-id="{{ $option->id }}"
                                                                     data-status="{{ $option->status }}"
                                                                     data-sort_order="{{ $option->sort_order }}"
-                                                                    @foreach ($languages as $lang) data-name-{{ $lang->code }}="{{ $option->translations->firstWhere('language_code', $lang->code)?->name }}" @endforeach>
+                                                                    @foreach ($languages as $lang) data-name-{{ $lang->code }}="{{ $option->translations->firstWhere('language_code', $lang->code)?->name }}" @endforeach  style="cursor: pointer;">
                                                                     <span data-feather="edit"></span>
                                                                 </a>
                                                             @endcan
@@ -213,7 +213,7 @@
 @endsection
 
 @section('script')
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="{{ asset('assets/js/bootstrap/popper.js') }}"></script>
     <script>
         $(document).ready(function() {
             $('#editOptionModal').on('show.bs.modal', function(event) {

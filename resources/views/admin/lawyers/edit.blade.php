@@ -116,9 +116,9 @@
 
                                         <div class="col-md-4 mb-3">
                                             <label class="col-form-label color-dark fw-500 align-center">Profile Photo</label>
-                                            <input type="file" name="photo" id="logoInput" accept="image/*"
+                                            <input type="file" name="profile_photo" id="logoInput" accept="image/*"
                                                 class="form-control ih-small ip-gray radius-xs b-light px-15 ">
-                                            @error('photo')
+                                            @error('profile_photo')
                                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
                                            
@@ -237,6 +237,16 @@
                                                 @endforeach
                                             </select>
                                             @error('languages')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-4 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center">Preferred Working Hours</label>
+                                            <input type="text" name="working_hours" placeholder="9:00 AM - 5:00 PM"
+                                                class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                                value="{{ old('working_hours', $lawyer->working_hours) }}">
+                                            @error('working_hours')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>

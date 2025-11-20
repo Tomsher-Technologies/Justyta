@@ -5,6 +5,18 @@ use App\Utility\CategoryUtility;
 use App\Models\EnquiryStatus;
 use App\Models\Service;
 use App\Models\Page;
+use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VendorSubscription;
+use App\Models\Lawyer;
+use App\Models\CaseType;
+use App\Models\JobPost;
+use App\Models\RequestType;
+use App\Models\RequestTitle;
+use App\Models\UserOnlineLog;
+use App\Models\ConsultationAssignment;
+use App\Models\ServiceRequest;
+use App\Notifications\ConsultationAssignedNotification;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Request;
@@ -13,6 +25,140 @@ use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Firebase\JWT\JWT;
+use Carbon\Carbon;
+
+function generateZoomSignature($meetingNumber, $userId, $role = 0)
+{
+    $sdkKey    = config('services.zoom.sdk_key');
+    $sdkSecret = config('services.zoom.sdk_secret');
+
+    $payload = [
+        "app_key" => $sdkKey,
+        "tpc" => $meetingNumber,          // session name (e.g. Consultation-67, must not contain spaces)
+        "role_type" => $role,       // 1 = host (lawyer), 0 = participant (user)
+        "user_identity" => (string)$userId,
+        "iat" => time(),
+        "exp" => time() + 60 * 60,      // valid for 1 hour
+        "version" => 1
+    ];
+
+
+    return JWT::encode($payload, $sdkSecret, 'HS256');
+}
+
+function getTodaysActiveHours($userId)
+{
+    $tz = config('app.timezone');
+    $todayStart = Carbon::now($tz)->startOfDay();
+    $todayEnd   = Carbon::now($tz)->endOfDay();
+
+    $logs = UserOnlineLog::where('user_id', $userId)
+        ->whereBetween('created_at', [$todayStart, $todayEnd])
+        ->orderBy('created_at', 'asc')
+        ->get();
+
+
+    $totalSeconds = 0;
+    $onlineAt = null;
+
+    foreach ($logs as $key => $log) {
+        $logTime = Carbon::parse($log->created_at, $tz);
+
+        if ($log->status == 1) {
+            if (!$onlineAt) {
+                $onlineAt = $logTime;
+            }
+        } else {
+            if ($onlineAt) {
+                $diff = $onlineAt->diffInSeconds($logTime);
+                $totalSeconds += max($diff, 0);
+                $onlineAt = null;
+            }
+        }
+    }
+
+    if ($onlineAt) {
+        $diff = $onlineAt->diffInSeconds(Carbon::now($tz));
+        $totalSeconds += max($diff, 0);
+    }
+
+    $hours = round($totalSeconds / 3600, 2);
+
+    return $hours;
+}
+
+function getCaseTypes($litigation_type, $litigation_place, $lang = 'en')
+{
+    $caseTypes = CaseType::where('litigation_type', $litigation_type)
+        ->where('litigation_place', $litigation_place)
+        ->where('status', 1)
+        ->orderBy('sort_order')
+        ->get();
+
+    $caseTypes = $caseTypes->map(function ($caseType) use ($lang) {
+        return [
+            'id' => $caseType->id,
+            'title' => $caseType->getTranslation('title', $lang),
+        ];
+    });
+
+    return $caseTypes;
+}
+
+function getCaseTypesValue($litigation_type, $litigation_place, $lang = 'en')
+{
+    $caseTypes = CaseType::where('litigation_type', $litigation_type)
+        ->where('litigation_place', $litigation_place)
+        ->where('status', 1)
+        ->orderBy('sort_order')
+        ->get();
+
+    $caseTypes = $caseTypes->map(function ($caseType) use ($lang) {
+        return [
+            'id' => $caseType->id,
+            'value' => $caseType->getTranslation('title', $lang),
+        ];
+    });
+
+    return $caseTypes;
+}
+
+function getRequestTypes($litigation_type, $litigation_place, $lang = 'en')
+{
+    $requestTypes = RequestType::where('litigation_type', $litigation_type)
+        ->where('litigation_place', $litigation_place)
+        ->where('status', 1)
+        ->orderBy('sort_order')
+        ->get();
+
+    $requestTypes = $requestTypes->map(function ($requestType) use ($lang) {
+        return [
+            'id' => $requestType->id,
+            'title' => $requestType->getTranslation('title', $lang),
+        ];
+    });
+
+    return $requestTypes;
+}
+
+function getRequestTitles($request_type_id, $lang = 'en')
+{
+    $requestTitles = RequestTitle::where('request_type_id', $request_type_id)
+        ->where('status', 1)
+        ->orderBy('sort_order')
+        ->get();
+
+    $requestTitles = $requestTitles->map(function ($requestTitle) use ($lang) {
+        return [
+            'id' => $requestTitle->id,
+            'title' => $requestTitle->getTranslation('title', $lang),
+        ];
+    });
+
+    return $requestTitles;
+}
 
 if (!function_exists('getBaseURL')) {
     function getBaseURL()
@@ -53,20 +199,38 @@ function getActiveLanguage()
     return 'en';
 }
 
-function uploadImage($type, $imageUrl, $filename = null){
+
+function checkLawyerLimit()
+{
+    $lawfirmId = Auth::guard('frontend')->user()->vendor?->id;
+
+    $lawfirmPlan = VendorSubscription::where('vendor_id', $lawfirmId)
+        ->where('status', 'active')
+        ->first();
+
+    $lawyerCount = Lawyer::where('lawfirm_id', $lawfirmId)->count();
+
+    if ($lawfirmPlan && $lawyerCount < $lawfirmPlan->member_count) {
+        return true;
+    }
+
+    return false;
+}
+
+function uploadImage($type, $imageUrl, $filename = null)
+{
     $data_url = '';
     $ext = $imageUrl->getClientOriginalExtension();
-    
-    $path = $type.'/';
-    
-    $filename = $path . $filename.'_'.time().'_'.rand(10, 9999) . '.' . $ext;
+
+    $path = $type . '/';
+
+    $filename = $path . $filename . '_' . time() . '_' . rand(10, 9999) . '.' . $ext;
 
     $imageContents = file_get_contents($imageUrl);
 
-    // Save the original image in the storage folder
     Storage::disk('public')->put($filename, $imageContents);
     $data_url = Storage::url($filename);
-    
+
     return $data_url;
 }
 
@@ -82,20 +246,46 @@ function getUploadedImage(?string $path, string $default = 'assets/img/default_i
     return asset($default);
 }
 
-function getServiceId($slug){
+function getUploadedUserImage(?string $path, string $default = 'assets/img/default_user.png'): string
+{
+    if ($path) {
+        $relativePath = str_replace('/storage/', '', $path);
+        if (Storage::disk('public')->exists($relativePath)) {
+            return asset($path);
+        }
+    }
+
+    return asset($default);
+}
+
+function getUploadedFile(?string $path): string
+{
+    if ($path) {
+        $relativePath = str_replace('/storage/', '', $path);
+        if (Storage::disk('public')->exists($relativePath)) {
+            return asset($path);
+        }
+    }
+
+    return NULL;
+}
+
+function getServiceId($slug)
+{
     $service =  Service::where('slug', $slug)->pluck('id');
 
     return $service[0] ?? NULL;
 }
 
-function getPageDynamicContent($slug,$lang = 'en'){
+function getPageDynamicContent($slug, $lang = 'en')
+{
     $data = Page::with('translations')->where('slug', $slug)->first();
 
     $response =  [
-                    'title' => $data?->getTranslation('title',$lang),
-                    'description' => $data?->getTranslation('description',$lang),
-                    'content' => $data?->getTranslation('content',$lang),
-                ];
+        'title' => $data?->getTranslation('title', $lang),
+        'description' => $data?->getTranslation('description', $lang),
+        'content' => $data?->getTranslation('content', $lang),
+    ];
     return $response;
 }
 
@@ -123,7 +313,7 @@ function getServiceRelationName($slug)
 
 function formatFilePathsWithFullUrl(array $files): array
 {
-     return array_values(array_filter(array_map(function ($path) {
+    return array_values(array_filter(array_map(function ($path) {
         // Strip starting slash to match disk paths
         $cleanPath = ltrim($path, '/');
 
@@ -136,7 +326,8 @@ function formatFilePathsWithFullUrl(array $files): array
     }, $files)));
 }
 
-function serviceModelFieldsMap(){
+function serviceModelFieldsMap()
+{
     $data = [
         'request-submission' => [
             'model' => \App\Models\RequestRequestSubmission::class,
@@ -147,7 +338,7 @@ function serviceModelFieldsMap(){
                 'emirate_id'        => 'Emirate',
                 'case_type'         => 'Case Type',
                 'request_type'      => 'Request Type',
-                'request_title'     => 'Request Title', 
+                'request_title'     => 'Request Title',
                 'case_number'       => 'Case Number',
                 'memo'              => 'Memo',
                 'documents'         => 'Documents',
@@ -168,7 +359,7 @@ function serviceModelFieldsMap(){
                 'no_of_calls'       => 'No of Calls',
                 'no_of_visits'      => 'No of Visits',
                 'no_of_installment' => 'No of Installments',
-                'lawfirm'           => 'Lawfirm',
+                'lawfirm'           => 'Law firm',
             ],
         ],
         'company-setup' => [
@@ -337,16 +528,16 @@ function serviceModelFieldsMap(){
         'power-of-attorney' => [
             'model' => \App\Models\RequestPowerOfAttorney::class,
             'fields' => [
-                'applicant_type'        => 'Applicant Type', 
-                'appointer_name'        => 'Appointer Name', 
-                'id_number'             => 'ID Number', 
-                'appointer_mobile'      => 'Appointer Mobile', 
+                'applicant_type'        => 'Applicant Type',
+                'appointer_name'        => 'Appointer Name',
+                'id_number'             => 'ID Number',
+                'appointer_mobile'      => 'Appointer Mobile',
                 'emirate_id'            => 'Emirate',
                 'poa_type'              => 'Power Of Attorney Type',
-                'name_of_authorized'    => 'Name Of Authorized', 
-                'authorized_mobile'     => 'Authorized Mobile', 
+                'name_of_authorized'    => 'Name Of Authorized',
+                'authorized_mobile'     => 'Authorized Mobile',
                 'id_number_authorized'  => 'ID Number Of Authorized',
-                'authorized_address'    => 'Authorized Address', 
+                'authorized_address'    => 'Authorized Address',
                 'relationship'          => 'Relationship',
                 'appointer_id'          => 'Appointer ID',
                 'authorized_id'         => 'Authorized ID',
@@ -365,22 +556,22 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
         $translation = $model->translations->where('lang', $lang)->first();
     }
     switch ($slug) {
-        case 'request-submission' :
+        case 'request-submission':
             return [
                 'applicant_type'        => $model->applicant_type,
                 'litigation_type'       => $model->litigation_type,
                 'litigation_place'      => $model->litigation_place,
-                'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'case_type'             => $model->caseType?->getTranslation('name',$lang) ?? NULL,
-                'request_type'          => $model->requestType?->getTranslation('name',$lang) ?? NULL,
-                'request_title'         => $model->requestTitle?->getTranslation('name',$lang) ?? NULL,
+                'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
+                'case_type'             => $model->caseType?->getTranslation('title', $lang) ?? NULL,
+                'request_type'          => $model->requestType?->getTranslation('title', $lang) ?? NULL,
+                'request_title'         => $model->requestTitle?->getTranslation('title', $lang) ?? NULL,
                 'case_number'           => $model->case_number,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
                 'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
             ];
-        case 'legal-translation' :
+        case 'legal-translation':
             return [
                 'priority_level'        => $model->priority_level,
                 'document_language'     => $model->documentLanguage?->getTranslation('name', $lang) ?? NULL,
@@ -391,113 +582,115 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'no_of_pages'           => $model->no_of_pages,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
-                'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
+                'additional_documents'  => formatFilePathsWithFullUrl($model->additional_documents ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
             ];
-        case 'annual-retainer-agreement' :
+        case 'annual-retainer-agreement':
             return [
                 'company_name'          => $model->company_name,
-                'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'license_type'          => $model->licenseType?->getTranslation('name',$lang) ?? NULL,
-                'license_activity'      => $model->licenseActivity?->getTranslation('name',$lang) ?? NULL,
-                'industry'              => $model->industryOption?->getTranslation('name',$lang) ?? NULL,
-                'no_of_employees'       => $model->noOfEmployees?->getTranslation('name',$lang) ?? NULL,
+                'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
+                'license_type'          => $model->licenseType?->getTranslation('name', $lang) ?? NULL,
+                'license_activity'      => $model->licenseActivity?->getTranslation('name', $lang) ?? NULL,
+                'industry'              => $model->industryOption?->getTranslation('name', $lang) ?? NULL,
+                'no_of_employees'       => $model->noOfEmployees?->getTranslation('name', $lang) ?? NULL,
                 'case_type'             => $model->case_type_names,
                 'no_of_calls'           => $model->no_of_calls,
                 'no_of_visits'          => $model->no_of_visits,
                 'no_of_installment'     => $model->no_of_installment,
-                'lawfirm'               => $model->lawFirm?->getTranslation('law_firm_name',$lang) ?? NULL,
+                'lawfirm'               => $model->lawFirm?->getTranslation('law_firm_name', $lang) ?? NULL,
+                'lawfirm_id'            => $model->lawfirm
             ];
-        case 'immigration-requests' :
+        case 'immigration-requests':
             return [
-                'preferred_country'     => $model->preferredCountry?->getTranslation('name',$lang) ?? NULL,
-                'position'              => $model->currentPosition?->getTranslation('name',$lang) ?? NULL,
+                'preferred_country'     => $model->preferredCountry?->getTranslation('name', $lang) ?? NULL,
+                'position'              => $model->currentPosition?->getTranslation('name', $lang) ?? NULL,
                 'age'                   => $model->age,
-                'nationality'           => $model->nationalityOption?->getTranslation('name',$lang) ?? NULL,
+                'nationality'           => $model->nationalityOption?->getTranslation('name', $lang) ?? NULL,
                 'years_of_experience'   => $model->years_of_experience,
                 'address'               => $model->address,
-                'residency_status'      => $model->residencyStatus?->getTranslation('name',$lang) ?? NULL,
+                'residency_status'      => $model->residencyStatus?->getTranslation('name', $lang) ?? NULL,
                 'current_salary'        => $model->current_salary,
-                'application_type'      => $model->applicationType?->getTranslation('name',$lang) ?? NULL,
+                'application_type'      => $model->applicationType?->getTranslation('name', $lang) ?? NULL,
                 'cv'                    => formatFilePathsWithFullUrl($model->cv ?? []),
                 'certificates'          => formatFilePathsWithFullUrl($model->certificates ?? []),
                 'passport'              => formatFilePathsWithFullUrl($model->passport ?? []),
                 'photo'                 => formatFilePathsWithFullUrl($model->photo ?? []),
                 'account_statement'     => formatFilePathsWithFullUrl($model->account_statement ?? []),
             ];
-        case 'court-case-submission' :
+        case 'court-case-submission':
             return [
                 'applicant_type'        => $model->applicant_type,
                 'litigation_type'       => $model->litigation_type,
-                'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'case_type'             => $model->caseType?->getTranslation('name',$lang) ?? NULL,
-                'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
+                'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
+                'case_type'             => $model->caseType?->getTranslation('title', $lang) ?? NULL,
+                'you_represent'         => $model->youRepresent?->getTranslation('name', $lang) ?? NULL,
                 'about_case'            => $model->about_case,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
                 'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
             ];
-        case 'criminal-complaint' :
+        case 'criminal-complaint':
             return [
                 'applicant_type'        => $model->applicant_type,
                 'litigation_type'       => $model->litigation_type,
-                'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'case_type'             => $model->caseType?->getTranslation('name',$lang) ?? NULL,
-                'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
+                'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
+                'case_type'             => $model->caseType?->getTranslation('title', $lang) ?? NULL,
+                'you_represent'         => $model->youRepresent?->getTranslation('name', $lang) ?? NULL,
                 'about_case'            => $model->about_case,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
                 'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
             ];
-        case 'power-of-attorney' :
+        case 'power-of-attorney':
             return [
-                'applicant_type'        => $model->applicant_type, 
-                'appointer_name'        => $model->appointer_name, 
-                'id_number'             => $model->id_number, 
-                'appointer_mobile'      => $model->appointer_mobile, 
-                'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'poa_type'              => $model->powerOfAttorneyType?->getTranslation('name',$lang) ?? NULL,
-                'name_of_authorized'    => $model->name_of_authorized, 
-                'authorized_mobile'     => $model->authorized_mobile, 
-                'id_number_authorized'  => $model->id_number_authorized, 
-                'authorized_address'    => $model->authorized_address, 
-                'relationship'          => $model->relationshipOption?->getTranslation('name',$lang) ?? NULL,
+                'applicant_type'        => $model->applicant_type,
+                'appointer_name'        => $model->appointer_name,
+                'id_number'             => $model->id_number,
+                'appointer_mobile'      => $model->appointer_mobile,
+                'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
+                'poa_type'              => $model->powerOfAttorneyType?->getTranslation('name', $lang) ?? NULL,
+                'name_of_authorized'    => $model->name_of_authorized,
+                'authorized_mobile'     => $model->authorized_mobile,
+                'id_number_authorized'  => $model->id_number_authorized,
+                'authorized_address'    => $model->authorized_address,
+                'relationship'          => $model->relationshipOption?->getTranslation('name', $lang) ?? NULL,
                 'appointer_id'          => formatFilePathsWithFullUrl($model->appointer_id ?? []),
                 'authorized_id'         => formatFilePathsWithFullUrl($model->authorized_id ?? []),
                 'authorized_passport'   => formatFilePathsWithFullUrl($model->authorized_passport ?? []),
             ];
-        case 'last-will-and-testament' :
+        case 'last-will-and-testament':
             return [
                 'testament_place'       => $model->testament_place,
-                'nationality'           => $model->nationalityOption?->getTranslation('name',$lang) ?? NULL,
-                'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'religion'              => $model->religionOption?->getTranslation('name',$lang) ?? NULL,
-                'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
+                'nationality'           => $model->nationalityOption?->getTranslation('name', $lang) ?? NULL,
+                'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
+                'full_name'             => $model->full_name,
+                'religion'              => $model->religionOption?->getTranslation('name', $lang) ?? NULL,
+                'you_represent'         => $model->youRepresent?->getTranslation('name', $lang) ?? NULL,
                 'about_case'            => $model->about_case,
                 'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
             ];
-        case 'memo-writing' :
+        case 'memo-writing':
             return [
                 'applicant_type'        => $model->applicant_type,
                 'litigation_type'       => $model->litigation_type,
-                'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'case_type'             => $model->caseType?->getTranslation('name',$lang) ?? NULL,
-                'you_represent'         => $model->youRepresent?->getTranslation('name',$lang) ?? NULL,
+                'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
+                'case_type'             => $model->caseType?->getTranslation('title', $lang) ?? NULL,
+                'you_represent'         => $model->youRepresent?->getTranslation('name', $lang) ?? NULL,
                 'full_name'             => $model->full_name,
                 'about_case'            => $model->about_case,
-                'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
+                'documents'             => formatFilePathsWithFullUrl($model->document ?? []),
                 'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
             ];
-        case 'expert-report' :
+        case 'expert-report':
             return [
                 'applicant_type'            => $model->applicant_type,
                 'applicant_place'           => $model->applicant_place,
-                'emirate_id'                => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'expert_report_type'        => $model->expertReportType?->getTranslation('name',$lang) ?? NULL,
-                'expert_report_language'    => $model->expertReportLanguage?->getTranslation('name',$lang) ?? NULL,
+                'emirate_id'                => $model->emirate?->getTranslation('name', $lang) ?? NULL,
+                'expert_report_type'        => $model->expertReportType?->getTranslation('name', $lang) ?? NULL,
+                'expert_report_language'    => $model->expertReportLanguage?->getTranslation('name', $lang) ?? NULL,
                 'about_case'                => $model->about_case,
                 'documents'                 => formatFilePathsWithFullUrl($model->documents ?? []),
                 'eid'                       => formatFilePathsWithFullUrl($model->eid ?? []),
@@ -506,12 +699,12 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
         case 'contract-drafting':
             return [
                 'applicant_type'        => $model->applicant_type,
-                'contract_type'         => $model->contractType?->getTranslation('name',$lang) ?? NULL,
-                'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'sub_contract_type'     => $model->subContractType?->getTranslation('name',$lang) ?? NULL,
-                'contract_language'     => $model->contractLanguage?->getTranslation('name',$lang) ?? NULL,
+                'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
+                'contract_type'         => $model->contractType?->getTranslation('name', $lang) ?? NULL,
+                'sub_contract_type'     => $model->subContractType?->getTranslation('name', $lang) ?? NULL,
+                'contract_language'     => $model->contractLanguage?->getTranslation('name', $lang) ?? NULL,
                 'company_name'          => $model->company_name,
-                'industry'              => $model->industryOption?->getTranslation('name',$lang) ?? NULL,
+                'industry'              => $model->industryOption?->getTranslation('name', $lang) ?? NULL,
                 'email'                 => $model->email,
                 'priority'              => $model->priority,
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
@@ -521,12 +714,12 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
         case 'company-setup':
             return [
                 'applicant_type'        => $model->applicant_type,
-                'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'zone'                  => $model->zoneOption?->getTranslation('name',$lang) ?? NULL,
-                'license_type'          => $model->licenseType?->getTranslation('name',$lang) ?? NULL,
-                'license_activity'      => $model->licenseActivity?->getTranslation('name',$lang) ?? NULL,
-                'company_type'          => $model->companyType?->getTranslation('name',$lang) ?? NULL,
-                'industry'              => $model->industryOption?->getTranslation('name',$lang) ?? NULL,
+                'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
+                'zone'                  => $model->zoneOption?->getTranslation('name', $lang) ?? NULL,
+                'license_type'          => $model->licenseType?->getTranslation('name', $lang) ?? NULL,
+                'license_activity'      => $model->licenseActivity?->getTranslation('name', $lang) ?? NULL,
+                'company_type'          => $model->companyType?->getTranslation('name', $lang) ?? NULL,
+                'industry'              => $model->industryOption?->getTranslation('name', $lang) ?? NULL,
                 'company_name'          => $model->company_name,
                 'mobile'                => $model->mobile,
                 'email'                 => $model->email,
@@ -536,18 +729,18 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             return [
                 'applicant_type'        => $model->applicant_type,
                 'company_name'          => $model->company_name,
-                'company_activity'      => $model->companyActivity?->getTranslation('name',$lang) ?? NULL,
-                'company_origin'        => $model->companyOrigin?->getTranslation('name',$lang) ?? NULL,
+                'company_activity'      => $model->companyActivity?->getTranslation('name', $lang) ?? NULL,
+                'company_origin'        => $model->companyOrigin?->getTranslation('name', $lang) ?? NULL,
                 'amount'                => $model->amount,
                 'about_deal'            => $model->about_deal
             ];
         case 'debts-collection':
             return [
                 'applicant_type'        => $model->applicant_type,
-                'emirate_id'            => $model->emirate?->getTranslation('name',$lang) ?? NULL,
-                'debt_type'             => $model->debtType?->getTranslation('name',$lang) ?? NULL,
+                'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
+                'debt_type'             => $model->debtType?->getTranslation('name', $lang) ?? NULL,
                 'debt_amount'           => $model->debt_amount,
-                'debt_category'         => $model->debtCategory?->getTranslation('name',$lang) ?? NULL,
+                'debt_category'         => $model->debtCategory?->getTranslation('name', $lang) ?? NULL,
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
                 'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
@@ -569,10 +762,9 @@ function getAccessToken()
 
     try {
         $response = $client->request('POST', '/identity/auth/access-token');
-       
+
         $data = json_decode($response->getBody(), true);
         return $data['access_token'] ?? null;
-
     } catch (\Exception $e) {
         \Log::error('N-Genius token request failed', [
             'error' => $e->getMessage(),
@@ -583,7 +775,7 @@ function getAccessToken()
 
 function createOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
 {
-    
+
     $accessToken = getAccessToken();
     if (!$accessToken) return null;
 
@@ -599,7 +791,14 @@ function createOrder($customer, float $amount, string $currency = 'AED', ?string
         'merchantOrderReference' => $orderReference,
         'redirectUrl' => route('payment.callback'),
         'cancelUrl' => route('payment.cancel'),
-        'emailAddress' => $customer['email']
+        'emailAddress' => $customer['email'],
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
     ];
 
     //  'merchantDetails' => [
@@ -651,30 +850,95 @@ function getUnreadNotifications()
     return Auth::user()->unreadNotifications;
 }
 
-// function ngenius_create_payment($amount, $orderId)
-// {
-//     $token = getAccessToken();
+function createMobOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+{
 
-//     $baseUrl = config('services.ngenius.base_url');
-//     $outletRef = config('services.ngenius.outlet_ref');
-   
-//     $response = Http::withToken($token)
-//         ->withHeaders(['Content-Type' => 'application/vnd.ni-payment.v2+json'])
-//         ->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", [
-//             "action" => "PURCHASE",
-//             "amount" => [
-//                 "currencyCode" => "AED",
-//                 "value" => $amount * 100 // in fils
-//             ],
-//             "merchantAttributes" => [
-//                 "redirectUrl" => route('user.ngenius.callback', ['order_id' => $orderId])
-//             ]
-//         ]);
+    $accessToken = getAccessToken();
+    if (!$accessToken) return null;
 
-//     return $response->json();
-// }
+    $baseUrl = config('services.ngenius.base_url');
+    $outletRef = config('services.ngenius.outlet_ref');
 
-function createWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+    $payload = [
+        'action' => 'PURCHASE',
+        'amount' => [
+            'currencyCode' => $currency,
+            'value' => intval($amount * 100), // AED 10.00 => 1000
+        ],
+        'merchantOrderReference' => $orderReference,
+        'merchantAttributes' => [
+            'merchantOrderReference' => $orderReference,
+            'redirectUrl' => route('payment.callback'),
+            'cancelUrl'   => route('payment.cancel')
+        ],
+        'emailAddress' => $customer['email'],
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
+    ];
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $accessToken,
+        'Accept' => 'application/vnd.ni-payment.v2+json',
+        'Content-Type' => 'application/vnd.ni-payment.v2+json',
+    ])->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", $payload);
+
+    if (!$response->successful()) {
+        Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
+        return null;
+    }
+    return $response->json(); // returns _id, reference, _links etc.
+}
+
+function createWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null, ?string $userType = null)
+{
+
+    $accessToken = getAccessToken();
+    if (!$accessToken) return null;
+
+    $baseUrl = config('services.ngenius.base_url');
+    $outletRef = config('services.ngenius.outlet_ref');
+
+    $payload = [
+        'action' => 'PURCHASE',
+        'amount' => [
+            'currencyCode' => $currency,
+            'value' => intval($amount * 100), // AED 10.00 => 1000
+        ],
+        'merchantOrderReference' => $orderReference,
+        'merchantAttributes' => [
+            'merchantOrderReference' => $orderReference,
+            'redirectUrl' => ($userType == 'vendor') ? route('vendor.successPayment') : route('successPayment'),
+            'cancelUrl'   => ($userType == 'vendor') ? route('vendor.cancelPayment') : route('cancelPayment')
+        ],
+        'emailAddress' => $customer['email'],
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
+    ];
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $accessToken,
+        'Accept' => 'application/vnd.ni-payment.v2+json',
+        'Content-Type' => 'application/vnd.ni-payment.v2+json',
+    ])->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", $payload);
+
+    if (!$response->successful()) {
+        Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
+        return null;
+    }
+    return $response->json(); // returns _id, reference, _links etc.
+}
+
+function createConsultationWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null, ?string $type = 'initial')
 {
     
     $accessToken = getAccessToken();
@@ -692,11 +956,17 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
         'merchantOrderReference' => $orderReference,
         'merchantAttributes' => [
             'merchantOrderReference' => $orderReference,
-            'redirectUrl' => route('successPayment'),
-            'cancelUrl'   => route('cancelPayment')
+            'redirectUrl' => ($type == 'initial') ? route('consultationSuccessPayment') : route('consultation.payment-extend-success'),
+            'cancelUrl'   => ($type == 'initial') ? route('consultationCancelPayment') : route('consultation.payment-extend-cancel')
         ],
         'emailAddress' => $customer['email'],
-        
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
     ];
 
     $response = Http::withHeaders([
@@ -709,11 +979,6 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
         Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
         return null;
     }
-    // $details = json_decode($response->getBody(), true);
-
-    // echo '<pre>';
-    // print_r($details);
-    // die;
     return $response->json(); // returns _id, reference, _links etc.
 }
 
@@ -725,3 +990,360 @@ function deleteRequestFolder(string $serviceSlug, int $requestId): void
         Storage::disk('public')->deleteDirectory($folderPath);
     }
 }
+
+function getUsersWithPermissions(array $permissions, string $guard = 'web')
+{
+    $users =  User::where(function ($query) use ($permissions, $guard) {
+        $query->whereHas('permissions', function ($q) use ($permissions, $guard) {
+            $q->whereIn('name', $permissions)->where('guard_name', $guard);
+        })->orWhereHas('roles.permissions', function ($q) use ($permissions, $guard) {
+            $q->whereIn('name', $permissions)->where('guard_name', $guard);
+        });
+    })->get();
+
+    return $users;
+}
+
+function getUnreadNotificationCount()
+{
+    $user = Auth::guard('frontend')->user();
+
+    $count = $user->unreadNotifications()->count();
+
+    return $count;
+}
+
+function getActiveAd($slug = null, $device = null)
+{
+    $page = \App\Models\AdsPage::where('slug', $slug)->first();
+
+    if (!$page) return null;
+
+    return $page->ads()
+        ->where('status', 1)
+        ->whereDate('start_date', '<=', now())
+        ->whereDate('end_date', '>=', now())
+        ->with(['files' => function ($query) use ($device) {
+            $query->where('device', $device)->orderBy('id', 'asc')->limit(1);
+        }])
+        ->latest('start_date')
+        ->first();
+}
+
+function determineFileType($extension)
+{
+    $extension = strtolower($extension);
+    if (in_array($extension, ['mp4', 'mov', 'avi'])) {
+        return 'video';
+    } elseif ($extension === 'gif') {
+        return 'gif';
+    } else {
+        return 'image';
+    }
+}
+
+function createWebPlanOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+{
+
+    $accessToken = getAccessToken();
+    if (!$accessToken) return null;
+
+    $baseUrl = config('services.ngenius.base_url');
+    $outletRef = config('services.ngenius.outlet_ref');
+
+    $payload = [
+        'action' => 'PURCHASE',
+        'amount' => [
+            'currencyCode' => $currency,
+            'value' => intval($amount * 100), // AED 10.00 => 1000
+        ],
+        'merchantOrderReference' => $orderReference,
+        'merchantAttributes' => [
+            'merchantOrderReference' => $orderReference,
+            'redirectUrl' => route('purchase-success'),
+            'cancelUrl'   => route('purchase-cancel')
+        ],
+        'emailAddress' => $customer['email'],
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
+    ];
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $accessToken,
+        'Accept' => 'application/vnd.ni-payment.v2+json',
+        'Content-Type' => 'application/vnd.ni-payment.v2+json',
+    ])->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", $payload);
+
+    if (!$response->successful()) {
+        Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
+        return null;
+    }
+    return $response->json(); // returns _id, reference, _links etc.
+}
+
+
+function assignLawyer($consultation, $lawyerId)
+{
+    ConsultationAssignment::create([
+        'consultation_id' => $consultation->id,
+        'lawyer_id' => $lawyerId,
+        'assigned_at' => now(),
+        'status' => 'assigned'
+    ]);
+
+    $consultation->lawyer_id = $lawyerId;
+    $consultation->save();
+
+    $lawyer = Lawyer::find($lawyerId);
+
+    $user = User::find($lawyer->user_id);
+    $user->notify(new ConsultationAssignedNotification($consultation));
+}
+
+
+function findBestFitLawyer($consultation)
+{
+    $languages   = (array) $consultation->language;
+    $caseType    = $consultation->case_type;
+    // $emirateId   = $consultation->emirate_id;
+
+    // Already rejected lawyers
+    $lawyerIdsAlreadyRejected = ConsultationAssignment::where('consultation_id', $consultation->id)
+        ->where('status', 'rejected')
+        ->pluck('lawyer_id');
+
+    $countLanguages = count($languages);
+
+    $lawyerId =  DB::table('lawyers as l')
+                    ->join('users as u', 'u.id', '=', 'l.user_id')
+                    ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
+                        $join->on('ld_speciality.lawyer_id', '=', 'l.id')
+                            ->where('ld_speciality.type', 'specialities')
+                            ->where('ld_speciality.dropdown_option_id', $caseType);
+                    })
+
+                    ->join('lawyer_dropdown_options as ld_lang', function ($join) use ($languages) {
+                        $join->on('ld_lang.lawyer_id', '=', 'l.id')
+                            ->where('ld_lang.type', 'languages')
+                            ->whereIn('ld_lang.dropdown_option_id', $languages);
+                    })
+
+                    // ->when($emirateId, function ($q) use ($emirateId) {
+                    //     $q->where('l.emirate_id', $emirateId);
+                    // })
+
+                    ->where('u.is_online', 1)
+                    ->where('l.is_busy', 0)
+                    ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
+                    ->groupBy('l.id')
+                    ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
+                    ->pluck('l.id')
+                    ->first();
+
+    $lawyer = $lawyerId ? \App\Models\Lawyer::find($lawyerId) : null;
+
+    return $lawyer;
+}
+
+function findAvailableLawyer($caseType, $languages)
+{
+    $languages  = (array) $languages;
+    $caseType   = $caseType;
+   
+    $countLanguages = count($languages);
+    
+    $lawyers = DB::table('lawyers as l')
+                ->join('users as u', 'u.id', '=', 'l.user_id')
+                ->join('vendors as v', 'v.id', '=', 'l.lawfirm_id')
+                ->join('vendor_subscriptions as vs', function ($join) {
+                    $join->on('vs.vendor_id', '=', 'v.id')
+                        ->where('vs.status', 'active')
+                        ->where('vs.membership_plan_id', 1);
+                })
+                ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
+                    $join->on('ld_speciality.lawyer_id', '=', 'l.id')
+                        ->where('ld_speciality.type', 'specialities')
+                        ->where('ld_speciality.dropdown_option_id', $caseType);
+                })
+                ->join('lawyer_dropdown_options as ld_lang', function ($join) use ($languages) {
+                    $join->on('ld_lang.lawyer_id', '=', 'l.id')
+                        ->where('ld_lang.type', 'languages')
+                        ->whereIn('ld_lang.dropdown_option_id', $languages);
+                })
+                ->where('u.is_online', 1)
+                ->where('l.is_busy', 0)
+                ->groupBy('l.id')
+                ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
+                ->pluck('l.id');
+
+    return $lawyers;
+}
+
+function getFormattedTimeline(ServiceRequest $serviceRequest, ?array $labels = null): array
+{
+    $ordered = [
+        'pending' => 'Pending',
+        'under_review' => 'Under Review',
+        'ongoing' => 'Ongoing',
+        'completed' => 'Completed',
+        'rejected' => 'Rejected',
+    ];
+
+    if (is_array($labels)) {
+        foreach ($labels as $k => $v) {
+            if (array_key_exists($k, $ordered)) {
+                $ordered[$k] = $v;
+            }
+        }
+    }
+
+    $latestByStatus = [];
+    foreach ($serviceRequest->statusHistories as $h) {
+        $key = is_string($h->status) ? $h->status : ($h->status->value ?? (string)$h->status);
+        if (!isset($latestByStatus[$key])) {
+            $latestByStatus[$key] = $h;
+        }
+    }
+
+    $timeline = [];
+    foreach ($ordered as $key => $label) {
+        $row = $latestByStatus[$key] ?? null;
+        $timeline[] = [
+            'key' => $key,
+            'label' => $label,
+            'completed' => (bool) $row,
+            'date' => $row?->created_at?->format('M d, Y'),
+            'note' => $row?->note,
+            'changed_by' => $row?->modifiedBy?->name,
+        ];
+    }
+
+    return $timeline;
+}
+
+
+function getFullStatusHistory(ServiceRequest $serviceRequest): array
+{
+    $histories = $serviceRequest->statusHistories
+        ->sortBy('created_at')
+        ->values();
+
+    return $histories->map(function ($h) {
+        $key = is_string($h->status)
+            ? $h->status
+            : ($h->status->value ?? (string) $h->status);
+
+        $label = $h->label
+            ?? ucfirst(str_replace('_', ' ', (string) $key));
+
+        return [
+            ...$h->toArray(),
+            'key'        => $key,
+            'label'      => $label,
+            'date'       => $h?->created_at?->format('M d, Y H:i'),
+            'note'       => $h?->note,
+            'changed_by' => $h?->modifiedBy?->name,
+            'id'         => $h?->id,
+            'raw_date'   => $h?->created_at,
+        ];
+        
+    })->all();
+}
+
+ function reserveLawyer($lawyerId, $consultationId)
+    {
+        $lawyer = \App\Models\Lawyer::find($lawyerId);
+        if ($lawyer) {
+            $lawyer->update(['is_busy' => 1]);
+
+            $consultation = \App\Models\Consultation::find($consultationId);
+            if ($consultation) {
+                $consultation->update(['lawyer_id' => $lawyerId, 'status' => 'reserved']);
+            }
+        }
+    }
+
+    function unreserveLawyer($lawyerId)
+    {
+        if ($lawyerId) {
+            $lawyer = \App\Models\Lawyer::find($lawyerId);
+            if ($lawyer) {
+                $lawyer->update(['is_busy' => 0]);
+            }
+        }
+    }
+
+
+    function isVendorCanCreateLawyers()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        $vendor = Vendor::with('currentSubscription')
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$vendor) {
+            return false;
+        }
+
+        $subscription = $vendor->currentSubscription;
+
+        if (!$subscription || !$subscription->member_count) {
+            return false;
+        }
+
+        if ($subscription->subscription_end && now()->gt($subscription->subscription_end)) {
+            return false;
+        }
+
+        $lawyerCount = Lawyer::where('lawfirm_id', $vendor->id)->count();
+
+        return $lawyerCount < $subscription->member_count;
+    }
+
+    function isVendorCanCreateJobs()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        $vendor = Vendor::with('currentSubscription')
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$vendor) {
+            return false;
+        }
+
+        $subscription = $vendor->currentSubscription;
+
+        if (!$subscription || !$subscription->job_post_count) {
+            return false;
+        }
+
+        if ($subscription->subscription_end && now()->gt($subscription->subscription_end)) {
+            return false;
+        }
+
+        $jobCount = JobPost::where('user_id', $vendor->id)->count();
+
+        return $jobCount < $subscription->job_post_count;
+    }
+
+    function getOnlineStatus()
+    {
+        $userId = Auth::guard('frontend')->user()->id;
+        $user = User::find($userId);
+        return $user->is_online;
+    }

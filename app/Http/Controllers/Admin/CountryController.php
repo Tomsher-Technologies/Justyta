@@ -22,14 +22,12 @@ class CountryController extends Controller
     {
         $query = Country::query();
 
-        // Search by name
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
+            // 1 = active, 2 = inactive; 
             if ($request->status == 1) {
                 $query->where('status', 1);
             } elseif ($request->status == 2) {
@@ -81,7 +79,6 @@ class CountryController extends Controller
     {
         $country = Country::with('translations')->findOrFail($id);
 
-        // Return both main type fields and translations
         return response()->json([
             'id' => $country->id,
             'status' => $country->status,
@@ -99,7 +96,6 @@ class CountryController extends Controller
             'status.required' => 'Status is required',
         ]);
 
-        // Find the contract type by ID
         $country = Country::find($id);
 
         if (!$country) {
@@ -115,14 +111,16 @@ class CountryController extends Controller
                 $country->name = $data['name'];
                 $country->save();
             }
-            $country->translations()->updateOrCreate(
-                ['lang' => $lang],
-                ['name' => $data['name']]
-            );
+            if($data['name'] != null){
+                $country->translations()->updateOrCreate(
+                    ['lang' => $lang],
+                    ['name' => $data['name']]
+                );
+            }
+            
         }
 
         session()->flash('success', 'Country updated successfully.');
-        // return response()->json(['success' => true, 'data' => $contractType]);
         return response()->json([
             'message' => 'Country updated successfully',
             'country' => $country

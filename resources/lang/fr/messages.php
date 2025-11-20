@@ -224,5 +224,15 @@ return [
     'training_request_submit_success' => 'La demande de formation a été soumise avec succès.',
     'training_request_submitted' => 'Votre demande de formation a été soumise avec succès.',
     'service_request_status_change' => 'Le statut de votre demande de service :service (Réf : :reference) a été mis à jour en : :status',
+    'password_regex' => 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.',
+    'phone_regex' => 'Veuillez entrer un numéro de téléphone valide.',
+    'password_confirmation_mismatch' => 'La confirmation du mot de passe ne correspond pas.',
+    'religion_required' => 'La religion est requise.',
+    'translation_not_available' => 'Traduction non disponible !',
+    'subject_max' => 'Le sujet ne peut pas dépasser :max caractères.',
+    'image_file_mimes' => 'Les fichiers doivent être de type : pdf, jpg, jpeg, webp, png, svg, doc, docx.',
+    'image_file_max' => 'Le fichier ne doit pas dépasser 500 Ko.',
+    'selected_notifications_cleared_successfully' => 'Les notifications sélectionnées ont été supprimées avec succès.',
+
 
 ];

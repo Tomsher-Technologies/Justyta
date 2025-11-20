@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Language;
 use App\Models\JobPost;
+use App\Models\JobApplication;
 use App\Models\JobPostTranslation;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -17,16 +18,15 @@ class JobPostController extends Controller
     {
         $this->middleware('auth');
        
-        $this->middleware('permission:manage_plan',  ['only' => ['index','destroy']]);
-        $this->middleware('permission:add_plan',  ['only' => ['create','store']]);
-        $this->middleware('permission:edit_plan',  ['only' => ['edit','update']]);
+        $this->middleware('permission:manage_job_post',  ['only' => ['index','destroy','applications']]);
+        $this->middleware('permission:add_job_post',  ['only' => ['create','store']]);
+        $this->middleware('permission:edit_job_post',  ['only' => ['edit','update']]);
     }
 
     public function index(Request $request)
     {
         $query = JobPost::with(['translations','location','post_owner'])->orderBy('id','desc');
 
-        // Filter by keyword in name, email or phone
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
             $query->where(function ($q) use ($keyword) {
@@ -37,9 +37,8 @@ class JobPostController extends Controller
             });
         }
 
-        // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
+            // 1 = active, 2 = inactive; 
             if ($request->status == 1) {
                 $query->where('status', 1);
             } elseif ($request->status == 2) {
@@ -92,7 +91,6 @@ class JobPostController extends Controller
             'deadline_date' => 'required|date',
             'translations.en.title' => 'required',
             'translations.en.description' => 'required',
-            'translations.en.salary' => 'required'
         ],[
             '*.required' => 'This field is required',
             'translations.en.*.required' => 'This field is required',
@@ -132,7 +130,6 @@ class JobPostController extends Controller
             'deadline_date' => 'required|date',
             'translations.en.title' => 'required',
             'translations.en.description' => 'required',
-            'translations.en.salary' => 'required'
         ],[
             '*.required' => 'This field is required',
             'translations.en.*.required' => 'This field is required',
@@ -143,9 +140,6 @@ class JobPostController extends Controller
             'emirate' => $request->emirate,
             'deadline_date' => $request->deadline_date ? Carbon::parse($request->deadline_date)->format('Y-m-d') : null,
         ]);
-            // 'user_id' => auth()->id(),
-            // 'user_type' => 'admin',
-            
         foreach ($request->translations as $lang => $data) {
             JobPostTranslation::updateOrCreate(
                 ['job_post_id' => $jobPost->id, 'lang' => $lang],
@@ -163,5 +157,14 @@ class JobPostController extends Controller
         $jobpost->save();
        
         return 1;
+    }
+
+    public function applications($id)
+    {
+        $jobId = base64_decode($id);
+        $job = JobPost::find($jobId);
+
+        $applications = JobApplication::where('job_post_id', $jobId)->paginate(30);
+        return view('admin.job_posts.applications', compact('job','applications'));
     }
 }

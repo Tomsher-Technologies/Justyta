@@ -11,17 +11,19 @@ use App\Models\JobApplication;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Mail\JobApplicationReceived;
+use Illuminate\Support\Facades\Mail;
 
 class JobPostController extends Controller
 {
     public function index(Request $request)
     {
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
-        $sort       = $request->input('sort', 'newest'); // 'newest' or 'oldest'
+        $sort       = $request->input('sort', 'newest'); 
         $perPage    = $request->input('limit', 10);
 
         $query = JobPost::where('status', 1);
-        // Sort
+       
         if ($sort === 'oldest') {
             $query->orderBy('job_posted_date', 'asc');
         } else {
@@ -45,6 +47,18 @@ class JobPostController extends Controller
             ];
         });
 
+        $ads = getActiveAd('lawfirm_jobs', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'        => true,
             'message'       => 'Details fetched successfully.',
@@ -53,6 +67,7 @@ class JobPostController extends Controller
             'last_page'     => $jobPosts->lastPage(),
             'limit'         => $jobPosts->perPage(),
             'total'         => $jobPosts->total(),
+            'banner'        => $response['banner']
         ], 200);
     }
 
@@ -62,7 +77,7 @@ class JobPostController extends Controller
 
         $job = JobPost::where('status', 1)
                     ->where('id', $id)
-                    ->with([ 'location']) // eager load relationships
+                    ->with([ 'location'])
                     ->first();
 
         if (!$job) {
@@ -70,6 +85,18 @@ class JobPostController extends Controller
                 'status'    => false,
                 'message'   => __('messages.job_not_found'),
             ], 200);
+        }
+
+        $ads = getActiveAd('lawfirm_jobs', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
         }
 
         return response()->json([
@@ -86,6 +113,7 @@ class JobPostController extends Controller
                 'job_posted_date' => $job->job_posted_date,
                 'deadline_date' => $job->deadline_date,
                 'status' => $job->status,
+                'banner' => $response['banner'] 
             ]
         ], 200);
     }
@@ -95,7 +123,7 @@ class JobPostController extends Controller
 
         $job = JobPost::where('status', 1)
                     ->where('id', $id)
-                    ->with([ 'location']) // eager load relationships
+                    ->with([ 'location']) 
                     ->first();
 
         if (!$job) {
@@ -119,9 +147,9 @@ class JobPostController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['positions'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['job_positions'])->get()->keyBy('slug');
        
-            // Transform each dropdown
+           
             $response = [];
 
             $response['details'] =  array(
@@ -141,7 +169,24 @@ class JobPostController extends Controller
                     ];
                 });
             }
-        
+
+            if(isset($response['job_positions'])){
+                $response['positions'] = $response['job_positions'];
+                unset($response['job_positions']);
+            }
+
+            $ads = getActiveAd('lawfirm_jobs', 'mobile');
+
+            $response['banner'] = [];
+            if ($ads) {
+                $file = $ads->files->first();
+                $response['banner'] = [
+                    'file' => getUploadedFile($file->file_path),
+                    'file_type' => $file->file_type,
+                    'url' => $ads->cta_url
+                ];
+            }
+            
             return response()->json([
                 'status'    => true,
                 'message'   => 'Success',
@@ -174,6 +219,7 @@ class JobPostController extends Controller
             'full_name.required'    => __('messages.full_name_required'),
             'email.required'        => __('messages.email_required'),
             'phone.required'        => __('messages.phone_required'),
+            'position.required'     => __('messages.position_required'),
             'resume.required'       => __('messages.resume_required'),
             'resume.*.file'         => __('messages.resume_invalid'),
             'resume.*.mimes'        => __('messages.resume_mimes'),
@@ -201,13 +247,12 @@ class JobPostController extends Controller
         }
 
         $resumeUrl = '';
-        // Store file
+        
         if ($request->hasFile('resume')) {
             $resumePath = $request->file('resume')->store('resumes', 'public');
             $resumeUrl  = Storage::url($resumePath);
         }
-        
-        // Save application
+       
         $application                = new JobApplication();
         $application->job_post_id   = $job->id;
         $application->user_id       = $user->id;
@@ -215,8 +260,14 @@ class JobPostController extends Controller
         $application->email         = $request->email;
         $application->phone         = $request->phone;
         $application->position      = $request->position;
-        $application->resume_path   = 'storage/'.$resumeUrl;
+        $application->resume_path   = $resumeUrl;
         $application->save();
+
+        $jobOwner = $job->post_owner;
+
+        if ($jobOwner && $jobOwner->email) {
+            Mail::to($jobOwner->email)->send(new JobApplicationReceived($job, $application));
+        }
 
         return response()->json([
             'status'    => true,

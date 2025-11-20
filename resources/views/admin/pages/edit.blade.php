@@ -1,4 +1,4 @@
-@extends('layouts.admin_default', ['title' => 'Edit Service Details'])
+@extends('layouts.admin_default', ['title' => 'Edit Page Details'])
 
 @section('content')
     <div class="container-fluid">
@@ -14,90 +14,106 @@
                             @csrf
                             @method('PUT')
 
-                            <div class="col-md-12">
-                                <!-- Language Tabs -->
-                                <ul class="nav nav-tabs custom-lang-tabs w-100" id="langTabs" role="tablist"
-                                    style="display: flex; flex-wrap: wrap;">
-                                    @foreach ($languages as $lang)
-                                        <li class="nav-item flex-fill text-center">
-                                            <a class="nav-link @if ($loop->first) active @endif"
-                                                id="tab-{{ $lang->code }}" data-toggle="tab"
-                                                href="#lang-{{ $lang->code }}" role="tab"
-                                                aria-controls="lang-{{ $lang->code }}"
-                                                aria-selected="{{ $loop->first ? 'true' : 'false' }}">
-                                                <span class="flag-icon flag-icon-{{ $lang->flag }} mr-1"></span>
-                                                {{ $lang->name }}
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-
-                                <!-- Tab Contents -->
-                                <div class="tab-content custom-tab-content" id="langTabsContent">
-                                    @foreach ($languages as $lang)
-                                        @php
-                                            $trans = $page->translations->firstWhere('lang', $lang->code);
-                                        @endphp
-                                        <div class="tab-pane fade @if ($loop->first) show active @endif"
-                                            id="lang-{{ $lang->code }}" role="tabpanel"
-                                            aria-labelledby="tab-{{ $lang->code }}">
-
-                                            @if ($page->slug === 'payment-page' || $page->slug === 'consultancy_waiting_page')
-                                                <div class="form-group">
-                                                    <label class="col-form-label color-dark fw-500">Title
-                                                        ({{ $lang->name }})
-                                                        @if ($lang->code == 'en')
-                                                            <span class="text-danger">*</span>
-                                                        @endif
-                                                    </label>
-                                                    <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
-                                                        name="translations[{{ $lang->code }}][title]"
-                                                        class="form-control" value="{{ $trans->title ?? '' }}"
-                                                        @if ($lang->code == 'en') required @endif>
-                                                </div>
-                                            @endif
-
-                                            @if ($page->slug === 'payment-page' || $page->slug === 'translation_request_success' || $page->slug === 'lawfirm_signup')
-                                                <div class="form-group">
-                                                    <label class="col-form-label color-dark fw-500">Description
-                                                        ({{ $lang->name }})
-                                                        @if ($lang->code == 'en')
-                                                            <span class="text-danger">*</span>
-                                                        @endif
-                                                    </label>
-                                                    <textarea name="translations[{{ $lang->code }}][description]" @if ($lang->rtl == 1) dir="rtl" @endif
-                                                        class="form-control ip-gray radius-xs b-light px-15 @error('translations.' . $lang->code . '.description') is-invalid @enderror"
-                                                        rows="5" @if ($lang->code == 'en') required @endif>{{ old('translations.' . $lang->code . '.description', $trans->description ?? '') }}</textarea>
-
-                                                    @error("translations.$lang->code.description")
-                                                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                    @enderror
-                                                </div>
-                                            @endif
-
-                                            @if (
-                                                $page->slug === 'consultancy_payment_success' ||
-                                                    $page->slug === 'consultancy_waiting_page' ||
-                                                    $page->slug === 'request_success' || $page->slug === 'request_payment_success' || $page->slug === 'translation_request_success' ||
-                                                    $page->slug === 'immigration_success' ||
-                                                    $page->slug === 'report_problem' || $page->slug === 'request_submission_forminfo' || $page->slug === 'new_password_reset' || $page->slug === 'company_retainership')
-                                                <div class="form-group">
-                                                    <label class="col-form-label color-dark fw-500">Content
-                                                        ({{ $lang->name }})
-                                                        @if ($lang->code == 'en')
-                                                            <span class="text-danger">*</span>
-                                                        @endif
-                                                    </label>
-                                                    <textarea name="translations[{{ $lang->code }}][content]" @if ($lang->rtl == 1) dir="rtl" @endif
-                                                        @if ($lang->code == 'en') required @endif class="form-control ip-gray radius-xs b-light px-15"
-                                                        rows="5">{{ old('translations.' . $lang->code . '.content', $trans->content ?? '') }}</textarea>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endforeach
-
+                            @if ($page->slug === 'user_app_home')
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="col-form-label color-dark fw-500">Quick Links<span class="text-danger">*</span>
+                                        </label>
+                                        <select name="service_id[]" multiple class="select2 form-control" data-live-search="true">
+                                            <option value="">Select Service</option>
+                                            @foreach($services as $serv)
+                                                <option value="{{ $serv->id }}" {{ (in_array($serv->id, json_decode($page->content))) ? 'selected' : '' }}>{{ $serv->getTranslation('title', 'en') }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
+                            @else
+                                <div class="col-md-12">
+                                    <!-- Language Tabs -->
+                                    <ul class="nav nav-tabs custom-lang-tabs w-100" id="langTabs" role="tablist"
+                                        style="display: flex; flex-wrap: wrap;">
+                                        @foreach ($languages as $lang)
+                                            <li class="nav-item flex-fill text-center">
+                                                <a class="nav-link @if ($loop->first) active @endif"
+                                                    id="tab-{{ $lang->code }}" data-toggle="tab"
+                                                    href="#lang-{{ $lang->code }}" role="tab"
+                                                    aria-controls="lang-{{ $lang->code }}"
+                                                    aria-selected="{{ $loop->first ? 'true' : 'false' }}">
+                                                    <span class="flag-icon flag-icon-{{ $lang->flag }} mr-1"></span>
+                                                    {{ $lang->name }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+
+                                    <!-- Tab Contents -->
+                                    <div class="tab-content custom-tab-content" id="langTabsContent">
+                                        @foreach ($languages as $lang)
+                                            @php
+                                                $trans = $page->translations->firstWhere('lang', $lang->code);
+                                            @endphp
+                                            <div class="tab-pane fade @if ($loop->first) show active @endif"
+                                                id="lang-{{ $lang->code }}" role="tabpanel"
+                                                aria-labelledby="tab-{{ $lang->code }}">
+
+                                                @if ($page->slug === 'payment-page' || $page->slug === 'consultancy_waiting_page')
+                                                    <div class="form-group">
+                                                        <label class="col-form-label color-dark fw-500">Title
+                                                            ({{ $lang->name }})
+                                                            @if ($lang->code == 'en')
+                                                                <span class="text-danger">*</span>
+                                                            @endif
+                                                        </label>
+                                                        <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
+                                                            name="translations[{{ $lang->code }}][title]"
+                                                            class="form-control" value="{{ $trans->title ?? '' }}"
+                                                            @if ($lang->code == 'en') required @endif>
+                                                    </div>
+                                                @endif
+
+                                                @if ($page->slug === 'payment-page' || $page->slug === 'translation_request_success' || $page->slug === 'lawfirm_signup' || $page->slug === 'company_retainership')
+                                                    <div class="form-group">
+                                                        <label class="col-form-label color-dark fw-500">
+                                                            @if($page->slug === 'company_retainership')
+                                                                Form Info
+                                                            @else
+                                                                Description
+                                                            @endif
+                                                            
+                                                            ({{ $lang->name }})
+                                                            @if ($lang->code == 'en')
+                                                                <span class="text-danger">*</span>
+                                                            @endif
+                                                        </label>
+                                                        <textarea name="translations[{{ $lang->code }}][description]" @if ($lang->rtl == 1) dir="rtl" @endif
+                                                            class="form-control ip-gray radius-xs b-light px-15 @error('translations.' . $lang->code . '.description') is-invalid @enderror"
+                                                            rows="5" @if ($lang->code == 'en') required @endif>{{ old('translations.' . $lang->code . '.description', $trans->description ?? '') }}</textarea>
+
+                                                        @error("translations.$lang->code.description")
+                                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                @endif
+
+                                                @if ($page->slug != 'payment-page' || $page->slug != 'lawfirm_signup')
+                                                    <div class="form-group">
+                                                        <label class="col-form-label color-dark fw-500">Content
+                                                            ({{ $lang->name }})
+                                                            @if ($lang->code == 'en')
+                                                                <span class="text-danger">*</span>
+                                                            @endif
+                                                        </label>
+                                                        <textarea name="translations[{{ $lang->code }}][content]" @if ($lang->rtl == 1) dir="rtl" @endif
+                                                            @if ($lang->code == 'en') required @endif class="form-control ip-gray radius-xs b-light px-15"
+                                                            rows="5">{{ old('translations.' . $lang->code . '.content', $trans->content ?? '') }}</textarea>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+
+                                    </div>
+                                </div>
+                            @endif
 
                             <div class="col-md-12 text-right mt-3 form-group d-flex flex-wrap align-items-end">
                                 <button type="submit" class="btn btn-primary btn-sm ">Update Content</button>
@@ -113,7 +129,7 @@
 @endsection
 
 @section('style')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css@4.1.7/css/flag-icons.min.css">
+    {{-- <link rel="stylesheet" href="{{ asset('assets/css/flag-icons.min.css') }}"> --}}
 
     <style>
         .flag-icon {

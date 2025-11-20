@@ -24,7 +24,7 @@ class Faq extends Model
         $lang = $lang == false ? getActiveLanguage() : $lang;
         $translations = $this->translations->where('lang', $lang)->first();
     
-         // If not found OR name is empty, fallback to 'en'
+         
         if (!$translations || empty($translations->$field)) {
             $translations = $this->translations->where('lang', 'en')->first();
         }

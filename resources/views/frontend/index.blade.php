@@ -2,7 +2,7 @@
 
 @section('content')    
 
-    <section class="px-[100px] ms-[250px] flex justify-between items-start mt-[-50px]">
+    <section class="px-5 md:px-5 lg:px-5 xl:px-0 ms-[250px] flex justify-between items-start mt-[-50px]">
         <h3 class="text-[50px] font-cinzel font-normal text-[#07683B]">Visa Made Easy Dreams <br> Made Possible</h3>
         <button
             class="flex items-center justify-between px-6 pe-4 py-3 bg-[#07683B] text-white rounded-full shadow-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
@@ -17,11 +17,11 @@
         </button>
     </section>
 
-    <section class="w-full px-[100px] mt-8">
+    <section class="w-full px-5 md:px-5 lg:px-5 xl:px-0 mt-8">
         <img src="{{ asset('assets/images/banner.png') }}" class="w-full" alt="">
     </section>
 
-    <section class="bg-[#FFF7F0] px-[100px] py-10 mt-8">
+    <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 xl:px-0 py-10 mt-8">
         <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">Choose Service</h4>
         <div class="grid grid-cols-5">
             <div class="bg-white p-8 border !border-[#F5E4BA]">
@@ -52,7 +52,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Online Live Consultancy</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -90,7 +90,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Request Submission</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -128,7 +128,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Legal Translation</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -166,7 +166,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Companies Retainership Annual Agreement</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -204,7 +204,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Immigration Requests</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -228,7 +228,7 @@
                      fill="#B9A572" />
                </svg>
                 <h3 class="mb-6">Court Case Submission</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -318,7 +318,7 @@
                      fill="#B9A572" />
                </svg>
                 <h3 class="mb-6">Criminal Complaint</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -354,7 +354,7 @@
                      fill="#B9A572" />
                </svg>
                 <h3 class="mb-6">Power Of Attorney</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -392,7 +392,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Last Will & Testament</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -430,7 +430,7 @@
                     </defs>
                 </svg>
                 <h3 class="mb-6">Memo Writing</h3>
-                <a href="#" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -453,7 +453,7 @@
         </div>
     </section>
 
-    <section class="bg-[#B9A572] px-[100px] py-[80px]">
+    <section class="bg-[#B9A572] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px]">
         <div class="grid grid-cols-2">
             <div class="text-white">
                 <h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>
@@ -643,7 +643,7 @@
         </div>
     </section>
 
-    <section class="bg-[#fff] px-[100px] py-[80px] relative">
+    <section class="bg-[#fff] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px] relative">
         <div class="bg-[#FFF9F4] p-12 h-full ">
             <div class="w-[60%]">
                 <h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>
@@ -678,7 +678,7 @@
         <img src="{{ asset('assets/images/law-img.png') }}" class="absolute end-0 bottom-0  h-auto" alt="">
     </section>
 
-    <section class="bg-[#FFF7F0] px-[100px] py-[80px]">
+    <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px]">
         <div class="grid grid-cols-2 w-[80%] m-auto items-center">
             <img src="{{ asset('assets/images/about-Image.png') }}" alt="">
             <div>
@@ -744,7 +744,7 @@
         </div>
     </section>
 
-    <section class="bg-[#FFF] px-[100px] py-[80px]">
+    <section class="bg-[#FFF] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px]">
         <div class="grid grid-cols-2 items-center">
             <div>
                 <h3 class="text-[40px] font-cinzel font-bold leading-[55px] mb-5">Justice served with <br> Lawpoint —
@@ -760,7 +760,7 @@
         </div>
     </section>
 
-    <section class="bg-[#FFF7F0] px-[100px] py-[80px]">
+    <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px]">
         <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">latest news</h4>
         <div class="grid grid-cols-4">
             <div>

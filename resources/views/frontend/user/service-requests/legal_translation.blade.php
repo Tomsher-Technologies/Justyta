@@ -160,8 +160,8 @@
                         @enderror
                     </div>
                 </div>
-
-                {{-- @if ($dropdownData['form_info'] != NULL)
+                <hr class="my-8 mb-5">
+                @if ($dropdownData['form_info']['content'] != NULL)
                     <p class="text-sm text-[#777777] mt-4 flex items-center gap-1">
                         <svg class="w-5 h-5 text-[#777777]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                             width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -169,9 +169,9 @@
                             d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
 
-                        <span>{{ $dropdownData['form_info'] }}</span>
+                        <span>{{ $dropdownData['form_info']['content'] }}</span>
                     </p>
-                @endif --}}
+                @endif
             </div>
             <div class="lg:col-span-1 space-y-6">
                 <div class="bg-white p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)] flex flex-col justify-between">
@@ -187,6 +187,7 @@
                     </div>
 
                     <div>
+                        <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.completion_hours') }} <span class="font-semibold text-xl text-[#07683B]" id="translation_completion_hours">0</span></div>
                        <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]" id="translation_price_result">{{ __('frontend.AED') }} 0.00</span></div>
                        
                         <button type="submit" id="submit_button" class="text-white bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md w-full px-8 py-4 text-center transition-colors duration-200 uppercase cursor-pointer">
@@ -199,10 +200,38 @@
     </form>
 @endsection
 
+@section('ads')
+    @php
+        $ads = getActiveAd('legal_translation', 'web');
+    @endphp
+
+    @if ($ads && $ads->files->isNotEmpty())
+
+        <div class="w-full mb-12 px-[50px]">
+            {{-- <img src="{{ asset('assets/images/ad-img.jpg') }}" class="w-full" alt="" /> --}}
+           {{-- muted --}}
+            @php
+                $file = $ads->files->first();
+                $media = $file->file_type === 'video'
+                    ? '<video class="w-full h-100" autoplay loop>
+                        <source src="' . asset($file->file_path) . '" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>'
+                    : '<img src="' . asset($file->file_path) . '" class="w-full h-80" alt="Ad Image">';
+            @endphp
+
+            @if (!empty($ads->cta_url))
+                <a href="{{ $ads->cta_url }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
+                    {!! $media !!}
+                </a>
+            @else
+                {!! $media !!}
+            @endif
+        </div>
+    @endif
+@endsection
+
 @section('script')
-    <!-- Load jQuery Validate -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/additional-methods.min.js"></script>
 
     <script>
         document.querySelectorAll('.file-input').forEach(input => {
@@ -228,7 +257,7 @@
                             previewItem.innerHTML = `<div class="text-xs break-words w-20 h-20 overflow-auto">${file.name}</div>`;
                         }
 
-                        // Add remove button
+                        
                         const removeBtn = document.createElement('button');
                         removeBtn.type = 'button';
                         removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs';
@@ -276,20 +305,20 @@
 
                     "memo[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "documents[]": {
                         required: true,
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "additional_documents[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        fileSize: 102400
                     },
                     "trade_license[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        fileSize: 102400
                     }
                 },
                 messages: {
@@ -324,7 +353,7 @@
                     error.addClass('text-red-500 text-sm');
 
                     if (element.hasClass('select2-hidden-accessible')) {
-                        error.insertAfter(element.next('.select2')); // Insert after the visible Select2 dropdown
+                        error.insertAfter(element.next('.select2'));
                     } else {
                         error.insertAfter(element);
                     }
@@ -345,10 +374,8 @@
                         $(element).removeClass('border-red-500');
                     }
                 },
-
-                /** 👇 Prevent actual form submission if invalid */
                 submitHandler: function (form) {
-                    form.submit(); // real submit
+                    form.submit();
                 }
             });
 
@@ -359,7 +386,7 @@
 
                 if (documentTypeId) {
                     $.ajax({
-                        url: '{{ route("get.sub.document.types") }}', // adjust this to your actual route
+                        url: '{{ route("get.sub.document.types") }}',
                         type: 'POST',
                         data: {
                             document_type: documentTypeId,
@@ -373,7 +400,7 @@
                                 response.data.forEach(function (item) {
                                     options += `<option value="${item.id}">${item.value}</option>`;
                                 });
-                                $('#document_sub_type').html(options).trigger('change'); // if using Select2
+                                $('#document_sub_type').html(options).trigger('change'); 
                             }
                         },
                         error: function () {
@@ -383,38 +410,62 @@
                 }
             });
 
-            // Optional: Trigger change on page load if document_type was pre-selected (old value)
             const oldSelectedDocType = $('#document_type').val();
             if (oldSelectedDocType) {
                 $('#document_type').trigger('change');
             }
+            $("input[name='priority_level']").on("change", function () {
+                if ($(this).is(":checked")) {
+                    calculateTranslationPrice();
+                }
+            });
+
+            $("input[name='receive_by']").on("change", function () {
+                if ($(this).is(":checked")) {
+                    calculateTranslationPrice();
+                }
+            });
+
+            $('#document_language, #translation_language,#document_type,#document_sub_type').on('change', calculateTranslationPrice);
+            $('input[name="no_of_pages"]').on('input', calculateTranslationPrice);
 
             function calculateTranslationPrice() {
+                let priority = $("input[name='priority_level']:checked").val();
                 let from_language_id = $('#document_language').val();
                 let to_language_id = $('#translation_language').val();
                 let no_of_pages = $('input[name="no_of_pages"]').val();
+                let doc_type = $('#document_type').val();
+                let doc_sub_type = $('#document_sub_type').val();
+                let receive_by = $("input[name='receive_by']:checked").val();
 
-                if (from_language_id && to_language_id && no_of_pages) {
+                if (from_language_id && to_language_id && no_of_pages && doc_type && doc_sub_type && receive_by) {
                     $.ajax({
-                        url: "{{ route('user.calculate-translation-price') }}", // Set this route in web.php
+                        url: "{{ route('user.calculate-translation-price') }}", 
                         type: 'POST',
                         data: {
                             from_language_id: from_language_id,
                             to_language_id: to_language_id,
                             no_of_pages: no_of_pages,
+                            doc_type: doc_type,
+                            doc_sub_type: doc_sub_type,
+                            receive_by: receive_by,
+                            priority: priority,
                             _token: '{{ csrf_token() }}'
                         },
                         beforeSend: function () {
-                            $('#submit_button').prop('disabled', true); // Disable before request
+                            $('#submit_button').prop('disabled', true);
                             $('#translation_price_result').html(`<span class="text-gray-500 text-sm">Calculating...</span>`);
+                            $('#translation_completion_hours').html(0);
                         },
                         success: function (res) {
                             if (res.status) {
                                 $('#translation_price_result').html(`{{ __('frontend.AED') }} ${res.data.total_amount.toFixed(2)}`);
-                                $('#submit_button').prop('disabled', false); // Enable if valid
+                                $('#translation_completion_hours').html(res.data.total_hours);
+                                $('#submit_button').prop('disabled', false); 
                             } else {
                                 $('#translation_price_result').html(`<p class="text-red-500">${res.message}</p>`);
-                                $('#submit_button').prop('disabled', true); // Disable if error
+                                $('#translation_completion_hours').html(0);
+                                $('#submit_button').prop('disabled', true); 
                             }
                         },
                         error: function () {
@@ -425,9 +476,7 @@
                 }
             }
 
-            // Bind change events
-            $('#document_language, #translation_language').on('change', calculateTranslationPrice);
-            $('input[name="no_of_pages"]').on('input', calculateTranslationPrice);
+            
         });
     </script>
 @endsection

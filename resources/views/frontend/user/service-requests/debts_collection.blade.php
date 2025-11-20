@@ -99,7 +99,7 @@
                     </div>
                     <div>
                         <label for="consultation-time" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ __('frontend.trade_license_company') }}<span class="text-red-500">*</span></label>
+                            {{ __('frontend.trade_license_company') }}</label>
                         <input class="file-input block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" id="trade_license" type="file"   name="trade_license[]" multiple data-preview="trade-preview" />
                         <div id="trade-preview" class="mt-2 grid grid-cols-4 gap-2"></div>
                         @error('trade_license')
@@ -144,10 +144,39 @@
     </form>
 @endsection
 
+@section('ads')
+    @php
+        $ads = getActiveAd('debt_collection', 'web');
+    @endphp
+
+    @if ($ads && $ads->files->isNotEmpty())
+
+        <div class="w-full mb-12 px-[50px]">
+            {{-- <img src="{{ asset('assets/images/ad-img.jpg') }}" class="w-full" alt="" /> --}}
+           {{-- muted --}}
+            @php
+                $file = $ads->files->first();
+                $media = $file->file_type === 'video'
+                    ? '<video class="w-full h-100" autoplay loop>
+                        <source src="' . asset($file->file_path) . '" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>'
+                    : '<img src="' . asset($file->file_path) . '" class="w-full h-80" alt="Ad Image">';
+            @endphp
+
+            @if (!empty($ads->cta_url))
+                <a href="{{ $ads->cta_url }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
+                    {!! $media !!}
+                </a>
+            @else
+                {!! $media !!}
+            @endif
+        </div>
+    @endif
+@endsection
+
+
 @section('script')
-    <!-- Load jQuery Validate -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/additional-methods.min.js"></script>
 
     <script>
         document.querySelectorAll('.file-input').forEach(input => {
@@ -173,7 +202,7 @@
                             previewItem.innerHTML = `<div class="text-xs break-words w-20 h-20 overflow-auto">${file.name}</div>`;
                         }
 
-                        // Add remove button
+                        
                         const removeBtn = document.createElement('button');
                         removeBtn.type = 'button';
                         removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs';
@@ -206,7 +235,9 @@
                     }
                 }
                 return true;
-            }, "File size must be less than {0}KB");
+            }, function (param, element) {
+                return "File size must be less than " + (param / 1024) + " MB";
+            });
 
             $("#debtsCollectionForm").validate({
                 ignore: [],
@@ -218,17 +249,21 @@
                     debt_category: { required: true },
                     "documents[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "eid[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     },
                     "trade_license[]": {
-                        required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        required: {
+                            depends: function (element) {
+                                return $('input[name="applicant_type"]:checked').val() === "company";
+                            }
+                        },
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     }
                 },
                 messages: {
@@ -257,7 +292,7 @@
                     error.addClass('text-red-500 text-sm');
 
                     if (element.hasClass('select2-hidden-accessible')) {
-                        error.insertAfter(element.next('.select2')); // Insert after the visible Select2 dropdown
+                        error.insertAfter(element.next('.select2'));
                     } else {
                         error.insertAfter(element);
                     }
@@ -278,9 +313,8 @@
                         $(element).removeClass('border-red-500');
                     }
                 },
-                /** 👇 Prevent actual form submission if invalid */
                 submitHandler: function (form) {
-                    form.submit(); // real submit
+                    form.submit();
                 }
             });
 

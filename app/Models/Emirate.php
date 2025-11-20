@@ -13,6 +13,11 @@ class Emirate extends Model
         return $this->hasMany(EmirateTranslation::class);
     }
 
+    public function emirate_litigations()
+    {
+        return $this->hasMany(EmirateLitigation::class);
+    }
+
     public function translation($lang = null)
     {
         $lang = $lang ?: app()->getLocale();
@@ -24,7 +29,7 @@ class Emirate extends Model
         $lang = $lang == false ? getActiveLanguage() : $lang;
         $translations = $this->translations->where('lang', $lang)->first();
     
-         // If not found OR name is empty, fallback to 'en'
+         
         if (!$translations || empty($translations->$field)) {
             $translations = $this->translations->where('lang', 'en')->first();
         }

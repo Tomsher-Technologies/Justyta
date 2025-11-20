@@ -27,9 +27,11 @@ class User extends Authenticatable
         'password',
         'phone',
         'banned',
+        'approved',
         'user_type',
         'language',
-        'image','otp_expires_at','otp'
+        'address',
+        'image','otp_expires_at','otp','last_login_at','last_login_ip','is_online'
     ];
 
     /**
@@ -68,5 +70,10 @@ class User extends Authenticatable
     public function translator()
     {
         return $this->hasOne(Translator::class);
+    }
+
+    public function onlineLogs()
+    {
+        return $this->hasMany(UserOnlineLog::class);
     }
 }

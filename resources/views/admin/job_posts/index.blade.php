@@ -136,10 +136,12 @@
                                                         </td>
 
                                                         <td class="text-center">
-                                                            0
+                                                            <a href="{{ route('job-applications', ['id' => base64_encode($job->id)]) }}">
+                                                                {{ $job->applications?->count() ?? 0 }}
+                                                            </a>
                                                         </td>
                                                         <td class="text-center">
-                                                            @can('edit_news')
+                                                            @can('edit_job_post')
                                                                 <div class="atbd-switch-wrap">
                                                                     <div
                                                                         class="custom-control custom-switch switch-secondary switch-sm ">
@@ -162,8 +164,8 @@
 
                                                         <td class="text-center">
                                                             <div class="table-actions">
-                                                                @can('edit_news')
-                                                                    <a href="{{ route('job-posts.edit', $job) }}" title="Edit News">
+                                                                @can('edit_job_post')
+                                                                    <a href="{{ route('job-posts.edit', $job) }}" title="Edit Job">
                                                                         <span data-feather="edit"></span>
                                                                     </a>
                                                                 @endcan
@@ -187,7 +189,7 @@
                                     </tbody>
                                 </table>
                                 <div class="aiz-pagination mt-4">
-                                    @can('view_news')
+                                    @can('view_job_post')
                                         {{ $job_posts->appends(request()->input())->links('pagination::bootstrap-5') }}
                                     @endcan
                                 </div>

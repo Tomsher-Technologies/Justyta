@@ -33,7 +33,10 @@ class RoleController extends Controller
 
     public function create()
     {
-        $permission = CustomPermission::whereNull('parent_id')->with('children')->where('is_active',1)->get();
+        $permission = CustomPermission::whereNull('parent_id')
+                        ->with(['children' => function ($q) {
+                            $q->where('is_active', 1);
+                        }])->where('is_active',1)->get();
         return view('admin.roles_permissions.create',compact('permission'));
     }
 
@@ -51,20 +54,14 @@ class RoleController extends Controller
         return redirect()->route('roles.index');
     }
 
-    // public function show($id)
-    // {
-    //     $role = Role::find($id);
-    //     $rolePermissions = CustomPermission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")
-    //         ->where("role_has_permissions.role_id",$id)
-    //         ->get();
-    
-    //     return view('roles.show',compact('role','rolePermissions'));
-    // }
-
     public function edit($id)
     {
         $role = Role::find($id);
-        $permission = CustomPermission::whereNull('parent_id')->with('children')->where('is_active',1)->get();
+        $permission = CustomPermission::whereNull('parent_id')
+                        ->with(['children' => function ($q) {
+                            $q->where('is_active', 1);
+                        }])->where('is_active',1)->get();
+
         $rolePermissions = DB::table("role_has_permissions")->where("role_has_permissions.role_id",$id)
             ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
             ->all();

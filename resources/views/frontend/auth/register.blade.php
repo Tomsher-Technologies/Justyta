@@ -4,12 +4,17 @@
     <section class="bg-[#FFF7F0] px-[100px] py-[80px] pt-0">
         <div class="flex items-center justify-center">
             <div class="w-full max-w-lg p-8 space-y-6 p-5 bg-white rounded-lg">
-                <h2 class="text-3xl font-semibold text-gray-900 mb-8">{{ __('frontend.sign_in') }}</h2>
+                <h2 class="text-3xl font-semibold text-gray-900 mb-8">{{ __('frontend.sign_up') }}</h2>
 
-                <p class="text-base text-gray-600">
-                    {{ __('frontend.have_an_account') }}
-                    <a href="{{ route('frontend.login') }}" class="font-medium">{{ __('frontend.sign_in') }}</a>
+                @php
+                    $lang = app()->getLocale() ?? 'en';
+                    $contentDynamic = getPageDynamicContent('register_page', $lang);
+                @endphp
+                <p class="text-xs text-gray-600">
+                    {{ $contentDynamic['content'] ?? '' }}
                 </p>
+
+                
 
                 <form class="space-y-4" method="POST" action="{{ route('frontend.register.submit') }}">
                     @csrf
@@ -194,7 +199,7 @@
                                 required />
                         </div>
                         <label for="terms" class="cursor-pointer ms-2 text-sm font-normal text-gray-900">
-                            {{ __('frontend.agree_terms') }}
+                            {!! __('frontend.agree_terms', ['terms' => '<a href="#" class="underline text-[#B9A572]">' . __('frontend.terms') . '</a>']) !!}
                         </label>
                     </div>
 
@@ -202,6 +207,11 @@
                         {{ __('frontend.sign_up') }}
                     </button>
                 </form>
+
+                <p class="text-base text-center text-gray-600">
+                    {{ __('frontend.have_an_account') }}
+                    <a href="{{ route('frontend.login') }}" class="font-medium">{{ __('frontend.sign_in') }}</a>
+                </p>
             </div>
         </div>
     </section>

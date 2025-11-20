@@ -8,25 +8,21 @@ class CourtRequest extends Model
 {
     protected $fillable = ['name', 'parent_id','status','sort_order'];
 
-    // Relationship to parent
     public function parent()
     {
         return $this->belongsTo(CourtRequest::class, 'parent_id');
     }
 
-    // Relationship to children (sub court requests)
     public function children()
     {
         return $this->hasMany(CourtRequest::class, 'parent_id')->orderBy('sort_order');
     }
 
-    // Scope for only main types
     public function scopeMain($query)
     {
         return $query->whereNull('parent_id');
     }
 
-    // Scope for only sub types
     public function scopeSub($query)
     {
         return $query->whereNotNull('parent_id');
@@ -48,7 +44,6 @@ class CourtRequest extends Model
         $lang = $lang == false ? getActiveLanguage() : $lang;
         $translations = $this->translations->where('lang', $lang)->first();
     
-         // If not found OR name is empty, fallback to 'en'
         if (!$translations || empty($translations->$field)) {
             $translations = $this->translations->where('lang', 'en')->first();
         }

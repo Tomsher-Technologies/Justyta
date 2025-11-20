@@ -140,7 +140,7 @@
                         @enderror
                     </div>
 
-                    <div>
+                    {{-- <div>
                         <label for="lawfirm" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.lawfirm') }}<span class="text-red-500">*</span></label>
                         <select id="lawfirm" name="lawfirm" class="select2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             <option value="">{{ __('frontend.choose_option') }}</option>
@@ -151,15 +151,11 @@
                         @error('lawfirm')
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
-                    </div>
+                    </div> --}}
 
                 </div>
 
-                <hr class="my-8 mb-5" />
-
-                
-
-                @if ($dropdownData['form_info'] != NULL)
+                @if ($dropdownData['form_info'])
                     <p class="text-sm text-[#777777] mt-4 flex items-center gap-1">
                         <svg class="w-5 h-5 text-[#777777]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                             width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -167,7 +163,12 @@
                             d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
 
-                        <span>{{ $dropdownData['form_info'] }}</span>
+                        <span>{{ $dropdownData['form_info']['description'] }}</span>
+                    </p>
+                    <hr class="my-8 mb-5" />
+                    <p class="text-sm text-[#777777] mt-4 flex items-center gap-1">
+        
+                        <span>{{ $dropdownData['form_info']['content'] }}</span>
                     </p>
                 @endif
             </div>
@@ -197,10 +198,38 @@
     </form>
 @endsection
 
+@section('ads')
+    @php
+        $ads = getActiveAd('company_annual_agreement', 'web');
+    @endphp
+
+    @if ($ads && $ads->files->isNotEmpty())
+
+        <div class="w-full mb-12 px-[50px]">
+            {{-- <img src="{{ asset('assets/images/ad-img.jpg') }}" class="w-full" alt="" /> --}}
+           {{-- muted --}}
+            @php
+                $file = $ads->files->first();
+                $media = $file->file_type === 'video'
+                    ? '<video class="w-full h-100" autoplay loop>
+                        <source src="' . asset($file->file_path) . '" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>'
+                    : '<img src="' . asset($file->file_path) . '" class="w-full h-80" alt="Ad Image">';
+            @endphp
+
+            @if (!empty($ads->cta_url))
+                <a href="{{ $ads->cta_url }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
+                    {!! $media !!}
+                </a>
+            @else
+                {!! $media !!}
+            @endif
+        </div>
+    @endif
+@endsection
+
 @section('script')
-    <!-- Load jQuery Validate -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/additional-methods.min.js"></script>
 
     <script>
         document.querySelectorAll('.file-input').forEach(input => {
@@ -226,7 +255,6 @@
                             previewItem.innerHTML = `<div class="text-xs break-words w-20 h-20 overflow-auto">${file.name}</div>`;
                         }
 
-                        // Add remove button
                         const removeBtn = document.createElement('button');
                         removeBtn.type = 'button';
                         removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs';
@@ -294,7 +322,7 @@
                     error.addClass('text-red-500 text-sm');
 
                     if (element.hasClass('select2-hidden-accessible')) {
-                        error.insertAfter(element.next('.select2')); // Insert after the visible Select2 dropdown
+                        error.insertAfter(element.next('.select2'));
                     } else {
                         error.insertAfter(element);
                     }
@@ -315,17 +343,15 @@
                         $(element).removeClass('border-red-500');
                     }
                 },
-
-                /** 👇 Prevent actual form submission if invalid */
                 submitHandler: function (form) {
-                    form.submit(); // real submit
+                    form.submit();
                 }
             });
 
             $('#license_type').on('change', function () {
                 const license_typeId = $(this).val();
                 const subSelect = $('#license_activity');
-                const baseUrl = $('#license_type').data('url'); // example: "/user/get-sub-contract-types"
+                const baseUrl = $('#license_type').data('url'); 
 
                 subSelect.empty().append(`<option value="">Loading...</option>`);
 
@@ -338,7 +364,7 @@
                             $.each(res, function (index, item) {
                                 subSelect.append(`<option value="${item.id}">${item.value}</option>`);
                             });
-                            subSelect.trigger('change'); // if select2 is used
+                            subSelect.trigger('change');
                         },
                         error: function () {
                             subSelect.empty().append(`<option value="">{{ __('frontend.choose_option') }}</option>`);
@@ -354,7 +380,6 @@
                 const visits = $('#no_of_visits').val();
                 const installments = $('#no_of_installment').val();
 
-                // Clear result if any value is empty
                 if (!calls || !visits || !installments) {
                     $('#annual_price_result').html('');
                     return;
@@ -363,16 +388,38 @@
                 $.ajax({
                     url: '{{ route("ajax.getAnnualAgreementPrice") }}',
                     type: 'GET',
-                    data: {
-                        calls,
-                        visits,
-                        installments
-                    },
+                    data: { calls, visits, installments },
                     success: function (res) {
                         if (res.status) {
                             const data = res.data;
+                            let installmentHtml = '';
+                            const installmentCount = parseInt(data.installments);
+                            const perInstallmentAmount = (data.final_total / installmentCount).toFixed(2);
+                            
+                            for (let i = 1; i <= installmentCount; i++) {
+                                if(i != 1){
+                                    installmentHtml += `
+                                    <div class="flex justify-between text-sm mb-2">
+                                        <span>{{ __('frontend.installment') }} ${i}</span>
+                                        <span>{{ __('frontend.AED') }} ${perInstallmentAmount}</span>
+                                    </div> `;
+                                }else{
+                                    installmentHtml += `
+                                    <div class="flex justify-between text-md mb-2">
+                                        <span>{{ __('frontend.pay_now') }}</span>
+                                        <span>{{ __('frontend.AED') }} ${perInstallmentAmount}</span>
+                                    </div> `;
+                                }
+                                
+                            }
+
                             $('#annual_price_result').html(`
-                                {{ __('frontend.AED') }} ${data.final_total}
+                                <div class="bg-gray-50 p-4 border rounded-md shadow">
+                                    <p class="text-md  mb-3">{{ __('frontend.total_payable') }}: <span class="text-blue-600">{{ __('frontend.AED') }} ${parseFloat(data.final_total).toFixed(2)}</span></p>
+                                    <div>
+                                        ${installmentHtml}
+                                    </div>
+                                </div>
                             `);
                         } else {
                             $('#annual_price_result').html(`<p class="text-red-600">${res.message}</p>`);
@@ -384,10 +431,6 @@
                 });
             }
 
-            // Trigger on load (if values are selected by default)
-            fetchAnnualAgreementPrice();
-
-            // Trigger on dropdown change
             $('#no_of_calls, #no_of_visits, #no_of_installment').on('change', fetchAnnualAgreementPrice);
         });
     </script>

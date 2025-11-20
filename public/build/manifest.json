@@ -1,0 +1,27 @@
+{
+  "_daterangepicker-Cx64_RdP.js": {
+    "file": "assets/daterangepicker-Cx64_RdP.js",
+    "name": "daterangepicker",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-CI_fIHyM.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-CKe6pTOg.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "dynamicImports": [
+      "_daterangepicker-Cx64_RdP.js"
+    ],
+    "css": [
+      "assets/app-Dxa3t2xW.css"
+    ]
+  }
+}

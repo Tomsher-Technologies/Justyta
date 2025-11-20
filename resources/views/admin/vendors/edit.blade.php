@@ -105,6 +105,16 @@
                                 </div>
 
                                 <div class="col-md-4 mb-3">
+                                    <label class="col-form-label color-dark fw-500 align-center">Website URL</label>
+                                    <input type="text" name="website_url" placeholder="Enter law firm website url"
+                                        class="form-control ih-small ip-gray radius-xs b-light px-15 "
+                                        value="{{ old('website_url', $vendor->website_url) }}" />
+                                    @error('website_url')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-4 mb-3">
                                     <label class="col-form-label color-dark fw-500 align-center">Logo</label>
                                     <input type="file" name="logo" id="logoInput" accept="image/*"
                                         class="form-control ih-small ip-gray radius-xs b-light px-15 ">
@@ -165,9 +175,10 @@
                                         Plan <span class="text-danger">*</span></label>
                                     <select name="subscription_plan_id"
                                         class="form-control ih-small ip-gray radius-xs b-light px-15 ">
+                                        <option value="">Select Plan</option>
                                         @foreach ($plans as $plan)
                                             <option value="{{ $plan->id }}"
-                                                {{ old('subscription_plan_id', $vendor->currentSubscription->membership_plan_id) == $plan->id ? 'selected' : '' }}>
+                                                {{ old('subscription_plan_id', $vendor->currentSubscription?->membership_plan_id) == $plan->id ? 'selected' : '' }}>
                                                 {{ $plan->title }}</option>
                                         @endforeach
                                     </select>

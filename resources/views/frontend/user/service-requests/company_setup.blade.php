@@ -94,7 +94,7 @@
 
                     <div>
                         <label for="mobile" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.mobile') }}<span class="text-red-500">*</span></label>
-                        <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.enter') }}" name="mobile" value="{{ old('mobile') }}">
+                        <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.enter') }}" name="mobile"  id="mobile" value="{{ old('mobile') }}">
                         @error('mobile')
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
@@ -180,10 +180,38 @@
     </form>
 @endsection
 
+@section('ads')
+    @php
+        $ads = getActiveAd('company_setup', 'web');
+    @endphp
+
+    @if ($ads && $ads->files->isNotEmpty())
+
+        <div class="w-full mb-12 px-[50px]">
+            {{-- <img src="{{ asset('assets/images/ad-img.jpg') }}" class="w-full" alt="" /> --}}
+           {{-- muted --}}
+            @php
+                $file = $ads->files->first();
+                $media = $file->file_type === 'video'
+                    ? '<video class="w-full h-100" autoplay loop>
+                        <source src="' . asset($file->file_path) . '" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>'
+                    : '<img src="' . asset($file->file_path) . '" class="w-full h-80" alt="Ad Image">';
+            @endphp
+
+            @if (!empty($ads->cta_url))
+                <a href="{{ $ads->cta_url }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
+                    {!! $media !!}
+                </a>
+            @else
+                {!! $media !!}
+            @endif
+        </div>
+    @endif
+@endsection
+
 @section('script')
-    <!-- Load jQuery Validate -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/additional-methods.min.js"></script>
 
     <script>
         document.querySelectorAll('.file-input').forEach(input => {
@@ -209,7 +237,6 @@
                             previewItem.innerHTML = `<div class="text-xs break-words w-20 h-20 overflow-auto">${file.name}</div>`;
                         }
 
-                        // Add remove button
                         const removeBtn = document.createElement('button');
                         removeBtn.type = 'button';
                         removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs';
@@ -232,6 +259,11 @@
         });
 
         $(document).ready(function () {
+
+            $('#mobile').on('input', function () {
+                this.value = this.value.replace(/[^0-9+]/g, '');
+            });
+
             $.validator.addMethod("fileSize", function (value, element, param) {
                 if (!element.files || element.files.length === 0) {
                     return true;
@@ -242,7 +274,9 @@
                     }
                 }
                 return true;
-            }, "File size must be less than {0}KB");
+            }, function (param, element) {
+                return "File size must be less than " + (param / 1024) + " MB";
+            });
 
             $("#companySetupForm").validate({
                 ignore: [],
@@ -254,21 +288,21 @@
                     contract_language: { required: true },
                     company_name: { required: true },
                     industry: { required: true },
-                    email: { required: true },
+                    email: { required: true,email: true },
                     priority: { required: true },
                     "documents[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "eid[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     },
                     "trade_license[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     }
                 },
                 messages: {
@@ -279,7 +313,10 @@
                     contract_language: "{{ __('messages.contract_language_required') }}",
                     company_name: "{{ __('messages.company_person_name_required') }}",
                     industry: "{{ __('messages.industry_required') }}",
-                    email: "{{ __('messages.email_required') }}",
+                    email: {
+                        required: "{{ __('messages.email_required') }}",
+                        email: "{{ __('messages.valid_email') }}"
+                    },
                     priority: "{{ __('messages.priority_required') }}",
 
                     "documents[]": {
@@ -302,7 +339,7 @@
                     error.addClass('text-red-500 text-sm');
 
                     if (element.hasClass('select2-hidden-accessible')) {
-                        error.insertAfter(element.next('.select2')); // Insert after the visible Select2 dropdown
+                        error.insertAfter(element.next('.select2')); 
                     } else {
                         error.insertAfter(element);
                     }
@@ -323,17 +360,15 @@
                         $(element).removeClass('border-red-500');
                     }
                 },
-
-                /** 👇 Prevent actual form submission if invalid */
                 submitHandler: function (form) {
-                    form.submit(); // real submit
+                    form.submit(); 
                 }
             });
 
             $('#license_type').on('change', function () {
                 const license_typeId = $(this).val();
                 const subSelect = $('#license_activity');
-                const baseUrl = $('#license_type').data('url'); // example: "/user/get-sub-contract-types"
+                const baseUrl = $('#license_type').data('url');
 
                 subSelect.empty().append(`<option value="">Loading...</option>`);
 
@@ -346,7 +381,7 @@
                             $.each(res, function (index, item) {
                                 subSelect.append(`<option value="${item.id}">${item.value}</option>`);
                             });
-                            subSelect.trigger('change'); // if select2 is used
+                            subSelect.trigger('change');
                         },
                         error: function () {
                             subSelect.empty().append(`<option value="">{{ __('frontend.choose_option') }}</option>`);
@@ -360,7 +395,7 @@
             $('#emirate_id').on('change', function () {
                 const emirateId = $(this).val();
                 const zones = $('#zone');
-                const actionUrl = $('#emirate_id').data('url'); // example: "/user/get-sub-contract-types"
+                const actionUrl = $('#emirate_id').data('url'); 
 
                 zones.empty().append(`<option value="">Loading...</option>`);
 
@@ -373,7 +408,7 @@
                             $.each(res, function (index, item) {
                                 zones.append(`<option value="${item.id}">${item.value}</option>`);
                             });
-                            zones.trigger('change'); // if select2 is used
+                            zones.trigger('change'); 
                         },
                         error: function () {
                             zones.empty().append(`<option value="">{{ __('frontend.choose_option') }}</option>`);

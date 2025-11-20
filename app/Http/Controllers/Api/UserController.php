@@ -10,8 +10,10 @@ use App\Models\Rating;
 use App\Models\ProblemReport;
 use App\Models\Dropdown;
 use App\Models\TrainingRequest;
+use App\Models\AnnualAgreementInstallment;
 use App\Models\Emirate;
 use App\Models\Service;
+use App\Models\UserOnlineLog;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -27,6 +29,18 @@ class UserController extends Controller
     public function account(Request $request){
         $user = $request->user();
 
+        $ads = getActiveAd('account_settings', 'mobile');
+
+        $data['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $data['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Success',
@@ -37,6 +51,7 @@ class UserController extends Controller
                 'user_type' => $user->user_type,
                 'phone' => $user->phone,
                 'language' => $user->language,
+                'banner' => $data['banner']
             ],
         ], 200);
     }
@@ -66,7 +81,6 @@ class UserController extends Controller
             'language' => $request->language ?? $user->language
         ];
 
-        // Update fields
         $user->update($validated);
 
         return response()->json([
@@ -90,7 +104,7 @@ class UserController extends Controller
                 'required',
                 'string',
                 'min:6',
-                'confirmed'           // must match new_password_confirmation
+                'confirmed'    
             ],
         ],[
             'current_password.required'    => __('messages.current_password_required'),
@@ -130,10 +144,8 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        // Soft delete the user
         $user->delete();
 
-        // Optionally revoke tokens (if using Sanctum)
         $user->tokens()->delete();
 
         return response()->json([
@@ -144,7 +156,7 @@ class UserController extends Controller
 
     public function getGroupedUserNotifications(Request $request)
     {
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');  
         $user       = $request->user();
 
         $today      = Carbon::today();
@@ -162,7 +174,6 @@ class UserController extends Controller
     
         $allNotifications = $user->notifications();
 
-        // Today
         $todayNotifications = (clone $allNotifications)
             ->whereDate('created_at', $today)
             ->orderByDesc('created_at')
@@ -178,12 +189,13 @@ class UserController extends Controller
                     'message'   => __($notification->data['message'], [
                                         'service'   => $serviceName,
                                         'reference' => $data['reference_code'],
-                                        'status' => __('messages.'.$data['status'])
+                                        // 'status' => __('messages.'.$data['status'] ?? ''),
+                                        'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                                     ]),
-                    'time'      => $notification->created_at->format('h:i A'), // or 'h:i A' for AM/PM
+                    'time'      => $notification->created_at->format('h:i A'), 
                 ];
             });
-        // Yesterday
+        
         $yesterdayNotifications = (clone $allNotifications)
                             ->whereDate('created_at', $yesterday)
                             ->orderByDesc('created_at')
@@ -199,15 +211,16 @@ class UserController extends Controller
                                     'message'   => __($notification->data['message'], [
                                                         'service'   => $serviceName,
                                                         'reference' => $data['reference_code'],
+                                                        'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                                                     ]),
-                                    'time'      => $notification->created_at->format('d,M Y h:i A'), // or 'h:i A' for AM/PM
+                                    'time'      => $notification->created_at->format('d,M Y h:i A'), 
                                 ];
                             });
 
         $paginatedPast = (clone $allNotifications)
                         ->whereDate('created_at', '<', $yesterday)
                         ->orderByDesc('created_at')
-                        ->paginate(1);
+                        ->paginate(10);
 
         $pastNotifications = collect($paginatedPast->items())
                 ->map(function ($notification) use($lang, $serviceMap) {
@@ -220,21 +233,33 @@ class UserController extends Controller
                         'message'   => __($notification->data['message'], [
                                             'service'   => $serviceName,
                                             'reference' => $data['reference_code'],
+                                            'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                                         ]),
-                        'time'      => $notification->created_at->format('d,M Y h:i A'), // or 'h:i A' for AM/PM
+                        'time'      => $notification->created_at->format('d M, Y h:i A'), 
                     ];
                 });
 
-        // 🔹 Merge all current notification IDs
         $allShownIds = collect($todayNotifications)
                         ->merge($yesterdayNotifications)
                         ->merge($paginatedPast->items())
                         ->pluck('id');
 
-        // 🔹 Mark only these as read
         $user->unreadNotifications()
             ->whereIn('id', $allShownIds)
             ->update(['read_at' => now()]);
+
+        $ads = getActiveAd('notifications', 'mobile');
+
+        $data['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $data['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         
         return response()->json([
             'status'    => true,
@@ -247,6 +272,7 @@ class UserController extends Controller
                 'last_page'     => $paginatedPast->lastPage(),
                 'per_page'      => $paginatedPast->perPage(),
                 'total'         => $paginatedPast->total(),
+                'banner'        => $data['banner']
             ],
         ], 200);
     }
@@ -255,7 +281,6 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        // Delete all notifications
         $user->notifications()->delete();
 
         return response()->json([
@@ -300,7 +325,6 @@ class UserController extends Controller
             'language' => $request->language ?? $user->language
         ];
 
-        // Update fields
         $user->update($validated);
 
         return response()->json([
@@ -318,11 +342,12 @@ class UserController extends Controller
 
     public function getServiceHistory(Request $request){
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
         $serviceSlug = $request->get('service_slug'); 
         $perPage = $request->get('limit', 10);
 
         if($serviceSlug != ''){
-            $query = ServiceRequest::with('user', 'service');
+            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', $user->id);
 
             if ($serviceSlug) {
                 if($serviceSlug === 'law-firm-services'){
@@ -354,6 +379,18 @@ class UserController extends Controller
                         ];
             });
 
+            $ads = getActiveAd('service_history', 'mobile');
+
+            $data['banner'] = [];
+            if ($ads) {
+                $file = $ads->files->first();
+                $data['banner'] = [
+                    'file' => getUploadedFile($file->file_path),
+                    'file_type' => $file->file_type,
+                    'url' => $ads->cta_url
+                ];
+            }
+
             return response()->json([
                 'status'        => true,
                 'message'       => 'success',
@@ -362,6 +399,145 @@ class UserController extends Controller
                 'last_page'     => $paginatedserviceRequests->lastPage(),
                 'per_page'      => $paginatedserviceRequests->perPage(),
                 'total'         => $paginatedserviceRequests->total(),
+                'banner'        => $data['banner']
+            ],200);
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Please provide a service'
+            ], 200);
+        }
+    }
+
+    public function getServicePending(Request $request){
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $serviceSlug = $request->get('service_slug'); 
+        $perPage = $request->get('limit', 10);
+
+        if($serviceSlug != ''){
+            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('status', 'pending')->where('user_id', $user->id);
+
+            if ($serviceSlug) {
+                if($serviceSlug === 'law-firm-services'){
+                    $slugs = Service::whereHas('parent', function ($query) {
+                        $query->where('slug', 'law-firm-services');
+                    })->pluck('slug');
+
+                    $query->whereIn('service_slug', $slugs);
+                }elseif($serviceSlug === 'online-live-consultancy'){
+
+                }else{
+                    $query->where('service_slug', $serviceSlug);
+                }    
+            } 
+            $paginatedserviceRequests = $query->orderBy('id', 'desc')->paginate($perPage);
+
+            $serviceRequests = collect($paginatedserviceRequests->items())
+                    ->map(function ($serviceRequest) use($lang) {
+                        
+                        return [
+                            'id'    => $serviceRequest->id,
+                            'title' => __('messages.booked_service'),
+                            'content' => __('messages.service_reference_number') .$serviceRequest->reference_code,
+                            'time'  => $serviceRequest->submitted_at,
+                            'service' => $serviceRequest->service->getTranslation('title',$lang),                        
+                            'slug' => $serviceRequest->service->slug,
+                            'service_status' => __('messages.'.$serviceRequest->status) ?? null,
+                            'payment_status' => ($serviceRequest->payment_status != NULL) ? (($serviceRequest->payment_status == 'pending') ? __('messages.un_paid') : __('messages.paid')) : null,
+                        ];
+            });
+
+            $ads = getActiveAd('pending_services', 'mobile');
+
+            $data['banner'] = [];
+            if ($ads) {
+                $file = $ads->files->first();
+                $data['banner'] = [
+                    'file' => getUploadedFile($file->file_path),
+                    'file_type' => $file->file_type,
+                    'url' => $ads->cta_url
+                ];
+            }
+
+            return response()->json([
+                'status'        => true,
+                'message'       => 'success',
+                'data'          => $serviceRequests,
+                'current_page'  => $paginatedserviceRequests->currentPage(),
+                'last_page'     => $paginatedserviceRequests->lastPage(),
+                'per_page'      => $paginatedserviceRequests->perPage(),
+                'total'         => $paginatedserviceRequests->total(),
+                'banner'        => $data['banner']
+            ],200);
+        }else{
+            return response()->json([
+                'status'    => false,
+                'message'   => 'Please provide a service'
+            ], 200);
+        }
+    }
+
+    public function getServicePaymentHistory(Request $request){
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $serviceSlug = $request->get('service_slug'); 
+        $perPage = $request->get('limit', 10);
+
+        if($serviceSlug != ''){
+            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->whereNotNull('payment_status')->where('user_id', $user->id);
+
+            if ($serviceSlug) {
+                if($serviceSlug === 'law-firm-services'){
+                    $slugs = Service::whereHas('parent', function ($query) {
+                        $query->where('slug', 'law-firm-services');
+                    })->pluck('slug');
+
+                    $query->whereIn('service_slug', $slugs);
+                }elseif($serviceSlug === 'online-live-consultancy'){
+
+                }else{
+                    $query->where('service_slug', $serviceSlug);
+                }    
+            } 
+            $paginatedserviceRequests = $query->orderBy('id', 'desc')->paginate($perPage);
+
+            $serviceRequests = collect($paginatedserviceRequests->items())
+                    ->map(function ($serviceRequest) use($lang) {
+                        
+                        return [
+                            'id'    => $serviceRequest->id,
+                            'title' => __('messages.booked_service'),
+                            'content' => __('messages.service_reference_number') .$serviceRequest->reference_code,
+                            'time'  => $serviceRequest->submitted_at,
+                            'service' => $serviceRequest->service->getTranslation('title',$lang),                        
+                            'slug' => $serviceRequest->service->slug,
+                            'service_status' => __('messages.'.$serviceRequest->status) ?? null,
+                            'payment_status' => ($serviceRequest->payment_status != NULL) ? (($serviceRequest->payment_status == 'pending') ? __('messages.un_paid') : __('messages.paid')) : null,
+                        ];
+            });
+
+            $ads = getActiveAd('payment_history', 'mobile');
+
+            $data['banner'] = [];
+            if ($ads) {
+                $file = $ads->files->first();
+                $data['banner'] = [
+                    'file' => getUploadedFile($file->file_path),
+                    'file_type' => $file->file_type,
+                    'url' => $ads->cta_url
+                ];
+            }
+
+            return response()->json([
+                'status'        => true,
+                'message'       => 'success',
+                'data'          => $serviceRequests,
+                'current_page'  => $paginatedserviceRequests->currentPage(),
+                'last_page'     => $paginatedserviceRequests->lastPage(),
+                'per_page'      => $paginatedserviceRequests->perPage(),
+                'total'         => $paginatedserviceRequests->total(),
+                'banner'        => $data['banner']
             ],200);
         }else{
             return response()->json([
@@ -387,7 +563,7 @@ class UserController extends Controller
         if (!$serviceDetails) {
             return response()->json([
                 'status'    => false,
-                'message'   => 'Service details not found'
+                'message'   =>  __('frontend.no_details_found')
             ],200);
         }
 
@@ -406,6 +582,32 @@ class UserController extends Controller
             'service_details' => $translatedData,
         ];
 
+        if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+            $installmentAnnual = AnnualAgreementInstallment::where('service_request_id',$serviceRequest->id)->get();
+
+            $installments = $installmentAnnual->map(function ($inst) {
+                return [
+                    'id' => $inst->id,
+                    'installment_no' => $inst->installment_no,
+                    'amount' => $inst->amount ?? 0,
+                    'status' => $inst->status,
+                ];
+            });
+            $dataService['installments'] = $installments;
+        }
+
+        $ads = getActiveAd('service_history_details', 'mobile');
+
+        $dataService['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $dataService['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
                 'status'        => true,
                 'message'       => 'success',
@@ -413,19 +615,20 @@ class UserController extends Controller
             ],200);
     }
 
-   public function reportProblem(Request $request)
+    public function reportProblem(Request $request)
     {
         $lang           = $request->header('lang') ?? env('APP_LOCALE','en');
         $validator = Validator::make($request->all(), [
             'email'     => 'required|email',
-            'subject'   => 'required|string',
+            'subject'   => 'required|string|max:100',
             'message'   => 'required|string|max:1000',
-            'image'     => 'nullable|image|max:1024',
+            'image'     => 'nullable|image|max:10240',
         ],[
             'email.required'    => __('messages.email_required'),
             'email.email'       => __('messages.valid_email'),
             'subject.required'  => __('messages.enter_subject'),
             'subject.string'    => __('messages.subject_string'),
+            'subject.max'       => __('messages.subject_max'),
             'message.max'       => __('messages.message_max'),
             'message.required'  => __('messages.enter_message'),
             'message.string'    => __('messages.message_string'),
@@ -456,9 +659,11 @@ class UserController extends Controller
 
         $report = ProblemReport::create($data);
 
+        $pageData = getPageDynamicContent('report_problem_success',$lang);
+
         return response()->json([
             'status'    => true,
-            'message'   => __('messages.problem_report_success')
+            'message'   => $pageData['content'] ?? __('messages.problem_report_success')
         ], 200);
     }
 
@@ -466,13 +671,26 @@ class UserController extends Controller
 
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
         $pageData   = getPageDynamicContent('report_problem',$lang);
-        $response   = [
+        $data   = [
             'content'   => $pageData['content']
         ];
+
+        $ads = getActiveAd('report_problem', 'mobile');
+
+        $data['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $data['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
+        }
+
         return response()->json([
             'status'    => true,
             'message'   => 'success',
-            'data'      => $response,
+            'data'      => $data,
         ],200);
     }
 
@@ -492,7 +710,8 @@ class UserController extends Controller
 
         $user   = $request->user();
 
-        // Check if user already rated
+        $lang           = $request->header('lang') ?? env('APP_LOCALE','en');
+ 
         $existingRating = Rating::where('user_id', $user->id)->first();
 
         if ($existingRating) {
@@ -508,14 +727,16 @@ class UserController extends Controller
             'comment' => $request->comment,
         ]);
 
+        $pageData = getPageDynamicContent('rate_us_success',$lang);
+
         return response()->json([
             'status'    => true,
-            'message'   => __('messages.thank_you_feedback')
+            'message'   => $pageData['content'] ?? __('messages.thank_you_feedback')
         ], 200);
     }
 
     public function getTrainingFormData(Request $request){
-        $lang       = $request->header('lang') ?? env('APP_LOCALE','en'); // default to English 
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');  
         
         $dropdowns  = Dropdown::with([
                         'options' => function ($q) {
@@ -524,10 +745,12 @@ class UserController extends Controller
                         'options.translations' => function ($q) use ($lang) {
                             $q->whereIn('language_code', [$lang, 'en']);
                         }
-                    ])->whereIn('slug', ['positions','residency_status'])->get()->keyBy('slug');
+                    ])->whereIn('slug', ['training_positions','residency_status'])->get()->keyBy('slug');
 
         $response   = [];
-        $emirates   = Emirate::where('status',1)->orderBy('id')->get();
+        $emirates   = Emirate::whereHas('emirate_litigations', function ($q) {
+                        $q->where('slug', 'training')->where('status', 1);
+                    })->get();
 
         $response['emirates'] = $emirates->map(function ($emirate) use($lang) {
                 return [
@@ -543,6 +766,23 @@ class UserController extends Controller
                     'value' => $option->getTranslation('name',$lang),
                 ];
             });
+        }
+
+        if(isset($response['training_positions'])){
+            $response['positions'] = $response['training_positions'];
+            unset($response['training_positions']);
+        }
+
+        $ads = getActiveAd('training_requests', 'mobile');
+
+        $response['banner'] = [];
+        if ($ads) {
+            $file = $ads->files->first();
+            $response['banner'] = [
+                'file' => getUploadedFile($file->file_path),
+                'file_type' => $file->file_type,
+                'url' => $ads->cta_url
+            ];
         }
         
         return response()->json([
@@ -560,7 +800,7 @@ class UserController extends Controller
             'start_date'        => 'required',
             'residency_status'  => 'required',
             'documents'         => 'nullable|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:10240',
         ], [
             'emirate_id.required'       => __('messages.emirate_required'),
             'position.required'         => __('messages.position_required'),
@@ -621,12 +861,40 @@ class UserController extends Controller
 
         $request->user()->notify(new TrainingRequestSubmitted($trainingRequest));
 
-        $admins = User::where('user_type', 'admin')->get();
-        Notification::send($admins, new TrainingRequestSubmitted($trainingRequest, true));
+        $usersToNotify = getUsersWithPermissions(['view_training_requests','export_training_requests']);
+        Notification::send($usersToNotify, new TrainingRequestSubmitted($trainingRequest, true));
 
         return response()->json([
             'status'    => true,
             'message'   => __('messages.training_request_submit_success'),
         ], 200);
+    }
+
+    public function updateOnlineStatus(Request $request)
+    {
+        $request->validate([
+            'is_online' => 'required',
+        ]);
+
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+
+        if ($user->is_online != $request->is_online) {
+            $user->is_online = $request->is_online;
+            $user->save();
+
+            UserOnlineLog::create([
+                'user_id' => $user->id,
+                'status'  => $request->is_online
+            ]);
+        }
+        
+        return response()->json([
+            'status' => true,
+            'message' => __('frontend.online_status_updated'),
+            'data' => [
+                'is_online' => $user->is_online
+            ]
+        ]);
     }
 }

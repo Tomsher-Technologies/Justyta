@@ -9,7 +9,7 @@ class RequestAnnualAgreement extends Model
     protected $table = 'request_annual_agreements';
 
     protected $fillable = [
-        'service_request_id', 'user_id', 'company_name', 'emirate_id', 'license_type', 'license_activity', 'industry', 'no_of_employees', 'case_type', 'no_of_calls', 'no_of_visits', 'no_of_installment', 'lawfirm'
+        'service_request_id', 'user_id', 'company_name', 'emirate_id', 'license_type', 'license_activity', 'industry', 'no_of_employees', 'case_type', 'no_of_calls', 'no_of_visits', 'no_of_installment', 'final_total', 'amount_paid', 'lawfirm'
     ];
 
     protected $casts = [
@@ -58,16 +58,16 @@ class RequestAnnualAgreement extends Model
 
     public function caseTypes()
     {
-        return DropdownOption::whereIn('id', $this->case_type ?? []);
+        return CaseType::whereIn('id', $this->case_type ?? []);
     }
 
     public function getCaseTypeNamesAttribute()
     {
-        $lang = app()->getLocale(); // Or pass your preferred language
-        return DropdownOption::whereIn('id', $this->case_type ?? [])
+        $lang = app()->getLocale(); 
+        return CaseType::whereIn('id', $this->case_type ?? [])
             ->get()
             ->map(function ($item) use ($lang) {
-                return $item->getTranslation('name', $lang);
+                return $item->getTranslation('title', $lang);
             });
     }
 }

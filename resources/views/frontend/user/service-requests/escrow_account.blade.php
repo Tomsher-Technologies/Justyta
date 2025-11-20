@@ -106,10 +106,38 @@
     </form>
 @endsection
 
+@section('ads')
+    @php
+        $ads = getActiveAd('escrow_accounts', 'web');
+    @endphp
+
+    @if ($ads && $ads->files->isNotEmpty())
+
+        <div class="w-full mb-12 px-[50px]">
+            {{-- <img src="{{ asset('assets/images/ad-img.jpg') }}" class="w-full" alt="" /> --}}
+           {{-- muted --}}
+            @php
+                $file = $ads->files->first();
+                $media = $file->file_type === 'video'
+                    ? '<video class="w-full h-100" autoplay loop>
+                        <source src="' . asset($file->file_path) . '" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>'
+                    : '<img src="' . asset($file->file_path) . '" class="w-full h-80" alt="Ad Image">';
+            @endphp
+
+            @if (!empty($ads->cta_url))
+                <a href="{{ $ads->cta_url }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
+                    {!! $media !!}
+                </a>
+            @else
+                {!! $media !!}
+            @endif
+        </div>
+    @endif
+@endsection
+
 @section('script')
-    <!-- Load jQuery Validate -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/additional-methods.min.js"></script>
 
     <script>
        
@@ -138,7 +166,7 @@
                     error.addClass('text-red-500 text-sm');
 
                     if (element.hasClass('select2-hidden-accessible')) {
-                        error.insertAfter(element.next('.select2')); // Insert after the visible Select2 dropdown
+                        error.insertAfter(element.next('.select2'));
                     } else {
                         error.insertAfter(element);
                     }
@@ -159,10 +187,8 @@
                         $(element).removeClass('border-red-500');
                     }
                 },
-
-                /** 👇 Prevent actual form submission if invalid */
                 submitHandler: function (form) {
-                    form.submit(); // real submit
+                    form.submit();
                 }
             });
 

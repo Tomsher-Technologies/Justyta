@@ -80,7 +80,7 @@
 
                     <div>
                         <label for="authorized_mobile" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.authorized_mobile') }}<span class="text-red-500">*</span></label>
-                        <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.enter') }}" name="authorized_mobile" value="{{ old('authorized_mobile') }}">
+                        <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.enter') }}" name="authorized_mobile" id="authorized_mobile" value="{{ old('authorized_mobile') }}">
                         @error('authorized_mobile')
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
@@ -105,7 +105,7 @@
 
                     <div>
                         <label for="appointer_mobile" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.appointer_mobile') }}<span class="text-red-500">*</span></label>
-                        <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.enter') }}" name="appointer_mobile" value="{{ old('appointer_mobile') }}">
+                        <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.enter') }}" name="appointer_mobile" id="appointer_mobile" value="{{ old('appointer_mobile') }}">
                         @error('appointer_mobile')
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
@@ -191,10 +191,38 @@
     </form>
 @endsection
 
+@section('ads')
+    @php
+        $ads = getActiveAd('power_of_attorney', 'web');
+    @endphp
+
+    @if ($ads && $ads->files->isNotEmpty())
+
+        <div class="w-full mb-12 px-[50px]">
+            {{-- <img src="{{ asset('assets/images/ad-img.jpg') }}" class="w-full" alt="" /> --}}
+           {{-- muted --}}
+            @php
+                $file = $ads->files->first();
+                $media = $file->file_type === 'video'
+                    ? '<video class="w-full h-100" autoplay loop>
+                        <source src="' . asset($file->file_path) . '" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>'
+                    : '<img src="' . asset($file->file_path) . '" class="w-full h-80" alt="Ad Image">';
+            @endphp
+
+            @if (!empty($ads->cta_url))
+                <a href="{{ $ads->cta_url }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
+                    {!! $media !!}
+                </a>
+            @else
+                {!! $media !!}
+            @endif
+        </div>
+    @endif
+@endsection
+
 @section('script')
-    <!-- Load jQuery Validate -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/additional-methods.min.js"></script>
 
     <script>
         document.querySelectorAll('.file-input').forEach(input => {
@@ -220,7 +248,6 @@
                             previewItem.innerHTML = `<div class="text-xs break-words w-20 h-20 overflow-auto">${file.name}</div>`;
                         }
 
-                        // Add remove button
                         const removeBtn = document.createElement('button');
                         removeBtn.type = 'button';
                         removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs';
@@ -243,6 +270,12 @@
         });
 
         $(document).ready(function () {
+
+            $('#authorized_mobile, #appointer_mobile').on('input', function () {
+                this.value = this.value.replace(/[^0-9+]/g, '');
+            });
+
+            
             $.validator.addMethod("fileSize", function (value, element, param) {
                 if (!element.files || element.files.length === 0) {
                     return true;
@@ -253,7 +286,9 @@
                     }
                 }
                 return true;
-            }, "File size must be less than {0}KB");
+            }, function (param, element) {
+                return "File size must be less than " + (param / 1024) + " MB";
+            });
 
             $("#poaForm").validate({
                 ignore: [],
@@ -272,17 +307,17 @@
                     
                     "authorized_passport[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 500
+                        fileSize: 102400
                     },
                     "appointer_id[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     },
                     "authorized_id[]": {
                         required: true,
-                        extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
+                        fileSize: 102400
                     }
                 },
                 messages: {
@@ -318,7 +353,7 @@
                     error.addClass('text-red-500 text-sm');
 
                     if (element.hasClass('select2-hidden-accessible')) {
-                        error.insertAfter(element.next('.select2')); // Insert after the visible Select2 dropdown
+                        error.insertAfter(element.next('.select2')); 
                     } else {
                         error.insertAfter(element);
                     }
@@ -339,10 +374,8 @@
                         $(element).removeClass('border-red-500');
                     }
                 },
-
-                /** 👇 Prevent actual form submission if invalid */
                 submitHandler: function (form) {
-                    form.submit(); // real submit
+                    form.submit();
                 }
             });
 

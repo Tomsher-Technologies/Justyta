@@ -22,23 +22,23 @@ class LoginController extends Controller
         ]);
 
         $credentials = $request->only('email', 'password');
+        $remember = $request->has('remember');
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials, $remember)) {
 
             $user = Auth::user();
-            $redirectTo = match ($user->user_type) {
-                'admin' => route('admin.dashboard'),
-                'staff' => route('admin.dashboard'),
-                default => '/user/dashboard',
-            };
-                     
-            return redirect()->intended($redirectTo);
+
+            if ($user->user_type === 'admin' || $user->user_type === 'staff') {
+                return redirect()->route('admin.dashboard');
+            } else {
+                Auth::logout();
+                return redirect()->back()->withErrors(['password' => 'Unauthorized User.']);
+            }
         }
 
-        return back()->withErrors(['email' => 'Invalid credentials']);
+        return back()->withErrors(['password' => 'Invalid credentials']);
     }
 
-     // Logout the user
     public function logout()
     {
         Auth::logout();

@@ -224,4 +224,14 @@ return [
     'training_request_submit_success' => 'Запрос на обучение успешно отправлен.',
     'training_request_submitted' => 'Ваш запрос на обучение успешно отправлен.',
     'service_request_status_change' => 'Статус вашего запроса на услугу :service (Реф: :reference) был обновлён на: :status',
+    'password_regex' => 'Пароль должен содержать не менее 8 символов, включая одну заглавную букву, одну строчную букву, одну цифру и один специальный символ.',
+    'phone_regex' => 'Пожалуйста, введите действительный номер телефона.',
+    'password_confirmation_mismatch' => 'Подтверждение пароля не совпадает.',
+    'religion_required' => 'Поле религия обязательно для заполнения.',
+    'translation_not_available' => 'Перевод недоступен!',
+    'subject_max' => 'Тема не может содержать более :max символов.',
+    'image_file_mimes' => 'Файлы должны быть следующих типов: pdf, jpg, jpeg, webp, png, svg, doc, docx.',
+    'image_file_max' => 'Размер файла не должен превышать 500 КБ.',
+    'selected_notifications_cleared_successfully' => 'Выбранные уведомления успешно удалены.',
+
 ];

@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\JobPostController;
+use App\Http\Controllers\Api\CommonController;
+use App\Http\Controllers\Api\ConsultationController;
+use App\Http\Controllers\Api\LawyerController;
 
 Route::group(['prefix' => 'v1'], function () {
 Route::middleware('set_api_locale')->group(function () {
@@ -21,6 +24,9 @@ Route::middleware('set_api_locale')->group(function () {
     Route::post('/resend-email-otp', [AuthController::class, 'forgetRequest']);
     Route::post('/verify-email-otp', [AuthController::class, 'verifyOTP']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    Route::get('/page-contents', [HomeController::class, 'pageContents']);
+    Route::get('/banners', [HomeController::class, 'getBanners']);
+    Route::post('/zoom/webhook', [HomeController::class, 'handleZoomWebhook']);
 
 
     Route::middleware(['ensureFrontendRequestsAreStateful', 'auth:sanctum'])->group(function () {
@@ -44,7 +50,12 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/report-problem', [UserController::class, 'reportProblem']);
         Route::get('/report-problem-content', [UserController::class, 'getReportProblemFormData']);
         Route::post('/rate-us', [UserController::class, 'rateUs']);
+        Route::post('/user/online-status', [UserController::class, 'updateOnlineStatus']);
 
+        //Lawyer Account APIs
+        Route::get('/lawyer/dashboard', [LawyerController::class, 'dashboard']);
+        Route::get('/lawyer/consultations', [LawyerController::class, 'assignedConsultations']);
+        Route::get('/lawyer/account', [LawyerController::class, 'accountDetails']);
 
         //Contact US
         Route::post('/contact-us', [HomeController::class, 'contactUs']);
@@ -54,6 +65,10 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/job-posts/{id}', [JobPostController::class, 'jobDetails']);
         Route::get('/apply-job/{id}', [JobPostController::class, 'applyJobFormData']);
         Route::post('/job-posts/apply', [JobPostController::class, 'applyJob']); 
+
+        // Common Datas
+        Route::get('/emirates', [CommonController::class, 'getEmirates']);
+        Route::get('/case-types', [CommonController::class, 'getCaseTypes']);
 
         // Get Service Form Contents
         Route::get('/court-case-submission', [ServiceController::class, 'getCourtCaseFormData']);
@@ -80,6 +95,10 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/annual-agreement-price', [ServiceController::class, 'getAnnualAgreementPrice']);
         Route::get('/translation/payment-calculate', [ServiceController::class, 'calculateTranslationPrice']);
 
+        Route::get('/expert-report-price', [ServiceController::class, 'getExpertReportPrice']);
+        Route::get('/request-submission-price', [ServiceController::class, 'getRequestSubmissionPrice']);
+        Route::get('/online-consultation-price', [ServiceController::class, 'getOnlineConsultationPrice']);
+
         // Service Request Submission
         Route::post('/court-case-request', [ServiceController::class, 'requestCourtCase']);
         Route::post('/criminal-complaint-request', [ServiceController::class, 'requestCriminalComplaints']);
@@ -99,13 +118,14 @@ Route::middleware('set_api_locale')->group(function () {
         // Payment Gateway
         Route::post('/payment-test', [ServiceController::class, 'paymentTest']);
         Route::post('/confirm-payment', [ServiceController::class, 'confirmPayment']);
-        Route::get('/payment-callback', [ServiceController::class, 'test'])->name('payment.callback');
-        Route::get('/payment-cancel', [ServiceController::class, 'test'])->name('payment.cancel');
-
+        Route::get('/payment-callback', [ServiceController::class, 'paymentSuccess'])->name('payment.callback');
+        Route::get('/payment-cancel', [ServiceController::class, 'paymentCancel'])->name('payment.cancel');
 
         // Service History
         Route::get('/service-history', [UserController::class, 'getServiceHistory']);
         Route::get('/service-history-details', [UserController::class, 'getServiceHistoryDetails']);
+        Route::get('/pending-services', [UserController::class, 'getServicePending']);
+        Route::get('/payment-history', [UserController::class, 'getServicePaymentHistory']);
 
         //Notifications
         Route::get('/notifications', [UserController::class, 'getGroupedUserNotifications']);
@@ -117,19 +137,33 @@ Route::middleware('set_api_locale')->group(function () {
         Route::post('/training-request', [UserController::class, 'requestTraining']);
 
         
+        // Online Consulation User endpoints
+        Route::post('/consultations', [ConsultationController::class,'store']);
+        Route::get('/consultations/{id}', [ConsultationController::class,'show']);
+        Route::get('/consultation/payment-success', [ConsultationController::class,'paymentSuccess']);
+        Route::get('/consultation/payment-cancel', [ConsultationController::class, 'paymentCancel']);
+        Route::get('/consultation/user-poll', [ConsultationController::class, 'checkUserConsultationStatus']);
 
+        Route::post('/consultation/update-status', [ConsultationController::class, 'updateConsultationStatus']);
+        Route::post('/consultation/extend', [ConsultationController::class, 'extendConsultation']);
+        Route::get('/consultation/payment-extend-success', [ConsultationController::class,'paymentExtendSuccess']);
+        Route::get('/consultation/payment-extend-cancel', [ConsultationController::class, 'paymentExtendCancel']);
 
+        // Online Consulation Lawyer endpoints
+        Route::get('/consultation/lawyer-poll', [ConsultationController::class, 'poll'])->name('lawyer.poll');
+        Route::post('/respond-request', [ConsultationController::class, 'lawyerResponse']);
+        Route::post('/lawyer-con/respond', [ConsultationController::class,'lawyerResponse']);
     });
 
     
 });
 
-Route::fallback(function () {
-    return response()->json([
-        'status' => false,
-        'message' => 'Route not found.',
-    ], 404);
-});
+    Route::fallback(function () {
+        return response()->json([
+            'status' => false,
+            'message' => 'Route not found.',
+        ], 404);
+    });
 });
 
 Route::fallback(function () {

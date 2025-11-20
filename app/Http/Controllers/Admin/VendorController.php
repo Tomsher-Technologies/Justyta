@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
+use App\Mail\VendorStatusChanged;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
 
@@ -26,20 +28,19 @@ class VendorController extends Controller
         $this->middleware('permission:manage_vendors',  ['only' => ['index','destroy']]);
         $this->middleware('permission:add_vendor',  ['only' => ['create','store']]);
         $this->middleware('permission:edit_vendor',  ['only' => ['edit','update']]);
+        $this->middleware('permission:approve_vendor',  ['only' => ['updateStatus']]);
     }
 
     public function index(Request $request)
     {
         $query = Vendor::with('user', 'currentSubscription.plan');
 
-        // Filter by membership plan
         if ($request->filled('plan_id')) {
             $query->whereHas('currentSubscription', function ($q) use ($request) {
                 $q->where('membership_plan_id', $request->plan_id);
             });
         }
 
-        // Filter by keyword in name, email or phone
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
             $query->where(function ($q) use ($keyword){
@@ -53,9 +54,8 @@ class VendorController extends Controller
             });
         }
 
-        // Filter by status
         if ($request->filled('status')) {
-            // Assuming 1 = active, 2 = inactive; 
+            // 1 = active, 2 = inactive; 
             $query->whereHas('user', function ($q) use ($request) {
                  if ($request->status == 1) {
                     $q->where('banned', 0);
@@ -65,9 +65,21 @@ class VendorController extends Controller
             });
         }
 
-        $vendors = $query->orderBy('id', 'DESC')->paginate(15); // or ->get() if you don’t want pagination
+        if ($request->filled('approval_status')) {
+            // 1 = approved, 2 = rejected, 3 = pending; 
+            $query->whereHas('user', function ($q) use ($request) {
+                 if ($request->approval_status == 1) {
+                    $q->where('approved', 1);
+                } elseif ($request->approval_status == 2) {
+                    $q->where('approved', 2);
+                } elseif ($request->approval_status == 3) {
+                    $q->where('approved', 0);
+                }
+            });
+        }
 
-        // Optional: to populate dropdowns
+        $vendors = $query->orderBy('id', 'DESC')->paginate(15); 
+
         $plans = MembershipPlan::get();
 
         return view('admin.vendors.index', compact('vendors', 'plans'));
@@ -83,12 +95,11 @@ class VendorController extends Controller
     public function store(Request $request)
     {
         
-         $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'translations.en.name' => 'required|string|max:255',
             'email' => 'required|email',
             'phone' => 'required|string|max:20',
             'owner_name' => 'required|string|max:255',
-            'owner_email' => 'required|email|unique:users,email',
             'owner_email' => [
                     'required',
                     'email',
@@ -106,8 +117,8 @@ class VendorController extends Controller
             'emirates_id_front' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'emirates_id_back' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'emirates_id_expiry' => 'required|date',
-            // 'residence_visa' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
-            // 'residence_visa_expiry' => 'required|date',
+            'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'residence_visa_expiry' => 'nullable|date',
             'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
             'passport_expiry' => 'required|date',
             'card_of_law' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
@@ -115,18 +126,15 @@ class VendorController extends Controller
             'consultation_commission' => 'required'
         ],[
             '*.required' => 'This field is required.',
-            'translations.en.name.required' => 'The lawyer name in english is required.',
-            'translations.en.name.max' => 'The lawyer name in english may not be greater than 255 characters.',
-            'translations.en.name.string' => 'The lawyer name in english must be a valid text string.',
+            'translations.en.name.required' => 'The law firm name in english is required.',
+            'translations.en.name.max' => 'The law firm name in english may not be greater than 255 characters.',
+            'translations.en.name.string' => 'The law firm name in english must be a valid text string.',
         ]);
 
         if ($validator->fails()) {
             return redirect()->route('vendors.create')->withErrors($validator)->withInput();
         }
-        // echo '<pre>';
-        // print_r($request->all());
-        // die;
-
+        
         $user = User::create([
             'name' => $request->translations['en']['name'],
             'email' => $request->owner_email,
@@ -145,6 +153,7 @@ class VendorController extends Controller
             'owner_email'               => $request->owner_email,  
             'owner_phone'               => $request->owner_phone,  
             'emirate_id'                => $request->emirate_id, 
+            'website_url'               => $request->website_url,
             'trn'                       => $request->trn, 
             'logo'                      => $request->hasfile('logo') ? uploadImage('vendors/'.$user->id, $request->logo, 'logo_') : NULL,  
             'country' => 'UAE', 
@@ -175,7 +184,7 @@ class VendorController extends Controller
                 );
             }
         }
-        // Now store subscription with a snapshot
+        
         $vendor->subscriptions()->create([
             'membership_plan_id'                => $plan->id,
             'amount'                            => $plan->amount,
@@ -190,7 +199,7 @@ class VendorController extends Controller
             'unlimited_training_applications'   => $plan->unlimited_training_applications,
             'welcome_gift'                      => $plan->welcome_gift,
             'subscription_start'                => now(),
-            'subscription_end'                  => now()->addYear(), // or based on plan duration
+            'subscription_end'                  => now()->addYear(), 
             'status'                            => 'active',
         ]);
 
@@ -242,9 +251,9 @@ class VendorController extends Controller
             'consultation_commission' => 'required'
         ],[
             '*.required' => 'This field is required.',
-            'translations.en.name.required' => 'The lawyer name in english is required.',
-            'translations.en.name.max' => 'The lawyer name in english may not be greater than 255 characters.',
-            'translations.en.name.string' => 'The lawyer name in english must be a valid text string.',
+            'translations.en.name.required' => 'The law firm name in english is required.',
+            'translations.en.name.max' => 'The law firm name in english may not be greater than 255 characters.',
+            'translations.en.name.string' => 'The law firm name in english must be a valid text string.',
         ]);
 
         if ($validator->fails()) {
@@ -252,7 +261,7 @@ class VendorController extends Controller
         }
 
         $user->update([
-            'name' => $request->name,
+            'name' => $request->translations['en']['name'],
             'email' => $request->owner_email,
             'phone' => $request->phone,
             'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
@@ -262,7 +271,7 @@ class VendorController extends Controller
 
         $vendor->update([
             'consultation_commission'   => $request->consultation_commission,
-            'law_firm_name'             => $request->name, 
+            'law_firm_name'             => $request->translations['en']['name'], 
             'law_firm_email'            => $request->email, 
             'law_firm_phone'            => $request->phone, 
             'office_address'            => $request->office_address,
@@ -271,6 +280,7 @@ class VendorController extends Controller
             'owner_phone'               => $request->owner_phone,  
             'emirate_id'                => $request->emirate_id, 
             'trn'                       => $request->trn, 
+            'website_url'               => $request->website_url,
             'logo'                      => $this->replaceFile($request, 'logo', $vendor, $uploadPath,'logo_'),
             'country' => 'UAE', 
             'trade_license'             => $this->replaceFile($request, 'trade_license', $vendor, $uploadPath,'trade_license_'),
@@ -302,18 +312,15 @@ class VendorController extends Controller
 
         $plan = MembershipPlan::findOrFail($request->subscription_plan_id);
 
-        // Check if the plan has changed
         if (!$vendor->currentSubscription || $vendor->currentSubscription->membership_plan_id != $plan->id) {
             
-            // Expire the current subscription if exists
             if ($vendor->currentSubscription) {
                 $vendor->currentSubscription->update([
                     'status' => 'expired',
-                    'subscription_end' => now(), // Mark end time
+                    'subscription_end' => now(), 
                 ]);
             }
 
-            // Create new subscription
             $vendor->subscriptions()->create([
                 'membership_plan_id'                => $plan->id,
                 'amount'                            => $plan->amount,
@@ -328,7 +335,7 @@ class VendorController extends Controller
                 'unlimited_training_applications'   => $plan->unlimited_training_applications,
                 'welcome_gift'                      => $plan->welcome_gift,
                 'subscription_start'                => now(),
-                'subscription_end'                  => now()->addYear(), // or use $plan->duration if dynamic
+                'subscription_end'                  => now()->addYear(), 
                 'status'                            => 'active',
             ]);
         }
@@ -354,5 +361,23 @@ class VendorController extends Controller
     {
         if (!$file) return null;
         return $file->store('vendors', 'public');
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($request->action === 'approve') {
+            $user->approved = 1;
+        } elseif ($request->action === 'reject') {
+            $user->approved = 2;
+        }
+        $user->save();
+
+        $statusText = $user->approved == 1 ? 'Approved' : 'Rejected';
+
+        Mail::to($user->email)->send(new VendorStatusChanged($user->name, strtolower($statusText)));
+
+        return response()->json(['success' => true]);
     }
 }

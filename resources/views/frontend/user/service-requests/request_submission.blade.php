@@ -67,9 +67,7 @@
                         <label for="emirate" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.emirate') }}<span class="text-red-500">*</span></label>
                         <select id="emirate" name="emirate_id" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             <option value="">{{ __('frontend.select_emirate') }}</option>
-                            @foreach ($dropdownData['emirates'] as $emirate)
-                                <option value="{{ $emirate['id'] }}" {{ old('emirate_id') == $emirate['id'] ? 'selected' : '' }}>{{ $emirate['value'] }}</option>
-                            @endforeach
+                            
                         </select>
                         @error('emirate_id')
                             <span class="text-red-500">{{ $message }}</span>
@@ -80,9 +78,7 @@
                         <label for="case_type" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.case_type') }}<span class="text-red-500">*</span></label>
                         <select id="case_type" name="case_type" class="select2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
                             <option value="">{{ __('frontend.choose_option') }}</option>
-                            @foreach ($dropdownData['case_type'] as $casetype)
-                                <option value="{{ $casetype['id'] }}"  {{ (old('case_type') == $casetype['id']) ? 'selected' : '' }}>{{ $casetype['value'] }}</option>
-                            @endforeach
+                            
                         </select>
                         @error('case_type')
                             <span class="text-red-500">{{ $message }}</span>
@@ -166,7 +162,7 @@
                     </div>
                     <div>
                         <label for="consultation-time" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ __('frontend.trade_license_company') }}<span class="text-red-500">*</span></label>
+                            {{ __('frontend.trade_license_company') }}</label>
                         <input class="file-input block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" id="trade_license" type="file"   name="trade_license[]" multiple data-preview="trade-preview" />
                         <div id="trade-preview" class="mt-2 grid grid-cols-4 gap-2"></div>
                         @error('trade_license')
@@ -175,7 +171,7 @@
                     </div>
                 </div>
 
-                @if ($dropdownData['form_info'] != NULL)
+                @if ($dropdownData['form_info']['content'] != NULL)
                     <p class="text-sm text-[#777777] mt-4 flex items-center gap-1">
                         <svg class="w-5 h-5 text-[#777777]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                             width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -183,7 +179,7 @@
                             d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
 
-                        <span>{{ $dropdownData['form_info'] }}</span>
+                        <span>{{ $dropdownData['form_info']['content'] }}</span>
                     </p>
                 @endif
             </div>
@@ -195,16 +191,14 @@
                         </h2>
 
                         <hr class="my-5" />
-                        <p class="text-gray-600 text-sm leading-relaxed">
+                        <div class="text-gray-600 text-sm leading-relaxed">
                             {!! $service->getTranslation('description', $lang) !!}
-                        </p>
+                        </div>
                     </div>
 
                     <div>
-                        @if ($dropdownData['payment']['total_amount']  != 0)
-                             <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]">{{ __('frontend.AED') }} {{ $dropdownData['payment']['total_amount'] ?? 0 }}</span></div>
-
-                        @endif
+                        <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]">{{ __('frontend.AED') }} 
+                            <span id="total_amount">{{ $dropdownData['payment']['total_amount'] ?? 0 }}</span></span></div>
                        
                         <button type="submit" class="text-white bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md w-full px-8 py-4 text-center transition-colors duration-200 uppercase cursor-pointer">
                             {{ __('frontend.submit') }}
@@ -216,10 +210,38 @@
     </form>
 @endsection
 
+@section('ads')
+    @php
+        $ads = getActiveAd('request_submission', 'web');
+    @endphp
+
+    @if ($ads && $ads->files->isNotEmpty())
+
+        <div class="w-full mb-12 px-[50px]">
+            {{-- <img src="{{ asset('assets/images/ad-img.jpg') }}" class="w-full" alt="" /> --}}
+           {{-- muted --}}
+            @php
+                $file = $ads->files->first();
+                $media = $file->file_type === 'video'
+                    ? '<video class="w-full h-100" autoplay loop>
+                        <source src="' . asset($file->file_path) . '" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>'
+                    : '<img src="' . asset($file->file_path) . '" class="w-full h-80" alt="Ad Image">';
+            @endphp
+
+            @if (!empty($ads->cta_url))
+                <a href="{{ $ads->cta_url }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
+                    {!! $media !!}
+                </a>
+            @else
+                {!! $media !!}
+            @endif
+        </div>
+    @endif
+@endsection
+
 @section('script')
-    <!-- Load jQuery Validate -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/additional-methods.min.js"></script>
 
     <script>
         document.querySelectorAll('.file-input').forEach(input => {
@@ -245,7 +267,6 @@
                             previewItem.innerHTML = `<div class="text-xs break-words w-20 h-20 overflow-auto">${file.name}</div>`;
                         }
 
-                        // Add remove button
                         const removeBtn = document.createElement('button');
                         removeBtn.type = 'button';
                         removeBtn.className = 'absolute top-0 right-0 bg-red-500 text-white rounded-full px-1 text-xs';
@@ -293,21 +314,26 @@
                     case_number: { required: true },
                     "memo[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "documents[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "eid[]": {
                         required: true,
                         extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        fileSize: 102400
                     },
                     "trade_license[]": {
-                        required: true,
+                        required: {
+                            depends: function (element) {
+                                return $('input[name="applicant_type"]:checked').val() === "company";
+                            }
+                        },
+
                         extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        fileSize: 102400
                     }
                 },
                 messages: {
@@ -343,7 +369,7 @@
                     error.addClass('text-red-500 text-sm');
 
                     if (element.hasClass('select2-hidden-accessible')) {
-                        error.insertAfter(element.next('.select2')); // Insert after the visible Select2 dropdown
+                        error.insertAfter(element.next('.select2')); 
                     } else {
                         error.insertAfter(element);
                     }
@@ -364,23 +390,25 @@
                         $(element).removeClass('border-red-500');
                     }
                 },
-
-                /** 👇 Prevent actual form submission if invalid */
                 submitHandler: function (form) {
-                    form.submit(); // real submit
+                    form.submit(); 
                 }
             });
 
 
-            function loadRequestTypes(litigationPlace) {
+            function loadRequestTypes() {
+
+                let litigationType = $("input[name='litigation_type']:checked").val();
+                let litigationPlace = $("input[name='litigation_place']:checked").val();
+                
                 $('#request_type').html('<option value="">{{ __("frontend.choose_option") }}</option>');
                 $('#request_title').html('<option value="">{{ __("frontend.choose_option") }}</option>');
 
-                if (litigationPlace) {
+                if (litigationPlace && litigationType) {
                     $.ajax({
                         url: '{{ route("get.request.types") }}',
                         type: 'POST',
-                        data: { litigation_place: litigationPlace },
+                        data: { litigation_place: litigationPlace, litigation_type: litigationType },
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         },
@@ -388,7 +416,7 @@
                             if (response.status) {
                                 let options = '<option value="">{{ __("frontend.choose_option") }}</option>';
                                 response.data.forEach(function (item) {
-                                    options += `<option value="${item.id}">${item.value}</option>`;
+                                    options += `<option value="${item.id}">${item.title}</option>`;
                                 });
                                 $('#request_type').html(options);
                             }
@@ -397,15 +425,14 @@
                 }
             }
 
-            function loadRequestTitles(requestType, litigationPlace) {
+            function loadRequestTitles(requestType) {
                 $('#request_title').html('<option value="">{{ __("frontend.choose_option") }}</option>');
 
-                if (requestType && litigationPlace) {
+                if (requestType) {
                     $.ajax({
                         url: '{{ route("get.request.titles") }}',
                         type: 'POST',
                         data: {
-                            litigation_place: litigationPlace,
                             request_type: requestType,
                         },
                         headers: {
@@ -415,7 +442,7 @@
                             if (response.status) {
                                 let options = '<option value="">{{ __("frontend.choose_option") }}</option>';
                                 response.data.forEach(function (item) {
-                                    options += `<option value="${item.id}">${item.value}</option>`;
+                                    options += `<option value="${item.id}">${item.title}</option>`;
                                 });
                                 $('#request_title').html(options);
                             }
@@ -424,22 +451,102 @@
                 }
             }
 
-            // Manual trigger on default selected value
-            const defaultLitigation = $('input[name="litigation_place"]:checked').val();
-            if (defaultLitigation) {
-                loadRequestTypes(defaultLitigation);
-            }
+            loadRequestTypes();
 
-            $('input[name="litigation_place"]').on('change', function () {
-                loadRequestTypes($(this).val());
+            $('input[name="litigation_place"], input[name="litigation_type"]').on('change', function () {
+                loadRequestTypes();
             });
 
             $('#request_type').on('change', function () {
-                const litigationPlace = $('input[name="litigation_place"]:checked').val();
                 const requestType = $(this).val();
-                loadRequestTitles(requestType, litigationPlace);
+                loadRequestTitles(requestType);
             });
-          
+
+            // Emirate & Case Type
+            function loadLitigationData() {
+                let litigationType = $("input[name='litigation_type']:checked").val();
+                let litigationPlace = $("input[name='litigation_place']:checked").val();
+
+                if (!litigationType || !litigationPlace) {
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('user.emirates') }}",
+                    type: "GET",
+                    data: {
+                        litigation_type: litigationType,
+                        litigation_place: litigationPlace,
+                        service: 'request-submission',
+                    },
+                    success: function (response) {
+                        let emirateSelect = $("#emirate");
+                        emirateSelect.empty();
+                        emirateSelect.append('<option value="">{{ __("frontend.choose_option") }}</option>');
+                        let emirateData = response.data.emirates;
+
+                        $.each(emirateData, function (key, emirate) {
+                            emirateSelect.append(
+                                `<option value="${emirate.id}">${emirate.value}</option>`
+                            );
+                        });
+
+                        let caseTypeSelect = $("#case_type");
+                        caseTypeSelect.empty();
+                        caseTypeSelect.append('<option value="">{{ __("frontend.choose_option") }}</option>');
+                        let caseTypeData = response.data.caseTypes;
+
+                        $.each(caseTypeData, function (key, caseType) {
+                            caseTypeSelect.append(
+                                `<option value="${caseType.id}">${caseType.title}</option>`
+                            );
+                        });
+                    },
+                    error: function (xhr) {
+                        console.error("Error fetching emirates:", xhr.responseText);
+                    }
+                });
+            }
+
+            $("input[name='litigation_type'], input[name='litigation_place']").on(
+                "change",
+                loadLitigationData
+            );
+
+            loadLitigationData();
+
+            function getPricing() {
+                let litigationType = $("input[name='litigation_type']:checked").val();
+                let litigationPlace = $("input[name='litigation_place']:checked").val();
+                let requestType = $("#request_type").val();
+                let requestTitle = $("#request_title").val();
+                let caseType = $("#case_type").val();
+
+                $.ajax({
+                    url: "{{ route('user.request-submission-price') }}",
+                    type: "GET",
+                    data: {
+                        litigation_type: litigationType,
+                        litigation_place: litigationPlace,
+                        request_type: requestType,
+                        request_title: requestTitle,
+                        case_type: caseType 
+                    },
+                    success: function (response) {
+                        console.log(response);
+                        $("#total_amount").text(response.data.total);
+                    },
+                    error: function (xhr) {
+                        console.error("Error fetching emirates:", xhr.responseText);
+                    }
+                });
+            }
+                
+            $("input[name='litigation_type'], input[name='litigation_place']").on("change", getPricing);
+
+            $("#request_type, #request_title, #case_type").on("change", function () {
+                getPricing();
+            });
         });
     </script>
 @endsection

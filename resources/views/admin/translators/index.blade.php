@@ -79,16 +79,14 @@
                                             <th class="text-center">Reference No</th>
                                             <th width="25%">Name</th>
                                             <th class="text-center">Type</th>
-                                            {{-- <th class="text-center">Email</th>
-                                            <th class="text-center">Phone</th> --}}
-                                            <th>Languages</th>
+                                            <th width="30%">Languages</th>
                                             <th class="text-center">Total Translations</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @can('view_vendor')
+                                        @can('view_translator')
                                             @if ($translators->isNotEmpty())
                                                 @foreach ($translators as $key => $trans)
                                                     <tr>
@@ -127,26 +125,26 @@
                                                         {{-- <td class="text-center"> {{ $trans->email ?? 'N/A' }}</td>
                                                         <td class="text-center"> {{ $trans->phone ?? 'N/A' }}</td> --}}
                                                         <td>
-                                                            @if($trans->languageRates->isEmpty())
-                                                                <em>No combinations set</em>
-                                                            @else
-                                                                <ul class="mb-0 pl-3" style="list-style: disc;">
-                                                                @foreach ($trans->languageRates as $rate)
-                                                                    <li>
-                                                                        {{ $rate->fromLanguage->name }} → {{ $rate->toLanguage->name }}
-                                                                        {{-- ({{ $rate->hours_per_page }} hrs,
-                                                                        AED {{ number_format($rate->admin_amount, 2) }} +
-                                                                        AED {{ number_format($rate->translator_amount, 2) }} =
-                                                                        AED {{ number_format($rate->admin_amount + $rate->translator_amount, 2) }}) --}}
-                                                                    </li>
-                                                                @endforeach
-                                                                </ul>
-                                                            @endif
+                                                             @php
+                                                                $grouped = $trans->languageRates
+                                                                    ->groupBy('to_language_id')
+                                                                    ->map(function ($group) {
+                                                                        $to = $group->first()->toLanguage->name ?? '';
+                                                                        $fromLanguages = $group->pluck('fromLanguage.name')->unique()->filter()->values();
+                                                                        return [
+                                                                            'to' => $to,
+                                                                            'from_list' => $fromLanguages
+                                                                        ];
+                                                                    });
+                                                            @endphp
+                                                            @foreach ($grouped as $entry)
+                                                                <strong>{{ $entry['to'] }}</strong>: {{ $entry['from_list']->implode(', ') }}<br>
+                                                            @endforeach
                                                         </td>
                                                         {{-- <td>
                                                             <ul class="list-unstyled mb-0">
                                                                 @foreach ($trans->languages as $lang)
-                                                                    <li>🌐 {{ $lang->getTranslatedName('en') }}</li>
+                                                                    <li> {{ $lang->getTranslatedName('en') }}</li>
                                                                 @endforeach
                                                             </ul>
                                                         </td> --}}
@@ -169,15 +167,22 @@
                                                             @endcan
                                                         </td>
                                                         <td class="text-center">
-                                                            @can('edit_translator')
-                                                                <div class="table-actions">
+                                                            
+                                                            <div class="table-actions">
+                                                                @can('edit_translator')
                                                                     <a href="{{ route('translators.edit', $trans->id) }}"
                                                                         title="Edit Translator">
                                                                         <span data-feather="edit"></span>
                                                                     </a>
-                                                                </div>
-                                                            @endcan
+                                                                @endcan
 
+                                                                @can('view_translator_pricing')
+                                                                    <a href="{{ route('translator-pricing', ['id' => base64_encode($trans->id)]) }}"
+                                                                            title="Edit Translator Pricing">
+                                                                        <span data-feather="credit-card"></span>
+                                                                    </a>
+                                                                @endcan
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -197,7 +202,7 @@
                                     </tbody>
                                 </table>
                                 <div class="aiz-pagination mt-4">
-                                    @can('view_staff')
+                                    @can('view_translator')
                                         {{ $translators->appends(request()->input())->links('pagination::bootstrap-5') }}
                                     @endcan
                                 </div>
@@ -249,7 +254,7 @@
 @endsection
 
 @section('script_first')
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="{{ asset('assets/js/bootstrap/popper.js') }}"></script>
 @endsection
 
 @section('script')
