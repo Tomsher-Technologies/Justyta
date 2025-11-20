@@ -143,15 +143,23 @@
                                                 <td class="text-center">
                                                     @php
                                                         $paymentStatus = '-';
+                                                        $paymentAmount = '';
                                                         if(in_array($serviceReq->payment_status, ['pending','failed'])){
-                                                            $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span><br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
+                                                            $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span>';
+                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }elseif($serviceReq->payment_status === 'success'){
-                                                            $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span><br><small>AED '.($serviceReq->amount ?? 0).'</small>';
+                                                            $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span>';
+                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }elseif($serviceReq->payment_status === 'partial'){
-                                                            $paymentStatus = '<span class="badge badge-pill badge-warning">Partially Paid</span><br><small>AED '.($serviceReq->amount ?? 0).'</small>';
+                                                            $paymentStatus = '<span class="badge badge-pill badge-warning">Partially Paid</span>';
+                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }
                                                     @endphp     
                                                     {!! $paymentStatus !!}
+                                                    @can('service_request_sales_view')
+                                                        {!! $paymentAmount !!}
+                                                    @endcan
+
                                                 </td>
                                                 <td class="text-center">
                                                     <span class="badge badge-pill {{ $statusClass[$serviceReq->status] ?? 'badge-secondary' }}">

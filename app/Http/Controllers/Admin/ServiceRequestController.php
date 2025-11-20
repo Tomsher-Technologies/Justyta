@@ -38,6 +38,7 @@ use App\Models\RequestLegalTranslation;
 use App\Models\DefaultTranslatorAssignment;
 use App\Models\TranslatorLanguageRate;
 use App\Models\RequestLastWill;
+use App\Models\Translator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -96,9 +97,18 @@ class ServiceRequestController extends Controller
             $query->where('reference_code', 'like', '%' . $request->keyword . '%');
         }
 
+        if ($request->filled('translator_id')) {
+            $translatorId = $request->translator_id;
+            $query->whereHas('legalTranslation', function ($q) use ($translatorId) {
+                $q->where('assigned_translator_id', $translatorId);
+            });
+        }
+
         $serviceRequests = $query->orderByDesc('id')->paginate(30);
 
-        return view('admin.translation_requests.index', compact('serviceRequests'));
+        $translators = Translator::select('id','name')->get();
+        
+        return view('admin.translation_requests.index', compact('serviceRequests','translators'));
     }
 
     public function showTranslationRequest($id){
@@ -127,6 +137,10 @@ class ServiceRequestController extends Controller
             'payment_status'    => $serviceRequest->payment_status,
             'payment_reference' => $serviceRequest->payment_reference,
             'amount'            => $serviceRequest->amount,
+            'admin_amount'      => $serviceRequest->legalTranslation?->admin_amount ?? 0,
+            'translator_amount' => $serviceRequest->legalTranslation?->translator_amount ?? 0,
+            'delivery_amount'   => $serviceRequest->legalTranslation?->delivery_amount ?? 0,
+            'tax'               => $serviceRequest->legalTranslation?->tax ?? 0,
             'submitted_at'      => date('d, M Y h:i A', strtotime($serviceRequest->submitted_at)),
             'service_details'   => $translatedData,
         ];
@@ -174,6 +188,13 @@ class ServiceRequestController extends Controller
                     Carbon::parse($dates[1])->endOfDay()
                 ]);
             }
+        }
+
+        if ($request->filled('translator_id')) {
+            $translatorId = $request->translator_id;
+            $query->whereHas('legalTranslation', function ($q) use ($translatorId) {
+                $q->where('assigned_translator_id', $translatorId);
+            });
         }
     
         $records = $query->get();

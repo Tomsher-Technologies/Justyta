@@ -3,9 +3,9 @@
 @section('content')
     <div class="container-fluid">
         <div class="row ">
-            <div class="col-lg-12">
-
-                @if(auth()->user()->user_type == 'admin')
+            <div class="col-lg-12">    
+                
+                @canany(['dashboard_total_sales_view','manage_translators','manage_vendors','manage_lawyers','manage_job_post','manage_training_requests'])
                     <div class="dashboard-card g-4 mt-4">
                         <div class="col-12">
                             <div class="row">
@@ -22,88 +22,101 @@
                                     </div>
                                 </div>
 
-                                <!-- Total Users -->
-                                <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                    <div class="card shadow-sm border-0 p-3 text-center" style="background:#e0f7fa;">
-                                        <a href="{{ route('admin.service-sales') }}" class="">
-                                            <div class="icon mb-2">
-                                                <i class="las la-credit-card fs-2 text-primary"></i>
-                                            </div>
-                                            <h6 class="fw-bold mb-1">Total Sales</h6>
-                                            <h4 class="text-primary">AED {{ $totalSales ?? 0 }}</h4>
-                                        </a>
+                                @can('dashboard_total_sales_view')
+                                    <!-- Total Users -->
+                                    <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#e0f7fa;">
+                                            <a href="{{ route('admin.service-sales') }}" class="">
+                                                <div class="icon mb-2">
+                                                    <i class="las la-credit-card fs-2 text-primary"></i>
+                                                </div>
+                                                <h6 class="fw-bold mb-1">Total Sales</h6>
+                                                <h4 class="text-primary">AED {{ $totalSales ?? 0 }}</h4>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
+                                @endcan
 
-                                <!-- Total Translators -->
-                                <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                    <div class="card shadow-sm border-0 p-3 text-center" style="background:#f1f8e9;">
-                                        <a href="{{ route('translators.index') }}">
-                                            <div class="icon mb-2">
-                                                <i class="las la-language fs-2 text-primary"></i>
-                                            </div>
-                                            <h6 class="fw-bold mb-1">Total Translators</h6>
-                                            <h4 class="text-primary">{{ $userCounts['translator'] ?? 0 }}</h4>
-                                        </a>
+                                @can('manage_translators')
+                                    <!-- Total Translators -->
+                                    <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#f1f8e9;">
+                                            <a href="{{ route('translators.index') }}">
+                                                <div class="icon mb-2">
+                                                    <i class="las la-language fs-2 text-primary"></i>
+                                                </div>
+                                                <h6 class="fw-bold mb-1">Total Translators</h6>
+                                                <h4 class="text-primary">{{ $userCounts['translator'] ?? 0 }}</h4>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
+                                @endcan
 
-                                <!-- Total Law Firms -->
-                                <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                    <div class="card shadow-sm border-0 p-3 text-center" style="background:#fff3e0;">
-                                        <a href="{{ route('vendors.index') }}">
-                                            <div class="icon mb-2">
-                                                <i class="las la-gavel fs-2 text-primary"></i>
-                                            </div>
-                                            <h6 class="fw-bold mb-1">Total Law Firms</h6>
-                                            <h4 class="text-primary">{{ $userCounts['vendor'] ?? 0 }}</h4>
-                                        </a>
+                                @can('manage_vendors')
+                                    <!-- Total Law Firms -->
+                                    <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#fff3e0;">
+                                            <a href="{{ route('vendors.index') }}">
+                                                <div class="icon mb-2">
+                                                    <i class="las la-gavel fs-2 text-primary"></i>
+                                                </div>
+                                                <h6 class="fw-bold mb-1">Total Law Firms</h6>
+                                                <h4 class="text-primary">{{ $userCounts['vendor'] ?? 0 }}</h4>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
+                                @endcan
 
-                                <!-- Total Lawyers -->
-                                <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                    <div class="card shadow-sm border-0 p-3 text-center" style="background:#fce4ec;">
-                                        <a href="{{ route('lawyers.index') }}">
-                                            <div class="icon mb-2">
-                                                <i class="las la-user-tie fs-2 text-primary"></i>
-                                            </div>
-                                            <h6 class="fw-bold mb-1">Total Lawyers</h6>
-                                            <h4 class="text-primary">{{ $userCounts['lawyer'] ??  0}}</h4>
-                                        </a>
+                                @can('manage_lawyers')
+                                    <!-- Total Lawyers -->
+                                    <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#fce4ec;">
+                                            <a href="{{ route('lawyers.index') }}">
+                                                <div class="icon mb-2">
+                                                    <i class="las la-user-tie fs-2 text-primary"></i>
+                                                </div>
+                                                <h6 class="fw-bold mb-1">Total Lawyers</h6>
+                                                <h4 class="text-primary">{{ $userCounts['lawyer'] ??  0}}</h4>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
+                                @endcan
 
-                                <!-- Total Job Posts -->
-                                <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                    <div class="card shadow-sm border-0 p-3 text-center" style="background:#ede7f6;">
-                                        <a href="{{ route('job-posts.index') }}">
-                                            <div class="icon mb-2">
-                                                <i class="las la-briefcase fs-2 text-primary"></i>
-                                            </div>
-                                            <h6 class="fw-bold mb-1">Total Job Posts</h6>
-                                            <h4 class="text-primary">{{ $totalJobs ?? 0 }}</h4>
-                                        </a>
+                                @can('manage_job_post')
+                                    <!-- Total Job Posts -->
+                                    <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#ede7f6;">
+                                            <a href="{{ route('job-posts.index') }}">
+                                                <div class="icon mb-2">
+                                                    <i class="las la-briefcase fs-2 text-primary"></i>
+                                                </div>
+                                                <h6 class="fw-bold mb-1">Total Job Posts</h6>
+                                                <h4 class="text-primary">{{ $totalJobs ?? 0 }}</h4>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
+                                @endcan
 
-                                <!-- Total Training Requests -->
-                                <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                    <div class="card shadow-sm border-0 p-3 text-center" style="background:#e8f5e9;">
-                                        <a href="{{ route('training-requests.index') }}">
-                                            <div class="icon mb-2">
-                                                <i class="las la-chalkboard-teacher fs-2 text-primary"></i>
-                                            </div>
-                                            <h6 class="fw-bold mb-1">Total Training Requests</h6>
-                                            <h4 class="text-primary">{{ $totalTrainings ?? 0 }}</h4>
-                                        </a>
+                                @can('manage_training_requests')
+                                    <!-- Total Training Requests -->
+                                    <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#e8f5e9;">
+                                            <a href="{{ route('training-requests.index') }}">
+                                                <div class="icon mb-2">
+                                                    <i class="las la-chalkboard-teacher fs-2 text-primary"></i>
+                                                </div>
+                                                <h6 class="fw-bold mb-1">Total Training Requests</h6>
+                                                <h4 class="text-primary">{{ $totalTrainings ?? 0 }}</h4>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
+                                @endcan
+
                             </div>
                         </div>
                     </div>
-                @endif
-                
+                @endcanany
+              
                 <div class="dashboard-card g-4 mt-4">
                     <div class="row">
                         <div class="col-md-12 col-sm-12 mb-2 d-flex justify-content-between align-items-center">
@@ -148,7 +161,6 @@
                     </div>
                 </div>
 
-
                 <div class="row g-4 mt-4 mb-4">
                     <div class="col-lg-12">
                         <div class="dashboard-card">
@@ -173,7 +185,7 @@
                         </div>
                     </div>
                 </div> --}}
-                @if(auth()->user()->user_type == 'admin')
+                @can('dashboard_service_sales_view')
                     <div class="row g-4 mb-4">
                         <div class="col-12">
                             <div class="dashboard-card">
@@ -224,7 +236,7 @@
                             </div>
                         </div>
                     </div>
-                @endif
+                @endcan
 
                 <!-- Recent Requests -->
                 <div class="row mt-4">
@@ -281,15 +293,22 @@
                                                 <td class="text-center">
                                                     @php
                                                         $paymentStatus = '-';
+                                                        $paymentAmount = '';
                                                         if(in_array($serviceReq->payment_status, ['pending','failed'])){
-                                                            $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span><br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
+                                                            $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span>';
+                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }elseif($serviceReq->payment_status === 'success'){
-                                                            $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span><br><small>AED '.($serviceReq->amount ?? 0).'</small>';
+                                                            $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span>';
+                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }elseif($serviceReq->payment_status === 'partial'){
-                                                            $paymentStatus = '<span class="badge badge-pill badge-warning">Partially Paid</span><br><small>AED '.($serviceReq->amount ?? 0).'</small>';
+                                                            $paymentStatus = '<span class="badge badge-pill badge-warning">Partially Paid</span>';
+                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }
                                                     @endphp     
                                                     {!! $paymentStatus !!}
+                                                    @can('service_request_sales_view')
+                                                        {!! $paymentAmount !!}
+                                                    @endcan
                                                 </td>
                                                 <td class="text-center">
                                                     <span class="badge badge-pill {{ $statusClass[$serviceReq->status] ?? 'badge-secondary' }}">

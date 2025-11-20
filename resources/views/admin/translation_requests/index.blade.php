@@ -19,11 +19,11 @@
 
                             <form method="GET" action="{{ route('legal-translation-requests.index') }}" autocomplete="off">
                                 <div class="row mb-2">
-                                    <div class="col-md-4 input-group  mb-1">
+                                    <div class="col-md-3 input-group  mb-1">
                                         <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker" name="daterange" placeholder="From Date - To Date" value="{{ request('daterange') }}">
                                     </div>
 
-                                    <div class="col-md-4 input-group  mb-1">
+                                    <div class="col-md-3 input-group  mb-1">
                                         <input type="text" name="keyword" value="{{ request('keyword') }}"
                                             class="form-control ih-small ip-gray radius-xs b-deep px-15"
                                             placeholder="Search with Reference Code">
@@ -46,7 +46,7 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-3 input-group mt-2  mb-1">
+                                    <div class="col-md-3 input-group  mb-1">
                                         <select name="payment_status"
                                             class="form-control ih-small ip-gray radius-xs b-deep px-15">
                                             <option value="">Select Payment Status</option>
@@ -54,6 +54,18 @@
                                             </option>
                                             <option value="success" {{ request()->payment_status == 'success' ? 'selected' : '' }}>Paid
                                             </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3 input-group mt-2  mb-1">
+                                        <select name="translator_id"
+                                            class="form-control ih-small ip-gray radius-xs b-deep px-15">
+                                            <option value="">Select Translator</option>
+                                            @foreach($translators as $translator)
+                                                <option value="{{ $translator->id }}" {{ request('translator_id') == $translator->id ? 'selected' : '' }}>
+                                                    {{ $translator->name }}
+                                                </option>
+                                            @endforeach
                                         </select>
                                     </div>
 
@@ -77,7 +89,7 @@
                                         <tr>
                                             <th class="text-center">#</th>
                                             <th class="text-center">Reference Code</th>
-                                            <th class="text-left" width="20%">Request Type</th>
+                                            {{-- <th class="text-left" width="20%">Request Type</th> --}}
                                             <th class="text-center">User</th>
                                             <th class="text-center">Translator</th>
                                             <th class="text-center">Payment Status</th>
@@ -102,9 +114,9 @@
                                                 <td class="text-center">
                                                     {{ $serviceReq->reference_code ?? '' }}
                                                 </td>
-                                                <td>
+                                                {{-- <td>
                                                     {{ $serviceReq->service?->name ?? '—' }}
-                                                </td>
+                                                </td> --}}
 
                                                 <td class="text-center">
                                                     {{ $serviceReq->user?->name ?? '—' }}
@@ -127,15 +139,22 @@
                                                 <td class="text-center">
                                                     @php
                                                         $paymentStatus = '-';
+                                                        $paymentAmount = '';
                                                         if(in_array($serviceReq->payment_status, ['pending','failed'])){
                                                             $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span>';
+                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }elseif($serviceReq->payment_status === 'success'){
                                                             $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span>';
+                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }elseif($serviceReq->payment_status === 'partial'){
                                                             $paymentStatus = '<span class="badge badge-pill badge-warning">Partially Paid</span>';
+                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }
                                                     @endphp     
                                                     {!! $paymentStatus !!}
+                                                    @can('service_request_sales_view')
+                                                        {!! $paymentAmount !!}
+                                                    @endcan
                                                 </td>
                                                 <td class="text-center">
                                                     <span class="badge badge-pill {{ $statusClass[$serviceReq->status] ?? 'badge-secondary' }}">
