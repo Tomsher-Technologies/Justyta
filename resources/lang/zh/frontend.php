@@ -159,7 +159,7 @@ return [
     'position' => '职位',
     'files' => '文件',
     'law_firm_jobs' => '律师事务所职位',
-    'search_job_title_position' => '搜索：职位名称、岗位、关键字...',
+    'search_job_title' => '按职位搜索…',
     'no_jobs_found' => '未找到职位！',
     'find_jobs' => '查找职位',
     'reset' => '重置',

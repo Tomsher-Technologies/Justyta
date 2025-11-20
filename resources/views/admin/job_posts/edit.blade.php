@@ -55,6 +55,54 @@
                                 @enderror
                             </div>
 
+                            <div class="col-md-3 mb-3">
+                                <label class="col-form-label color-dark fw-500 align-center">Years of Experience <span
+                                        class="text-red-500">*</span></label>
+
+                                <select name="experience"  class="form-control">
+                                    <option value="">Select</option>
+                                    @foreach($dropdowns['years_experience']->options as $option)
+                                        <option value="{{ $option->id }}" {{ old('experience', $jobPost->years_of_experience) == $option->id ? 'selected' : '' }}>
+                                            {{ $option->getTranslation('name', 'en') ?? '-' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('experience')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            @php
+                                $selectedSpecialities = old('specialities', json_decode($jobPost->specialties) ?? []);
+                                $selectedSpecialities = is_array($selectedSpecialities) ? $selectedSpecialities : [];
+                            @endphp
+
+                            <div class="col-md-5 mb-3">
+                                <label class="col-form-label color-dark fw-500 align-center">Specialities <span
+                                        class="text-red-500">*</span></label>
+
+                                <select name="specialities[]" id="select-tag" class="select2 form-control" multiple>
+                                    <option value="">Select</option>
+                                    @foreach($dropdowns['specialities']->options as $option)
+                                        <option value="{{ $option->id }}" {{ in_array($option->id, $selectedSpecialities) ? 'selected' : '' }}>
+                                            {{ $option->getTranslation('name', app()->getLocale()) ?? '-' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('specialities')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label class="col-form-label color-dark fw-500 align-center">No. of Vacancies <span
+                                        class="text-red-500">*</span></label>
+                                <input type="number" name="no_of_vacancies" class="form-control" value="{{ old('no_of_vacancies', $jobPost->no_of_vacancies) }}">
+                                @error('no_of_vacancies')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <div class="col-md-12 mt-3">
                                 <!-- Language Tabs -->
                                 <ul class="nav nav-tabs custom-lang-tabs w-100" id="langTabs" role="tablist"

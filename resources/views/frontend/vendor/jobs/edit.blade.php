@@ -5,48 +5,99 @@
         <h2 class="text-xl font-medium text-gray-900">{{ __('frontend.edit_job') }}</h2>
         <hr class="my-4 border-[#DFDFDF]">
 
-        <form class="grid grid-cols-1 md:grid-cols-4 gap-4" autocomplete="off" action="{{ route('jobs.update', base64_encode($jobPost->id)) }}" method="POST" enctype="multipart/form-data">
+        <form class="" autocomplete="off" action="{{ route('jobs.update', base64_encode($jobPost->id)) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
-            <div>
-                <label class="block text-gray-700 font-medium mb-1">{{ __('frontend.emirate') }} <span class="text-red-500">*</span></label>
-                <select name="emirate" class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="">{{ __('frontend.choose_option') }}</option>
-                    @foreach (\App\Models\Emirate::with('translations')->get() as $emirate)
-                        <option value="{{ $emirate->id }}" {{ old('emirate',$jobPost->emirate) == $emirate->id ? 'selected' : '' }}>
-                            {{ $emirate->translation('en')?->name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('emirate')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">{{ __('frontend.emirate') }} <span class="text-red-500">*</span></label>
+                    <select name="emirate" class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">{{ __('frontend.choose_option') }}</option>
+                        @foreach (\App\Models\Emirate::with('translations')->get() as $emirate)
+                            <option value="{{ $emirate->id }}" {{ old('emirate',$jobPost->emirate) == $emirate->id ? 'selected' : '' }}>
+                                {{ $emirate->translation('en')?->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('emirate')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            <div>
-                <label class="block text-gray-700 font-medium mb-1">{{ __('frontend.job_type') }} <span class="text-red-500">*</span></label>
-                <select name="type"
-                    class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="">{{ __('frontend.choose_option') }}</option>
-                    <option value="full_time" {{ old('type', $jobPost->type) == 'full_time' ? 'selected' : '' }}>{{ __('frontend.full_time') }}</option>
-                    <option value="part_time" {{ old('type', $jobPost->type) == 'part_time' ? 'selected' : '' }}>{{ __('frontend.part_time') }}</option>
-                </select>
-                @error('type')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">{{ __('frontend.job_type') }} <span class="text-red-500">*</span></label>
+                    <select name="type"
+                        class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">{{ __('frontend.choose_option') }}</option>
+                        <option value="full_time" {{ old('type', $jobPost->type) == 'full_time' ? 'selected' : '' }}>{{ __('frontend.full_time') }}</option>
+                        <option value="part_time" {{ old('type', $jobPost->type) == 'part_time' ? 'selected' : '' }}>{{ __('frontend.part_time') }}</option>
+                    </select>
+                    @error('type')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            <div>
-                <label class="block text-gray-700 font-medium mb-1">{{ __('frontend.deadline_date') }} <span
-                        class="text-red-500">*</span></label>
-                <input type="date" name="deadline_date"
-                    class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 datepicker"
-                    value="{{ old('deadline_date', $jobPost->deadline_date ?? '') }}">
-                @error('deadline_date')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">{{ __('frontend.deadline_date') }} <span
+                            class="text-red-500">*</span></label>
+                    <input type="date" name="deadline_date"
+                        class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        value="{{ old('deadline_date', $jobPost->deadline_date ?? '') }}"  min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+                    @error('deadline_date')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
+                <div class="">
+                    <label class="block text-gray-700 font-medium mb-1">{{ __('frontend.years_of_experience') }}<span
+                            class="text-red-500">*</span></label>
+
+                    <select name="experience" class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="">{{ __('frontend.choose_option') }}</option>
+                        @foreach($dropdowns['years_experience']->options as $option)
+                            <option value="{{ $option->id }}" {{ old('experience', $jobPost->years_of_experience) == $option->id ? 'selected' : '' }}>
+                                {{ $option->getTranslation('name', app()->getLocale()) ?? '-' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('experience')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    @php
+                        $selectedSpecialities = old('specialities', json_decode($jobPost->specialties) ?? []);
+                        $selectedSpecialities = is_array($selectedSpecialities) ? $selectedSpecialities : [];
+                    @endphp
+
+                    <label class="block text-gray-700 font-medium mb-1">{{ __('frontend.specialities') }} <span
+                            class="text-red-500">*</span></label>
+
+                    <select name="specialities[]" id="select-tag" class="select2 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" multiple>
+                        <option value="">{{ __('frontend.choose_option') }}</option>
+                        @foreach($dropdowns['specialities']->options as $option)
+                            <option value="{{ $option->id }}" {{ in_array($option->id, $selectedSpecialities) ? 'selected' : '' }}>
+                                {{ $option->getTranslation('name', app()->getLocale()) ?? '-' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('specialities')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">{{ __('frontend.no_of_vacancies') }} <span
+                            class="text-red-500">*</span></label>
+                    <input type="number" name="no_of_vacancies"
+                        class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        value="{{ old('no_of_vacancies', $jobPost->no_of_vacancies) }}">
+                    @error('no_of_vacancies')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
             <div class="col-span-1 md:col-span-4 mt-6" x-data="{ activeTab: '{{ $languages->first()->code }}' }">
 
                 <!-- Tabs -->

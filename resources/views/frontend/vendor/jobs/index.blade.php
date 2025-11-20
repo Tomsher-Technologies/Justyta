@@ -22,7 +22,7 @@
                 </div>
                 <input type="text" id="simple-search" value="{{ request('keyword') }}" name="keyword"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-3.5"
-                    placeholder="{{ __('frontend.search_job_title_ref_no') }}" required />
+                    placeholder="{{ __('frontend.search_job_title') }}" required />
             </div>
 
             <div class="col-span-3">
@@ -32,6 +32,10 @@
                     <option value="1" {{ request()->status == 1 ? 'selected' : '' }}>{{ __('frontend.active') }} </option>
                     <option value="2" {{ request()->status == 2 ? 'selected' : '' }}>{{ __('frontend.inactive') }}</option>
                 </select>
+            </div>
+
+            <div class="col-span-1 mb-3">
+                <a href="{{ route('jobs.index') }}" class="bg-[#d0ba82] text-black px-6 py-2.5 text-center rounded-full">{{ __('frontend.reset') }}</a>
             </div>
         </div>
     </form>

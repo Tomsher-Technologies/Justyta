@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Language;
 use App\Models\JobPost;
 use App\Models\JobApplication;
+use App\Models\Dropdown;
 use App\Models\JobPostTranslation;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -80,7 +81,10 @@ class JobPostController extends Controller
     public function create()
     {
         $languages = Language::where('status', 1)->orderBy('id')->get();
-        return view('admin.job_posts.create',compact('languages'));
+
+        $dropdowns = Dropdown::with(['options.translations'])->whereIn('slug', ['specialities', 'years_experience'])->get()->keyBy('slug');
+
+        return view('admin.job_posts.create',compact('languages','dropdowns'));
     }
 
     public function store(Request $request)
@@ -89,6 +93,9 @@ class JobPostController extends Controller
             'type' => 'required',
             'emirate' => 'required',
             'deadline_date' => 'required|date',
+            'experience' => 'required',
+            'specialities' => 'required',
+            'no_of_vacancies' => 'required',
             'translations.en.title' => 'required',
             'translations.en.description' => 'required',
         ],[
@@ -102,6 +109,9 @@ class JobPostController extends Controller
             'deadline_date' => $request->deadline_date ? Carbon::parse($request->deadline_date)->format('Y-m-d') : null,
             'user_id' => auth()->id(),
             'user_type' => 'admin',
+            'years_of_experience' => $request->experience,
+            'specialties' => json_encode($request->specialities),
+            'no_of_vacancies' => $request->no_of_vacancies,
             'emirate' => $request->emirate
         ]);
 
@@ -118,7 +128,8 @@ class JobPostController extends Controller
     {
         $jobPost->load('translations');
         $languages = Language::where('status', 1)->orderBy('id')->get();
-        return view('admin.job_posts.edit', compact('jobPost','languages'));
+        $dropdowns = Dropdown::with(['options.translations'])->whereIn('slug', ['specialities', 'years_experience'])->get()->keyBy('slug');
+        return view('admin.job_posts.edit', compact('jobPost','languages','dropdowns'));
     }
 
     public function update(Request $request, JobPost $jobPost)
@@ -128,6 +139,9 @@ class JobPostController extends Controller
             'type' => 'required',
             'emirate' => 'required',
             'deadline_date' => 'required|date',
+            'experience' => 'required',
+            'specialities' => 'required',
+            'no_of_vacancies' => 'required',
             'translations.en.title' => 'required',
             'translations.en.description' => 'required',
         ],[
@@ -139,6 +153,9 @@ class JobPostController extends Controller
             'type' => $request->type,
             'emirate' => $request->emirate,
             'deadline_date' => $request->deadline_date ? Carbon::parse($request->deadline_date)->format('Y-m-d') : null,
+            'years_of_experience' => $request->experience,
+            'specialties' => json_encode($request->specialities),
+            'no_of_vacancies' => $request->no_of_vacancies,
         ]);
         foreach ($request->translations as $lang => $data) {
             JobPostTranslation::updateOrCreate(

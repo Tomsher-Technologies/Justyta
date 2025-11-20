@@ -370,7 +370,6 @@
                 fetch(`/user/get-available-lawyers?language=${language}&case_type=${caseType}`)
                     .then(res => res.json())
                     .then(data => {
-
                         let dropdown = document.getElementById('lawyer_id');
                         dropdown.innerHTML = `<option value="">Select Lawyer</option>`;
 
