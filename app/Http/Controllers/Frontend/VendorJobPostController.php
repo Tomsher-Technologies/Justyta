@@ -7,6 +7,8 @@ use App\Models\Language;
 use App\Models\JobPost;
 use App\Models\JobPostTranslation;
 use App\Models\User;
+use App\Models\Dropdown;
+use App\Models\DropdownOption;
 use App\Models\JobApplication;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -68,8 +70,11 @@ class VendorJobPostController extends Controller
     public function create()
     {
         $languages = Language::where('status', 1)->orderBy('id')->get();
+
+        $dropdowns = Dropdown::with(['options.translations'])->whereIn('slug', ['specialities', 'years_experience'])->get()->keyBy('slug');
+
         if (isVendorCanCreateJobs()) {
-            return view('frontend.vendor.jobs.create',compact('languages'));
+            return view('frontend.vendor.jobs.create',compact('languages','dropdowns'));
         }else{
             session()->flash('error', __('frontend.job_post_limit_reached'));
             return redirect()->route('jobs.index');
@@ -82,6 +87,9 @@ class VendorJobPostController extends Controller
             'type' => 'required',
             'emirate' => 'required',
             'deadline_date' => 'required|date',
+            'experience' => 'required',
+            'specialities' => 'required',
+            'no_of_vacancies' => 'required',
             'translations.en.title' => 'required',
             'translations.en.description' => 'required'
         ],[
@@ -95,6 +103,9 @@ class VendorJobPostController extends Controller
             'deadline_date' => $request->deadline_date ? Carbon::parse($request->deadline_date)->format('Y-m-d') : null,
             'user_id' => Auth::guard('frontend')->user()->id ,
             'user_type' => 'vendor',
+            'years_of_experience' => $request->experience,
+            'specialties' => json_encode($request->specialities),
+            'no_of_vacancies' => $request->no_of_vacancies,
             'emirate' => $request->emirate
         ]);
 
@@ -114,7 +125,8 @@ class VendorJobPostController extends Controller
         $jobPost = JobPost::findOrFail(base64_decode($id));
         $jobPost->load('translations');
         $languages = Language::where('status', 1)->orderBy('id')->get();
-        return view('frontend.vendor.jobs.edit', compact('jobPost','languages'));
+        $dropdowns = Dropdown::with(['options.translations'])->whereIn('slug', ['specialities', 'years_experience'])->get()->keyBy('slug');
+        return view('frontend.vendor.jobs.edit', compact('jobPost','languages','dropdowns'));
     }
 
     public function update(Request $request, $id)
@@ -124,6 +136,9 @@ class VendorJobPostController extends Controller
             'type' => 'required',
             'emirate' => 'required',
             'deadline_date' => 'required|date',
+            'experience' => 'required',
+            'specialities' => 'required',
+            'no_of_vacancies' => 'required',
             'translations.en.title' => 'required',
             'translations.en.description' => 'required',
         ],[
@@ -135,6 +150,9 @@ class VendorJobPostController extends Controller
             'type' => $request->type,
             'emirate' => $request->emirate,
             'deadline_date' => $request->deadline_date ? Carbon::parse($request->deadline_date)->format('Y-m-d') : null,
+            'years_of_experience' => $request->experience,
+            'specialties' => json_encode($request->specialities),
+            'no_of_vacancies' => $request->no_of_vacancies,
         ]);
         foreach ($request->translations as $lang => $data) {
             JobPostTranslation::updateOrCreate(
@@ -169,6 +187,17 @@ class VendorJobPostController extends Controller
             return redirect()->back()->with('error', __('frontend.no_jobs_found'));
         }
 
+        $specialties = json_decode($job->specialties);
+
+        if ($specialties) {
+             $specialties = DropdownOption::with('translations')->whereIn('id', $specialties)->get();
+
+            $specialties = $specialties->map(function ($item) {
+                return $item->getTranslatedName(app()->getLocale());
+            });
+        }
+       
+
         $jobPost = [
                     'id' => $job->id,
                     'ref_no' => $job->ref_no,
@@ -180,6 +209,9 @@ class VendorJobPostController extends Controller
                     'job_posted_date' => $job->job_posted_date,
                     'deadline_date' => $job->deadline_date,
                     'status' => $job->status,
+                    'no_of_vacancies' => $job->no_of_vacancies,
+                    'specialties' => $specialties,
+                    'years_of_experience' => $job->years_of_experience
                 ];
         
         return view('frontend.vendor.jobs.show', compact('lang','jobPost'));

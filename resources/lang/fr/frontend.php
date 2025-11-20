@@ -159,7 +159,7 @@ return [
     'position' => 'Poste',
     'files' => 'Fichiers',
     'law_firm_jobs' => 'Postes au cabinet d\'avocats',
-    'search_job_title_position' => 'Rechercher par : titre du poste, position, mot-clé...',
+    'search_job_title' => 'Rechercher par : intitulé du poste…',
     'no_jobs_found' => 'Aucun poste trouvé !',
     'find_jobs' => 'Trouver des postes',
     'reset' => 'Réinitialiser',

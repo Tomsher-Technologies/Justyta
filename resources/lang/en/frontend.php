@@ -160,7 +160,7 @@ return [
     'position' => 'Position',
     'files' => 'Files',
     'law_firm_jobs' => 'Law Firm Jobs',
-    'search_job_title_position' => 'Search by: Job tittle, Position, Keyword...',
+    'search_job_title' => 'Search by: Job title...',
     'no_jobs_found' => 'No Jobs Found!',
     'find_jobs' => 'Find Jobs',
     'reset' => 'Reset',
@@ -469,4 +469,5 @@ return [
     'consultation_request_cancelled_timeout' => 'The consultation request has been cancelled due to inactivity.',
     'consultation_request_cancelled' => 'The consultation request has been rejected.',
     'consultation_extend_failed' => 'Consultation extention failed.',
+    'no_of_vacancies' => 'No. of Vacancies',
 ];

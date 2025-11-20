@@ -15,6 +15,7 @@ use App\Models\Vendor;
 use App\Models\AnnualAgreementInstallment;
 use App\Models\TrainingRequest;
 use App\Models\ProblemReport;
+use App\Models\DropdownOption;
 use App\Models\ServiceRequest;
 use App\Mail\JobApplicationReceived;
 use Illuminate\Support\Facades\Mail;
@@ -297,18 +298,32 @@ class UserController extends Controller
             ->where('user_id', $user->id)
             ->exists();
 
+         $specialties = json_decode($job->specialties);
+
+        if ($specialties) {
+             $specialties = DropdownOption::with('translations')->whereIn('id', $specialties)->get();
+
+            $specialties = $specialties->map(function ($item) {
+                return $item->getTranslatedName(app()->getLocale());
+            });
+        }
+       
+
         $jobPost = [
-            'id' => $job->id,
-            'ref_no' => $job->ref_no,
-            'type' => __('messages.' . $job->type),
-            'title' => $job->getTranslation('title', $lang) ?? NULL,
-            'description' => $job->getTranslation('description', $lang) ?? NULL,
-            'salary' => $job->getTranslation('salary', $lang) ?? NULL,
-            'location' => $job->location?->getTranslation('name', $lang) ?? NULL,
-            'job_posted_date' => $job->job_posted_date,
-            'deadline_date' => $job->deadline_date,
-            'status' => $job->status,
-        ];
+                    'id' => $job->id,
+                    'ref_no' => $job->ref_no,
+                    'type' => __('messages.' . $job->type),
+                    'title' => $job->getTranslation('title',$lang) ?? NULL,
+                    'description' => $job->getTranslation('description', $lang) ?? NULL,
+                    'salary' => $job->getTranslation('salary', $lang) ?? NULL,
+                    'location' => $job->location?->getTranslation('name', $lang) ?? NULL,
+                    'job_posted_date' => $job->job_posted_date,
+                    'deadline_date' => $job->deadline_date,
+                    'status' => $job->status,
+                    'no_of_vacancies' => $job->no_of_vacancies,
+                    'specialties' => $specialties,
+                    'years_of_experience' => $job->years_of_experience
+                ];
 
         return view('frontend.user.job-details', compact('lang', 'jobPost', 'hasApplied'));
     }

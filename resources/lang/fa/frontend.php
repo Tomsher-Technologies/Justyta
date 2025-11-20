@@ -159,7 +159,7 @@ return [
     'position' => 'سمت',
     'files' => 'فایل‌ها',
     'law_firm_jobs' => 'مشاغل موسسه حقوقی',
-    'search_job_title_position' => 'جستجو بر اساس: عنوان شغل، سمت، کلمه کلیدی...',
+    'search_job_title' => 'جستجو بر اساس: عنوان شغلی…',
     'no_jobs_found' => 'هیچ شغلی یافت نشد!',
     'find_jobs' => 'یافتن شغل',
     'reset' => 'بازنشانی',

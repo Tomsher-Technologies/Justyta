@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class JobPost extends Model
 {
     protected $fillable = [
-        'user_id', 'user_type', 'ref_no', 'type', 'emirate', 'job_posted_date', 'deadline_date', 'status'
+        'user_id', 'user_type', 'ref_no', 'type', 'emirate', 'job_posted_date', 'deadline_date', 'status', 'years_of_experience', 'specialties', 'no_of_vacancies'
     ];
 
     public function post_owner()
