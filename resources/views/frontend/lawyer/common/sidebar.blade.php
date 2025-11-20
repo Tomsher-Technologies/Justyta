@@ -1,4 +1,4 @@
-<aside class="w-[330px] h-[calc(100vh-80px)] p-5 flex flex-col justify-between rounded-[20px] pt-5 gradient-secondory">
+<aside   class="w-[330px] h-[calc(100vh-80px)] p-5 flex flex-col justify-between rounded-[20px] pt-5 gradient-secondory">
     <!-- Logo -->
     <div>
         <img src="{{ asset('assets/images/logo1.png') }}" alt="Justyta Logo" class="w-24 mx-auto mb-6" />

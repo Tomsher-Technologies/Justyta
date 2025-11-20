@@ -8,7 +8,7 @@
         <form method="POST" action="{{ route('vendor.service.legal-translation-request') }}" id="legalTranslationForm" enctype="multipart/form-data">
             @csrf
             <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
-                <div class="lg:col-span-2 bg-white p-10 rounded-[20px] border !border-[#FFE9B1]">
+                <div class="lg:col-span-2 bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1]">
                     <h2 class="text-xl font-semibold text-gray-800 mb-4">
                        {{ __('frontend.legal_translation_request') }}
                     </h2>

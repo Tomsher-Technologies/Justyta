@@ -2,10 +2,10 @@
 
 @section('content')
 
-    <div class="bg-white rounded-2xl p-8 pb-12">
-        <div class="flex justify-between  items-center mb-2">
+    <div class="bg-white rounded-2xl p-6 pb-12">
+        <div class="flex justify-between flex-col xl:flex-row  mb-2 items-start">
 
-            <div class="flex">
+            <div class="flex flex-col xl:flex-row items-start">
                 <h2 class="text-xl font-semibold text-gray-800">{{ __('frontend.service_request_details') }}</h2>
                 @php
                     $statusClass = [
@@ -28,18 +28,20 @@
                 @endphp
 
                 <span
-                    class="{{ $statusClass[$status] ?? '!bg-gray-200 !text-gray-700' }} text-xs font-medium px-5 py-2 rounded-full ml-2">
+                    class="{{ $statusClass[$status] ?? '!bg-gray-200 w-auto !text-gray-700' }} text-xs font-medium px-5 py-2 rounded-full xl:ml-2 mt-1 xl:mt-0">
                     {{ ucfirst($status) }}
                 </span>
             </div>
             <a href="{{ Session::has('service_last_url') ? Session::get('service_last_url') : route('user.service.history') }}"
-                class="inline-flex items-center px-4 py-2 text-black bg-[#c4b07e] hover:bg-[#c4b07e]-800 focus:ring-4 focus:ring-green-300 font-medium rounded-full text-base dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
-                {{ __('frontend.go_back') }}
-                <svg class="w-4 h-4 ms-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"
+                class="inline-flex items-center mt-3 xl:mt-0 px-4 py-2 text-white bg-[#c4b07e] hover:bg-[#c4b07e]-800 focus:ring-4 focus:ring-green-300 font-medium rounded-full text-base dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
+                <svg class="w-4 h-4 me-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"
                     aria-hidden="true">
-                    <path stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M13 5H1m0 0l4-4M1 5l4 4" />
                 </svg>
+                
+                {{ __('frontend.go_back') }}
+                
             </a>
         </div>
 

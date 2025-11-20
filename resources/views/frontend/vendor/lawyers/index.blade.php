@@ -1,7 +1,7 @@
 @extends('layouts.web_vendor_default', ['title' => __('frontend.lawyers')])
 
 @section('content')
-<div class="bg-white rounded-2xl  p-8 pb-12">
+<div class="bg-white rounded-2xl  p-6 pb-12">
     <div class="flex justify-between items-center mb-8 border-b pb-5">
         <h2 class="text-xl font-semibold text-gray-800">{{ __('frontend.lawyers') }}</h2>
 

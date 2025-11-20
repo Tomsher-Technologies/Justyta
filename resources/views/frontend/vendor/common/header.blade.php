@@ -1,5 +1,10 @@
 <nav class="grid grid-cols-2 gap-5 grid-cols-[2fr_1fr] items-center justify-between mb-5">
-  
+    <!-- Mobile Menu Button -->
+<button id="openSidebar" class="xl:hidden py-3">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="black" stroke-width="2">
+        <path d="M4 8h24M4 16h24M4 24h24"/>
+    </svg>
+</button>
 
     <div class="relative hidden lg:block w-full">
         <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">

@@ -4,7 +4,7 @@
     <div class="container">
         <h2 class="text-xl font-bold mb-4">{{ __('frontend.all_notifications') }}</h2>
         <div class="bg-white rounded-lg p-6">
-            <div class="flex items-center justify-between">
+            <div class="flex items-start xl:items-center justify-between flex-col xl:flex-row">
                 <h2 class="text-xl font-medium text-gray-900">{{ __('frontend.notifications') }}</h2>
                 <div class="text-end mt-4 flex items-center gap-4">
                     <button id="delete-selected" class="bg-red-600 text-white p-4 py-1.5 rounded-md text-sm hover:bg-red-700">
