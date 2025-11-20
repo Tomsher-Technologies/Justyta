@@ -100,6 +100,7 @@ class ConsultationController extends Controller
         
         $fileName = 'consultations_' . now()->format('Y_m_d_His') . '.xlsx';
 
-        return Excel::download(new ConsultationsExport($filters), $fileName);
+        $canViewSales = auth()->user()->can('service_request_sales_view');
+        return Excel::download(new ConsultationsExport($filters, $canViewSales), $fileName);
     }
 }
