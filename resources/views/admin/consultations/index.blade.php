@@ -66,6 +66,17 @@
                                         </select>
                                     </div>
 
+                                    <div class="col-md-3 input-group mt-2 mb-1">
+                                        <select name="lawfirm_id" class="select2 form-control ih-small ip-gray radius-xs b-deep px-15" data-placeholder="Select Lawfirm">
+                                            <option value="">All Lawfirms</option>
+                                            @foreach($lawfirms as $lawfirm)
+                                                <option value="{{ $lawfirm->id }}" {{ request('lawfirm_id') == $lawfirm->id ? 'selected' : '' }}>
+                                                    {{ $lawfirm->law_firm_name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
                                     <div class="col-md-3 input-group mt-2  mb-1">
                                         <select name="consultation_type" class="form-control ih-small ip-gray radius-xs b-deep px-15"  data-placeholder="Select Consultation Type">
                                             <option value="">All Consultation Types</option>
@@ -141,10 +152,13 @@
                                             <th class="text-center">Reference Code</th>
                                             <th class="text-center">User</th>
                                             <th class="text-center">Lawyer</th>
+                                            <th class="text-center">Lawfirm</th>
                                             <th class="text-center">Consultation Type</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Total Duration</th>
-                                            <th class="text-center">Total Amount</th>
+                                            @can('service_request_sales_view')
+                                                <th class="text-center">Total Amount</th>
+                                            @endcan
                                             <th class="text-center">Consultation Date</th>
                                             <th class="text-center">Actions</th>
                                         </tr>
@@ -175,6 +189,10 @@
                                                 <td class="text-center">
                                                     {{ $consultation->lawyer?->full_name ?? '-' }}
                                                 </td>
+
+                                                <td class="text-center">
+                                                    {{ $consultation->lawyer?->lawfirm?->law_firm_name ?? '-' }}
+                                                </td>
                                                 <td class="text-center">
                                                     {{ ucfirst($consultation->consultant_type) ?? '-' }}
                                                 </td>
@@ -189,7 +207,9 @@
                                                     </span>
                                                 </td>
                                                 <td class="text-center">{{ $consultation->duration ?? 0 }} <small>Mins</small></td>
-                                                <td class="text-center"><small>AED</small> {{ number_format($consultation->amount, 2) }}</td>
+                                                @can('service_request_sales_view')
+                                                    <td class="text-center"><small>AED</small> {{ number_format($consultation->amount, 2) }}</td>
+                                                @endcan
 
                                                 <td class="text-center">{{ date('d, M Y h:i A', strtotime($consultation->created_at)) }}</td>
 

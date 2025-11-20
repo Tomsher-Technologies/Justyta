@@ -96,16 +96,31 @@
                                         </div>
                                         <div class="col-md-6 mb-2"><strong>Submitted At : </strong> {{ $dataService['submitted_at'] }}</div>
 
+                                        <div class="col-md-6 mb-2"><strong>Translator : </strong> {{ $dataService['translator'] }}</div>
+
                                         @if($dataService['payment_status'] != NULL)
-                                            <div class="col-md-6 mb-2"><strong>Amount : </strong> AED {{ number_format($dataService['amount'], 2) }}</div>
+
                                             <div class="col-md-6 mb-2"><strong>Payment Status : </strong> 
                                                 <span class="badge {{ ($dataService['payment_status'] == 'pending') ? 'badge-danger' : (($dataService['payment_status'] == 'partial') ? 'badge-warning' : 'badge-success')}}">
                                                     {{ ($dataService['payment_status'] == 'pending') ? 'Unpaid' : (($dataService['payment_status'] == 'partial') ? 'Partially Paid' : 'Paid') }}
                                                 </span>
                                             </div>
+
+                                            @can('service_request_sales_view')
+                                                <div class="col-md-6 mb-2"><strong>Total Amount : </strong> AED {{ number_format($dataService['amount'], 2) }}</div>
+
+                                                <div class="col-md-6 mb-2"><strong>Admin Amount : </strong> AED {{ number_format($dataService['admin_amount'], 2) }}</div>
+
+                                                <div class="col-md-6 mb-2"><strong>Translator Amount : </strong> AED {{ number_format($dataService['translator_amount'], 2) }}</div>
+
+                                                <div class="col-md-6 mb-2"><strong>Delivery Amount : </strong> AED {{ number_format($dataService['delivery_amount'], 2) }}</div>
+
+                                                <div class="col-md-6 mb-2"><strong>Tax Amount : </strong> AED {{ number_format($dataService['tax'], 2) }}</div>
+                                            @endcan
+                                            
                                         @endif
 
-                                        <div class="col-md-6 mb-2"><strong>Translator : </strong> {{ $dataService['translator'] }}</div>
+                                        
 
                                     </div>
 

@@ -69,6 +69,16 @@
 
                     <div class="col-md-4 mb-3">
                         <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
+                            <i class="fas fa-building text-third mr-3 fa-lg"></i>
+                            <div>
+                                <small class="text-muted">Lawfirm</small>
+                                <div>{{ $consultation->lawyer?->lawfirm?->law_firm_name ?? '-' }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
                             <i class="fas fa-id-badge text-secondary mr-3 fa-lg"></i>
                             <div>
                                 <small class="text-muted">Applicant Type</small>
@@ -129,7 +139,7 @@
 
                     <div class="col-md-4 mb-3">
                         <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
-                            <i class="fas fa-language text-primary mr-3 fa-lg"></i>
+                            <i class="fas fa-language text-dark mr-3 fa-lg"></i>
                             <div>
                                 <small class="text-muted">Language</small>
                                 <div>{{ ucfirst($consultation->languageValue?->getTranslation('name', 'en') ?? '-') }}</div>
@@ -149,46 +159,13 @@
 
                     <div class="col-md-4 mb-3">
                         <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
-                            <i class="fas fa-clock text-info mr-3 fa-lg"></i>
+                            <i class="fas fa-clock text-muted mr-3 fa-lg"></i>
                             <div>
                                 <small class="text-muted">Duration</small>
                                 <div>{{ $consultation->duration }} mins</div>
                             </div>
                         </div>
                     </div>
-
-                    
-
-                    <div class="col-md-4 mb-3">
-                        <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
-                            <i class="fas fa-dollar-sign text-success mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Total Amount</small>
-                                <div>AED {{ number_format($consultation->amount, 2) }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 mb-3">
-                        <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
-                            <i class="fas fa-dollar-sign text-success mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Admin Amount</small>
-                                <div>AED {{ number_format($consultation->admin_amount, 2) }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 mb-3">
-                        <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
-                            <i class="fas fa-dollar-sign text-success mr-3 fa-lg"></i>
-                            <div>
-                                <small class="text-muted">Lawyer Amount</small>
-                                <div>AED {{ number_format($consultation->lawyer_amount, 2) }}</div>
-                            </div>
-                        </div>
-                    </div>
-
 
                     <div class="col-md-4 mb-3">
                         <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
@@ -210,6 +187,37 @@
                         </div>
                     </div>
                     
+                    @can('service_request_sales_view')
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
+                                <i class="fas fa-dollar-sign text-success mr-3 fa-lg"></i>
+                                <div>
+                                    <small class="text-muted">Total Amount</small>
+                                    <div>AED {{ number_format($consultation->amount, 2) }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
+                                <i class="fas fa-dollar-sign text-success mr-3 fa-lg"></i>
+                                <div>
+                                    <small class="text-muted">Admin Amount</small>
+                                    <div>AED {{ number_format($consultation->admin_amount, 2) }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
+                                <i class="fas fa-dollar-sign text-success mr-3 fa-lg"></i>
+                                <div>
+                                    <small class="text-muted">Lawyer Amount</small>
+                                    <div>AED {{ number_format($consultation->lawyer_amount, 2) }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    @endcan
 
                     {{-- <div class="col-md-4 mb-3">
                         <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
@@ -259,7 +267,9 @@
                         <th class="text-center">Sl No.</th>
                         <th class="text-center">Type</th>
                         <th class="text-center">Duration</th>
-                        <th class="text-center">Amount</th>
+                        @can('service_request_sales_view')
+                            <th class="text-center">Amount</th>
+                        @endcan
                         {{-- <th>Reference</th> --}}
                         <th class="text-center">Status</th>
                         <th class="text-center">Date</th>
@@ -271,7 +281,11 @@
                             <td class="text-center">{{ $loop->iteration }}</td>
                             <td class="text-center">{{ ucfirst($payment->type) }}</td>
                             <td class="text-center">{{ $payment->duration }}</td>
-                            <td class="text-center">{{ number_format($payment->amount, 2) }}</td>
+
+                            @can('service_request_sales_view')
+                                <td class="text-center">{{ number_format($payment->amount, 2) }}</td>
+                            @endcan
+                            
                             {{-- <td>{{ $payment->payment_reference ?? '-' }}</td> --}}
                             <td class="text-center">
                                 <span class="badge badge-{{ $payment->status == 'completed' ? 'success' : ($payment->status == 'failed' ? 'danger' : 'warning') }}">

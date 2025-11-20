@@ -7,7 +7,9 @@
             @if($selectedService === 'legal-translation')
                 <th class="text-center">Translator</th>
             @endif
-            <th class="text-center">Amount</th>
+            @can('service_request_sales_view')
+                <th class="text-center">Amount</th>
+            @endcan
             <th class="text-center">Payment Status</th>
             <th class="text-center">Request Status</th>
             <th class="text-center">Request Date</th>
@@ -56,7 +58,11 @@
                         {{ $serviceReq->legalTranslation?->assignedTranslator?->name ?? '—' }}
                     </td>
                 @endif
-                <td class="text-center"><small>AED </small>{{ $serviceReq->amount ?? 0 }}</td>
+
+                @can('service_request_sales_view')
+                    <td class="text-center"><small>AED </small>{{ $serviceReq->amount ?? 0 }}</td>
+                @endcan
+                
                 <td class="text-center">
                     @if($serviceReq->payment_status == 'success')
                         <span class="badge badge-success">Paid</span>

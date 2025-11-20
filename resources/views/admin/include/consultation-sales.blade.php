@@ -38,7 +38,9 @@
             <th class="text-center">Consultation Type</th>
             <th class="text-center">Status</th>
             <th class="text-center">Total Duration</th>
-            <th class="text-center">Total Amount</th>
+            @can('service_request_sales_view')
+                <th class="text-center">Total Amount</th>
+            @endcan
             <th class="text-center">Consultation Date</th>
             <th class="text-center">Actions</th>
         </tr>
@@ -75,7 +77,11 @@
                     </span>
                 </td>
                 <td class="text-center">{{ $consultation->duration ?? 0 }} <small>Mins</small></td>
-                <td class="text-center"><small>AED</small> {{ number_format($consultation->amount, 2) }}</td>
+
+                @can('service_request_sales_view')
+                    <td class="text-center"><small>AED</small> {{ number_format($consultation->amount, 2) }}</td>
+                @endcan
+                
                 <td class="text-center">{{ date('d, M Y h:i A', strtotime($consultation->created_at)) }}</td>
                 <td class="text-center">
                     <a href="{{ route('consultations.show', $consultation->id) }}">

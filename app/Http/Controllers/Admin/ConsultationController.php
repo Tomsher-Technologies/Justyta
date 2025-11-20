@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Consultation;
 use App\Models\Lawyer;
 use App\Models\Dropdown;
+use App\Models\Vendor;
 use App\Exports\ConsultationsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
@@ -21,6 +22,12 @@ class ConsultationController extends Controller
             
         if($request->filled('lawyer_id')) {
             $conQuery->where('lawyer_id', $request->lawyer_id);
+        }
+
+        if($request->filled('lawfirm_id')) {
+            $conQuery->whereHas('lawyer', function ($q) use ($request) {
+                $q->where('lawfirm_id', $request->lawfirm_id);
+            });
         }
 
         if($request->filled('consultation_type')) {
@@ -70,7 +77,9 @@ class ConsultationController extends Controller
             $q->where('language_code', 'en');
         }])->whereIn('slug', ['specialities', 'case_stage','languages'])->get()->keyBy('slug');
 
-        return view('admin.consultations.index', compact('consultations', 'lawyers', 'dropdowns'));
+        $lawfirms = Vendor::select('id', 'law_firm_name')->get();
+
+        return view('admin.consultations.index', compact('consultations', 'lawyers', 'dropdowns', 'lawfirms'));
     }
 
     public function show($id)

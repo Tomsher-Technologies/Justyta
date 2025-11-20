@@ -40,6 +40,13 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
             $query->where('lawyer_id', $this->filters['lawyer_id']);
         }
 
+        if(!empty($this->filters['lawfirm_id'])) {
+            $lawfirmId = $this->filters['lawfirm_id'];
+            $query->whereHas('lawyer', function ($q) use ($lawfirmId) {
+                $q->where('lawfirm_id', $lawfirmId);
+            });
+        }
+
         if (!empty($this->filters['consultation_type'])) {
             $query->where('consultant_type', $this->filters['consultation_type']);
         }
@@ -89,6 +96,7 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                     'User Email' => $consultation->user?->email ?? '-',
                     'User Phone' => $consultation->user?->phone ?? '-',
                     'Lawyer' => $consultation->lawyer?->full_name ?? '-',
+                    'Lawfirm' => $consultation->lawyer?->lawfirm?->law_firm_name ?? '-',
                     'Status' => ucwords(str_replace('_', ' ', $consultation->status ?? '-')),
                     'Applicant Type' => ucfirst($consultation->applicant_type ?? '-'),
                     'Litigation Type' => ucfirst($consultation->litigation_type ?? '-'),
@@ -120,6 +128,7 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                 'User Email',
                 'User Phone',
                 'Lawyer',
+                'Lawfirm',
                 'Status',
                 'Applicant Type',
                 'Litigation Type',
@@ -143,7 +152,7 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
     public function styles(Worksheet $sheet)
     {
         // Make main header row (row 2) bold
-        $sheet->getStyle('A2:V2')->getFont()->setBold(true);
+        $sheet->getStyle('A2:Z2')->getFont()->setBold(true);
     }
 
     public function registerEvents(): array
