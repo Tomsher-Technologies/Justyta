@@ -207,7 +207,8 @@ class ServiceRequestController extends Controller
 
         $filename = $serviceSlug . '_export_' . now()->format('Y_m_d_h_i_s') . '.xlsx';
 
-        return Excel::download(new ServiceRequestExport($records, $serviceName, $serviceSlug, $fields), $filename);
+        $canViewSales = auth()->user()->can('service_request_sales_view');
+        return Excel::download(new ServiceRequestExport($records, $serviceName, $serviceSlug, $fields, $canViewSales), $filename);
     }
 
 
@@ -427,7 +428,8 @@ class ServiceRequestController extends Controller
 
         $filename = $serviceSlug . '_export_' . now()->format('Y_m_d_h_i_s') . '.xlsx';
 
-        return Excel::download(new ServiceRequestExport($records, $serviceName, $serviceSlug, $fields), $filename);
+        $canViewSales = auth()->user()->can('service_request_sales_view');
+        return Excel::download(new ServiceRequestExport($records, $serviceName, $serviceSlug, $fields, $canViewSales), $filename);
     }
 
     public function updateInstallmentStatus(Request $request)

@@ -17,11 +17,13 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
 {
     protected $filters;
     protected $exportedAt;
+    protected $canViewSales;
 
-    public function __construct($filters)
+    public function __construct($filters, $canViewSales = false)
     {
         $this->filters = $filters;
         $this->exportedAt = Carbon::now()->format('Y-m-d H:i:s');
+        $this->canViewSales = $canViewSales;
     }
 
     public function collection()
@@ -88,7 +90,8 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
         return $query->orderBy('id', 'desc')->where('request_success', 1)
             ->get()
             ->map(function ($consultation, $key) {
-                return [
+              
+                $row = [
                     'Sl No.' => $key + 1,
                     'Reference Code' => $consultation->ref_code ?? '-',
                     
@@ -114,38 +117,61 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                     'Meeting End' => $consultation->meeting_end_time ? Carbon::parse($consultation->meeting_end_time)->format('Y-m-d h:i A') : '-',
                     'Date' => optional($consultation->created_at)->format('Y-m-d h:i A') ?? '-',
                 ];
+
+                if (!$this->canViewSales) {
+                    unset(
+                        $row['Total Amount (AED)'],
+                        $row['Admin Amount (AED)'],
+                        $row['Lawyer Amount (AED)']
+                    );
+                }
+
+                return $row;
             });
     }
 
     public function headings(): array
     {
+
+        $headings = [
+            'Sl No.',
+            'Reference Code',
+            'User Name',
+            'User Email',
+            'User Phone',
+            'Lawyer',
+            'Lawfirm',
+            'Status',
+            'Applicant Type',
+            'Litigation Type',
+            'Consultant Type',
+            'You Represent',
+            'Case Type',
+            'Case Stage',
+            'Language',
+            'Emirate',
+            'Duration (mins)',
+            'Total Amount (AED)',
+            'Admin Amount (AED)',
+            'Lawyer Amount (AED)',
+            'Meeting Start',
+            'Meeting End',
+            'Date',
+        ];
+
+        if (!$this->canViewSales) {
+            $headings = array_filter($headings, function ($h) {
+                return !in_array($h, [
+                    'Total Amount (AED)',
+                    'Admin Amount (AED)',
+                    'Lawyer Amount (AED)',
+                ]);
+            });
+        }
+
         return [
-            ['Exported Date & Time: ' . Carbon::now()->format('d-m-Y h:i A')], // Row 1
-            [
-                'Sl No.',
-                'Reference Code',
-                'User Name',
-                'User Email',
-                'User Phone',
-                'Lawyer',
-                'Lawfirm',
-                'Status',
-                'Applicant Type',
-                'Litigation Type',
-                'Consultant Type',
-                'You Represent',
-                'Case Type',
-                'Case Stage',
-                'Language',
-                'Emirate',
-                'Duration (mins)',
-                'Total Amount (AED)',
-                'Admin Amount (AED)',
-                'Lawyer Amount (AED)',
-                'Meeting Start',
-                'Meeting End',
-                'Date',
-            ],
+            ['Exported Date & Time: ' . Carbon::now()->format('d-m-Y h:i A')],
+            $headings,
         ];
     }
 
