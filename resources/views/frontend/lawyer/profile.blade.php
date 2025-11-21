@@ -4,7 +4,7 @@
     <div class="bg-white rounded-lg p-6">
       
         
-        <div class="bg-white rounded-2xl  p-8 pb-12">
+        <div class="bg-white rounded-2xl  p-6 pb-12">
 
         <div class="grid grid-cols-1 border-b border-gray-200 pb-8 mb-8">
             <div class="flex items-center gap-6 col-span-12">

@@ -102,12 +102,12 @@
  
 </head>
 
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col !m-0">
     <div class="flex min-h-screen bg-[#FDF8F4] text-[#1A1A1A] px-[50px] gradient-primary !pt-10">
         <!-- Sidebar -->
         @include('frontend.lawyer.common.sidebar')
         <!-- Main Content -->
-        <main class="flex-1 p-6 pe-0 pt-0 h-full">
+        <main class="flex-1 p-4 xl:p-6 xl:pe-0 pt-0 h-full ">
             <!-- Header -->
             @include('frontend.lawyer.common.header')
 

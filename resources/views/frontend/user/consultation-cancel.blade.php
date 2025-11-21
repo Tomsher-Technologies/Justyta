@@ -3,7 +3,7 @@
 @section('content')
 
 <div class="grid grid-cols-1 gap-6">
-    <div class=" bg-white p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)]">
+    <div class=" bg-white p-4 xl:p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)]">
         <div class="bg-[#FFFAF0] border border-[#FFE9B1] rounded-xl p-8 max-w-xl m-auto w-full text-center mt-12">
             <div class="w-20 h-20 mx-auto bg-custom-brown rounded-full flex items-center justify-center mb-2">
                 <img src="{{ asset('assets/images/failed.png') }}" alt="">

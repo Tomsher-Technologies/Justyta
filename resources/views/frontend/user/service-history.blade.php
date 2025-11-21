@@ -3,7 +3,7 @@
 @section('content')
 
     <div class="grid grid-cols-1 gap-6">
-        <div class=" bg-white p-10 rounded-[20px] border !border-[#FFE9B1] ">
+        <div class=" bg-white p-4 xl:p-10 rounded-[20px] border !border-[#FFE9B1] ">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">
                 @if($page == 'pending')
                     {{ __('frontend.pending_service') }}
@@ -27,8 +27,8 @@
             </h2>
             <hr class="mb-5">
             <div class="mb-6 border-b border-gray-200">
-                <ul class="flex flex-wrap -mb-px gap-8  text-sm font-medium text-center" id="default-tab"
-                    data-tabs-toggle="#default-tab-content" role="tablist">
+                <ul class="flex flex-nowrap overflow-x-auto whitespace-nowrap scrollbar-hide gap-8 -mb-px text-sm font-medium text-center"
+    id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
                    
                     @foreach ($mainServices as $serv)
                         <li class="me-2 {{ (($page == 'pending' || $page == 'payment') && $serv['slug'] == 'online-live-consultancy') ? 'hidden' : ''  }}" role="presentation">
