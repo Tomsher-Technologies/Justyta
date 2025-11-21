@@ -54,7 +54,7 @@ Route::get('/consultation/status/{consultation}', [HomeController::class, 'statu
 
 
 // Protected Dashboards
-Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:lawyer'])->group(function () {
+Route::prefix('lawyer')->middleware(['auth.frontend', 'checkFrontendUserType:lawyer'])->group(function () {
     Route::get('/dashboard', [LawyerController::class, 'lawyerDashboard'])->name('lawyer.dashboard');
     Route::post('/user/change-online-status', [LawyerController::class, 'changeOnlineStatus'])->name('lawyer.changeOnlineStatus');
 
@@ -73,7 +73,7 @@ Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:law
     Route::get('/consultations/{id}', [LawyerController::class, 'showConsultation'])->name('lawyer.consultations.show');
 });
 
-Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:vendor'])->group(function () {
+Route::prefix('vendor')->middleware(['auth.frontend', 'checkFrontendUserType:vendor'])->group(function () {
     Route::get('/dashboard', [VendorHomeController::class, 'dashboard'])->name('vendor.dashboard');
     // Manage Lawyers
     Route::get('/lawyers', [VendorHomeController::class, 'lawyers'])->name('vendor.lawyers');
@@ -128,7 +128,7 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
     Route::get('/consultations/{id}', [VendorHomeController::class, 'showConsultation'])->name('vendor.consultations.show');
 });
 
-Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {
+Route::prefix('translator')->middleware(['auth.frontend', 'checkFrontendUserType:translator'])->group(function () {
     Route::get('/dashboard', [TranslatorController::class, 'dashboard'])->name('translator.dashboard');
     // Route::get('/my-account', [TranslatorController::class, 'account'])->name('translator.my-account');
     // Route::post('/translator-profile', [TranslatorController::class, 'updateProfile'])->name('translator.update.profile');
@@ -147,7 +147,7 @@ Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType
     Route::post('/notifications/delete-selected', [TranslatorController::class, 'deleteSelectedNotifications'])->name('translator.notifications.delete.selected');
 });
 
-Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'])->group(function () {
+Route::prefix('user')->middleware(['auth.frontend', 'checkFrontendUserType:user'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'userDashboard'])->name('user.dashboard');
 
     // Online Video Call

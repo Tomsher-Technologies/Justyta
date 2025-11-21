@@ -48,6 +48,9 @@
         .select2-container--default .select2-selection--single .select2-selection__placeholder {
             color: #000;
         }
+        .select2-container{
+            width: 100% !important;
+        }
     </style>
     @yield('style')
 </head>

@@ -7,7 +7,7 @@
 </button>
 
     <div class="relative hidden lg:block w-full">
-        <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
+        {{-- <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
             <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
@@ -21,7 +21,7 @@
         <div id="search-suggestions"
             class="absolute z-10 w-full bg-white border border-gray-200 rounded-b-lg shadow-md max-h-60 overflow-y-auto hidden">
             <!-- Results will be inserted here -->
-        </div>
+        </div> --}}
     </div>
 
     <div class="flex items-center justify-end gap-4">
