@@ -4,7 +4,7 @@
     <form method="POST" action="{{ route('service.memo-writing-request') }}" id="courtCaseForm" enctype="multipart/form-data">
         @csrf
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-white p-10 rounded-[20px] border !border-[#FFE9B1]">
+            <div class="lg:col-span-2 bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1]">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">
                     {{ $service->getTranslation('title', $lang) }}
                 </h2>
@@ -100,7 +100,7 @@
                     {{ __('frontend.upload_documents') }}
                 </h2>
 
-                <div class="grid grid-cols-2 gap-x-6 gap-6">
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-2 xl:gap-6">
                     
                     <div>
                         <label for="documents" class="block text-sm font-medium text-gray-700 mb-2">
@@ -136,7 +136,7 @@
                 
             </div>
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)] flex flex-col justify-between">
+                <div class="bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1] h-[auto] xl:h-[calc(100vh-150px)] flex flex-col justify-between">
                     <div>
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">
                             {{ __('frontend.description') }}

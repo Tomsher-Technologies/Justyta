@@ -1,5 +1,15 @@
-<aside class="w-[330px] h-[calc(100vh-80px)] p-5 flex flex-col justify-between rounded-[20px] pt-5 gradient-secondory">
+<aside id="sidebar" class="fixed xl:static top-0 left-0 z-50
+           w-[80%] sm:w-[300px] xl:w-[330px]
+           h-full xl:h-[calc(100vh-80px)]
+           p-5 flex flex-col justify-between bg-white xl:rounded-[20px]
+           pt-5 gradient-secondory
+           transform -translate-x-full xl:translate-x-0 transition-all duration-300">
     <!-- Logo -->
+
+        <!-- Close Button (Mobile) -->
+    <button id="closeSidebar" class="xl:hidden absolute top-5 right-5 p-2 bg-white rounded-full shadow text-xl">
+        ✕
+    </button>
     <div>
         <img src="{{ asset('assets/images/logo1.png') }}" alt="Justyta Logo" class="w-24 mx-auto mb-6" />
         <ul class="space-y-8 text-sm mt-10">

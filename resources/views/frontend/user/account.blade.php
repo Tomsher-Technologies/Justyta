@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="grid grid-cols-1 gap-6">
-        <div class=" bg-white p-10 rounded-[20px] border !border-[#FFE9B1] ">
+        <div class=" bg-white p-4 xl:p-10 rounded-[20px] border !border-[#FFE9B1] ">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ __('frontend.edit_profile') }}</h2>
             <hr class="mb-5">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

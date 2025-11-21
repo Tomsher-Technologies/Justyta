@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="lg:col-span-2 bg-white p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)]">
+    <div class="lg:col-span-2 bg-white p-4 xl:p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)]">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ __('frontend.apply_now') }}</h2>
         <hr class="mb-5">
         <form method="POST" action="{{ route('user.job.apply') }}" id="jobApplyForm" enctype="multipart/form-data">
@@ -76,7 +76,7 @@
     </div>
     <div class="lg:col-span-1 space-y-6">
         <div
-            class="bg-white p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)] flex flex-col justify-between">
+            class="bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1] h-[auto] xl:h-[calc(100vh-150px)] flex flex-col justify-between">
             <div>
                 <h2 class="text-xl font-semibold text-gray-800">{{ __('frontend.about_consultancy') }}</h2>
                 <hr class="my-4">
