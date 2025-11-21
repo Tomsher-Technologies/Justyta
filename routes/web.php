@@ -242,6 +242,9 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/service-pending-details/{id}', [UserController::class, 'getServiceHistoryDetails'])->name('user.service.pending.details');
     Route::get('/service-payment-details/{id}', [UserController::class, 'getServiceHistoryDetails'])->name('user.service.payment.details');
 
+    Route::get('/consultation-details/{id}', [UserController::class, 'getConsultationDetails'])->name('user.consultation.details');
+    Route::get('/consultation-payment-details/{id}', [UserController::class, 'getConsultationDetails'])->name('user.consultation-payment.details');
+
     Route::get('/service-request/{id}/download', [UserController::class, 'downloadServiceCompletedFiles'])->name('user.service-request.download');
     Route::post('/service-request/{id}/re-upload', [ServiceRequestController::class, 'reUploadAfterRejection'])->name('user.service-request.re-upload');
 

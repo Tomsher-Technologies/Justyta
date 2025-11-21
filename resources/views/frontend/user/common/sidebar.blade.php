@@ -28,7 +28,7 @@
             </li>
 
             <li class="flex items-center gap-2">
-                <a href="{{ route('user.service.pending') }}" class="contents {{ areActiveWebRoutes(['user.service.pending','user.service.pending.details']) }}">
+                <a href="{{ route('user.service.pending', ['tab' => 'request-submission']) }}" class="contents {{ areActiveWebRoutes(['user.service.pending','user.service.pending.details']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="27" height="29" viewBox="0 0 27 29"
                         fill="none">
                         <path
@@ -43,7 +43,7 @@
             </li>
 
             <li class="flex items-center gap-2">
-                <a href="{{ route('user.service.history') }}" class="contents {{ areActiveWebRoutes(['user.service.history','user.service.history.details']) }}">
+                <a href="{{ route('user.service.history', ['tab' => 'online-live-consultancy']) }}" class="contents {{ areActiveWebRoutes(['user.service.history','user.service.history.details','user.consultation.details']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"
                         fill="none">
                         <path fill-rule="evenodd" clip-rule="evenodd"
@@ -55,7 +55,7 @@
             </li>
 
             <li class="flex items-center gap-2">
-                <a href="{{ route('user.service.payment') }}" class="contents {{ areActiveWebRoutes(['user.service.payment','user.service.payment.details']) }}">
+                <a href="{{ route('user.service.payment', ['tab' => 'request-submission']) }}" class="contents {{ areActiveWebRoutes(['user.service.payment','user.service.payment.details','user.consultation-payment.details']) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="31" height="23" viewBox="0 0 31 23"
                         fill="none">
                         <path

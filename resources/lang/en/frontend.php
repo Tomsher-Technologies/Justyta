@@ -470,4 +470,10 @@ return [
     'consultation_request_cancelled' => 'The consultation request has been rejected.',
     'consultation_extend_failed' => 'Consultation extention failed.',
     'no_of_vacancies' => 'No. of Vacancies',
+    'reserved' => 'Reserved',
+    'waiting_lawyer' => 'Waiting Lawyer',
+    'in_progress' => 'In Progress',
+    'on_hold' => 'On Hold',
+    'cancelled' => 'Cancelled',
+    
 ];
