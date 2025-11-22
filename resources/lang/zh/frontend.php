@@ -496,4 +496,7 @@ return [
     'special_welcome_gift' => '特别欢迎礼',
     'no_welcome_gift' => '无欢迎礼',
     'search_services' => '搜索服务',
+    'new_online_request' => '新的咨询请求',
+    'accept' => '接受',
+    'reject' => '拒绝',
 ];
