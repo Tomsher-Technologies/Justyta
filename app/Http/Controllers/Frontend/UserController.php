@@ -96,7 +96,7 @@ class UserController extends Controller
 
         $pageData = getPageDynamicContent('report_problem_success', $lang);
 
-        return redirect()->back()->with('success', $pageData['content'] ?? __('messages.problem_report_success'));
+        return redirect()->route('user.dashboard')->with('success', $pageData['content'] ?? __('messages.problem_report_success'));
     }
 
     public function rateUs()
@@ -143,7 +143,7 @@ class UserController extends Controller
 
         $pageData = getPageDynamicContent('rate_us_success', $lang);
 
-        return redirect()->back()->with('success', $pageData['content'] ?? __('messages.thank_you_feedback'));
+        return redirect()->route('user.dashboard')->with('success', $pageData['content'] ?? __('messages.thank_you_feedback'));
     }
 
     public function getTrainingFormData()

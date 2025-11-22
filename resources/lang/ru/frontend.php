@@ -496,4 +496,7 @@ return [
     'special_welcome_gift' => 'Специальный приветственный подарок',
     'no_welcome_gift' => 'Без приветственного подарка',
     'search_services' => 'Поиск услуг',
+    'new_online_request' => 'Новый запрос на консультацию',
+    'accept' => 'Принять',
+    'reject' => 'Отклонить',
 ];

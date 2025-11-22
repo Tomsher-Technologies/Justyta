@@ -11,7 +11,7 @@
                             <label class="col-form-label color-dark fw-500 align-center">Request Status</label>
                             <select id="statusSelect" class="form-control ip-gray radius-xs b-deep px-15" data-id="{{ $dataService['id'] }}">
                                 @php
-                                    $statuses = ['pending','under_review', 'ongoing', 'completed', 'rejected'];
+                                    $statuses = ['pending','under_review', 'ongoing', 'completed'];
                                 @endphp
                                 @foreach($statuses as $status)
                                     <option value="{{ $status }}" {{ $dataService['status'] === $status ? 'selected' : '' }}>

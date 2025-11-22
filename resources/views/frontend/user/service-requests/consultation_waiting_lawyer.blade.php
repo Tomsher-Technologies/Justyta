@@ -75,7 +75,7 @@
                     </button>
                     <img src="{{ asset('assets/images/logo-text.svg') }}" alt="{{ __('frontend.logo') }}"
                         class="mx-auto mb-8">
-                    <a href="#"
+                    <a href="{{ route('user.dashboard') }}"
                         class="inline-flex items-center gap-3 px-6 py-3 border border-[#4D1717] text-[#4D1717] rounded-full transition-colors duration-200">
                         <!-- back icon svg --> {{ __('frontend.back_to_home') }}
                     </a>

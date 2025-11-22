@@ -68,7 +68,7 @@
                     </div>
 
                     <div class="row-span-3">
-                        <label for="you-represent" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.current_address') }}</label>
+                        <label for="you-represent" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.current_address') }}<span class="text-red-500">*</span></label>
                         <textarea id="address" name="address" rows="6" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 mb-1 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.type_here') }}">{{ old('address') }}</textarea>
                         <span class="text-[#717171] text-sm">0/1000</span>
                         @error('address')

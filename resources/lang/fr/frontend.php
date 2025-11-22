@@ -496,4 +496,7 @@ return [
     'special_welcome_gift' => 'Cadeau de bienvenue spécial',
     'no_welcome_gift' => 'Pas de cadeau de bienvenue',
     'search_services' => 'Rechercher des services',
+    'new_online_request' => 'Nouvelle demande de consultation',
+    'accept' => 'Accepter',
+    'reject' => 'Refuser',
 ];

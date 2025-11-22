@@ -224,7 +224,7 @@
                                             </div>
                                         </form>
                                     @else
-                                        <p class="text-gray-500">{{ __('frontend.no_specific_requirements') }}</p>
+                                        {{-- <p class="text-gray-500">{{ __('frontend.no_specific_requirements') }}</p> --}}
                                     @endif
                                 </div>
 
