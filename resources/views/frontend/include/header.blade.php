@@ -60,7 +60,7 @@
 
                
                 <div class="relative">
-                    <button type="button"
+                    {{-- <button type="button"
                         class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="33" viewBox="0 0 28 33"
                             fill="none">
@@ -71,7 +71,7 @@
                         <div class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 shadow-xl">
                             20
                         </div>
-                    </button>
+                    </button> --}}
                     <div class="relative inline-block text-left">
                         <button id="langDropdownBtn" data-dropdown-toggle="langDropdown"
                             class="uppercase inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md">
