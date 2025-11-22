@@ -106,8 +106,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.date_of_birth') }} <span
                                 class="text-red-500">*</span></label>
                         <input type="date" name="dob" placeholder="d M Y"
-                            class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5 alldatepicker"
-                            value="{{ old('dob', $lawyer->date_of_birth ?? '') }}">
+                            class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" value="{{ old('dob', $lawyer->date_of_birth ?? '') }}"  max="{{ now()->subYears(15)->format('Y-m-d') }} " >
                         @error('dob')
                             <div class="text-red-500">{{ $message }}</div>
                         @enderror

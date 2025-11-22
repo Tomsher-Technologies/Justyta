@@ -17,6 +17,7 @@ use App\Models\TrainingRequest;
 use App\Models\ProblemReport;
 use App\Models\DropdownOption;
 use App\Models\ServiceRequest;
+use App\Models\Consultation;
 use App\Mail\JobApplicationReceived;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -460,25 +461,9 @@ class UserController extends Controller
         $pageTitle = __('frontend.service_history');
         $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $tab        = $serviceSlug = $request->query('tab', 'online-live-consultancy');
-        $perPage    = 9;
+        $perPage    = 12;
 
         $request->session()->put('service_last_url', url()->full());
-
-        $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', auth()->id());
-
-        if ($serviceSlug) {
-            if ($serviceSlug === 'law-firm-services') {
-                $slugs = Service::whereHas('parent', function ($query) {
-                    $query->where('slug', 'law-firm-services');
-                })->pluck('slug');
-
-                $query->whereIn('service_slug', $slugs);
-            } else {
-                $query->where('service_slug', $serviceSlug);
-            }
-        }
-
-        $serviceRequests = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
 
         $services = Service::with(['translations' => function ($newquery) use ($lang) {
             $newquery->where('lang', $lang);
@@ -498,7 +483,32 @@ class UserController extends Controller
             ];
         });
 
-        return view('frontend.user.service-history', compact('serviceRequests', 'mainServices', 'tab', 'lang', 'page', 'pageTitle'));
+        if($serviceSlug != 'online-live-consultancy') {
+            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', auth('frontend')->id());
+
+            if ($serviceSlug) {
+                if ($serviceSlug === 'law-firm-services') {
+                    $slugs = Service::whereHas('parent', function ($query) {
+                        $query->where('slug', 'law-firm-services');
+                    })->pluck('slug');
+
+                    $query->whereIn('service_slug', $slugs);
+                } else {
+                    $query->where('service_slug', $serviceSlug);
+                }
+            }
+
+            $serviceRequests = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
+
+            return view('frontend.user.service-history', compact('serviceRequests', 'mainServices', 'tab', 'lang', 'page', 'pageTitle'));
+        }else{
+
+            $conQuery = Consultation::with(['user', 'lawyer', 'emirate'])->where('user_id', auth('frontend')->id())->where('request_success', 1);
+            
+            $consultations = $conQuery->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
+
+            return view('frontend.user.consultation-history', compact('consultations','mainServices', 'tab', 'lang', 'page', 'pageTitle'));
+        }
     }
 
     public function servicePending(Request $request)
@@ -513,7 +523,7 @@ class UserController extends Controller
         $query = ServiceRequest::with('user', 'service')
             ->where('status', 'pending')
             ->where('request_success', 1)
-            ->where('user_id', auth()->id());
+            ->where('user_id', auth('frontend')->id());
 
         if ($serviceSlug) {
             if ($serviceSlug === 'law-firm-services') {
@@ -562,7 +572,7 @@ class UserController extends Controller
         $query = ServiceRequest::with('user', 'service')
             ->whereNotNull('payment_status')
             ->where('request_success', 1)
-            ->where('user_id', auth()->id());
+            ->where('user_id', auth('frontend')->id());
 
         if ($serviceSlug) {
             if ($serviceSlug === 'law-firm-services') {
@@ -660,6 +670,15 @@ class UserController extends Controller
         }
 
         return view('frontend.user.service_history_details', compact('dataService', 'lang'));
+    }
+
+    public function getConsultationDetails(Request $request, $id)
+    {
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
+        $id             = base64_decode($id);
+        $consultation   = Consultation::with('user', 'lawyer', 'emirate')->findOrFail($id);
+        
+        return view('frontend.user.consultation_details', compact('consultation'));
     }
 
     public function account()

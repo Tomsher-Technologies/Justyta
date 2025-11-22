@@ -3,32 +3,32 @@
 @section('content')
 
     <div class="grid grid-cols-1 gap-6">
-        <div class=" bg-white p-4 xl:p-10 rounded-[20px] border !border-[#FFE9B1] ">
+        <div class=" bg-white p-10 rounded-[20px] border !border-[#FFE9B1] ">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">
                 @if($page == 'pending')
                     {{ __('frontend.pending_service') }}
                     @php 
                         $route = 'user.service.pending'; 
-                        $detailsRoute = 'user.service.pending.details'; 
+                        $detailsRoute = 'user.consultation.details'; 
                     @endphp
                 @elseif ($page == 'history')
                     {{ __('frontend.service_history') }}
                     @php 
                         $route = 'user.service.history'; 
-                        $detailsRoute = 'user.service.history.details'; 
+                        $detailsRoute = 'user.consultation.details'; 
                     @endphp
                 @elseif ($page == 'payment')
                     {{ __('frontend.payment_history') }}
                     @php 
                         $route = 'user.service.payment'; 
-                        $detailsRoute = 'user.service.payment.details'; 
+                        $detailsRoute = 'user.consultation-payment.details'; 
                     @endphp
                 @endif
             </h2>
             <hr class="mb-5">
             <div class="mb-6 border-b border-gray-200">
-                <ul class="flex flex-nowrap overflow-x-auto whitespace-nowrap scrollbar-hide gap-8 -mb-px text-sm font-medium text-center"
-    id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+                <ul class="flex flex-wrap -mb-px gap-8  text-sm font-medium text-center" id="default-tab"
+                    data-tabs-toggle="#default-tab-content" role="tablist">
                    
                     @foreach ($mainServices as $serv)
                         <li class="me-2 {{ (($page == 'pending' || $page == 'payment') && $serv['slug'] == 'online-live-consultancy') ? 'hidden' : ''  }}" role="presentation">
@@ -42,17 +42,22 @@
 
             <div id="default-tab-content">
                 <div class=" rounded-lg " id="all-services" role="tabpanel" aria-labelledby="all-services-tab">
-                    @if($serviceRequests->count())
+                    @if($consultations->count())
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4">
-                            @foreach($serviceRequests as $request)
+                            @foreach($consultations as $request)
                             
                                 @php
                                     $statusClass = [
-                                        'pending'   => '!bg-[#bdbdbdb5] !text-[#444444] dark:bg-gray-800 dark:text-gray-300',
-                                        'ongoing'   => '!bg-[#ffdb82] !text-[#000000] dark:bg-yellow-900 dark:text-yellow-300',
-                                        'completed' => '!bg-[#42e1428c] !text-[#1B5E20] dark:bg-green-900 dark:text-green-300',
-                                        'rejected'  => '!bg-[#fca6a6a1] !text-[#B71C1C] dark:bg-red-900 dark:text-red-300',
-                                        
+                                        'reserved' => ['bg' => '#808080', 'text' => '#ffffff'],
+                                        'waiting_lawyer' => ['bg' => '#ADD8E6', 'text' => '#000000'],
+                                        // 'assigned' => ['bg' => '#FFF44F', 'text' => '#000000'],
+                                        'accepted' => ['bg' => '#90EE90', 'text' => '#000000'],
+                                        'rejected' => ['bg' => '#FF0000', 'text' => '#ffffff'],
+                                        'completed' => ['bg' => '#008000', 'text' => '#ffffff'],
+                                        'cancelled' => ['bg' => '#A52A2A', 'text' => '#ffffff'],
+                                        'no_lawyer_available' => ['bg' => '#FFA07A', 'text' => '#000000'],
+                                        'in_progress' => ['bg' => '#FFD580', 'text' => '#000000'],
+                                        'on_hold' => ['bg' => '#FFA500', 'text' => '#000000'],
                                     ];
                                     $paymentStatus = [
                                         'pending'   => '!bg-[#ea1616] !text-[#fff] dark:bg-gray-800 dark:text-gray-300',
@@ -63,26 +68,28 @@
                                 @endphp
                                 <a href="{{ route($detailsRoute, ['id' => base64_encode($request->id)]) }}">
                                     <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-5">
-                                        <h3 class="text-lg font-medium text-gray-900 mb-2">{{ $request->service->getTranslation('title',$lang) }}</h3>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-2">
+                                            {{ __('frontend.consultation') }}
+                                        </h3>
                                         <p class="text-sm text-gray-600 mb-1">{{ __('frontend.application_reference_number') }} <span
                                                 class="font-semibold">{{ $request->reference_code }}</span></p>
-                                        <p class="text-sm text-gray-600 mb-4">{{ date('d M, Y h:i A', strtotime($request->submitted_at)) }}</p>
+                                        <p class="text-sm text-gray-600 mb-4">{{ date('d M, Y h:i A', strtotime($request->created_at)) }}</p>
                                         
                                         @php
                                             $status = strtolower($request->status);
                                             $payStatus = strtolower($request->payment_status); 
+                                            $bgColor = $statusClass[$status]['bg'] ?? '#e0e0e0';
+                                            $textColor = $statusClass[$status]['text'] ?? '#000000';
                                         @endphp
 
-                                        <span class="{{ $statusClass[$status] ?? '!bg-gray-200 !text-gray-700' }} text-xs font-medium px-4 py-1 rounded-full">
-                                            {{ ucfirst($status) }}
+                                        <span class=" text-xs font-medium px-4 py-1 rounded-full" style="background-color: {{ $bgColor }}; color: {{ $textColor }};">
+                                            {{ ucfirst(__('frontend.'.$status)) }}
                                         </span>
 
                                         @if($payStatus != NULL)
                                             <span class="{{ $paymentStatus[$payStatus] ?? '!bg-gray-200 !text-gray-700' }} text-xs font-medium px-4 py-1 rounded-full ml-2">
                                                 @if ($payStatus == 'success')
                                                     {{ __('frontend.paid') }}
-                                                @elseif ($payStatus == 'partial')
-                                                    {{ __('frontend.partial') }}
                                                 @else
                                                     {{ __('frontend.un_paid') }}
                                                 @endif
@@ -93,10 +100,10 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="text-center">{{ __('frontend.no_service_request') }}</p>
+                        <p class="text-center">{{ __('frontend.no_data_found') }}</p>
                     @endif
                     <div class="mt-10">
-                        {{ $serviceRequests->links('pagination::tailwind') }}
+                        {{ $consultations->links('pagination::tailwind') }}
                     </div>
                 </div>
                

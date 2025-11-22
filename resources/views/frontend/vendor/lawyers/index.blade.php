@@ -13,7 +13,8 @@
     </div>
     <form method="GET" id="filterForm" action="{{ route('vendor.lawyers') }}" autocomplete="off">
         <div class="grid grid-cols-1 md:grid-cols-12 items-end gap-4 mb-8">
-            <div class="relative col-span-6">
+
+            <div class="relative col-span-4">
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                     <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -25,6 +26,16 @@
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-3.5"
                     placeholder="{{ __('frontend.search_name_email_phone') }}" />
             </div>
+
+            <div class="col-span-2">
+                <label for="status" class="block mb-2 text-sm font-medium text-gray-900">{{ __('frontend.status') }}</label>
+                <select  name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
+                    <option value="">{{ __('frontend.all') }}</option>
+                    <option value="1" {{ request()->status == 1 ? 'selected' : '' }}>{{ __('frontend.active') }} </option>
+                    <option value="2" {{ request()->status == 2 ? 'selected' : '' }}>{{ __('frontend.inactive') }} </option>
+                </select>
+            </div>
+
             <div class="col-span-4">
                 <label for="countries" class="block mb-2 text-sm font-medium text-gray-900">{{ __('frontend.specialities') }}</label>
                 <select name="specialities" id="select-tag" class="form-control select2 ip-gray radius-xs b-light px-15">
@@ -36,14 +47,11 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-span-2">
-                <label for="status" class="block mb-2 text-sm font-medium text-gray-900">{{ __('frontend.status') }}</label>
-                <select  name="status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
-                    <option value="">{{ __('frontend.all') }}</option>
-                    <option value="1" {{ request()->status == 1 ? 'selected' : '' }}>{{ __('frontend.active') }} </option>
-                    <option value="2" {{ request()->status == 2 ? 'selected' : '' }}>{{ __('frontend.inactive') }} </option>
-                </select>
+
+            <div class="col-span-1 mb-3">
+                <a href="{{ route('vendor.lawyers') }}" class="bg-[#d0ba82] text-black px-6 py-2.5 text-center rounded-full">{{ __('frontend.reset') }}</a>
             </div>
+            
         </div>
     </form>
     @if ($lawyers->isNotEmpty())

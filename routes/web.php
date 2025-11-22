@@ -54,7 +54,7 @@ Route::get('/consultation/status/{consultation}', [HomeController::class, 'statu
 
 
 // Protected Dashboards
-Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:lawyer'])->group(function () {
+Route::prefix('lawyer')->middleware(['auth.frontend', 'checkFrontendUserType:lawyer'])->group(function () {
     Route::get('/dashboard', [LawyerController::class, 'lawyerDashboard'])->name('lawyer.dashboard');
     Route::post('/user/change-online-status', [LawyerController::class, 'changeOnlineStatus'])->name('lawyer.changeOnlineStatus');
 
@@ -73,12 +73,18 @@ Route::prefix('lawyer')->middleware(['auth:frontend', 'checkFrontendUserType:law
     Route::get('/consultations/{id}', [LawyerController::class, 'showConsultation'])->name('lawyer.consultations.show');
 });
 
-Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:vendor'])->group(function () {
+Route::prefix('vendor')->middleware(['auth.frontend', 'checkFrontendUserType:vendor'])->group(function () {
     Route::get('/dashboard', [VendorHomeController::class, 'dashboard'])->name('vendor.dashboard');
     // Manage Lawyers
     Route::get('/lawyers', [VendorHomeController::class, 'lawyers'])->name('vendor.lawyers');
     Route::get('/create-lawyer', [VendorHomeController::class, 'createLawyer'])->name('vendor.create.lawyers');
     Route::post('/store-lawyer', [VendorHomeController::class, 'storeLawyer'])->name('vendor.store.lawyers');
+
+    Route::get('/my-account', [VendorHomeController::class, 'account'])->name('vendor.my-account');
+    Route::post('/update-profile', [VendorHomeController::class, 'updateProfile'])->name('vendor.update.profile');
+    Route::delete('/account/delete', [VendorHomeController::class, 'deleteAccount'])->name('vendor.delete.account');
+    Route::get('/change-password', [VendorHomeController::class, 'changePassword'])->name('vendor.change-password');
+    Route::post('/update-password', [VendorHomeController::class, 'updateNewPassword'])->name('vendor.update-new-password');
 
     Route::get('/notifications', [VendorHomeController::class, 'notifications'])->name('vendor.notifications.index');
     Route::post('/notifications/clear', [VendorHomeController::class, 'clearAllNotifications'])->name('vendor.notifications.clear');
@@ -128,7 +134,7 @@ Route::prefix('vendor')->middleware(['auth:frontend', 'checkFrontendUserType:ven
     Route::get('/consultations/{id}', [VendorHomeController::class, 'showConsultation'])->name('vendor.consultations.show');
 });
 
-Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType:translator'])->group(function () {
+Route::prefix('translator')->middleware(['auth.frontend', 'checkFrontendUserType:translator'])->group(function () {
     Route::get('/dashboard', [TranslatorController::class, 'dashboard'])->name('translator.dashboard');
     // Route::get('/my-account', [TranslatorController::class, 'account'])->name('translator.my-account');
     // Route::post('/translator-profile', [TranslatorController::class, 'updateProfile'])->name('translator.update.profile');
@@ -147,7 +153,7 @@ Route::prefix('translator')->middleware(['auth:frontend', 'checkFrontendUserType
     Route::post('/notifications/delete-selected', [TranslatorController::class, 'deleteSelectedNotifications'])->name('translator.notifications.delete.selected');
 });
 
-Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'])->group(function () {
+Route::prefix('user')->middleware(['auth.frontend', 'checkFrontendUserType:user'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'userDashboard'])->name('user.dashboard');
 
     // Online Video Call
@@ -186,9 +192,6 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/consultation/payment-status', [ServiceRequestController::class, 'checkPayment'])->name('consultation.payment-status');
     Route::get('/get-available-lawyers', [ServiceRequestController::class, 'getAvailableLawyers'])->name('get.available.lawyers');
 
-
-
-
     // Get sub dropdowns and general links related to service requests
     Route::post('/get-request-types', [ServiceRequestController::class, 'getRequestTypes'])->name('get.request.types');
     Route::post('/get-request-titles', [ServiceRequestController::class, 'getRequestTitles'])->name('get.request.titles');
@@ -211,7 +214,6 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/consultation-payment-cancel', [ServiceRequestController::class, 'consultationPaymentCancel'])->name('user.consultation-payment.cancel');
     Route::get('/consultation-payment-failed', [ServiceRequestController::class, 'consultationRequestFailed'])->name('user.payment-consultation-failed');
     
-
 
     // Payment call back
     Route::get('/payment-callback/{order_id}', [ServiceRequestController::class, 'paymentSuccess'])->name('user.web-payment.callback');
@@ -241,6 +243,9 @@ Route::prefix('user')->middleware(['auth:frontend', 'checkFrontendUserType:user'
     Route::get('/service-history-details/{id}', [UserController::class, 'getServiceHistoryDetails'])->name('user.service.history.details');
     Route::get('/service-pending-details/{id}', [UserController::class, 'getServiceHistoryDetails'])->name('user.service.pending.details');
     Route::get('/service-payment-details/{id}', [UserController::class, 'getServiceHistoryDetails'])->name('user.service.payment.details');
+
+    Route::get('/consultation-details/{id}', [UserController::class, 'getConsultationDetails'])->name('user.consultation.details');
+    Route::get('/consultation-payment-details/{id}', [UserController::class, 'getConsultationDetails'])->name('user.consultation-payment.details');
 
     Route::get('/service-request/{id}/download', [UserController::class, 'downloadServiceCompletedFiles'])->name('user.service-request.download');
     Route::post('/service-request/{id}/re-upload', [ServiceRequestController::class, 'reUploadAfterRejection'])->name('user.service-request.re-upload');

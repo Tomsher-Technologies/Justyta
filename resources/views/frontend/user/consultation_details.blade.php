@@ -1,23 +1,22 @@
-@extends('layouts.web_vendor_default', ['title' => __('frontend.consultations')])
+@extends('layouts.web_default', ['title' =>  $pageTitle ?? '' ])
 
 @section('content')
 <div class="bg-white rounded-lg p-6 min-h-[calc(100vh-150px)]">
     <div class="flex items-center justify-between">
         <h2 class="text-xl font-medium text-gray-900">{{ __('frontend.consultations') }}</h2>
-        <a href="{{ Session::has('last_page_consultations') ? Session::get('last_page_consultations') : route('vendor.consultations.index') }}" class="inline-flex items-center mt-3 xl:mt-0 px-4 py-2 text-white bg-[#c4b07e] hover:bg-[#c4b07e]-800 focus:ring-4 focus:ring-green-300 font-medium rounded-full text-base dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
-            <svg class="w-4 h-4 me-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"
+        <a href="{{ Session::has('service_last_url') ? Session::get('service_last_url') : route('user.service.history') }}" class="inline-flex items-center px-4 py-2 text-black bg-[#c4b07e] hover:bg-[#c4b07e]-800 focus:ring-4 focus:ring-green-300 font-medium rounded-full text-base dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
+            {{ __('frontend.go_back') }}
+            <svg class="w-4 h-4 ms-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"
                 aria-hidden="true">
-                <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                <path stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M13 5H1m0 0l4-4M1 5l4 4" />
             </svg>
-        {{ __('frontend.go_back') }}
-            
         </a>
     </div>
 
     <hr class="my-4 border-[#DFDFDF]" />
     
-    <div class="relative overflow-x-auto sm:rounded-lg w-[240px] xl:w-full">
+    <div class="relative overflow-x-auto sm:rounded-lg">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <!-- Left: Consultation Details -->
             <div class="col-span-1 border-r pr-8">
@@ -43,14 +42,16 @@
                                 'on_hold' => ['bg' => '#FFA500', 'text' => '#000000'],
                             ];
 
-                            $status = $assignment->status ?? '';
+                            $status = $consultation->status ?? '';
                             $bgColor = $statusClass[$status]['bg'] ?? '#e0e0e0';
                             $textColor = $statusClass[$status]['text'] ?? '#000000';
+                            $displayStatus = __('frontend.'.$status);
                         @endphp
                         <p class="text-gray-800">
                             <span class="px-3 py-1 rounded text-sm font-medium"
                                 style="background-color: {{ $bgColor }}; color: {{ $textColor }};">
-                                {{ ucwords(str_replace('_', ' ', __('frontend.'.$status))) }}
+
+                                {{ ucwords($displayStatus) }}
                             </span>
                         </p>
                     </div>
@@ -60,12 +61,10 @@
                         <p class="text-gray-800">{{ $consultation->user?->name ?? '-' }}</p>
                     </div>
 
-                    {{-- @if($assignment->status == 'accepted') --}}
-                        <div class="flex items-center">
-                            <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.lawyer') }} :</p>
-                            <p class="text-gray-800">{{ $assignment->lawyer?->getTranslation('full_name', getActiveLanguage()) ?? '-' }}</p>
-                        </div>
-                    {{-- @endif --}}
+                    <div class="flex items-center">
+                        <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.lawyer') }} :</p>
+                        <p class="text-gray-800">{{ $consultation->lawyer?->getTranslation('full_name', getActiveLanguage()) ?? '-' }}</p>
+                    </div>
                     
 
                     <div class="flex items-center">
@@ -121,26 +120,19 @@
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.amount') }} :</p>
                         <p class="text-gray-800">
-                            @if($assignment->status == 'accepted')
-                                AED {{ number_format($consultation->lawyer_amount, 2) }}
-                            @else
-                                AED 0.00
-                            @endif
-                            
+                           AED {{ number_format($consultation->amount, 2) }}
                         </p>
                     </div>
 
-                    @if($assignment->status == 'accepted')
-                        <div class="flex items-center">
-                            <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.meeting_start_time') }} :</p>
-                            <p class="text-gray-800">{{ $consultation->meeting_start_time ?? '-' }}</p>
-                        </div>
+                    <div class="flex items-center">
+                        <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.meeting_start_time') }} :</p>
+                        <p class="text-gray-800">{{ $consultation->meeting_start_time ?? '-' }}</p>
+                    </div>
 
-                        <div class="flex items-center">
-                            <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.meeting_end_time') }} :</p>
-                            <p class="text-gray-800">{{ $consultation->meeting_end_time ?? '-' }}</p>
-                        </div>
-                    @endif
+                    <div class="flex items-center">
+                        <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.meeting_end_time') }} :</p>
+                        <p class="text-gray-800">{{ $consultation->meeting_end_time ?? '-' }}</p>
+                    </div>
                 </div>
             </div>
         </div>

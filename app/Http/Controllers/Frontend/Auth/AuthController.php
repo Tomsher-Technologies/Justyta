@@ -14,6 +14,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use App\Notifications\ForgotPassword;
 use App\Models\User;
+use App\Models\UserOnlineLog;
 use App\Models\Vendor;
 use App\Models\MembershipPlan;
 use App\Models\VendorTranslation;
@@ -70,6 +71,19 @@ class AuthController extends Controller
             'last_login_at' => now(),
             'last_login_ip' => request()->ip(),
         ]);
+
+        if ($user->user_type === 'lawyer') {
+            $lawyer = Lawyer::where('user_id', $user->id)->first();
+            $lawyer->is_busy = 0;
+            $lawyer->save();
+
+            UserOnlineLog::create([
+                'user_id' => $user->id,
+                'status'  => 1
+            ]);
+        }
+
+        
         session(['locale' => $user->language]);
        
         return match ($user->user_type) {
@@ -91,6 +105,11 @@ class AuthController extends Controller
             $lawyer = Lawyer::where('user_id', $user->id)->first();
             $lawyer->is_busy = 0;
             $lawyer->save();
+
+            UserOnlineLog::create([
+                'user_id' => $user->id,
+                'status'  => 0
+            ]);
         }
 
         Auth::guard('frontend')->logout();
@@ -549,7 +568,7 @@ class AuthController extends Controller
                 </p>";
             Mail::to($vendor->owner_email)->queue(new CommonMail($array));
 
-            session()->flash('success', '{{ __("frontend.vendor_registration_success") }}');
+            session()->flash('success', __("frontend.vendor_registration_success"));
 
             return redirect()->route('frontend.login'); 
         }else{

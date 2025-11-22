@@ -18,6 +18,10 @@
     <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
 
     <style>
+
+        .select2-container{
+            width: 100% !important;
+        }
         /* Target the Select2 control box */
         .select2-container--default .select2-selection--single {
             background-color: #F9F9F9 !important;

@@ -421,7 +421,7 @@
 
                     if (result.isConfirmed) {
 
-                        fetch("{{ route('lawyer.notifications.delete.selected') }}", {
+                        fetch("{{ route('vendor.notifications.delete.selected') }}", {
                             method: "POST",
                             headers: {
                                 'X-CSRF-TOKEN': "{{ csrf_token() }}",

@@ -144,7 +144,7 @@
                     @else
                         <tr>
                             <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                                {{ __('frontend.no_service_requests_found') }}
+                                {{ __('frontend.no_data_found') }}
                             </td>
                         </tr>
                     @endif
