@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-8">
+        <div class="flex flex-col lg:flex-row gap-8 job__details">
             <div class="lg:w-2/3  break-words">
                 <h2 class="text-xl font-semibold mb-3">{{ __('frontend.job_description') }}</h2>
                 {!! $jobPost['description'] !!}

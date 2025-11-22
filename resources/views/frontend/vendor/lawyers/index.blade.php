@@ -68,7 +68,7 @@
                     </a>
 
                     <a href="{{ route('vendor.view.lawyers', base64_encode($lawyer->id)) }}">
-                        <div class="flex items-middle gap-6 w-full">
+                        <div class="flex flex-col xl:flex-row items-middle gap-6 w-full">
                             <div class="relative inline-block">
                                 <img class="h-[130px] w-[130px] rounded-full object-cover"
                                     src="{{ asset(getUploadedUserImage($lawyer->profile_photo)) }}" alt="{{ $lawyer->getTranslation('full_name', app()->getLocale()) }}">

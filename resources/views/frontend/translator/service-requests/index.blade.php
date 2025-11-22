@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="bg-white rounded-lg p-6">
-        <h2 class="text-xl font-medium text-gray-900 mb-4">{{ __('frontend.translation') }}</h2>
+        <h2 class="text-xl font-medium text-gray-900 mb-4 ">{{ __('frontend.translation') }}</h2>
 
         <hr class="my-4 border-[#DFDFDF]" />
 
@@ -77,7 +77,7 @@
                 </div>
             </div>
         </form>
-        <div class="relative overflow-x-auto sm:rounded-lg">
+        <div class="relative overflow-x-auto sm:rounded-lg w-[240px] xl:w-full">
             <table class="w-full border">
                 <thead class="text-md font-normal">
                     <tr class="bg-[#07683B] text-white font-normal">

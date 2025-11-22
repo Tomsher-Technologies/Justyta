@@ -25,9 +25,39 @@
                     <a href="{{ route('frontend.login') }}" class="bg-[#04502E] text-white px-8 py-2 rounded-full w-auto ">
                         {{ __('frontend.sign_in') }}
                     </a>
-                    <a href="{{ route('frontend.register') }}" class="text-[#07683B] border !border-[#07683B] px-8 py-2 rounded-full w-auto ">
-                        {{ __('frontend.sign_up') }}
-                    </a>
+           <div x-data="{ open: false }" class="relative inline-block">
+    <!-- Button -->
+    <button @click="open = !open"
+        class="flex items-center gap-2 text-[#07683B] border !border-[#07683B] px-6 py-2 rounded-full w-auto">
+        
+        {{ __('frontend.sign_up') }}
+
+        <!-- Arrow Icon -->
+        <svg :class="open ? 'rotate-180' : 'rotate-0'"
+            class="w-4 h-4 transition-transform duration-200"
+            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M19 9l-7 7-7-7" />
+        </svg>
+    </button>
+
+    <!-- Dropdown -->
+    <div x-show="open" @click.away="open = false"
+        class="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-44 z-50 py-1">
+
+        <a href="{{ route('frontend.register') }}"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            {{ __('frontend.sign_up') }}
+        </a>
+
+        <a href="{{ route('frontend.login') }}"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+             {{ __('frontend.sign_in') }}
+        </a>
+
+    </div>
+</div>
+
                
                 <div class="relative">
                     <button type="button"
