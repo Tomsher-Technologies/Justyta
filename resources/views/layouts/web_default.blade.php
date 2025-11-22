@@ -49,7 +49,7 @@
             color: #000;
         }
         .select2-container{
-            width: 100% !important;
+            /* width: 100% !important; */
         }
     </style>
     @yield('style')

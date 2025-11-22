@@ -45,7 +45,7 @@
                             class="text-red-500">*</span></label>
                     <input type="date" id="start_date" name="start_date"
                         class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"
-                        placeholder="DD-MM-YYYY">
+                        placeholder="DD-MM-YYYY" min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
                     @error('start_date')
                         <span class="text-red-500">{{ $message }}</span>
                     @enderror

@@ -173,7 +173,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 16h-1v-4h-1m0-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
                             </svg>
-                            <h3 class="text-lg font-bold">{{ __('frontend.new_consultation_request') }}</h3>
+                            <h3 class="text-lg font-bold">{{ __('frontend.new_online_request') }}</h3>
                         </div>
                         <button id="popupClose" class="text-white hover:text-gray-200 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
@@ -198,7 +198,7 @@
                                 <span id="applicantType" class="text-gray-900 font-semibold"></span>
                             </div>
                             <div class="flex justify-between border-b py-2">
-                                <span class="font-medium">{{ __('frontend.litigant_type') }}:</span>
+                                <span class="font-medium">{{ __('frontend.litigation_type') }}:</span>
                                 <span id="litigantType" class="text-gray-900 font-semibold"></span>
                             </div>
                             <div class="flex justify-between border-b py-2">
