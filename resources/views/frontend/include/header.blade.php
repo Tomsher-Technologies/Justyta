@@ -47,12 +47,12 @@
 
         <a href="{{ route('frontend.register') }}"
             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-            {{ __('frontend.sign_up') }}
+            {{ __('frontend.user_signup') }}
         </a>
 
-        <a href="{{ route('frontend.login') }}"
+        <a href="{{ route('law-firm.register') }}"
             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-             {{ __('frontend.sign_in') }}
+             {{ __('frontend.lawfirm_signup') }}
         </a>
 
     </div>

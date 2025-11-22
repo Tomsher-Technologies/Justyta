@@ -568,7 +568,7 @@ class AuthController extends Controller
                 </p>";
             Mail::to($vendor->owner_email)->queue(new CommonMail($array));
 
-            session()->flash('success', '{{ __("frontend.vendor_registration_success") }}');
+            session()->flash('success', __("frontend.vendor_registration_success"));
 
             return redirect()->route('frontend.login'); 
         }else{

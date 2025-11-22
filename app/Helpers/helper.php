@@ -1323,7 +1323,7 @@ function getFullStatusHistory(ServiceRequest $serviceRequest): array
 
     function isVendorCanCreateLawyers()
     {
-        $user = Auth::user();
+        $user = Auth::guard('frontend')->user();
 
         if (!$user) {
             return false;
@@ -1354,7 +1354,7 @@ function getFullStatusHistory(ServiceRequest $serviceRequest): array
 
     function isVendorCanCreateJobs()
     {
-        $user = Auth::user();
+        $user = Auth::guard('frontend')->user();
 
         if (!$user) {
             return false;
