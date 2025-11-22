@@ -501,4 +501,10 @@ return [
     'special_welcome_gift' => 'Special Welcome Gift',
     'no_welcome_gift' => 'No Welcome Gift',
     'search_services' => 'Search Services...',
+
+
+    'new_online_request' => 'New Consultation Request',
+    'accept' => 'Accept',
+    'reject' => 'Reject',
+
 ];

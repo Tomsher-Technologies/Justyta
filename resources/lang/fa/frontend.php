@@ -496,4 +496,7 @@ return [
     'special_welcome_gift' => 'هدیه خوش‌آمدگویی خاص',
     'no_welcome_gift' => 'هیچ هدیه‌ای ندارد',
     'search_services' => 'جستجوی خدمات',
+    'new_online_request' => 'درخواست مشاوره جدید',
+    'accept' => 'پذیرفتن',
+    'reject' => 'رد کردن',
 ];

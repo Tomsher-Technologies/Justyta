@@ -496,4 +496,7 @@ return [
     'special_welcome_gift' => 'هدية ترحيب خاصة',
     'no_welcome_gift' => 'لا هدية ترحيبية',
     'search_services' => 'بحث الخدمات',
+    'new_online_request' => 'طلب استشارة جديد',
+    'accept' => 'قبول',
+    'reject' => 'رفض',
 ];
