@@ -495,4 +495,5 @@ return [
     'premium_welcome_gift' => 'هدیه خوش‌آمدگویی ویژه',
     'special_welcome_gift' => 'هدیه خوش‌آمدگویی خاص',
     'no_welcome_gift' => 'هیچ هدیه‌ای ندارد',
+    'search_services' => 'جستجوی خدمات',
 ];

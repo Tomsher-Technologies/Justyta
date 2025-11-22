@@ -495,4 +495,5 @@ return [
     'premium_welcome_gift' => '高级欢迎礼',
     'special_welcome_gift' => '特别欢迎礼',
     'no_welcome_gift' => '无欢迎礼',
+    'search_services' => '搜索服务',
 ];

@@ -243,7 +243,7 @@ class UserController extends Controller
 
         $trainingRequest->update($filePaths);
 
-        $request->user()->notify(new TrainingRequestSubmitted($trainingRequest));
+        auth()->guard('frontend')->user()->notify(new TrainingRequestSubmitted($trainingRequest));
 
         $usersToNotify = getUsersWithPermissions(['view_training_requests', 'export_training_requests']);
         Notification::send($usersToNotify, new TrainingRequestSubmitted($trainingRequest, true));

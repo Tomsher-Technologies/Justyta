@@ -16,7 +16,7 @@
         </div>
         <input type="text" id="search-navbar"
             class="block p-3 w-full ps-12 text-sm text-gray-900 border border-[#FFE9B1] rounded-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Search services..." autocomplete="off" />
+            placeholder="{{ __('frontend.search_services') }}" autocomplete="off" />
 
         <!-- Suggestions container -->
         <div id="search-suggestions"

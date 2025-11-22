@@ -199,7 +199,7 @@
                                 required />
                         </div>
                         <label for="terms" class="cursor-pointer ms-2 text-sm font-normal text-gray-900">
-                            {!! __('frontend.agree_terms', ['terms' => '<a href="#" class="underline text-[#B9A572]">' . __('frontend.terms') . '</a>']) !!}
+                            {!! __('frontend.agree_terms', ['terms' => '<a href="'.route('terms-conditions').'" class="underline text-[#B9A572]">' . __('frontend.terms') . '</a>']) !!}
                         </label>
                     </div>
 

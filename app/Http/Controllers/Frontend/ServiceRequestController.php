@@ -94,7 +94,7 @@ class ServiceRequestController extends Controller
         ]);
 
         $lang       = $request->header('lang') ?? env('APP_LOCALE', 'en');
-        $user       = $request->user();
+        $user       = auth()->guard('frontend')->user();
         $userId     = $user->id ?? null; 
 
         $consultation = Consultation::findOrFail($data['consultation_id']);

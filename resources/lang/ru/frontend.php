@@ -495,4 +495,5 @@ return [
     'premium_welcome_gift' => 'Премиальный приветственный подарок',
     'special_welcome_gift' => 'Специальный приветственный подарок',
     'no_welcome_gift' => 'Без приветственного подарка',
+    'search_services' => 'Поиск услуг',
 ];

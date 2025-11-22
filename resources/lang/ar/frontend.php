@@ -495,4 +495,5 @@ return [
     'premium_welcome_gift' => 'هدية ترحيبية مميزة',
     'special_welcome_gift' => 'هدية ترحيب خاصة',
     'no_welcome_gift' => 'لا هدية ترحيبية',
+    'search_services' => 'بحث الخدمات',
 ];
