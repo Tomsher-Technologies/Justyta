@@ -63,28 +63,28 @@
 
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.lawyer') }} :</p>
-                        <p class="text-gray-800">{{ $consultation->lawyer?->full_name ?? '-' }}</p>
+                        <p class="text-gray-800">{{ $consultation->lawyer?->getTranslation('full_name', getActiveLanguage()) ?? '-' }}</p>
                     </div>
                     
 
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.applicant_type') }} :</p>
-                        <p class="text-gray-800">{{ ucfirst($consultation->applicant_type ?? '-') }}</p>
+                        <p class="text-gray-800">{{ ucfirst(__('frontend.'.$consultation->applicant_type) ?? '-') }}</p>
                     </div>
 
                      <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.litigation_type') }} :</p>
-                        <p class="text-gray-800">{{ ucfirst($consultation->litigation_type ?? '-') }}</p>
+                        <p class="text-gray-800">{{ ucfirst(__('frontend.'.$consultation->litigation_type) ?? '-') }}</p>
                     </div>
 
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.consultant_type') }} :</p>
-                        <p class="text-gray-800">{{ ucfirst($consultation->consultant_type ?? '-') }}</p>
+                        <p class="text-gray-800">{{ ucfirst(__('frontend.'.$consultation->consultant_type) ?? '-') }}</p>
                     </div>
 
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.case_type') }} :</p>
-                        <p class="text-gray-800">{{ $consultation->caseType?->getTranslation('name', 'en') ?? '-' }}</p>
+                        <p class="text-gray-800">{{ $consultation->caseType?->getTranslation('name', getActiveLanguage()) ?? '-' }}</p>
                     </div>
 
                     
@@ -94,27 +94,27 @@
                 <div class="space-y-6">
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.case_stage') }} :</p>
-                        <p class="text-gray-800">{{ $consultation->caseStage?->getTranslation('name', 'en') ?? '-' }}</p>
+                        <p class="text-gray-800">{{ $consultation->caseStage?->getTranslation('name', getActiveLanguage()) ?? '-' }}</p>
                     </div>
 
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.you_represent') }} :</p>
-                        <p class="text-gray-800">{{ $consultation->youRepresent?->getTranslation('name', 'en') ?? '-' }}</p>
+                        <p class="text-gray-800">{{ $consultation->youRepresent?->getTranslation('name', getActiveLanguage()) ?? '-' }}</p>
                     </div>
 
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.language') }} :</p>
-                        <p class="text-gray-800">{{ ucfirst($consultation->languageValue?->getTranslation('name', 'en') ?? '-') }}</p>
+                        <p class="text-gray-800">{{ ucfirst($consultation->languageValue?->getTranslation('name', getActiveLanguage()) ?? '-') }}</p>
                     </div>
 
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.emirate') }} :</p>
-                        <p class="text-gray-800">{{ $consultation->emirate?->getTranslation('name', 'en') ?? '-' }}</p>
+                        <p class="text-gray-800">{{ $consultation->emirate?->getTranslation('name', getActiveLanguage()) ?? '-' }}</p>
                     </div>
 
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.duration') }} :</p>
-                        <p class="text-gray-800">{{ $consultation->duration }} mins</p>
+                        <p class="text-gray-800">{{ $consultation->duration }} {{ __('frontend.mins') }}</p>
                     </div>
 
                     <div class="flex items-center">

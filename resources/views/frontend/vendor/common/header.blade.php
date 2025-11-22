@@ -86,7 +86,7 @@
             
             <div id="userDropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow p-6 w-64 absolute right-0 mt-2">
 
-                <a href="{{ route('user.my-account') }}" class="flex items-center justify-between w-full border-b">
+                <a href="{{ route('vendor.my-account') }}" class="flex items-center justify-between w-full border-b">
                     <div class="pb-4">
                         <h3 class="text-[#353434] text-lg mb-0 leading-none">
                             {{ Auth::guard('frontend')->user()->name ?? NULL }}

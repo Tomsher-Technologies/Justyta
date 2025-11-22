@@ -20,10 +20,19 @@
     </div>
 
     <div class="flex items-center">
+        @php
+            $onlineStatus = getOnlineStatus();
+        @endphp
         <label for="switch-online" class="flex items-center cursor-pointer">
-            <span class="mr-3 text-sm font-medium text-gray-900 dark:text-gray-300">Online</span>
+            <span class="mr-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                @if($onlineStatus == 1)
+                    {{ __('frontend.online') }}
+                @else
+                    {{ __('frontend.offline') }}    
+                @endif
+            </span>
             <div class="relative">
-                <input type="checkbox" class="sr-only peer" id="switch-online" onchange="changeOnlineStatus(this.checked)" <?php if (getOnlineStatus() == 1) { echo 'checked'; } ?>/>
+                <input type="checkbox" class="sr-only peer" id="switch-online" onchange="changeOnlineStatus(this.checked)" <?php if ($onlineStatus == 1) { echo 'checked'; } ?>/>
                 <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-all">
                 </div>
                 <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-5">

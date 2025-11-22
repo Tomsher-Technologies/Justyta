@@ -484,7 +484,7 @@ class UserController extends Controller
         });
 
         if($serviceSlug != 'online-live-consultancy') {
-            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', auth()->id());
+            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', auth('frontend')->id());
 
             if ($serviceSlug) {
                 if ($serviceSlug === 'law-firm-services') {
@@ -503,7 +503,7 @@ class UserController extends Controller
             return view('frontend.user.service-history', compact('serviceRequests', 'mainServices', 'tab', 'lang', 'page', 'pageTitle'));
         }else{
 
-            $conQuery = Consultation::with(['user', 'lawyer', 'emirate'])->where('user_id', auth()->id())->where('request_success', 1);
+            $conQuery = Consultation::with(['user', 'lawyer', 'emirate'])->where('user_id', auth('frontend')->id())->where('request_success', 1);
             
             $consultations = $conQuery->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
 
@@ -523,7 +523,7 @@ class UserController extends Controller
         $query = ServiceRequest::with('user', 'service')
             ->where('status', 'pending')
             ->where('request_success', 1)
-            ->where('user_id', auth()->id());
+            ->where('user_id', auth('frontend')->id());
 
         if ($serviceSlug) {
             if ($serviceSlug === 'law-firm-services') {
@@ -572,7 +572,7 @@ class UserController extends Controller
         $query = ServiceRequest::with('user', 'service')
             ->whereNotNull('payment_status')
             ->where('request_success', 1)
-            ->where('user_id', auth()->id());
+            ->where('user_id', auth('frontend')->id());
 
         if ($serviceSlug) {
             if ($serviceSlug === 'law-firm-services') {

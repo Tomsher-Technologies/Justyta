@@ -96,7 +96,7 @@
                         </td>
                         
                         <td style="width: 25%">
-                            <div class="flex flex-wrap gap-4">
+                            <div class="flex flex-wrap gap-4 justify-center items-center">
                                 @php
                                     $documents = $req->documents;
                                 @endphp

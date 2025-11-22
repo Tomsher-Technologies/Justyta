@@ -44,6 +44,9 @@
 
                 </div>
                
+                 <div class="col-span-2 mb-3">
+                    <a href="{{ route('lawyer.consultations.index') }}" class="bg-[#d0ba82] text-black px-6 py-2.5 text-center rounded-full">{{ __('frontend.reset') }}</a>
+                </div>
             </div>
         </form>
         <div class="relative overflow-x-auto sm:rounded-lg">
@@ -84,11 +87,11 @@
                             </td>
 
                             <td class="px-6 py-4 text-center">
-                                {{ $assignment->lawyer?->full_name ?? '-' }}
+                                {{ $assignment->lawyer?->getTranslation('full_name', app()->getLocale()) ?? '-' }}
                             </td>
 
                             <td class="px-6 py-4 text-center">
-                                {{ $consultation->duration ?? 0 }} <small>Mins</small>
+                                {{ $consultation->duration ?? 0 }} <small>{{ __('frontend.mins') }}</small>
                             </td>
 
                             <td class="px-6 py-4 text-center">
@@ -120,7 +123,7 @@
                                         <path stroke="currentColor" stroke-width="1.7" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
                                         <path stroke="currentColor" stroke-width="1.7" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                                     </svg>
-                                    <span>View</span>
+                                    <span>{{ __('frontend.view') }}</span>
                                 </a>
                             </td>
                         </tr>

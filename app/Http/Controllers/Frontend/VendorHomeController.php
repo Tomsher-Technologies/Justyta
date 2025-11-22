@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Service;
 use App\Models\Dropdown;
 use App\Models\Vendor;
+use App\Models\VendorTranslation;
 use App\Models\Language;
 use App\Models\User;
 use App\Models\Emirate;
@@ -29,6 +30,7 @@ use App\Models\RequestLegalTranslation;
 use App\Models\TranslationAssignmentHistory;
 use App\Models\ServiceRequestTimeline;
 use App\Models\Translator;
+use App\Models\MembershipPlan;
 use App\Models\JobPost;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -50,6 +52,155 @@ class VendorHomeController extends Controller
     {
         $this->fileService = $fileService;
     }
+
+    public function account()
+    {
+        $id = Auth::guard('frontend')->user()->vendor->id;
+        $vendor = Vendor::with('user', 'currentSubscription.plan')->findOrFail($id);
+        $plans = MembershipPlan::where('is_active', 1)->get();
+        $languages = Language::where('status', 1)->get();
+        
+        return view('frontend.vendor.account', compact('vendor','plans','languages'));
+    }
+
+     public function updateProfile(Request $request)
+    {
+        // echo "<pre>";print_r($request->all());exit;
+        $user = Auth::guard('frontend')->user();
+
+        $validator = Validator::make($request->all(), [
+            'translations.en.name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'phone' => 'required|string|max:20',
+            'owner_name' => 'required|string|max:255',
+            // 'owner_email' => [
+            //         'required',
+            //         'email',
+            //         Rule::unique('users', 'email')
+            //             ->ignore($user->id)
+            //             ->where('user_type', 'vendor'),
+            //     ],
+            'owner_phone' => 'required|string|max:20',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:200',
+            'emirate_id' => 'required',
+            'country' => 'nullable|string|max:255',
+            'password' => 'nullable|string|min:6|confirmed',
+            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'trade_license_expiry' => 'required|date',
+            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'emirates_id_expiry' => 'required|date',
+            // 'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            // 'residence_visa_expiry' => 'required|date',
+            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'passport_expiry' => 'required|date',
+            'card_of_law' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'card_of_law_expiry' => 'required|date'
+        ],[
+            '*.required' => 'This field is required.',
+            'translations.en.name.required' => 'The law firm name in english is required.',
+            'translations.en.name.max' => 'The law firm name in english may not be greater than 255 characters.',
+            'translations.en.name.string' => 'The law firm name in english must be a valid text string.',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $user->update([
+            'name' => $request->translations['en']['name'],
+            // 'email' => $request->owner_email,
+            'phone' => $request->phone,
+            'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
+        ]);
+
+        $vendor = Vendor::with(['user', 'currentSubscription'])->where('user_id',$user->id)->first();
+
+        $uploadPath = 'vendors/' . $user->id;
+
+        $vendor->update([
+            'law_firm_name'             => $request->translations['en']['name'], 
+            'law_firm_email'            => $request->email, 
+            'law_firm_phone'            => $request->phone, 
+            'office_address'            => $request->office_address,
+            'owner_name'                => $request->owner_name, 
+            // 'owner_email'               => $request->owner_email,  
+            'owner_phone'               => $request->owner_phone,  
+            'emirate_id'                => $request->emirate_id, 
+            'trn'                       => $request->trn, 
+            'website_url'               => $request->website_url,
+            'logo'                      => $this->replaceFile($request, 'logo', $vendor, $uploadPath,'logo_'),
+            'country' => 'UAE', 
+            'trade_license'             => $this->replaceFile($request, 'trade_license', $vendor, $uploadPath,'trade_license_'),
+            'trade_license_expiry'      => $request->trade_license_expiry ? Carbon::parse($request->trade_license_expiry)->format('Y-m-d') : $vendor->trade_license_expiry,
+            'emirates_id_front'         => $this->replaceFile($request, 'emirates_id_front', $vendor, $uploadPath,'emirates_id_front_'),
+            'emirates_id_back'          => $this->replaceFile($request, 'emirates_id_back', $vendor, $uploadPath,'emirates_id_back_'),
+            'emirates_id_expiry'        => $request->emirates_id_expiry ? Carbon::parse($request->emirates_id_expiry)->format('Y-m-d') : $vendor->emirates_id_expiry,
+            'residence_visa'            => $this->replaceFile($request, 'residence_visa', $vendor, $uploadPath,'residence_visa_'),
+            'residence_visa_expiry'     => $request->residence_visa_expiry ? Carbon::parse($request->residence_visa_expiry)->format('Y-m-d') : $vendor->residence_visa_expiry,
+            'passport'                  => $this->replaceFile($request, 'passport', $vendor, $uploadPath,'passport_'),
+            'passport_expiry'           => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : $vendor->passport_expiry,
+            'card_of_law'               => $this->replaceFile($request, 'card_of_law', $vendor, $uploadPath,'card_of_law_'),
+            'card_of_law_expiry'        => $request->card_of_law_expiry ? Carbon::parse($request->card_of_law_expiry)->format('Y-m-d') : $vendor->card_of_law_expiry,
+        ]);
+
+        $user->vendor()->save($vendor);
+
+        foreach ($request->translations as $lang => $fields) {
+            if(!empty($fields['name']) || !empty($fields['about'])){
+                VendorTranslation::updateOrCreate(
+                    ['vendor_id' => $vendor->id, 'lang' => $lang],
+                    [
+                        'law_firm_name' => $fields['name'],
+                        'about' => $fields['about']
+                    ]
+                );
+            }
+        }
+
+
+        return redirect()->back()->with('success', __('frontend.profile_updated'));
+    }
+
+    public function changePassword()
+    {
+        return view('frontend.vendor.change-password');
+    }
+
+    public function updateNewPassword(Request $request)
+    {
+        $user = Auth::guard('frontend')->user();
+
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required',
+            'new_password' => [
+                'required',
+                'string',
+                'min:6',
+                'confirmed'
+            ],
+        ], [
+            'current_password.required'    => __('messages.current_password_required'),
+            'new_password.required'        => __('messages.new_password_required'),
+            'new_password.min'             => __('messages.new_password_min'),
+            'new_password.confirmed'       => __('messages.new_password_confirmed'),
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => __('messages.current_password_incorrect')])->withInput();
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return back()->with('success', __('messages.password_changed_successfully'));
+    }
+
+
     public function dashboard(Request $request)
     {
         $request->session()->put('last_page_consultations', url()->full());
@@ -531,8 +682,9 @@ class VendorHomeController extends Controller
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
         $request->session()->put('last_page_consultations', url()->full());
         
-       
-        $lawyer = Lawyer::with('lawfirm', 'emirate')->findOrFail($id);
+        $lawyer = Lawyer::with('lawfirm','user', 'emirate')->findOrFail($id);
+        $userId = $lawyer->user?->id;
+        $totalHours = getTodaysActiveHours($userId);
     
         $specialityIds = $lawyer->dropdownOptions()->wherePivot('type', 'specialities')->pluck('dropdown_option_id')->toArray();
         $languageIds = $lawyer->dropdownOptions()->wherePivot('type', 'languages')->pluck('dropdown_option_id')->toArray();
@@ -547,7 +699,18 @@ class VendorHomeController extends Controller
                                     ->orderBy('id', 'desc')
                                     ->paginate(10);
 
-        return view('frontend.vendor.lawyers.show', compact('lang', 'lawyer','specialityIds','languageIds','consultations'));
+        $totalAcceptedConsultations = ConsultationAssignment::with('consultation')
+                                        ->where('lawyer_id', $id)
+                                        ->where('status', 'accepted')
+                                        ->count();
+
+        $totalRejections = ConsultationAssignment::with('consultation')
+                                        ->where('lawyer_id', $id)
+                                        ->where('status', 'rejected')
+                                        ->count();
+        
+        $totalConsultations = $totalAcceptedConsultations + $totalRejections;
+        return view('frontend.vendor.lawyers.show', compact('lang', 'lawyer','specialityIds','languageIds','consultations','totalHours','totalAcceptedConsultations','totalRejections','totalConsultations'));
     }
 
     public function trainingRequests(Request $request){

@@ -89,6 +89,48 @@ function getTodaysActiveHours($userId)
     return $hours;
 }
 
+
+function getTotalActiveHours($userId)
+{
+    $tz = config('app.timezone');
+
+    // Get all logs for the user
+    $logs = UserOnlineLog::where('user_id', $userId)
+        ->orderBy('created_at', 'asc')
+        ->get();
+
+    $totalSeconds = 0;
+    $onlineAt = null;
+
+    foreach ($logs as $log) {
+        $logTime = Carbon::parse($log->created_at, $tz);
+
+        if ($log->status == 1) { // Online
+            if (!$onlineAt) {
+                $onlineAt = $logTime;
+            }
+        } else { // Offline
+            if ($onlineAt) {
+                $diff = $onlineAt->diffInSeconds($logTime);
+                $totalSeconds += max($diff, 0);
+                $onlineAt = null;
+            }
+        }
+    }
+
+    // If the user is currently online, add time till now
+    if ($onlineAt) {
+        $diff = $onlineAt->diffInSeconds(Carbon::now($tz));
+        $totalSeconds += max($diff, 0);
+    }
+
+    // Convert to hours
+    $hours = round($totalSeconds / 3600, 2);
+
+    return $hours;
+}
+
+
 function getCaseTypes($litigation_type, $litigation_place, $lang = 'en')
 {
     $caseTypes = CaseType::where('litigation_type', $litigation_type)

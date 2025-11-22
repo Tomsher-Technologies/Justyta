@@ -80,6 +80,12 @@ Route::prefix('vendor')->middleware(['auth.frontend', 'checkFrontendUserType:ven
     Route::get('/create-lawyer', [VendorHomeController::class, 'createLawyer'])->name('vendor.create.lawyers');
     Route::post('/store-lawyer', [VendorHomeController::class, 'storeLawyer'])->name('vendor.store.lawyers');
 
+    Route::get('/my-account', [VendorHomeController::class, 'account'])->name('vendor.my-account');
+    Route::post('/update-profile', [VendorHomeController::class, 'updateProfile'])->name('vendor.update.profile');
+    Route::delete('/account/delete', [VendorHomeController::class, 'deleteAccount'])->name('vendor.delete.account');
+    Route::get('/change-password', [VendorHomeController::class, 'changePassword'])->name('vendor.change-password');
+    Route::post('/update-password', [VendorHomeController::class, 'updateNewPassword'])->name('vendor.update-new-password');
+
     Route::get('/notifications', [VendorHomeController::class, 'notifications'])->name('vendor.notifications.index');
     Route::post('/notifications/clear', [VendorHomeController::class, 'clearAllNotifications'])->name('vendor.notifications.clear');
     Route::post('/notifications/delete-selected', [VendorHomeController::class, 'deleteSelectedNotifications'])->name('vendor.notifications.delete.selected');
@@ -186,9 +192,6 @@ Route::prefix('user')->middleware(['auth.frontend', 'checkFrontendUserType:user'
     Route::get('/consultation/payment-status', [ServiceRequestController::class, 'checkPayment'])->name('consultation.payment-status');
     Route::get('/get-available-lawyers', [ServiceRequestController::class, 'getAvailableLawyers'])->name('get.available.lawyers');
 
-
-
-
     // Get sub dropdowns and general links related to service requests
     Route::post('/get-request-types', [ServiceRequestController::class, 'getRequestTypes'])->name('get.request.types');
     Route::post('/get-request-titles', [ServiceRequestController::class, 'getRequestTitles'])->name('get.request.titles');
@@ -211,7 +214,6 @@ Route::prefix('user')->middleware(['auth.frontend', 'checkFrontendUserType:user'
     Route::get('/consultation-payment-cancel', [ServiceRequestController::class, 'consultationPaymentCancel'])->name('user.consultation-payment.cancel');
     Route::get('/consultation-payment-failed', [ServiceRequestController::class, 'consultationRequestFailed'])->name('user.payment-consultation-failed');
     
-
 
     // Payment call back
     Route::get('/payment-callback/{order_id}', [ServiceRequestController::class, 'paymentSuccess'])->name('user.web-payment.callback');

@@ -11,7 +11,7 @@
     <form method="GET" id="filterForm" action="{{ route('vendor.consultations.index') }}" autocomplete="off">
         <div class="grid grid-cols-1 md:grid-cols-12 items-end gap-4 mb-8">
 
-            <div class="relative col-span-3">
+            <div class="relative col-span-2">
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                     <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -43,6 +43,7 @@
                 </select>
 
             </div>
+
             <div class="col-span-3">
                 <label for="lawyer_id" class="block mb-2 text-sm font-medium text-gray-900">{{ __('frontend.lawyer') }}</label>
               
@@ -55,6 +56,10 @@
                     @endforeach
                 </select>
 
+            </div>
+
+            <div class="col-span-1 mb-3">
+                <a href="{{ route('vendor.consultations.index') }}" class="bg-[#d0ba82] text-black px-6 py-2.5 text-center rounded-full">{{ __('frontend.reset') }}</a>
             </div>
         </div>
     </form>
@@ -100,7 +105,7 @@
                         </td>
 
                         <td class="px-6 py-4 text-center">
-                            {{ $consultation->duration ?? 0 }} <small>Mins</small>
+                            {{ $consultation->duration ?? 0 }} <small>{{ __('frontend.mins') }}</small>
                         </td>
 
                         <td class="px-6 py-4 text-center">
@@ -132,7 +137,7 @@
                                     <path stroke="currentColor" stroke-width="1.7" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
                                     <path stroke="currentColor" stroke-width="1.7" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                                 </svg>
-                                <span>View</span>
+                                <span>{{ __('frontend.view') }}</span>
                             </a>
                         </td>
                     </tr>

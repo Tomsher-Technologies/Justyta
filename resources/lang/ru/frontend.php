@@ -448,7 +448,7 @@ return [
     'meeting_start_time' => 'Время начала встречи',
     'meeting_end_time' => 'Время окончания встречи',
     'accepted' => 'Принято',
-    'todays_consultations' => 'Консультации сегодня',
+    'todays_consultations' => 'Сегодняшние консультации',
     'total_accepted_consultations' => 'Всего принятых консультаций',
     'total_rejected_consultations' => 'Всего отклоненных консультаций',
     'online_status_updated' => 'Статус успешно обновлен',

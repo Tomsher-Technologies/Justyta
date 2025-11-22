@@ -49,24 +49,24 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 col-span-8">
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-5 flex flex-col items-start justify-center">
                     <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.total_hours_logged') }}</p>
-                    <p class="text-2xl font-bold text-[#B9A572]">0 <span
+                    <p class="text-2xl font-bold text-[#B9A572]">{{ $totalHours ?? 0 }} <span
                             class="text-xl font-semibold">{{ __('frontend.hours') }}</span>
                     </p>
                 </div>
 
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-5 flex flex-col items-start justify-center">
-                    <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.total_cases') }}</p>
-                    <p class="text-2xl font-bold text-[#B9A572]">0</p>
+                    <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.total_consultations') }}</p>
+                    <p class="text-2xl font-bold text-[#B9A572]">{{ $totalConsultations ?? 0 }}</p>
                 </div>
 
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-5 flex flex-col items-start justify-center">
-                    <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.cases_closed') }}</p>
-                    <p class="text-2xl font-bold text-[#B9A572]">0</p>
+                    <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.accepted_consultations') }}</p>
+                    <p class="text-2xl font-bold text-[#B9A572]">{{ $totalAcceptedConsultations ?? 0 }}</p>
                 </div>
 
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-5 flex flex-col items-start justify-center">
-                    <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.cases_rejected') }}</p>
-                    <p class="text-2xl font-bold text-[#B9A572]">0</p>
+                    <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.rejected_consultations') }}</p>
+                    <p class="text-2xl font-bold text-[#B9A572]">{{ $totalRejections ?? 0 }}</p>
                 </div>
             </div>
         </div>

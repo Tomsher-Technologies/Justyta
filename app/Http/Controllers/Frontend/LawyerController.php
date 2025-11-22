@@ -10,6 +10,7 @@ use App\Models\ConsultationDuration;
 use App\Models\ConsultationPayment;
 use App\Models\Lawyer;
 use App\Models\Dropdown;
+use App\Models\UserOnlineLog;
 use Illuminate\Support\Facades\Http;
 use App\Services\ZoomService;
 use Illuminate\Support\Facades\Auth;
@@ -32,6 +33,8 @@ class LawyerController extends Controller
         $currentYear = Carbon::now()->year;
         $year = request()->get('consultation_year', $currentYear);
         
+        $todayHours = getTodaysActiveHours(Auth::guard('frontend')->user()->id);
+
         $notificationsResult = $result = $this->getNotifications();
         $notifications = $notificationsResult['notifications'];
 
@@ -70,7 +73,7 @@ class LawyerController extends Controller
                                 ->pluck('total', 'month')
                                 ->toArray();
 
-        return view('frontend.lawyer.dashboard', compact('acceptedConsultationsToday', 'totalAcceptedConsultations','totalRejections','notifications','consultations','monthlyData','lang','year'));
+        return view('frontend.lawyer.dashboard', compact('acceptedConsultationsToday', 'totalAcceptedConsultations','totalRejections','notifications','consultations','monthlyData','lang','year','todayHours'));
     }
 
     public function getNotifications()
@@ -117,6 +120,17 @@ class LawyerController extends Controller
 
         $user->is_online = $isOnline ? 1 : 0;
         $user->save();
+
+        if ($user->user_type === 'lawyer') {
+            $lawyer = Lawyer::where('user_id', $user->id)->first();
+            $lawyer->is_busy = 0;
+            $lawyer->save();
+        }
+
+        UserOnlineLog::create([
+            'user_id' => $user->id,
+            'status'  => $isOnline ? 1 : 0
+        ]);
 
         return response()->json([
             'success' => true,

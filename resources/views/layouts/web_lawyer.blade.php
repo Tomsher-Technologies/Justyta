@@ -173,7 +173,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 16h-1v-4h-1m0-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
                             </svg>
-                            <h3 class="text-lg font-bold">New Consultation Request</h3>
+                            <h3 class="text-lg font-bold">{{ __('frontend.new_consultation_request') }}</h3>
                         </div>
                         <button id="popupClose" class="text-white hover:text-gray-200 transition">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
@@ -188,55 +188,54 @@
                     <!-- Body -->
                     <div class="p-6 space-y-4 text-gray-700">
                         <div class="text-center mb-2">
-                            <h4 class="font-semibold text-lg text-gray-800">User: <span id="callerName"
+                            <h4 class="font-semibold text-lg text-gray-800">{{ __('frontend.user') }}: <span id="callerName"
                                     class="text-blue-600"></span></h4>
                         </div>
 
                         <div class="grid grid-cols-1 gap-2">
                             <div class="flex justify-between border-b py-2">
-                                <span class="font-medium">Applicant Type:</span>
+                                <span class="font-medium">{{ __('frontend.applicant_type') }}:</span>
                                 <span id="applicantType" class="text-gray-900 font-semibold"></span>
                             </div>
                             <div class="flex justify-between border-b py-2">
-                                <span class="font-medium">Litigation Type:</span>
+                                <span class="font-medium">{{ __('frontend.litigant_type') }}:</span>
                                 <span id="litigantType" class="text-gray-900 font-semibold"></span>
                             </div>
                             <div class="flex justify-between border-b py-2">
-                                <span class="font-medium">Emirate:</span>
+                                <span class="font-medium">{{ __('frontend.emirate') }}:</span>
                                 <span id="emirate" class="text-gray-900 font-semibold"></span>
                             </div>
                             <div class="flex justify-between border-b py-2">
-                                <span class="font-medium">You Represent:</span>
+                                <span class="font-medium">{{ __('frontend.you_represent') }}:</span>
                                 <span id="youRepresent" class="text-gray-900 font-semibold"></span>
                             </div>
                             <div class="flex justify-between border-b py-2">
-                                <span class="font-medium">Case Type:</span>
+                                <span class="font-medium">{{ __('frontend.case_type') }}:</span>
                                 <span id="caseType" class="text-gray-900 font-semibold"></span>
                             </div>
                             <div class="flex justify-between border-b py-2">
-                                <span class="font-medium">Case Stage:</span>
+                                <span class="font-medium">{{ __('frontend.case_stage') }}:</span>
                                 <span id="caseStage" class="text-gray-900 font-semibold"></span>
                             </div>
                             <div class="flex justify-between border-b py-2">
-                                <span class="font-medium">Language:</span>
+                                <span class="font-medium">{{ __('frontend.language') }}:</span>
                                 <span id="language" class="text-gray-900 font-semibold"></span>
                             </div>
                             <div class="flex justify-between py-2">
-                                <span class="font-medium">Duration:</span>
+                                <span class="font-medium">{{ __('frontend.duration') }}:</span>
                                 <span id="duration" class="text-gray-900 font-semibold"></span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Buttons -->
                     <div class="px-6 pb-6 flex justify-between gap-3">
                         <button id="acceptBtn"
                             class="flex-1 bg-green-600 hover:bg-green-700 transition text-white font-bold py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-lg">
-                            Accept
+                            {{ __('frontend.accept') }}
                         </button>
                         <button id="rejectBtn"
                             class="flex-1 bg-red-600 hover:bg-red-700 transition text-white font-bold py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-lg">
-                            Reject
+                            {{ __('frontend.reject') }}
                         </button>
                     </div>
                 </div>
@@ -267,6 +266,7 @@
                 },
                 success: function (response) {
                     toastr.success(response.message);
+                    window.location.reload();
                 },
                 error: function (xhr) {
                     toastr.error("{{ __('frontend.something_went_wrong') }}");
@@ -370,13 +370,10 @@
                     document.getElementById('incomingPopup').classList.add('hidden');
 
                     consultationId = currentConsultation.consultation_id;
-                    // setTimeout(() => {
-                    //     startZoomVideo(data.data, '{{ addslashes(auth()->user()->name) }}');
-                    // }, 3000);
-
+                    
                     document.getElementById('waitingMessage').classList.add('hidden');
                     document.getElementById('video-call-container').classList.remove('hidden');
-                    await startCall(data.data, '{{ addslashes(auth()->user()->name) }}');
+                    await startCall(data.data, "{{ addslashes(auth('frontend')->user()->name) }}");
 
                 }else {
                     document.getElementById('incomingPopup').classList.add('hidden');
