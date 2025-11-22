@@ -215,27 +215,30 @@
         <div class="relative overflow-x-auto sm:rounded-lg w-[240px] xl:w-full">
             <table class="w-full border">
                 <thead class="text-md font-normal">
-                    <tr class="bg-[#07683B] text-white font-normal">
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">
+                    <tr class="bg-[#07683B] text-white font-normal text-center">
+                        <th scope="col" class="px-6 py-5 font-semibold text-center">
+                            {{ __('frontend.sl_no') }}
+                        </th>
+                        <th scope="col" class="px-6 py-5 font-semibold text-center">
                             {{ __('frontend.ref_no') }}
                         </th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">
+                        <th scope="col" class="px-6 py-5 font-semibold text-center">
                             {{ __('frontend.date_time') }}
                         </th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">
+                        <th scope="col" class="px-6 py-5 font-semibold text-center">
                             {{ __('frontend.document_language') }}
                         </th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">
+                        <th scope="col" class="px-6 py-5 font-semibold text-center">
                             {{ __('frontend.translation_language') }}
                         </th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">
+                        <th scope="col" class="px-6 py-5 font-semibold text-center">
                             {{ __('frontend.no_of_page') }}
                         </th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">
+                        <th scope="col" class="px-6 py-5 font-semibold text-center">
                             {{ __('frontend.status') }}
 
                         </th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">
+                        <th scope="col" class="px-6 py-5 font-semibold text-center">
                             {{ __('frontend.actions') }}
                         </th>
                     </tr>
@@ -243,7 +246,8 @@
                 <tbody>
 
                     @forelse($serviceRequests as $request)
-                        <tr class="border-b text-[#4D4D4D]">
+                        <tr class="border-b text-[#4D4D4D] text-center">
+                            <td scope="row" class="px-6 py-4">{{ $loop->iteration }}</td>
                             <td scope="row" class="px-6 py-4">{{ $request['reference_code'] }}</td>
                             <td class="px-6 py-4">{{ $request['date_time'] }}</td>
                             <td class="px-6 py-4">{{ $request['document_language'] }}</td>

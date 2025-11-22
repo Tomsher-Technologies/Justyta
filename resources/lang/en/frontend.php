@@ -500,4 +500,5 @@ return [
     'premium_welcome_gift' => 'Premium Welcome Gift',
     'special_welcome_gift' => 'Special Welcome Gift',
     'no_welcome_gift' => 'No Welcome Gift',
+    'search_services' => 'Search Services...',
 ];

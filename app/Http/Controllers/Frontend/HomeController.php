@@ -48,7 +48,7 @@ class HomeController extends Controller
 
     public function checkUserConsultationStatus(Request $request)
     {
-        $user = $request->user();
+        $user = auth()->guard('frontend')->user();
         $consultation = Consultation::where('id',$request->consultation_id)
                             ->where('user_id',$user->id)
                             ->first();

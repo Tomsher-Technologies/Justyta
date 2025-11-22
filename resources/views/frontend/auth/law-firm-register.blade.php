@@ -386,7 +386,7 @@
                             <input type="checkbox" name="terms" id="terms" value="1" class="mr-2" />
                             <label for="terms" class="text-sm">
                                 {!! __('frontend.agree_terms', [
-                                    'terms' => '<a href="#" class="underline text-[#B9A572]">' . __('frontend.terms') . '</a>',
+                                    'terms' => '<a href="'.route('terms-conditions').'" class="underline text-[#B9A572]">' . __('frontend.terms') . '</a>',
                                 ]) !!}
                             </label>
                         </div>

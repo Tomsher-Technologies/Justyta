@@ -329,7 +329,7 @@ class LawyerController extends Controller
         ]);
 
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
-        $user = $request->user();
+        $user = auth()->guard('frontend')->user();
         $lawyer = $user->lawyer ?? null;
         $consultation = Consultation::findOrFail($request->consultation_id);
 
