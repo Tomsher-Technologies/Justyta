@@ -157,7 +157,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'
@@ -243,7 +243,7 @@
                 ignore: [],
                 rules: {
                     applicant_type: { required: true },
-                    debt_amount: { required: true },
+                    debt_amount: { required: true ,maxlength: 25},
                     emirate_id: { required: true },
                     debt_type: { required: true },
                     debt_category: { required: true },
@@ -268,7 +268,10 @@
                 },
                 messages: {
                     applicant_type: "{{ __('messages.applicant_type_required') }}",
-                    debt_amount: "{{ __('messages.debt_amount_required') }}",
+                    debt_amount: {
+                        required: "{{ __('messages.debt_amount_required') }}",
+                        maxlength: "{{ __('frontend.maxlength25') }}"
+                    },
                     emirate_id: "{{ __('messages.emirate_required') }}",
                     debt_type: "{{ __('messages.debt_type_required') }}",
                     debt_category: "{{ __('messages.debt_category_required') }}",

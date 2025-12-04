@@ -324,7 +324,7 @@
                         <span>Wbsite Contents</span>
                     </li>
 
-                    @can('update_header')
+                    {{-- @can('update_header')
                         <li class="">
                             <a href="{{ route('dropdowns.index') }}"
                                 class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index']) }}">
@@ -344,7 +344,7 @@
                             </a>
 
                         </li>
-                    @endcan
+                    @endcan --}}
 
                     @can('update_page_contents')
                         <li class="">

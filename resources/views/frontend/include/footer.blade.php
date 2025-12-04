@@ -19,7 +19,7 @@
                         <a href="#">Services</a>
                     </li>
                     <li>
-                        <a href="#">Conatct Us</a>
+                        <a href="#">Contact Us</a>
                     </li>
                 </ul>
             </div>

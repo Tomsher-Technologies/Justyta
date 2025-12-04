@@ -193,7 +193,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'
@@ -286,7 +286,8 @@
                     emirate_id: { required: true },
                     license_activity: { required: true },
                     contract_language: { required: true },
-                    company_name: { required: true },
+                    company_name: { required: true, maxlength: 100 },
+                    mobile : { required: true, maxlength: 25 },
                     industry: { required: true },
                     email: { required: true,email: true },
                     priority: { required: true },
@@ -311,7 +312,14 @@
                     emirate_id: "{{ __('messages.emirate_required') }}",
                     contract_type: "{{ __('messages.contract_type_required') }}",
                     contract_language: "{{ __('messages.contract_language_required') }}",
-                    company_name: "{{ __('messages.company_person_name_required') }}",
+                    company_name: {
+                        required: "{{ __('messages.company_person_name_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
+                    mobile:{
+                        required: "{{ __('frontend.this_field_required') }}",
+                        maxlength: "{{ __('frontend.maxlength25') }}"
+                    },
                     industry: "{{ __('messages.industry_required') }}",
                     email: {
                         required: "{{ __('messages.email_required') }}",

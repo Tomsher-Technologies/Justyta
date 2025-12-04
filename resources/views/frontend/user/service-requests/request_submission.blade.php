@@ -223,7 +223,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'
@@ -311,7 +311,7 @@
                     litigation_place: { required: true },
                     request_type: { required: true },
                     request_title: { required: true },
-                    case_number: { required: true },
+                    case_number: { required: true, maxlength: 100 },
                     "memo[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
                         fileSize: 102400
@@ -344,7 +344,10 @@
                     litigation_place: "{{ __('messages.litigation_place_required') }}",
                     request_type: "{{ __('messages.request_type_required') }}",
                     request_title: "{{ __('messages.request_title_required') }}",
-                    case_number: "{{ __('messages.case_number_required') }}",
+                    case_number: {
+                        required:"{{ __('messages.case_number_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
                     "memo[]": {
                         extension: "{{ __('messages.memo_file_mimes') }}",
                         fileSize: "{{ __('messages.memo_file_max') }}"

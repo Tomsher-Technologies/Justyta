@@ -253,6 +253,8 @@
     <script src="{{ asset('assets/js/select2.full.min.js') }}"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+    <script src="{{ asset('assets/js/moment.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap/daterangepicker.min.js') }}"></script>
 
     <script>
         

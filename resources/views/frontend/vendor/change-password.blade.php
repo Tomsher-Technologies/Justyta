@@ -1,4 +1,4 @@
-@extends('layouts.web_vendor_default', ['title' => __('frontend.change') ])
+@extends('layouts.web_vendor_default', ['title' => __('frontend.change_password') ])
 
 @section('content')
 <div class="flex justify-center items-center py-24 bg-gray-50"> 

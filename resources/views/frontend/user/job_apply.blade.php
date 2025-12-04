@@ -118,7 +118,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'
@@ -197,9 +197,9 @@
             $("#jobApplyForm").validate({
                 ignore: [],
                 rules: {
-                    full_name: { required: true },
+                    full_name: { required: true, maxlength: 100 },
                     email: { required: true },
-                    phone: { required: true },
+                    phone: { required: true, maxlength: 25 },
                     position: { required: true },
                     "resume": {
                         required: true,
@@ -208,9 +208,15 @@
                     }
                 },
                 messages: {
-                    full_name: "{{ __('messages.full_name_required') }}",
+                    full_name: {
+                        required: "{{ __('messages.full_name_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
                     email: "{{ __('messages.email_required') }}",
-                    phone: "{{ __('messages.phone_required') }}",
+                    phone: {
+                        required: "{{ __('messages.phone_required') }}",
+                        maxlength: "{{ __('frontend.maxlength25') }}"
+                    },
                     position: "{{ __('messages.position_required') }}",
                     "resume": {
                         required: "{{ __('messages.resume_required') }}",

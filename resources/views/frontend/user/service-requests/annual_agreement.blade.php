@@ -211,7 +211,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'
@@ -289,23 +289,33 @@
                 return true;
             }, "File size must be less than {0}KB");
 
+            $.validator.addMethod("maxSelect", function (value, element, max) {
+                return $(element).val() === null || $(element).val().length <= max;
+            }, "{{ __('frontend.max_select3') }}");
+
             $("#annualAgreementForm").validate({
                 ignore: [],
                 rules: {
-                    company_name: { required: true },
+                    company_name: { required: true, maxlength:100 },
                     emirate_id: { required: true },
                     license_type: { required: true },
                     license_activity: { required: true },
                     industry: { required: true },
                     no_of_employees: { required: true },
-                    case_type: { required: true },
+                    "case_type[]": {
+                        required: true,
+                        maxSelect: 3
+                    },
                     no_of_calls: { required: true },
                     no_of_visits: { required: true },
                     no_of_installment: { required: true },
                     lawfirm: { required: true },
                 },
                 messages: {
-                    company_name: "{{ __('messages.company_name_required') }}",
+                    company_name: {
+                        required :"{{ __('messages.company_name_required') }}",
+                        maxlength : "{{ __('frontend.maxlength100') }}"
+                    },
                     emirate_id: "{{ __('messages.emirate_required') }}",
                     license_type: "{{ __('messages.license_type_required') }}",
                     license_activity: "{{ __('messages.license_activity_required') }}",
