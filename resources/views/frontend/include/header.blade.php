@@ -1,9 +1,9 @@
-    <header class="px-[100px] mt-[20px]">
-        <div class="grid grid-cols-3 items-start flex justify-between">
-            <a href="{{ route('home') }}">
-                <img src="{{ asset('assets/images/logo.png') }}" alt="Logo">
+    <header class="container mx-auto mt-5 px-5 xl:px-0">
+        <div class="flex items-start justify-between md:justify-start">
+            <a href="{{ route('home') }}" >
+                <img src="{{ asset('assets/images/logo.png') }}" alt="Logo" >
             </a>
-            <ul class="flex items-center gap-8 font-cinzel font-bold text-[16px]">
+            <ul class="flex items-center gap-8 font-cinzel font-bold text-[16px] ms-auto mt-3">
                 <li>
                     <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.home') }}</a>
                 </li>
@@ -20,17 +20,47 @@
                     <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.contact') }}</a>
                 </li>
             </ul>
-            <div class="grid grid-cols-2 gap-5 justify-end">
-                <div class="flex items-center justify-end gap-5 span-2">
+            <div class="flex md:flex items-center gap-4 ms-auto">
+               
                     <a href="{{ route('frontend.login') }}" class="bg-[#04502E] text-white px-8 py-2 rounded-full w-auto ">
                         {{ __('frontend.sign_in') }}
                     </a>
-                    <a href="{{ route('frontend.register') }}" class="text-[#07683B] border !border-[#07683B] px-8 py-2 rounded-full w-auto ">
-                        {{ __('frontend.sign_up') }}
-                    </a>
-                </div>
-                <div class="flex">
-                    <button type="button"
+           <div x-data="{ open: false }" class="relative inline-block">
+    <!-- Button -->
+    <button @click="open = !open"
+        class="flex items-center gap-2 text-[#07683B] border !border-[#07683B] px-6 py-2 rounded-full w-auto">
+        
+        {{ __('frontend.sign_up') }}
+
+        <!-- Arrow Icon -->
+        <svg :class="open ? 'rotate-180' : 'rotate-0'"
+            class="w-4 h-4 transition-transform duration-200"
+            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M19 9l-7 7-7-7" />
+        </svg>
+    </button>
+
+    <!-- Dropdown -->
+    <div x-show="open" @click.away="open = false"
+        class="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-44 z-50 py-1">
+
+        <a href="{{ route('frontend.register') }}"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+            {{ __('frontend.user_signup') }}
+        </a>
+
+        <a href="{{ route('law-firm.register') }}"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+             {{ __('frontend.lawfirm_signup') }}
+        </a>
+
+    </div>
+</div>
+
+               
+                <div class="relative">
+                    {{-- <button type="button"
                         class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="33" viewBox="0 0 28 33"
                             fill="none">
@@ -41,7 +71,7 @@
                         <div class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 shadow-xl">
                             20
                         </div>
-                    </button>
+                    </button> --}}
                     <div class="relative inline-block text-left">
                         <button id="langDropdownBtn" data-dropdown-toggle="langDropdown"
                             class="uppercase inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md">

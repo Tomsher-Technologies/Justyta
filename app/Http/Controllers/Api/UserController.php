@@ -13,6 +13,7 @@ use App\Models\TrainingRequest;
 use App\Models\AnnualAgreementInstallment;
 use App\Models\Emirate;
 use App\Models\Service;
+use App\Models\Lawyer;
 use App\Models\UserOnlineLog;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -190,6 +191,7 @@ class UserController extends Controller
                                         'service'   => $serviceName,
                                         'reference' => $data['reference_code'],
                                         // 'status' => __('messages.'.$data['status'] ?? ''),
+                                        'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                                     ]),
                     'time'      => $notification->created_at->format('h:i A'), 
                 ];
@@ -210,6 +212,7 @@ class UserController extends Controller
                                     'message'   => __($notification->data['message'], [
                                                         'service'   => $serviceName,
                                                         'reference' => $data['reference_code'],
+                                                        'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                                                     ]),
                                     'time'      => $notification->created_at->format('d,M Y h:i A'), 
                                 ];
@@ -231,6 +234,7 @@ class UserController extends Controller
                         'message'   => __($notification->data['message'], [
                                             'service'   => $serviceName,
                                             'reference' => $data['reference_code'],
+                                            'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                                         ]),
                         'time'      => $notification->created_at->format('d M, Y h:i A'), 
                     ];
@@ -884,6 +888,13 @@ class UserController extends Controller
                 'user_id' => $user->id,
                 'status'  => $request->is_online
             ]);
+
+            if ($user->user_type === 'lawyer') {
+                $lawyer = Lawyer::where('user_id', $user->id)->first();
+                $lawyer->is_busy = 0;
+                $lawyer->save();
+            }
+
         }
         
         return response()->json([

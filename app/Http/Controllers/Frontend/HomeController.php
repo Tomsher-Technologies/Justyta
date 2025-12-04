@@ -26,6 +26,13 @@ class HomeController extends Controller
     public function refundPolicy(){
         return view('frontend.refund-policy');
     }
+
+    public function privacyPolicy(){
+        return view('frontend.privacy-policy');
+    }
+    public function termsConditions(){
+        return view('frontend.terms-conditions');
+    }
     public function userDashboard(){
         $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
         $services = Service::with(['translations' => function ($query) use ($lang) {
@@ -41,27 +48,75 @@ class HomeController extends Controller
 
     public function checkUserConsultationStatus(Request $request)
     {
-        $user = $request->user();
+        $user = auth()->guard('frontend')->user();
         $consultation = Consultation::where('id',$request->consultation_id)
                             ->where('user_id',$user->id)
-                            ->where('status','accepted')
                             ->first();
 
-        if(!$consultation){
-            return response()->json(['status'=>false,'message'=>'No active consultation'],200);
-        }
+        if($consultation && $consultation->status == 'accepted') {
+            $signature = generateZoomSignature($consultation->zoom_meeting_id, $user->id, 0);
 
-        $signature = generateZoomSignature($consultation->zoom_meeting_id, $user->id, 0);
+            return response()->json([
+                'status'=>true,
+                'data'=>[
+                    'consultation_id'=>$consultation->id,
+                    'meeting_number'=>$consultation->zoom_meeting_id,
+                    'role'=> 0,
+                    'sdk_key'=>config('services.zoom.sdk_key'),
+                    'signature'=>$signature,
+                    'duration'=>$consultation->duration ?? 0
+                ]
+            ]);
+        } else {
+            return response()->json(['status'=>false,'message'=>'No active consultation', 'data' => $consultation->status],200);
+        }
+    }
+
+    public function consultationCancel(Request $request)
+    {
+        $lang = app()->getLocale() ?? env('APP_LOCALE','en');
+        $data = getPageDynamicContent('consultancy_request_failed',$lang);
+        return view('frontend.user.consultation-cancel', compact('data'));
+    }
+
+    public function saveStartTime(Request $request)
+    {
+        $consult = Consultation::find($request->consultation_id);
+
+        $consult->status = 'in_progress';
+
+        if (!$consult->meeting_start_time) {
+            $start_time = $request->start_time / 1000; 
+            $consult->meeting_start_time = date('Y-m-d H:i:s');
+        }
+        $consult->save();
+        return response()->json(['success' => true]);
+    }
+
+    public function getStartTime($id)
+    {
+        $consult = Consultation::find($id);
 
         return response()->json([
-            'status'=>true,
-            'data'=>[
-                'consultation_id'=>$consultation->id,
-                'meeting_number'=>$consultation->zoom_meeting_id,
-                'role'=>0,
-                'sdk_key'=>config('services.zoom.sdk_key'),
-                'signature'=>$signature
-            ]
+            'start_time' => strtotime($consult->meeting_start_time) * 1000 ?? null
         ]);
     }
+
+    public function statusConsultation($consultationId)
+    {
+        // Fetch consultation by ID
+        $consultation = Consultation::find($consultationId);
+
+        if (!$consultation) {
+            return response()->json([
+                'status' => 'not_found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => $consultation->status, // e.g., 'completed', 'ongoing'
+        ]);
+    }
+
+
 }

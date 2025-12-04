@@ -1,4 +1,4 @@
-@extends('layouts.web_default', ['title' => __('frontend.change') ])
+@extends('layouts.web_default', ['title' => __('frontend.change_password') ])
 
 @section('content')
 <div class="flex justify-center items-center py-24 bg-gray-50"> 
@@ -92,7 +92,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'

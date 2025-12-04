@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\AdController;
 use App\Http\Controllers\Admin\CaseTypeController;
 use App\Http\Controllers\Admin\RequestTypeController;
 use App\Http\Controllers\Admin\RequestTitleController;
+use App\Http\Controllers\Admin\ConsultationController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -41,6 +42,10 @@ Route::prefix('admin')->group(function () {
 
 Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/sales-report/data', [AdminDashboardController::class, 'getSalesData'])->name('sales.report.data');
+    Route::get('/service-sales', [AdminDashboardController::class, 'getServiceSalesData'])->name('admin.service-sales');
+    Route::get('/service-sales/export', [AdminDashboardController::class, 'exportServiceSales'])->name('service-sales.export');
+
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
@@ -233,6 +238,11 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::put('ads/{id}', [AdController::class, 'update'])->name('ads.update');
     Route::delete('ads/{id}', [AdController::class, 'destroy'])->name('ads.destroy');
     Route::post('/ads/status', [AdController::class, 'updateStatus'])->name('ads.status');
+
+    //  Consultation requests
+    Route::get('/consultations', [ConsultationController::class, 'index'])->name('consultations.index');
+    Route::get('/consultations/{id}', [ConsultationController::class, 'show'])->name('consultations.show');
+    Route::get('/consultation/export', [ConsultationController::class, 'export'])->name('consultations.export');
 });
 
 

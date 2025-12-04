@@ -9,6 +9,8 @@
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/vite": "^4.0.0",
+    "@types/jsrsasign": "^10.5.15",
+    "@vitejs/plugin-basic-ssl": "^2.1.0",
     "alpinejs": "^3.14.9",
     "autoprefixer": "^10.4.2",
     "axios": "^1.8.2",
@@ -16,6 +18,7 @@
     "laravel-vite-plugin": "^1.2.0",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.4.4",
+    "typescript": "^5.9.2",
     "vite": "^6.2.4"
   },
   "dependencies": {
@@ -25,6 +28,7 @@
     "daterangepicker": "^3.1.0",
     "flowbite": "^3.1.2",
     "highcharts": "^12.4.0",
+    "jsrsasign": "^11.1.0",
     "moment": "^2.30.1",
     "tinymce": "^8.0.2",
     "toastr": "^2.1.4"

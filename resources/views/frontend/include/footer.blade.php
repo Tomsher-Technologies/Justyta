@@ -1,6 +1,6 @@
- <footer class="bg-[#4D1717]  px-[100px] py-[80px] text-white">
-        <div class="grid grid-cols-4">
-            <div>
+ <footer class="bg-[#4D1717] px-4 xl:px-[100px] py-[40px] xl:py-[80px] text-white">
+        <div class="grid grid-cols-2 xl:grid-cols-4 gap-y-10 xl:gap-y-[unset]">
+            <div class="col-span-2 xl:col-span-1">
                 <h3 class="font-cinzel font-bold text-[20px] mb-5">About Us</h3>
                 <p class="mb-5">Working at a law firm helps you develop essential skills, such as legal research,
                     critical thinking, and effective communication.</p>
@@ -8,7 +8,7 @@
             </div>
             <div>
                 <h3 class="font-cinzel font-bold text-[20px] mb-5">Navigation</h3>
-                <ul class="flex flex-col items-start gap-4">
+                <ul class="flex flex-col items-start gap-2 xl:gap-4">
                     <li>
                         <a href="#">Home</a>
                     </li>
@@ -19,32 +19,40 @@
                         <a href="#">Services</a>
                     </li>
                     <li>
-                        <a href="#">Conatct Us</a>
+                        <a href="#">Contact Us</a>
                     </li>
                 </ul>
             </div>
             <div>
                 <h3 class="font-cinzel font-bold text-[20px] mb-5">Quick Links</h3>
-                <ul class="flex flex-col items-start gap-4">
+                <ul class="flex flex-col items-start gap-2 xl:gap-4">
+
+                    <li>
+                        <a href="{{ route('terms-conditions') }}">Terms and Conditions</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('privacy-policy') }}">Privacy Policy</a>
+                    </li>
                     <li>
                         <a href="{{ route('refund-policy') }}">Refund Policy</a>
                     </li>
                    
                 </ul>
             </div>
-            <div>
+            <div class="col-span-2 xl:col-span-1">
                 <h3 class="font-cinzel font-bold text-[20px] mb-5">Contact Us</h3>
-                <ul class="flex flex-col items-start gap-4">
+                <ul class="flex flex-col items-start gap-2 xl:gap-4">
                     <li>
                         <a href="#">+0 12 457 4578</a>
                     </li>
                     <li>
                         <a href="#">Dubai, United Arab Emirates</a>
                 </ul>
+
                 <ul class="grid grid-cols-6 gap-1 mt-6">
-                    <li class="h-12 w-12 ">
-                        <a href="#" class="bg-white block p-3 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="23" height="28"
+                    <li>
+                        <a href="#" class="bg-white block h-8 w-8 xl:h-12 xl:w-12 p-1.5 xl:p-3 rounded-full">
+                            <svg class="w-[20px] h-[20px] xl:w-[23px] xl:h-[28px]" xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 23 28" fill="none">
                                 <path fill-rule="evenodd" clip-rule="evenodd"
                                     d="M12.3189 0.728027C12.019 0.728027 11.7756 0.971413 11.7756 1.2713V19.7425C11.7756 21.242 10.5587 22.4589 9.05923 22.4589C7.5598 22.4589 6.34287 21.242 6.34287 19.7425C6.34287 18.2431 7.5598 17.0262 9.05923 17.0262C9.35911 17.0262 9.6025 16.7828 9.6025 16.4829V12.1367C9.6025 11.8368 9.35911 11.5935 9.05923 11.5935C4.56148 11.5935 0.910156 15.2448 0.910156 19.7425C0.910156 24.2403 4.56148 27.8916 9.05923 27.8916C13.557 27.8916 17.2083 24.2403 17.2083 19.7425V10.7753C18.3687 11.3006 19.6557 11.5935 21.0112 11.5935H22.0977C22.3976 11.5935 22.641 11.3501 22.641 11.0502V6.70401C22.641 6.40413 22.3976 6.16074 22.0977 6.16074H21.0112C18.9125 6.16074 17.2083 4.4565 17.2083 2.35784V1.2713C17.2083 0.971413 16.9649 0.728027 16.665 0.728027H12.3189ZM12.8621 1.81457H16.1218V2.35784C16.1218 5.05627 18.3128 7.24728 21.0112 7.24728H21.5545V10.5069H21.0112C19.5275 10.5069 18.1362 10.1098 16.9372 9.41548C16.7693 9.31824 16.5618 9.31824 16.3939 9.41494C16.2255 9.51218 16.1218 9.69146 16.1218 9.88595V19.7425C16.1218 23.6405 12.9572 26.8051 9.05923 26.8051C5.16126 26.8051 1.9967 23.6405 1.9967 19.7425C1.9967 16.0276 4.87169 12.9783 8.51596 12.7006V15.9782C6.67427 16.2422 5.25633 17.828 5.25633 19.7425C5.25633 21.8412 6.96057 23.5454 9.05923 23.5454C11.1579 23.5454 12.8621 21.8412 12.8621 19.7425V1.81457Z"
@@ -53,8 +61,8 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="bg-white block h-12 w-12 p-3 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="29"
+                        <a href="#" class="bg-white block h-8 w-8 xl:h-12 xl:w-12 p-1.5 xl:p-3 rounded-full">
+                            <svg class="w-[20px] h-[20px] xl:w-[28px] xl:h-[29px]" xmlns="http://www.w3.org/2000/svg" 
                                 viewBox="0 0 28 29" fill="none">
                                 <g clip-path="url(#clip0_1729_11663)">
                                     <path
@@ -74,8 +82,8 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="bg-white block h-12 w-12 p-3 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27"
+                        <a href="#" class="bg-white block h-8 w-8 xl:h-12 xl:w-12 p-1.5 xl:p-3 rounded-full">
+                            <svg class="w-[20px] h-[20px] xl:w-[27px] xl:h-[27px]" xmlns="http://www.w3.org/2000/svg" 
                                 viewBox="0 0 27 27" fill="none">
                                 <g clip-path="url(#clip0_1729_11682)">
                                     <path
@@ -92,8 +100,8 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="bg-white block h-12 w-12 p-3 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="24"
+                        <a href="#" class="bg-white block h-8 w-8 xl:h-12 xl:w-12 p-1.5 xl:p-3 rounded-full">
+                            <svg class="w-[20px] h-[20px] xl:w-[15px] xl:h-[24px]" xmlns="http://www.w3.org/2000/svg" width="15" height="24"
                                 viewBox="0 0 15 24" fill="none">
                                 <path
                                     d="M7.33617 23.1195H7.81617C8.71611 23.1195 9.16608 23.1195 9.48151 22.8904C9.58339 22.8163 9.67298 22.7267 9.74699 22.6249C9.97617 22.3094 9.97617 21.8595 9.97617 20.9595V14.1195H11.4762C12.3188 14.1195 12.7402 14.1195 13.0429 13.9173C13.1739 13.8297 13.2864 13.7172 13.3739 13.5862C13.5762 13.2835 13.5762 12.8622 13.5762 12.0195C13.5762 11.1769 13.5762 10.7555 13.3739 10.4528C13.2864 10.3218 13.1739 10.2093 13.0429 10.1218C12.7402 9.91953 12.3188 9.91953 11.4762 9.91953H9.97617V7.51953C9.97617 6.9604 9.97617 6.68084 10.0675 6.46031C10.1893 6.16628 10.4229 5.93267 10.717 5.81088C10.9375 5.71953 11.217 5.71953 11.7762 5.71953C12.3353 5.71953 12.6149 5.71953 12.8354 5.62819C13.1294 5.50639 13.363 5.27279 13.4848 4.97875C13.5762 4.75823 13.5762 4.47866 13.5762 3.91953V3.3862C13.5762 2.7644 13.5762 2.4535 13.4637 2.21239C13.3445 1.9567 13.139 1.75119 12.8833 1.63196C12.6422 1.51953 12.3313 1.51953 11.7095 1.51953C9.53321 1.51953 8.44506 1.51953 7.60118 1.91304C6.70626 2.33034 5.98699 3.04962 5.56968 3.94454C5.17617 4.78841 5.17617 5.87656 5.17617 8.05287V9.91953H3.67617C2.83349 9.91953 2.41216 9.91953 2.10949 10.1218C1.97846 10.2093 1.86596 10.3218 1.77841 10.4528C1.57617 10.7555 1.57617 11.1769 1.57617 12.0195C1.57617 12.8622 1.57617 13.2835 1.77841 13.5862C1.86596 13.7172 1.97846 13.8297 2.10949 13.9173C2.41216 14.1195 2.83349 14.1195 3.67617 14.1195H5.17617V20.9595C5.17617 21.8595 5.17617 22.3094 5.40535 22.6249C5.47937 22.7267 5.56896 22.8163 5.67083 22.8904C5.98627 23.1195 6.43624 23.1195 7.33617 23.1195Z"
@@ -102,8 +110,8 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="bg-white block h-12 w-12 p-3 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
+                        <a href="#" class="bg-white block h-8 w-8 xl:h-12 xl:w-12 p-1.5 xl:p-3 rounded-full">
+                            <svg class="w-[20px] h-[20px] xl:w-[26px] xl:h-[26px]" xmlns="http://www.w3.org/2000/svg" width="26" height="26"
                                 viewBox="0 0 26 26" fill="none">
                                 <path
                                     d="M19.9824 5.32715C20.3329 5.3272 20.6172 5.6114 20.6172 5.96191C20.6171 6.31239 20.3329 6.59663 19.9824 6.59668C19.6319 6.59668 19.3477 6.31242 19.3477 5.96191C19.3477 5.61137 19.6319 5.32715 19.9824 5.32715Z"
@@ -118,8 +126,8 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="bg-white block h-12 w-12 p-3 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26"
+                        <a href="#" class="bg-white block h-8 w-8 xl:h-12 xl:w-12 p-1.5 xl:p-3 rounded-full">
+                            <svg class="w-[20px] h-[20px] xl:w-[26px] xl:h-[26px]" xmlns="http://www.w3.org/2000/svg" width="26" height="26"
                                 viewBox="0 0 26 26" fill="none">
                                 <path
                                     d="M11.7321 11.04V18.6567V15.4038C11.7321 12.9937 13.6858 11.04 16.0958 11.04V11.04C17.5418 11.04 18.7141 12.2123 18.7141 13.6583V18.6567M7.28906 11.04V18.6567"

@@ -38,6 +38,7 @@ use App\Models\RequestLegalTranslation;
 use App\Models\DefaultTranslatorAssignment;
 use App\Models\TranslatorLanguageRate;
 use App\Models\RequestLastWill;
+use App\Models\Translator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -54,13 +55,15 @@ class ServiceRequestController extends Controller
         $this->middleware('auth');
        
         $this->middleware('permission:manage_service_requests',  ['only' => ['index','destroy']]);
-        $this->middleware('permission:view_service_requests',  ['only' => ['index','show']]);
-        $this->middleware('permission:change_request_status',  ['only' => ['updateRequestStatus','updatePaymentStatus','updateInstallmentStatus','assignServiceLawfirm']]);
-        $this->middleware('permission:export_service_requests',  ['only' => ['export']]);
+        $this->middleware('permission:view-annual-retainer-agreement|view-company-setup|view-contract-drafting|view-court-case-submission|view-criminal-complaint|view-debts-collection|view-escrow-accounts|view-expert-report|view-immigration-requests|view-last-will-and-testament|view-memo-writing|view-power-of-attorney|view-request-submission',  ['only' => ['index','show']]);
+
+        $this->middleware('permission:change-status-annual-retainer-agreement|change-status-company-setup|change-status-contract-drafting|change-status-court-case-submission|change-status-criminal-complaint|change-status-debts-collection|change-status-escrow-accounts|change-status-expert-report|change-status-immigration-requests|change-status-last-will-and-testament|change-status-memo-writing|change-status-power-of-attorney|change-status-request-submission|change_translation_request_status',  ['only' => ['updateRequestStatus','updatePaymentStatus','updateInstallmentStatus','assignServiceLawfirm']]);
+
+        $this->middleware('permission:export-annual-retainer-agreement|export-company-setup|export-contract-drafting|export-court-case-submission|export-criminal-complaint|export-debts-collection|export-escrow-accounts|export-expert-report|export-immigration-requests|export-last-will-and-testament|export-memo-writing|export-power-of-attorney|export-request-submission',  ['only' => ['export']]);
 
         $this->middleware('permission:manage_translation_requests',  ['only' => ['indexTranslation']]);
         $this->middleware('permission:view_translation_requests',  ['only' => ['indexTranslation','showTranslationRequest']]);
-        $this->middleware('permission:change_translation_request_status',  ['only' => ['updateRequestStatus','updatePaymentStatus']]);
+       
         $this->middleware('permission:export_translation_requests',  ['only' => ['exportLegalTranslationRequests']]);
     }
 
@@ -94,9 +97,18 @@ class ServiceRequestController extends Controller
             $query->where('reference_code', 'like', '%' . $request->keyword . '%');
         }
 
+        if ($request->filled('translator_id')) {
+            $translatorId = $request->translator_id;
+            $query->whereHas('legalTranslation', function ($q) use ($translatorId) {
+                $q->where('assigned_translator_id', $translatorId);
+            });
+        }
+
         $serviceRequests = $query->orderByDesc('id')->paginate(30);
 
-        return view('admin.translation_requests.index', compact('serviceRequests'));
+        $translators = Translator::select('id','name')->get();
+        
+        return view('admin.translation_requests.index', compact('serviceRequests','translators'));
     }
 
     public function showTranslationRequest($id){
@@ -125,6 +137,10 @@ class ServiceRequestController extends Controller
             'payment_status'    => $serviceRequest->payment_status,
             'payment_reference' => $serviceRequest->payment_reference,
             'amount'            => $serviceRequest->amount,
+            'admin_amount'      => $serviceRequest->legalTranslation?->admin_amount ?? 0,
+            'translator_amount' => $serviceRequest->legalTranslation?->translator_amount ?? 0,
+            'delivery_amount'   => $serviceRequest->legalTranslation?->delivery_amount ?? 0,
+            'tax'               => $serviceRequest->legalTranslation?->tax ?? 0,
             'submitted_at'      => date('d, M Y h:i A', strtotime($serviceRequest->submitted_at)),
             'service_details'   => $translatedData,
         ];
@@ -173,6 +189,13 @@ class ServiceRequestController extends Controller
                 ]);
             }
         }
+
+        if ($request->filled('translator_id')) {
+            $translatorId = $request->translator_id;
+            $query->whereHas('legalTranslation', function ($q) use ($translatorId) {
+                $q->where('assigned_translator_id', $translatorId);
+            });
+        }
     
         $records = $query->get();
 
@@ -184,7 +207,8 @@ class ServiceRequestController extends Controller
 
         $filename = $serviceSlug . '_export_' . now()->format('Y_m_d_h_i_s') . '.xlsx';
 
-        return Excel::download(new ServiceRequestExport($records, $serviceName, $serviceSlug, $fields), $filename);
+        $canViewSales = auth()->user()->can('service_request_sales_view');
+        return Excel::download(new ServiceRequestExport($records, $serviceName, $serviceSlug, $fields, $canViewSales), $filename);
     }
 
 
@@ -200,15 +224,33 @@ class ServiceRequestController extends Controller
 
         if ($request->filled('service_id')) {
             $serviceSlug = $request->service_id;
-            if($serviceSlug === 'law-firm-services'){
-                $slugs = Service::whereHas('parent', function ($query) {
-                    $query->where('slug', 'law-firm-services');
-                })->pluck('slug');
+            if(auth()->user()->can('view-'.$serviceSlug)){
+                if($serviceSlug === 'law-firm-services'){
+                    $slugs = Service::whereHas('parent', function ($query) {
+                        $query->where('slug', 'law-firm-services');
+                    })->pluck('slug');
 
-                $query->whereIn('service_slug', $slugs);
+                    $query->whereIn('service_slug', $slugs);
+                }else{
+                    $query->where('service_slug', $serviceSlug);
+                }   
             }else{
-                $query->where('service_slug', $serviceSlug);
-            }    
+                $query->whereNull('id');
+            }
+             
+        }else{
+            $allowedSlugs = [];
+            foreach ($services as $serv) {
+                $permission = 'view-' . $serv->slug;
+                if (auth()->user()->can($permission)) {
+                    $allowedSlugs[] = $serv->slug;
+                }
+            }
+            if (!empty($allowedSlugs)) {
+                $query->whereIn('service_slug', $allowedSlugs);
+            } else {
+                $query->whereNull('id'); 
+            }
         }
 
         if ($request->filled('status')) {
@@ -386,7 +428,8 @@ class ServiceRequestController extends Controller
 
         $filename = $serviceSlug . '_export_' . now()->format('Y_m_d_h_i_s') . '.xlsx';
 
-        return Excel::download(new ServiceRequestExport($records, $serviceName, $serviceSlug, $fields), $filename);
+        $canViewSales = auth()->user()->can('service_request_sales_view');
+        return Excel::download(new ServiceRequestExport($records, $serviceName, $serviceSlug, $fields, $canViewSales), $filename);
     }
 
     public function updateInstallmentStatus(Request $request)

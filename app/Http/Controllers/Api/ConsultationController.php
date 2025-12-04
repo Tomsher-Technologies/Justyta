@@ -39,9 +39,13 @@ class ConsultationController extends Controller
             ...$data
         ]);
 
-        $lawyer = findBestFitLawyer($consultation);
-
-        if ($lawyer) {
+        if ($request->lawyer_id) {
+            $lawyer = Lawyer::find($request->lawyer_id);
+        }else{
+            $lawyer = findBestFitLawyer($consultation);
+        }
+       
+        if ($lawyer && $lawyer->is_busy == 0 && $lawyer->user->is_online == 1) {
             reserveLawyer($lawyer->id, $consultation->id);
         } else {
             $consultation->delete();
@@ -59,8 +63,16 @@ class ConsultationController extends Controller
 
         $total_amount = (float)($base->amount ?? 0);
 
+        $commission = $lawyer->lawfirm?->consultation_commission ?? 0;
+
+        $admin_amount = ($commission > 0) ? ($total_amount * $commission) / 100 : 0;
+        $lawyer_amount = $total_amount - $admin_amount;
+      
         $consultation->update([
-            'amount' => $total_amount
+            'amount' => $total_amount,
+            'admin_amount' => $admin_amount,
+            'lawyer_amount' => $lawyer_amount,
+            'commission_percentage' => $commission
         ]);
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
@@ -70,7 +82,8 @@ class ConsultationController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $consultation->id .'--'.$consultation->ref_code;
 
@@ -80,6 +93,7 @@ class ConsultationController extends Controller
                 $paymentData = ConsultationPayment::create([
                                 'consultation_id' => $consultation->id,
                                 'user_id' => $user->id,
+                                'duration' => $request->duration,
                                 'amount' => $total_amount,
                                 'type' => 'initial',
                                 'status' => 'pending',
@@ -107,7 +121,8 @@ class ConsultationController extends Controller
             // ], 200);
 
             $consultation->refresh();
-           
+            $consultation->request_success = 1;
+
             if ($consultation->lawyer_id) {
                 assignLawyer($consultation, $consultation->lawyer_id);
                 $consultation->status = 'waiting_lawyer';
@@ -221,7 +236,9 @@ class ConsultationController extends Controller
 
         if ($consultation_id) {
             $consultation = Consultation::find($consultation_id);
-            unreserveLawyer($consultation->lawyer_id);
+            if($consultation->lawyer_id != null){
+                unreserveLawyer($consultation->lawyer_id);
+            }
             $consultation->delete();
         }
         
@@ -265,7 +282,6 @@ class ConsultationController extends Controller
             'data' => $data
         ], 200);
     }
-
 
     public function lawyerResponse(Request $request, ZoomService $zoomService){
         $request->validate([
@@ -318,6 +334,9 @@ class ConsultationController extends Controller
                 ]],200);
         }
 
+        $lawyer->is_busy = 0;
+        $lawyer->save();
+
         $nextLawyer = findBestFitLawyer($consultation);
         if($nextLawyer){
             assignLawyer($consultation, $nextLawyer->id);
@@ -327,10 +346,6 @@ class ConsultationController extends Controller
             $consultation->save();
             return response()->json(['status'=> false, 'message'=> __('frontend.rejected_no_lawyer_available')]);
         }
-
-        $consultation->status = 'rejected';
-        $consultation->save();
-        return response()->json(['status'=> false, 'message'=> __('frontend.rejected_no_lawyer_available')]);
     }
 
     public function checkUserConsultationStatus(Request $request)
@@ -369,7 +384,6 @@ class ConsultationController extends Controller
         ], 200);
     }
 
-
     public function handleZoomCompleted(Request $request)
     {
         $event = $request->event ?? null;
@@ -396,62 +410,203 @@ class ConsultationController extends Controller
         $consultation = Consultation::find($consultationId);
         if ($consultation) {
             $consultation->status = $request->status;
+
+            if($request->status == 'completed'){
+                $consultation->meeting_end_time = now();
+                $consultation->is_completed = 1;
+            }
+
             $consultation->save();
 
-            unreserveLawyer($consultation->lawyer_id);
+            if($request->status == 'completed' || $request->status == 'rejected' || $request->status == 'cancelled' || $request->status == 'no_lawyer_available'){
+                unreserveLawyer($consultation->lawyer_id);
+            }
             return response()->json(['status' => true,'message' => 'Success'],200);
         }
 
         return response()->json(['status' => false,'message' => 'Failed'], 200);
     }
 
-
-
-
-
-
-
-    public function extendZoom(Request $request, $id)
+    public function extendConsultation(Request $request)
     {
-        $request->validate([
-            'extra_minutes'=>'required|integer'
+        $data = $request->validate([
+            'consultation_id' => 'required|exists:consultations,id',
+            'duration' => 'required|numeric|min:1'
         ]);
 
-        $consultation = Consultation::findOrFail($id);
-        $this->extendZoomMeeting($consultation, $request->extra_minutes);
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $userId     = $user->id ?? null; 
 
-        return response()->json(['success'=>true]);
-    }
+        $consultation = Consultation::findOrFail($data['consultation_id']);
 
-    private function createZoomMeeting(Consultation $consultation)
-    {
-        $jwt = $this->getZoomJWT();
-        $response = Http::withHeaders([
-            'Authorization'=>"Bearer $jwt",
-            'Content-Type'=>'application/json'
-        ])->post('https://api.zoom.us/v2/users/me/meetings',[
-            'topic'=>"Consultation #{$consultation->id}",
-            'type'=>2,
-            'start_time'=>now()->addMinutes(1)->toIso8601String(),
-            'duration'=>$consultation->duration,
-            'settings'=>['join_before_host'=>true]
+        if ($consultation->is_completed) {
+            return response()->json([
+                'status' => false,
+                'message' => __('frontend.consultation_completed_cannot_extend'),
+            ], 400);
+        }
+
+        $base = ConsultationDuration::where('type', $consultation->consultant_type)
+                                    ->where('duration', $data['duration'])
+                                    ->where('status', 1)
+                                    ->first();
+
+        $extendAmount = $data['amount'] ?? (float)($base->amount ?? 0);
+        $currency = env('APP_CURRENCY', 'AED');
+
+        // $extendAmount =0; // For Testing
+        if ($extendAmount > 0) {
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone,
+                'address' => $user->address,
+            ];
+
+            $consultationCount = ConsultationPayment::where('consultation_id', $consultation->id)->count();
+
+            $orderReference = $consultation->id . '--extend-'.$consultationCount.'--'. $consultation->ref_code;
+
+            $payment = createMobOrder($customer, $extendAmount, $currency, $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                ConsultationPayment::create([
+                    'consultation_id' => $consultation->id,
+                    'user_id' => $user->id,
+                    'amount' => $extendAmount,
+                    'duration' => $data['duration'],
+                    'type' => 'extend',
+                    'status' => 'pending',
+                    'payment_reference' => $payment['reference'] ?? NULL,
+                ]);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => __('frontend.extension_payment_pending'),
+                    'data' => json_encode($payment),
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => __('frontend.request_submit_failed'),
+                'data' => json_encode($payment ?? []),
+            ], 200);
+        }
+
+        $consultation->duration += $data['duration'];
+        $consultation->is_extended = 1;
+        $consultation->save();
+
+        ConsultationPayment::create([
+            'consultation_id' => $consultation->id,
+            'user_id' => $user->id,
+            'amount' => $extendAmount,
+            'type' => 'extend',
+            'duration' => $data['duration'],
+            'status' => 'completed',
+            'payment_reference' => NULL,
         ]);
 
-        $data = $response->json();
-        return ['id'=>$data['id'],'join_url'=>$data['join_url']];
+        return response()->json([
+            'status' => true,
+            'message' => __('frontend.consultation_extended_successfully'),
+            'data' => [
+                'consultation_id' => $consultation->id,
+                'duration' => $consultation->duration,
+            ],
+        ], 200);
     }
 
-    private function extendZoomMeeting(Consultation $consultation, $extraMinutes)
+    public function paymentExtendSuccess(Request $request)
     {
-        $jwt = $this->getZoomJWT();
-        Http::withHeaders([
-            'Authorization'=>"Bearer $jwt",
-            'Content-Type'=>'application/json'
-        ])->patch("https://api.zoom.us/v2/meetings/{$consultation->zoom_meeting_id}",[
-            'duration'=>$consultation->duration + $extraMinutes
-        ]);
+        $paymentReference = $request->query('ref') ?? NULL;
+        if($paymentReference){
+            $token = getAccessToken();
 
-        $consultation->update(['duration'=>$consultation->duration + $extraMinutes]);
+            $baseUrl = config('services.ngenius.base_url');
+            $outletRef = config('services.ngenius.outlet_ref');
+
+            $response = Http::withToken($token)->get("{$baseUrl}/transactions/outlets/" . $outletRef . "/orders/{$paymentReference}");
+            $data = $response->json();
+
+            $orderRef = $data['merchantOrderReference'] ?? NULL;
+            $serviceData = explode('--', $orderRef);
+
+            $consultationId = $serviceData[0];
+            
+            $status = $data['_embedded']['payment'][0]['state'] ?? null;
+            $paid_amount = $data['_embedded']['payment'][0]['amount']['value'] ?? 0;
+
+            $paidAmount = ($paid_amount != 0) ? $paid_amount/100 : 0;
+        
+            $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+
+            $consultation = Consultation::findOrFail($consultationId);
+            if ($status === 'PURCHASED' || $status === 'CAPTURED') {
+                $servicePayment = ConsultationPayment::where('payment_reference', $paymentReference)
+                                                ->where('consultation_id', $consultationId)
+                                                ->first();
+
+                if ($servicePayment) {
+                    $servicePayment->update(['status' => 'completed']);
+                }
+
+                $lawyer = Lawyer::where('id', $consultation->lawyer_id)->first();
+                $total_amount = $paidAmount;
+                $commission = $lawyer->lawfirm?->consultation_commission ?? 0;
+
+                $admin_amount = ($commission > 0) ? ($total_amount * $commission) / 100 : 0;
+                $lawyer_amount = $total_amount - $admin_amount;
+            
+                $consultation->duration += $servicePayment?->duration ?? 0;
+                $consultation->amount += $paidAmount;
+                $consultation->admin_amount += $admin_amount;
+                $consultation->lawyer_amount += $lawyer_amount;
+                $consultation->is_extended = 1;
+                $consultation->status = 'in_progress';
+                $consultation->save();
+
+                return response()->json([
+                    'status' => true,
+                    'message'=> __('frontend.consultation_extended_successfully'),
+                    'data' => [
+                        'consultation_id' => $consultation->id ?? null,
+                        'duration' => $servicePayment?->duration ?? 0
+                    ]
+                ],200);
+            }else{
+                $servicePayment = ConsultationPayment::where('payment_reference', $paymentReference)
+                                                ->where('consultation_id', $consultationId)
+                                                ->first();
+
+                if ($servicePayment) {
+                    $servicePayment->update(['status' => 'failed']);
+                }
+                $consultation->status = 'in_progress';
+                $consultation->save();
+            }
+        }
+        return response()->json(['status'=>false, 'message'=>__('frontend.payment_failed')],200);
     }
+
+    public function paymentExtendCancel(Request $request)
+    {
+        $consultation_id = $request->query('consultation_id') ?? null;
+
+        if ($consultation_id) {
+            $servicePayment = ConsultationPayment::where('status', 'pending')
+                                                ->where('consultation_id', $consultation_id)
+                                                ->first();
+
+            if ($servicePayment) {
+                $servicePayment->update(['status' => 'failed']);
+            }
+        }
+        
+        return response()->json(['status'=>false, 'message'=>__('frontend.payment_failed')],200);
+    }
+   
 
 }

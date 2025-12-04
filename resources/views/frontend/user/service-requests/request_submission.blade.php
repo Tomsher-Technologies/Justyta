@@ -4,7 +4,7 @@
     <form method="POST" action="{{ route('service.request-submission-request') }}" id="requestSubmissionForm" enctype="multipart/form-data">
         @csrf
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-white p-10 rounded-[20px] border !border-[#FFE9B1]">
+            <div class="lg:col-span-2 bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1]">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">
                     {{ $service->getTranslation('title', $lang) }}
                 </h2>
@@ -128,7 +128,7 @@
                     {{ __('frontend.upload_documents') }}
                 </h2>
 
-                <div class="grid grid-cols-2 gap-x-6 gap-6">
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-2 xl:gap-6">
                     <div>
                         <label for="memo" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.memo') }}
                             {{-- <span class="text-red-500">*</span> --}}
@@ -162,7 +162,7 @@
                     </div>
                     <div>
                         <label for="consultation-time" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ __('frontend.trade_license_company') }}<span class="text-red-500">*</span></label>
+                            {{ __('frontend.trade_license_company') }}</label>
                         <input class="file-input block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" id="trade_license" type="file"   name="trade_license[]" multiple data-preview="trade-preview" />
                         <div id="trade-preview" class="mt-2 grid grid-cols-4 gap-2"></div>
                         @error('trade_license')
@@ -184,7 +184,7 @@
                 @endif
             </div>
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)] flex flex-col justify-between">
+                <div class="bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1] h-[auto] xl:h-[calc(100vh-150px)] flex flex-col justify-between">
                     <div>
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">
                             {{ __('frontend.description') }}
@@ -197,7 +197,7 @@
                     </div>
 
                     <div>
-                        <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]">{{ __('frontend.AED') }} 
+                        <div class="text-gray-700 text-lg mb-4 mt-5 xl:mt-0 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]">{{ __('frontend.AED') }} 
                             <span id="total_amount">{{ $dropdownData['payment']['total_amount'] ?? 0 }}</span></span></div>
                        
                         <button type="submit" class="text-white bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md w-full px-8 py-4 text-center transition-colors duration-200 uppercase cursor-pointer">
@@ -223,7 +223,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'
@@ -311,24 +311,29 @@
                     litigation_place: { required: true },
                     request_type: { required: true },
                     request_title: { required: true },
-                    case_number: { required: true },
+                    case_number: { required: true, maxlength: 100 },
                     "memo[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "documents[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                     "eid[]": {
                         required: true,
                         extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        fileSize: 102400
                     },
                     "trade_license[]": {
-                        required: true,
+                        required: {
+                            depends: function (element) {
+                                return $('input[name="applicant_type"]:checked').val() === "company";
+                            }
+                        },
+
                         extension: "pdf,jpg,jpeg,webp,png,svg",
-                        fileSize: 500
+                        fileSize: 102400
                     }
                 },
                 messages: {
@@ -339,7 +344,10 @@
                     litigation_place: "{{ __('messages.litigation_place_required') }}",
                     request_type: "{{ __('messages.request_type_required') }}",
                     request_title: "{{ __('messages.request_title_required') }}",
-                    case_number: "{{ __('messages.case_number_required') }}",
+                    case_number: {
+                        required:"{{ __('messages.case_number_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
                     "memo[]": {
                         extension: "{{ __('messages.memo_file_mimes') }}",
                         fileSize: "{{ __('messages.memo_file_max') }}"

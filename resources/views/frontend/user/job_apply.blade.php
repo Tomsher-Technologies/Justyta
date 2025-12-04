@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="lg:col-span-2 bg-white p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)]">
+    <div class="lg:col-span-2 bg-white p-4 xl:p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)]">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ __('frontend.apply_now') }}</h2>
         <hr class="mb-5">
         <form method="POST" action="{{ route('user.job.apply') }}" id="jobApplyForm" enctype="multipart/form-data">
@@ -76,7 +76,7 @@
     </div>
     <div class="lg:col-span-1 space-y-6">
         <div
-            class="bg-white p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)] flex flex-col justify-between">
+            class="bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1] h-[auto] xl:h-[calc(100vh-150px)] flex flex-col justify-between">
             <div>
                 <h2 class="text-xl font-semibold text-gray-800">{{ __('frontend.about_consultancy') }}</h2>
                 <hr class="my-4">
@@ -118,7 +118,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'
@@ -188,35 +188,35 @@
                 this.value = this.value.replace(/[^0-9+]/g, '');
             });
  
-            $.validator.addMethod("fileSize", function (value, element, param) {
-                if (!element.files || element.files.length === 0) {
-                    return true;
-                }
-                for (let i = 0; i < element.files.length; i++) {
-                    if (element.files[i].size > param * 1024) {
-                        return false;
-                    }
-                }
-                return true;
-            }, "File size must be less than {0}KB");
+            $.validator.addMethod("fileSize", function(value, element, param) {
+                if (value === "") return true;
+                if (element.files.length === 0) return false; 
+                return element.files[0].size <= param;
+            }, "File size must be less than {0} bytes.");
 
             $("#jobApplyForm").validate({
                 ignore: [],
                 rules: {
-                    full_name: { required: true },
+                    full_name: { required: true, maxlength: 100 },
                     email: { required: true },
-                    phone: { required: true },
+                    phone: { required: true, maxlength: 25 },
                     position: { required: true },
                     "resume": {
                         required: true,
                         extension: "pdf,doc,docx",
-                        fileSize: 2048
+                        fileSize: 102400
                     }
                 },
                 messages: {
-                    full_name: "{{ __('messages.full_name_required') }}",
+                    full_name: {
+                        required: "{{ __('messages.full_name_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
                     email: "{{ __('messages.email_required') }}",
-                    phone: "{{ __('messages.phone_required') }}",
+                    phone: {
+                        required: "{{ __('messages.phone_required') }}",
+                        maxlength: "{{ __('frontend.maxlength25') }}"
+                    },
                     position: "{{ __('messages.position_required') }}",
                     "resume": {
                         required: "{{ __('messages.resume_required') }}",

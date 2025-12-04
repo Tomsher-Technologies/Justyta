@@ -1,7 +1,7 @@
 @extends('layouts.web_vendor_default', ['title' => __('frontend.create_lawyer')])
 
 @section('content')
-<div class="bg-white rounded-2xl  p-8 pb-12">
+<div class="bg-white rounded-2xl  p-6 pb-12">
 
     <div class="flex justify-between items-center mb-8">
         <h2 class="text-xl font-semibold text-gray-800">{{ __('frontend.lawyer_information') }}</h2>
@@ -102,8 +102,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.date_of_birth') }} <span
                                 class="text-red-500">*</span></label>
                         <input type="date" name="dob" placeholder="d M Y"
-                            class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5 alldatepicker"
-                            value="{{ old('dob') }}">
+                            class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5 alldatepicker" max="{{ now()->subYears(15)->format('Y-m-d') }}" value="{{ old('dob') }}">
                         @error('dob')
                             <div class="text-red-500">{{ $message }}</div>
                         @enderror
@@ -490,7 +489,7 @@
                 residence_visa: {
                     required: true, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 2 * 1024 * 1024
+                    filesize: 102400
                 },
                 residence_visa_expiry: {
                     required: true, 
@@ -507,12 +506,12 @@
                 emirates_id_front: {
                     required: true, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 2 * 1024 * 1024
+                    filesize: 102400
                 }, 
                 emirates_id_back:  {
                     required: true, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 2 * 1024 * 1024
+                    filesize: 102400
                 },
                 emirates_id_expiry: {
                     required: true, 
@@ -521,7 +520,7 @@
                 passport: {
                     required: true, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 2 * 1024 * 1024 
+                    filesize: 102400
                 },
                 passport_expiry: {
                     required: true, 
@@ -530,7 +529,7 @@
                 bar_card: {
                     required: true, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 2 * 1024 * 1024
+                    filesize: 102400
                 },
                 bar_card_expiry: {
                     required: true, 
@@ -539,7 +538,7 @@
                 ministry_of_justice_card: {
                     required: true, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 2 * 1024 * 1024
+                    filesize: 102400
                 },
                 ministry_of_justice_card_expiry: {
                     required: true, 
@@ -590,12 +589,12 @@
                 emirates_id_front: {
                     required: "{{ __('frontend.this_field_required') }}", 
                     fileext: "{{ __('frontend.allowed_files') }}", 
-                    filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                 },
                 emirates_id_back: {
                     required: "{{ __('frontend.this_field_required') }}", 
                     fileext: "{{ __('frontend.allowed_files') }}", 
-                    filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                 },
                 emirates_id_expiry: {
                     required: "{{ __('frontend.this_field_required') }}", 
@@ -604,7 +603,7 @@
                 passport: {
                     required: "{{ __('frontend.this_field_required') }}", 
                     fileext: "{{ __('frontend.allowed_files') }}", 
-                    filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                 },
                 passport_expiry: {
                     required: "{{ __('frontend.this_field_required') }}",
@@ -613,7 +612,7 @@
                 bar_card: {
                     required: "{{ __('frontend.this_field_required') }}", 
                     fileext: "{{ __('frontend.allowed_files') }}", 
-                    filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                 },
                 bar_card_expiry: {
                     required: "{{ __('frontend.this_field_required') }}",
@@ -625,12 +624,12 @@
                 },
                 residence_visa: {
                     fileext: "{{ __('frontend.allowed_files') }}", 
-                    filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                 },
                 ministry_of_justice_card: {
                     required: "{{ __('frontend.this_field_required') }}", 
                     fileext: "{{ __('frontend.allowed_files') }}", 
-                    filesize: "{{ __('frontend.max_file_size', ['size' => '2MB']) }}"
+                    filesize: "{{ __('frontend.max_file_size', ['size' => '100MB']) }}"
                 },
                 ministry_of_justice_card_expiry: {
                     required: "{{ __('frontend.this_field_required') }}"

@@ -2,35 +2,44 @@
 
 @section('content')
 <div class="grid grid-cols-1 gap-6">
-    <div class=" bg-white p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)]">
+    <div class=" bg-white p-4 xl:p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)]">
         <div class="flex items-center justify-between mb-5">
             <h1 class="text-xl font-semibold text-gray-800">{{ __('frontend.law_firm_jobs') }}</h1>
 
             <form class="w-[80%]">
-                <label for="default-search"
-                    class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">{{ __('frontend.search') }}</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 start-2 flex items-center ps-3 pointer-events-none">
-                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                        </svg>
+                <div class="flex items-center gap-3">
+                    
+                    <!-- Search Box -->
+                    <div class="flex-1 relative">
+                        <input type="search" id="default-search" name="keyword" 
+                            value="{{ request()->keyword }}"
+                            class="block w-full p-4 ps-12 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="{{ __('frontend.search_job_title') }}" required />
+
+                        <div class="absolute inset-y-0 start-2 flex items-center ps-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                            </svg>
+                        </div>
                     </div>
-                    <input type="search" id="default-search" name="keyword" value="{{ request()->keyword }}"
-                        class="block w-full p-4 ps-12 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 "
-                        placeholder="{{ __('frontend.search_job_title_position') }}" required />
+
+                    <!-- Search Button -->
                     <button type="submit"
-                        class="text-white absolute end-22.5 bottom-2.5 bg-[#07683B] hover:bg-[#07683B]-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 cursor-pointer">
+                        class="text-white bg-[#07683B] hover:bg-green-700 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2">
                         {{ __('frontend.find_jobs') }}
                     </button>
 
+                    <!-- Reset Button -->
                     <a href="{{ route('user-lawfirm-jobs') }}"
-                        class="text-black absolute end-2.5 bottom-2.5 bg-[#c4b07e] hover:bg-[#c4b07e]-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 ">
+                        class="text-black bg-[#c4b07e] hover:bg-[#a8956b] focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2">
                         {{ __('frontend.reset') }}
                     </a>
+
                 </div>
             </form>
+
 
         </div>
 
@@ -83,7 +92,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'

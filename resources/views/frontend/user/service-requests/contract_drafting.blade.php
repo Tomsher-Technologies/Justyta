@@ -4,7 +4,7 @@
     <form method="POST" action="{{ route('service.contract-drafting-request') }}" id="contractDraftingForm" enctype="multipart/form-data">
         @csrf
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-white p-10 rounded-[20px] border !border-[#FFE9B1]">
+            <div class="lg:col-span-2 bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1]">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">
                     {{ $service->getTranslation('title', $lang) }}
                 </h2>
@@ -139,7 +139,7 @@
                     {{ __('frontend.upload_documents') }}
                 </h2>
 
-                <div class="grid grid-cols-2 gap-x-6 gap-6">
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-2 xl:gap-6">
                     
                     <div>
                         <label for="eid" class="block text-sm font-medium text-gray-700 mb-2">
@@ -153,7 +153,7 @@
                     </div>
                     <div>
                         <label for="consultation-time" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ __('frontend.trade_license_company') }}<span class="text-red-500">*</span></label>
+                            {{ __('frontend.trade_license_company') }}</label>
                         <input class="file-input block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" id="trade_license" type="file"   name="trade_license[]" multiple data-preview="trade-preview" />
                         <div id="trade-preview" class="mt-2 grid grid-cols-4 gap-2"></div>
                         @error('trade_license')
@@ -176,7 +176,7 @@
                 
             </div>
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)] flex flex-col justify-between">
+                <div class="bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1] h-[auto] xl:h-[calc(100vh-150px)] flex flex-col justify-between">
                     <div>
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">
                             {{ __('frontend.description') }}
@@ -212,7 +212,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'
@@ -300,7 +300,7 @@
                     emirate_id: { required: true },
                     sub_contract_type: { required: true },
                     contract_language: { required: true },
-                    company_name: { required: true },
+                    company_name: { required: true, maxlength: 100 },
                     industry: { required: true },
                     email: { required: true,email: true },
                     priority: { required: true },
@@ -314,7 +314,11 @@
                         fileSize: 102400
                     },
                     "trade_license[]": {
-                        required: true,
+                        required: {
+                            depends: function (element) {
+                                return $('input[name="applicant_type"]:checked').val() === "company";
+                            }
+                        },
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
                         fileSize: 102400
                     }
@@ -325,7 +329,10 @@
                     emirate_id: "{{ __('messages.emirate_required') }}",
                     contract_type: "{{ __('messages.contract_type_required') }}",
                     contract_language: "{{ __('messages.contract_language_required') }}",
-                    company_name: "{{ __('messages.company_person_name_required') }}",
+                    company_name: {
+                        required: "{{ __('messages.company_person_name_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
                     industry: "{{ __('messages.industry_required') }}",
                     email: {
                         required: "{{ __('messages.email_required') }}",

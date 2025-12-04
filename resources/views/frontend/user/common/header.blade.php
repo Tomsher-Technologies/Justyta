@@ -1,5 +1,11 @@
 <nav class="grid grid-cols-2 gap-5 grid-cols-[2fr_1fr] items-center justify-between mb-5">
-  
+  <!-- Mobile Menu Button -->
+<button id="openSidebar" class="xl:hidden py-3">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="black" stroke-width="2">
+        <path d="M4 8h24M4 16h24M4 24h24"/>
+    </svg>
+</button>
+
 
     <div class="relative hidden lg:block w-full">
         <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
@@ -10,7 +16,7 @@
         </div>
         <input type="text" id="search-navbar"
             class="block p-3 w-full ps-12 text-sm text-gray-900 border border-[#FFE9B1] rounded-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Search services..." autocomplete="off" />
+            placeholder="{{ __('frontend.search_services') }}" autocomplete="off" />
 
         <!-- Suggestions container -->
         <div id="search-suggestions"
@@ -20,18 +26,22 @@
     </div>
 
     <div class="flex items-center justify-end gap-4">
+
         <button type="button"
             class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="33" viewBox="0 0 28 33" fill="none">
-                <path
-                    d="M18.6965 25.8946V27.0701C18.6965 28.3171 18.2012 29.513 17.3194 30.3948C16.4376 31.2765 15.2417 31.7719 13.9947 31.7719C12.7477 31.7719 11.5517 31.2765 10.67 30.3948C9.7882 29.513 9.29283 28.3171 9.29283 27.0701V25.8946M26.6074 23.5018C24.7208 21.1927 23.3888 20.0173 23.3888 13.6514C23.3888 7.82183 20.412 5.74493 17.9619 4.73623C17.6364 4.60252 17.3301 4.29543 17.2309 3.96116C16.8011 2.49844 15.5963 1.20984 13.9947 1.20984C12.3931 1.20984 11.1875 2.49918 10.7622 3.96263C10.663 4.30058 10.3566 4.60252 10.0312 4.73623C7.57812 5.7464 4.60419 7.81595 4.60419 13.6514C4.60052 20.0173 3.26857 21.1927 1.38195 23.5018C0.600268 24.4583 1.28498 25.8946 2.65219 25.8946H25.3445C26.7044 25.8946 27.3847 24.4539 26.6074 23.5018Z"
-                    stroke="#3B3A3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>
-            <div
-                class="absolute inline-flex items-center justify-center w-6 h-6 text-xs text-white bg-red-500 border-2 border-[#E6DFCC] rounded-full -top-2 -end-2 shadow-xl">
-                {{ getUnreadNotificationCount() }}
-            </div>
+            <a href="{{ route('user.notifications.index') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="33" viewBox="0 0 28 33" fill="none">
+                    <path
+                        d="M18.6965 25.8946V27.0701C18.6965 28.3171 18.2012 29.513 17.3194 30.3948C16.4376 31.2765 15.2417 31.7719 13.9947 31.7719C12.7477 31.7719 11.5517 31.2765 10.67 30.3948C9.7882 29.513 9.29283 28.3171 9.29283 27.0701V25.8946M26.6074 23.5018C24.7208 21.1927 23.3888 20.0173 23.3888 13.6514C23.3888 7.82183 20.412 5.74493 17.9619 4.73623C17.6364 4.60252 17.3301 4.29543 17.2309 3.96116C16.8011 2.49844 15.5963 1.20984 13.9947 1.20984C12.3931 1.20984 11.1875 2.49918 10.7622 3.96263C10.663 4.30058 10.3566 4.60252 10.0312 4.73623C7.57812 5.7464 4.60419 7.81595 4.60419 13.6514C4.60052 20.0173 3.26857 21.1927 1.38195 23.5018C0.600268 24.4583 1.28498 25.8946 2.65219 25.8946H25.3445C26.7044 25.8946 27.3847 24.4539 26.6074 23.5018Z"
+                        stroke="#3B3A3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <div
+                    class="absolute inline-flex items-center justify-center w-6 h-6 text-xs text-white bg-red-500 border-2 border-[#E6DFCC] rounded-full -top-2 -end-2 shadow-xl">
+                    {{ getUnreadNotificationCount() }}
+                </div>
+            </a>
         </button>
+
         <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown"
             class="text-gray-700 hover:bg-gray-100 focus:ring-0 focus:outline-none font-medium rounded-lg text-sm px-2 py-1 text-center inline-flex items-center"
             type="button">
@@ -54,7 +64,7 @@
         </div>
 
         <button id="userDropdownButton" data-dropdown-toggle="userDropdown"
-            class="flex items-center p-3 px-5 space-x-2 text-white bg-[#04502E] hover:bg-[#023A21] p-1 rounded-full">
+            class="flex items-center p-2 xl:p-3 px-4 xl:px-5 space-x-2 text-white bg-[#04502E] hover:bg-[#023A21] rounded-full">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="21" viewBox="0 0 22 21" fill="none">
                 <g clip-path="url(#clip0_331_567)">
                     <path
@@ -75,8 +85,7 @@
                     d="m1 1 4 4 4-4" />
             </svg>
         </button>
-        <div id="userDropdown"
-            class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow p-6 w-64 !translate-x-[238px] !translate-y-[50px]">
+        <div id="userDropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow p-6 w-64 absolute right-0 mt-1">
             <a href="{{ route('user.my-account') }}" class="flex items-center justify-between w-full border-b">
                 <div class="pb-4">
                     <h3 class="text-[#353434] text-lg mb-0 leading-none">
@@ -154,17 +163,7 @@
                         <span>{{ __('frontend.payment_history') }}</span>
                     </a>
                 </li>
-                <li>
-                    <a href="#" class="flex items-center gap-2 py-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 29 34"
-                            fill="none">
-                            <path
-                                d="M14.3446 23.8251C13.7994 23.8253 13.266 23.6654 12.8108 23.3652C12.3555 23.065 11.9983 22.6378 11.7835 22.1364C11.3341 22.0303 10.8918 21.8963 10.4591 21.7352L10.4354 21.7268C9.16471 21.2497 7.99186 20.5442 6.97463 19.6453C5.61176 18.4425 4.56368 16.9244 3.92178 15.2235C3.27989 13.5225 3.06367 11.6902 3.29198 9.88648C3.52029 8.08273 4.18619 6.36223 5.23162 4.87501C6.27706 3.38778 7.67028 2.17899 9.28982 1.35403C10.9094 0.529064 12.706 0.112978 14.5232 0.14205C16.3403 0.171122 18.1228 0.644469 19.7151 1.52082C21.3075 2.39717 22.6613 3.64991 23.6587 5.16982C24.6561 6.68972 25.2666 8.43064 25.4372 10.2408C25.4915 10.8162 25.0194 11.2857 24.4414 11.2857C23.8649 11.2857 23.4039 10.8162 23.337 10.2422C23.1529 8.65844 22.5542 7.15141 21.6012 5.87341C20.6483 4.59541 19.375 3.59176 17.91 2.9639C16.4451 2.33603 14.8404 2.10623 13.2582 2.2977C11.676 2.48918 10.1724 3.09515 8.89936 4.05436C7.62631 5.01357 6.62896 6.29202 6.00811 7.76047C5.38727 9.22893 5.16495 10.8353 5.36363 12.4173C5.5623 13.9993 6.17493 15.5007 7.13958 16.7699C8.10423 18.0391 9.38671 19.0309 10.8574 19.6453L10.9131 19.669C11.1916 19.7832 11.4776 19.884 11.771 19.9713C12.0392 19.3173 12.5459 18.7898 13.1884 18.4956C13.8309 18.2014 14.5611 18.1625 15.2312 18.3867C15.9013 18.6109 16.4612 19.0816 16.7975 19.7033C17.1337 20.325 17.2212 21.0513 17.0422 21.7352C16.8878 22.3334 16.539 22.8634 16.0507 23.2417C15.5624 23.62 14.9622 23.8252 14.3446 23.8251ZM4.59596 21.7352H6.22399C5.44536 21.128 4.73635 20.4365 4.10992 19.6731C3.09288 19.7923 2.155 20.281 1.47439 21.0464C0.79378 21.8118 0.417843 22.8006 0.417969 23.8251V24.8212C0.417969 30.0014 6.28109 33.5779 14.3446 33.5779C22.4081 33.5779 28.2713 29.8049 28.2713 24.8212V23.8251C28.2713 22.7165 27.8311 21.6534 27.0475 20.8695C26.264 20.0857 25.2013 19.6453 24.0933 19.6453H19.017C19.2188 20.3226 19.2711 21.0357 19.1702 21.7352H24.0933L24.2952 21.7449C24.8118 21.7951 25.2913 22.036 25.6402 22.4205C25.989 22.8051 26.1823 23.3058 26.1823 23.8251V24.8212L26.1753 25.0456C25.9803 28.5566 21.2049 31.488 14.3446 31.488C7.2267 31.488 2.50697 28.5468 2.50697 24.8212V23.8251L2.51671 23.623C2.56689 23.1062 2.80763 22.6265 3.19201 22.2775C3.57639 21.9285 4.07688 21.7352 4.59596 21.7352ZM21.3079 11.2857C21.3082 12.5477 20.9657 13.7861 20.3172 14.8685C19.6686 15.9509 18.7384 16.8367 17.6257 17.4314C16.7281 16.6145 15.5581 16.1619 14.3446 16.1621C14.9847 16.1621 15.6186 16.036 16.2099 15.7909C16.8013 15.5459 17.3387 15.1867 17.7913 14.7339C18.2439 14.2811 18.6029 13.7435 18.8479 13.1518C19.0929 12.5602 19.2189 11.9261 19.2189 11.2857C19.2189 10.6453 19.0929 10.0112 18.8479 9.4196C18.6029 8.82797 18.2439 8.2904 17.7913 7.83758C17.3387 7.38477 16.8013 7.02557 16.2099 6.78051C15.6186 6.53545 14.9847 6.40931 14.3446 6.40931C13.0519 6.40931 11.8121 6.92308 10.8979 7.83758C9.98383 8.75209 9.47029 9.99242 9.47029 11.2857C9.47029 12.579 9.98383 13.8194 10.8979 14.7339C11.8121 15.6484 13.0519 16.1621 14.3446 16.1621C13.0801 16.1621 11.9297 16.6442 11.0649 17.4328C9.95283 16.8386 9.02288 15.9535 8.37426 14.872C7.82202 13.9516 7.48987 12.9159 7.40375 11.8459C7.31763 10.7758 7.47987 9.70036 7.87779 8.7034C8.27571 7.70644 8.89856 6.81497 9.69771 6.09859C10.4969 5.3822 11.4507 4.86027 12.4848 4.57355C13.5188 4.28682 14.6051 4.24306 15.6589 4.44567C16.7126 4.64829 17.7053 5.0918 18.5595 5.74158C19.4136 6.39137 20.1061 7.22984 20.5829 8.19156C21.0596 9.15328 21.3078 10.2122 21.3079 11.2857Z"
-                                fill="#1C1C1C" />
-                        </svg>
-                        <span>Contact Us</span>
-                    </a>
-                </li>
+                
                 <li class="mt-10">
                     <a href="{{ route('frontend.logout') }}" class="flex items-center justify-between gap-2 py-2">
                         <span>{{ __('frontend.sign_out') }}</span>

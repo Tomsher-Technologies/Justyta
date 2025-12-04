@@ -1,7 +1,7 @@
 @extends('layouts.web_vendor_default', ['title' => $lawyer->getTranslation('full_name', app()->getLocale()) ?? __('frontend.lawyer')])
 
 @section('content')
-    <div class="bg-white rounded-2xl  p-8 pb-12">
+    <div class="bg-white rounded-2xl  p-6 pb-12">
 
         <div class="flex justify-between items-center mb-8">
             <h2 class="text-xl font-semibold text-gray-800">{{ __('frontend.lawyer_profile') }}</h2>
@@ -49,24 +49,24 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 col-span-8">
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-5 flex flex-col items-start justify-center">
                     <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.total_hours_logged') }}</p>
-                    <p class="text-2xl font-bold text-[#B9A572]">0 <span
+                    <p class="text-2xl font-bold text-[#B9A572]">{{ $totalHours ?? 0 }} <span
                             class="text-xl font-semibold">{{ __('frontend.hours') }}</span>
                     </p>
                 </div>
 
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-5 flex flex-col items-start justify-center">
-                    <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.total_cases') }}</p>
-                    <p class="text-2xl font-bold text-[#B9A572]">0</p>
+                    <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.total_consultations') }}</p>
+                    <p class="text-2xl font-bold text-[#B9A572]">{{ $totalConsultations ?? 0 }}</p>
                 </div>
 
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-5 flex flex-col items-start justify-center">
-                    <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.cases_closed') }}</p>
-                    <p class="text-2xl font-bold text-[#B9A572]">0</p>
+                    <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.accepted_consultations') }}</p>
+                    <p class="text-2xl font-bold text-[#B9A572]">{{ $totalAcceptedConsultations ?? 0 }}</p>
                 </div>
 
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-5 flex flex-col items-start justify-center">
-                    <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.cases_rejected') }}</p>
-                    <p class="text-2xl font-bold text-[#B9A572]">0</p>
+                    <p class="text-sm font-medium text-gray-700 mb-1">{{ __('frontend.rejected_consultations') }}</p>
+                    <p class="text-2xl font-bold text-[#B9A572]">{{ $totalRejections ?? 0 }}</p>
                 </div>
             </div>
         </div>
@@ -340,169 +340,98 @@
     </div>
 
     <div class="bg-white rounded-lg p-6 mt-5">
-        <h2 class="text-xl font-medium text-gray-900 mb-4">Consultation History</h2>
-        <div class="relative overflow-x-auto sm:rounded-lg">
+        <h2 class="text-xl font-medium text-gray-900 mb-4">{{ __('frontend.consultations') }}</h2>
+        <div class="relative overflow-x-auto sm:rounded-lg w-[240px] xl:w-full">
             <table class="w-full border">
                 <thead class="text-md font-normal">
                     <tr class="bg-[#07683B] text-white font-normal">
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Ref. No</th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Date and Time</th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Lawyer Name</th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Duration</th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Case Type</th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Client Name</th>
-                        <th scope="col" class="px-6 py-5 font-semibold text-start">Actions</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.sl_no') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.ref_no') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.date') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.lawyer') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.duration') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.client_name') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center" >{{ __('frontend.amount') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.status') }}</th>
+                        <th class="px-6 py-5 font-semibold text-center">{{ __('frontend.actions') }}</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr class="border-b text-[#4D4D4D]">
-                        <td scope="row" class="px-6 py-4">
-                            REF-001234
-                        </td>
-                        <td class="px-6 py-4">
-                            2025-05-21 10:30 AM
-                        </td>
-                        <td class="px-6 py-4">
-                            John Davis
-                        </td>
-                        <td class="px-6 py-4">
-                            00:15:00
-                        </td>
-                        <td class="px-6 py-4">
-                            Divorce
-                        </td>
-                        <td class="px-6 py-4">
-                            William Brooks
-                        </td>
-                        <td class="px-6 py-4">
+                <tbody class="text-[#4D4D4D]">
+                    @php
+                        $i = 0;
+                    @endphp
 
-                            <a href="#" class="flex items-center gap-0.5">
-                                <svg class="w-6 h-6 text-[##4D4D4D]" aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-width="1.7"
-                                        d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z" />
-                                    <path stroke="currentColor" stroke-width="1.7"
-                                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                </svg>
-                                <span>View</span>
+                    @forelse($consultations as $key => $assignment)
+                        @php
+                            $consultation = $assignment->consultation;
+                        @endphp
+                        <tr  class="border-b text-[#4D4D4D]">
+                            <td class="px-6 py-4  text-center">
+                                {{ $key + 1 + ($consultations->currentPage() - 1) * $consultations->perPage() }}
+                            </td>
 
-                            </a>
+                            <td class="px-6 py-4  text-center">
+                                {{ $consultation->ref_code ?? '-' }}
+                            </td>
 
-                        </td>
+                            <td class="px-6 py-4 text-center">
+                                {{ date('d, M Y h:i A', strtotime($consultation->created_at)) }}
+                            </td>
 
-                    </tr>
-                    <tr class="bg-[#EEF4F1] border-b  text-[#4D4D4D]">
-                        <td scope="row" class="px-6 py-4">
-                            REF-001234
-                        </td>
-                        <td class="px-6 py-4">
-                            2025-05-21 10:30 AM
-                        </td>
-                        <td class="px-6 py-4">
-                            John Davis
-                        </td>
-                        <td class="px-6 py-4">
-                            00:15:00
-                        </td>
-                        <td class="px-6 py-4">
-                            Divorce
-                        </td>
-                        <td class="px-6 py-4">
-                            William Brooks
-                        </td>
-                        <td class="px-6 py-4">
+                            <td class="px-6 py-4 text-center">
+                                {{ $assignment->lawyer?->full_name ?? '-' }}
+                            </td>
 
-                            <a href="#" class="flex items-center gap-0.5">
-                                <svg class="w-6 h-6 text-[##4D4D4D]" aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-width="1.7"
-                                        d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z" />
-                                    <path stroke="currentColor" stroke-width="1.7"
-                                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                </svg>
-                                <span>View</span>
+                            <td class="px-6 py-4 text-center">
+                                {{ $consultation->duration ?? 0 }} <small>Mins</small>
+                            </td>
 
-                            </a>
+                            <td class="px-6 py-4 text-center">
+                                {{ $consultation->user?->name ?? '—' }}
+                            </td>
+                            
+                            <td class="px-6 py-4 text-center">
+                                @if($assignment->status == 'accepted')
+                                    AED {{ number_format($consultation->lawyer_amount, 2) }}
+                                @else
+                                    AED 0.00
+                                @endif
+                            </td>
+                        
+                            <td class="px-6 py-4 text-center">
+                                @php
+                                    $status = $assignment->status ?? '';
+                                    $bgColor = ($status == 'accepted') ? '#90EE90' : (($status == 'rejected') ?  '#FF0000' :  'blue');
+                                    $textColor = ($status == 'accepted') ? '#000000' : (($status == 'rejected') ?  '#fff' :  '#fff');
+                                @endphp
+                                <span class="px-3 py-1 rounded text-sm font-medium" style="background-color: {{ $bgColor }}; color: {{ $textColor }};">
+                                    {{ ucwords(str_replace('_', ' ', $status)) ?? ucwords($status) }}
+                                </span>
+                            </td>
 
-                        </td>
-                    </tr>
-                    <tr class="border-b text-[#4D4D4D]">
-                        <td scope="row" class="px-6 py-4">
-                            REF-001234
-                        </td>
-                        <td class="px-6 py-4">
-                            2025-05-21 10:30 AM
-                        </td>
-                        <td class="px-6 py-4">
-                            John Davis
-                        </td>
-                        <td class="px-6 py-4">
-                            00:15:00
-                        </td>
-                        <td class="px-6 py-4">
-                            Divorce
-                        </td>
-                        <td class="px-6 py-4">
-                            William Brooks
-                        </td>
-                        <td class="px-6 py-4">
+                            <td class="px-6 py-4 text-center">
+                                <a href="{{ route('vendor.consultations.show', $assignment->id) }}" class="flex items-center gap-0.5">
+                                    <svg class="w-6 h-6 text-[##4D4D4D]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" stroke-width="1.7" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
+                                        <path stroke="currentColor" stroke-width="1.7" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                    </svg>
+                                    <span>View</span>
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="px-6 py-4 text-center">{{ __('frontend.no_data_found') }}</td>
+                        </tr>
+                    @endforelse
+                    
 
-                            <a href="#" class="flex items-center gap-0.5">
-                                <svg class="w-6 h-6 text-[##4D4D4D]" aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-width="1.7"
-                                        d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z" />
-                                    <path stroke="currentColor" stroke-width="1.7"
-                                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                </svg>
-                                <span>View</span>
-
-                            </a>
-
-                        </td>
-
-                    </tr>
-                    <tr class="bg-[#EEF4F1] border-b  text-[#4D4D4D]">
-                        <td scope="row" class="px-6 py-4">
-                            REF-001234
-                        </td>
-                        <td class="px-6 py-4">
-                            2025-05-21 10:30 AM
-                        </td>
-                        <td class="px-6 py-4">
-                            John Davis
-                        </td>
-                        <td class="px-6 py-4">
-                            00:15:00
-                        </td>
-                        <td class="px-6 py-4">
-                            Divorce
-                        </td>
-                        <td class="px-6 py-4">
-                            William Brooks
-                        </td>
-                        <td class="px-6 py-4">
-
-                            <a href="#" class="flex items-center gap-0.5">
-                                <svg class="w-6 h-6 text-[##4D4D4D]" aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                    viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-width="1.7"
-                                        d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z" />
-                                    <path stroke="currentColor" stroke-width="1.7"
-                                        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                </svg>
-                                <span>View</span>
-
-                            </a>
-
-                        </td>
-                    </tr>
                 </tbody>
             </table>
+
+            <div class="mt-6">
+                {{ $consultations->appends(request()->input())->links() }}
+            </div>
         </div>
     </div>
 @endsection

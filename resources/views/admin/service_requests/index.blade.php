@@ -16,6 +16,10 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="table4  bg-white mb-30">
+                            @php
+                                $serviceSlug = request('service_id'); 
+                                $exportPermissionName = $serviceSlug ? "export-$serviceSlug" : null;
+                            @endphp
 
                             <form method="GET" action="{{ route('service-requests.index') }}" autocomplete="off">
                                 <div class="row mb-2">
@@ -24,9 +28,14 @@
                                         <select name="service_id" class="select2 form-control ih-small ip-gray radius-xs b-deep px-15"  data-placeholder="Select Service" >
                                             <option value="">--Select Service--</option>
                                              @foreach($services as $serv)
-                                                <option value="{{ $serv->slug }}"  {{ request('service_id') == $serv->slug ? 'selected' : '' }}>
-                                                    {{ $serv->name ?? '---' }}
-                                                </option>
+                                                @php
+                                                    $viewPermissionName = $serv->slug ? "view-$serv->slug" : null;
+                                                @endphp
+                                                @if($viewPermissionName && auth()->user()->can($viewPermissionName))
+                                                    <option value="{{ $serv->slug }}"  {{ request('service_id') == $serv->slug ? 'selected' : '' }}>
+                                                        {{ $serv->name ?? '---' }}
+                                                    </option>
+                                                @endif
                                             @endforeach
                                         </select>
                                     </div>
@@ -36,9 +45,7 @@
                                     </div>
 
                                     <div class="col-md-4 input-group  mb-1">
-                                        <input type="text" name="keyword" value="{{ request('keyword') }}"
-                                            class="form-control ih-small ip-gray radius-xs b-deep px-15"
-                                            placeholder="Search with Reference Code">
+                                        <input type="text" name="keyword" value="{{ request('keyword') }}" class="form-control ih-small ip-gray radius-xs b-deep px-15" placeholder="Search with Reference Code">
                                     </div>
 
                                     <div class="col-md-3 input-group mt-2  mb-1">
@@ -71,11 +78,10 @@
 
                                     <div class="col-md-3 mb-1 mt-2 d-flex flex-wrap align-items-end">
                                         <button class="btn btn-primary btn-sm " type="submit">Filter</button>
-                                        <a href="{{ route('service-requests.index') }}"
-                                            class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
+                                        <a href="{{ route('service-requests.index') }}" class="btn btn-secondary btn-square btn-sm ml-2">Reset</a>
 
                                         @if(request('service_id'))
-                                            @can('export_service_requests')
+                                            @if($exportPermissionName && auth()->user()->can($exportPermissionName))
                                                 <a href="{{ route('service-requests.export', ['service_id' => request('service_id')] + request()->all()) }}"
                                                     class="btn btn-warning btn-sm ml-2">
                                                     Export
@@ -101,15 +107,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        @php
+                                            $statusClass = [
+                                                'pending' => 'badge-gray',
+                                                'ongoing' => 'badge-warning',
+                                                'completed' => 'badge-success',
+                                                'rejected' => 'badge-danger',
+                                            ];
+                                        @endphp
                                         @foreach ($serviceRequests as $key => $serviceReq)
-                                            @php
-                                                $statusClass = [
-                                                    'pending' => 'badge-gray',
-                                                    'ongoing' => 'badge-warning',
-                                                    'completed' => 'badge-success',
-                                                    'rejected' => 'badge-danger',
-                                                ];
-                                            @endphp
+                                            
                                             <tr>
                                                 <td class="text-center">{{ $serviceRequests->firstItem() + $key }}</td>
                                                 <td class="text-center">
@@ -136,15 +143,23 @@
                                                 <td class="text-center">
                                                     @php
                                                         $paymentStatus = '-';
+                                                        $paymentAmount = '';
                                                         if(in_array($serviceReq->payment_status, ['pending','failed'])){
                                                             $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span>';
+                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }elseif($serviceReq->payment_status === 'success'){
                                                             $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span>';
+                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }elseif($serviceReq->payment_status === 'partial'){
                                                             $paymentStatus = '<span class="badge badge-pill badge-warning">Partially Paid</span>';
+                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
                                                         }
                                                     @endphp     
                                                     {!! $paymentStatus !!}
+                                                    @can('service_request_sales_view')
+                                                        {!! $paymentAmount !!}
+                                                    @endcan
+
                                                 </td>
                                                 <td class="text-center">
                                                     <span class="badge badge-pill {{ $statusClass[$serviceReq->status] ?? 'badge-secondary' }}">
@@ -155,7 +170,7 @@
                                                 <td class="text-center">{{ date('d, M Y h:i A', strtotime($serviceReq->submitted_at)) }}</td>
 
                                                 <td class="text-center">
-                                                    @can('view_service_requests')
+                                                    @can('view-'.$serviceReq->service_slug)
                                                         <div class="table-actions">
                                                             <a href="{{ route('service-request-details', base64_encode($serviceReq->id)) }}"
                                                                 title="View Service Request">
@@ -188,8 +203,6 @@
 
 @section('style')
     <style>
-
-        
         .popover-header {
             background-color: var(--secondary);
             /*#e2d8bf*/
@@ -216,7 +229,6 @@
             /* border-bottom: 1px solid #e9ecef;
              padding-bottom: 4px; */
         }
-
         .custom-popover .popover-item i {
             color: var(--primary);
             margin-right: 8px;
@@ -230,8 +242,6 @@
 
 @section('script')
     <script type="text/javascript">
-      
-
         $(function() {
             
             $('.popover-toggle').popover();

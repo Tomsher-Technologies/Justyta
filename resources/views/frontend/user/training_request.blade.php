@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="grid grid-cols-1 gap-6">
-    <div class=" bg-white p-10 rounded-[20px] border !border-[#FFE9B1] ">
+    <div class=" bg-white p-4 xl:p-10 rounded-[20px] border !border-[#FFE9B1] ">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ __('frontend.law_training_request') }}</h2>
         <hr class="mb-5">
 
@@ -45,7 +45,7 @@
                             class="text-red-500">*</span></label>
                     <input type="date" id="start_date" name="start_date"
                         class="bg-[#F9F9F9] border border-gray-300 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"
-                        placeholder="DD-MM-YYYY">
+                        placeholder="DD-MM-YYYY" min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
                     @error('start_date')
                         <span class="text-red-500">{{ $message }}</span>
                     @enderror
@@ -108,7 +108,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'
@@ -194,7 +194,7 @@
                     residency_status: { required: true },
                     "documents[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
-                        fileSize: 1024
+                        fileSize: 102400
                     },
                 },
                 messages: {

@@ -6,7 +6,7 @@
                     <span>Main menu</span>
                 </li>
                 <li class="">
-                    <a href="{{ route('admin.dashboard') }}" class="{{ areActiveRoutes(['admin.dashboard']) }}">
+                    <a href="{{ route('admin.dashboard') }}" class="{{ areActiveRoutes(['admin.dashboard','admin.service-sales']) }}">
                         <span data-feather="home" class="nav-icon"></span>
                         <span class="menu-text">Dashboard</span>
                     </a>
@@ -138,6 +138,17 @@
                                 class="{{ areActiveRoutes(['service-requests.index','service-request-details']) }}">
                                 <span data-feather="list" class="nav-icon"></span>
                                 <span class="menu-text">Service Requests</span>
+                            </a>
+                        </li>
+                    @endcan
+
+                    @can('manage_consultation_requests')
+                        <li class="">
+                            <a href="{{ route('consultations.index') }}"
+                                class="{{ areActiveRoutes(['consultations.index','consultations.show']) }}">
+                                <span class="las la-video nav-icon"></span>
+
+                                <span class="menu-text">Online Consultations</span>
                             </a>
                         </li>
                     @endcan
@@ -313,7 +324,7 @@
                         <span>Wbsite Contents</span>
                     </li>
 
-                    @can('update_header')
+                    {{-- @can('update_header')
                         <li class="">
                             <a href="{{ route('dropdowns.index') }}"
                                 class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index']) }}">
@@ -333,7 +344,7 @@
                             </a>
 
                         </li>
-                    @endcan
+                    @endcan --}}
 
                     @can('update_page_contents')
                         <li class="">

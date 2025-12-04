@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Consultation extends Model
 {
+    
     protected $fillable = [
         'user_id','ref_code','applicant_type','litigation_type','consultant_type',
         'emirate_id','you_represent','case_type','case_stage','language',
-        'duration','amount','lawyer_id','status','zoom_meeting_id','zoom_join_url','meeting_end_time','is_completed'
+        'duration','amount','admin_amount','lawyer_amount','commission_percentage','lawyer_id','status','zoom_meeting_id','zoom_join_url','meeting_start_time','meeting_end_time','is_completed','is_extended'
     ];
 
     public function user() {
@@ -24,7 +25,7 @@ class Consultation extends Model
         return $this->belongsTo(Emirate::class);
     }
 
-    public function caseType()
+    public function caseType()     // Specialities dropdown
     {
         return $this->belongsTo(DropdownOption::class, 'case_type');
     }
@@ -47,6 +48,11 @@ class Consultation extends Model
     public function assignments() {
         return $this->hasMany(ConsultationAssignment::class);
     }
+
+    public function payments() {
+        return $this->hasMany(ConsultationPayment::class);
+    }
+
 
     protected static function booted()
     {

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use App\Notifications\ForgotPassword;
 use App\Models\User;
+use App\Models\Lawyer;
 use App\Models\UserOnlineLog;
 use App\Mail\CommonMail;
 use Carbon\Carbon;
@@ -63,10 +64,16 @@ class AuthController extends Controller
         $user->is_online = 1;
         $user->save();
 
-        UserOnlineLog::create([
-            'user_id' => $user->id,
-            'status'  => 1
-        ]);
+        if ($user->user_type === 'lawyer') {
+            $lawyer = Lawyer::where('user_id', $user->id)->first();
+            $lawyer->is_busy = 0;
+            $lawyer->save();
+
+            UserOnlineLog::create([
+                'user_id' => $user->id,
+                'status'  => 1
+            ]);
+        }
 
         $token = $user->createToken('API Token')->plainTextToken;
         return response()->json([
@@ -249,13 +256,21 @@ class AuthController extends Controller
     {
         if ($request->user()) {
             $user = $request->user();
-            $user->is_online = 1;
+            $user->is_online = 0;
             $user->save();
 
-            UserOnlineLog::create([
-                'user_id' => $user->id,
-                'status'  => 0
-            ]);
+          
+            if ($user->user_type === 'lawyer') {
+                $lawyer = Lawyer::where('user_id', $user->id)->first();
+                $lawyer->is_busy = 0;
+                $lawyer->save();
+
+                UserOnlineLog::create([
+                    'user_id' => $user->id,
+                    'status'  => 0
+                ]);
+            }
+            
             $request->user()->currentAccessToken()->delete();
 
             return response()->json([

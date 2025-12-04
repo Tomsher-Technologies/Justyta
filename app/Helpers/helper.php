@@ -16,6 +16,7 @@ use App\Models\RequestTitle;
 use App\Models\UserOnlineLog;
 use App\Models\ConsultationAssignment;
 use App\Models\ServiceRequest;
+use App\Notifications\ConsultationAssignedNotification;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Request;
@@ -32,18 +33,6 @@ function generateZoomSignature($meetingNumber, $userId, $role = 0)
 {
     $sdkKey    = config('services.zoom.sdk_key');
     $sdkSecret = config('services.zoom.sdk_secret');
-
-    // $iat = time();
-    // $exp = $iat + 2 * 60; // valid for 2 minutes
-
-    // $payload = [
-    //     'sdkKey'   => $sdkKey,
-    //     'mn'       => (string)$meetingNumber,
-    //     'role'     => $role,
-    //     'iat'      => $iat,
-    //     'exp'      => $exp,
-    //     'tokenExp' => $exp,
-    // ];
 
     $payload = [
         "app_key" => $sdkKey,
@@ -99,6 +88,48 @@ function getTodaysActiveHours($userId)
 
     return $hours;
 }
+
+
+function getTotalActiveHours($userId)
+{
+    $tz = config('app.timezone');
+
+    // Get all logs for the user
+    $logs = UserOnlineLog::where('user_id', $userId)
+        ->orderBy('created_at', 'asc')
+        ->get();
+
+    $totalSeconds = 0;
+    $onlineAt = null;
+
+    foreach ($logs as $log) {
+        $logTime = Carbon::parse($log->created_at, $tz);
+
+        if ($log->status == 1) { // Online
+            if (!$onlineAt) {
+                $onlineAt = $logTime;
+            }
+        } else { // Offline
+            if ($onlineAt) {
+                $diff = $onlineAt->diffInSeconds($logTime);
+                $totalSeconds += max($diff, 0);
+                $onlineAt = null;
+            }
+        }
+    }
+
+    // If the user is currently online, add time till now
+    if ($onlineAt) {
+        $diff = $onlineAt->diffInSeconds(Carbon::now($tz));
+        $totalSeconds += max($diff, 0);
+    }
+
+    // Convert to hours
+    $hours = round($totalSeconds / 3600, 2);
+
+    return $hours;
+}
+
 
 function getCaseTypes($litigation_type, $litigation_place, $lang = 'en')
 {
@@ -802,7 +833,14 @@ function createOrder($customer, float $amount, string $currency = 'AED', ?string
         'merchantOrderReference' => $orderReference,
         'redirectUrl' => route('payment.callback'),
         'cancelUrl' => route('payment.cancel'),
-        'emailAddress' => $customer['email']
+        'emailAddress' => $customer['email'],
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
     ];
 
     //  'merchantDetails' => [
@@ -876,7 +914,13 @@ function createMobOrder($customer, float $amount, string $currency = 'AED', ?str
             'cancelUrl'   => route('payment.cancel')
         ],
         'emailAddress' => $customer['email'],
-
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
     ];
 
     $response = Http::withHeaders([
@@ -892,7 +936,7 @@ function createMobOrder($customer, float $amount, string $currency = 'AED', ?str
     return $response->json(); // returns _id, reference, _links etc.
 }
 
-function createWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+function createWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null, ?string $userType = null)
 {
 
     $accessToken = getAccessToken();
@@ -910,11 +954,17 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
         'merchantOrderReference' => $orderReference,
         'merchantAttributes' => [
             'merchantOrderReference' => $orderReference,
-            'redirectUrl' => route('successPayment'),
-            'cancelUrl'   => route('cancelPayment')
+            'redirectUrl' => ($userType == 'vendor') ? route('vendor.successPayment') : route('successPayment'),
+            'cancelUrl'   => ($userType == 'vendor') ? route('vendor.cancelPayment') : route('cancelPayment')
         ],
         'emailAddress' => $customer['email'],
-
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
     ];
 
     $response = Http::withHeaders([
@@ -930,7 +980,7 @@ function createWebOrder($customer, float $amount, string $currency = 'AED', ?str
     return $response->json(); // returns _id, reference, _links etc.
 }
 
-function createConsultationWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+function createConsultationWebOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null, ?string $type = 'initial')
 {
     
     $accessToken = getAccessToken();
@@ -948,11 +998,17 @@ function createConsultationWebOrder($customer, float $amount, string $currency =
         'merchantOrderReference' => $orderReference,
         'merchantAttributes' => [
             'merchantOrderReference' => $orderReference,
-            'redirectUrl' => route('consultationSuccessPayment'),
-            'cancelUrl'   => route('consultationCancelPayment')
+            'redirectUrl' => ($type == 'initial') ? route('consultationSuccessPayment') : route('consultation.payment-extend-success'),
+            'cancelUrl'   => ($type == 'initial') ? route('consultationCancelPayment') : route('consultation.payment-extend-cancel')
         ],
         'emailAddress' => $customer['email'],
-        
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
     ];
 
     $response = Http::withHeaders([
@@ -1050,7 +1106,13 @@ function createWebPlanOrder($customer, float $amount, string $currency = 'AED', 
             'cancelUrl'   => route('purchase-cancel')
         ],
         'emailAddress' => $customer['email'],
-
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
     ];
 
     $response = Http::withHeaders([
@@ -1072,14 +1134,17 @@ function assignLawyer($consultation, $lawyerId)
     ConsultationAssignment::create([
         'consultation_id' => $consultation->id,
         'lawyer_id' => $lawyerId,
+        'assigned_at' => now(),
         'status' => 'assigned'
     ]);
 
     $consultation->lawyer_id = $lawyerId;
     $consultation->save();
 
-    // Notify lawyer via notification system (placeholder)
-    // Notification::send($lawyer, new ConsultationRequest($consultation));
+    $lawyer = Lawyer::find($lawyerId);
+
+    $user = User::find($lawyer->user_id);
+    $user->notify(new ConsultationAssignedNotification($consultation));
 }
 
 
@@ -1097,34 +1162,68 @@ function findBestFitLawyer($consultation)
     $countLanguages = count($languages);
 
     $lawyerId =  DB::table('lawyers as l')
-        ->join('users as u', 'u.id', '=', 'l.user_id')
-        ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
-            $join->on('ld_speciality.lawyer_id', '=', 'l.id')
-                ->where('ld_speciality.type', 'specialities')
-                ->where('ld_speciality.dropdown_option_id', $caseType);
-        })
+                    ->join('users as u', 'u.id', '=', 'l.user_id')
+                    ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
+                        $join->on('ld_speciality.lawyer_id', '=', 'l.id')
+                            ->where('ld_speciality.type', 'specialities')
+                            ->where('ld_speciality.dropdown_option_id', $caseType);
+                    })
 
-        ->join('lawyer_dropdown_options as ld_lang', function ($join) use ($languages) {
-            $join->on('ld_lang.lawyer_id', '=', 'l.id')
-                ->where('ld_lang.type', 'languages')
-                ->whereIn('ld_lang.dropdown_option_id', $languages);
-        })
+                    ->join('lawyer_dropdown_options as ld_lang', function ($join) use ($languages) {
+                        $join->on('ld_lang.lawyer_id', '=', 'l.id')
+                            ->where('ld_lang.type', 'languages')
+                            ->whereIn('ld_lang.dropdown_option_id', $languages);
+                    })
 
-        // ->when($emirateId, function ($q) use ($emirateId) {
-        //     $q->where('l.emirate_id', $emirateId);
-        // })
+                    // ->when($emirateId, function ($q) use ($emirateId) {
+                    //     $q->where('l.emirate_id', $emirateId);
+                    // })
 
-        ->where('u.is_online', 1)
-        ->where('l.is_busy', 0)
-        ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
-        ->groupBy('l.id')
-        ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
-        ->pluck('l.id')
-        ->first();
+                    ->where('u.is_online', 1)
+                    ->where('l.is_busy', 0)
+                    ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
+                    ->groupBy('l.id')
+                    ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
+                    ->pluck('l.id')
+                    ->first();
 
     $lawyer = $lawyerId ? \App\Models\Lawyer::find($lawyerId) : null;
 
     return $lawyer;
+}
+
+function findAvailableLawyer($caseType, $languages)
+{
+    $languages  = (array) $languages;
+    $caseType   = $caseType;
+   
+    $countLanguages = count($languages);
+    
+    $lawyers = DB::table('lawyers as l')
+                ->join('users as u', 'u.id', '=', 'l.user_id')
+                ->join('vendors as v', 'v.id', '=', 'l.lawfirm_id')
+                ->join('vendor_subscriptions as vs', function ($join) {
+                    $join->on('vs.vendor_id', '=', 'v.id')
+                        ->where('vs.status', 'active')
+                        ->where('vs.membership_plan_id', 1);
+                })
+                ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
+                    $join->on('ld_speciality.lawyer_id', '=', 'l.id')
+                        ->where('ld_speciality.type', 'specialities')
+                        ->where('ld_speciality.dropdown_option_id', $caseType);
+                })
+                ->join('lawyer_dropdown_options as ld_lang', function ($join) use ($languages) {
+                    $join->on('ld_lang.lawyer_id', '=', 'l.id')
+                        ->where('ld_lang.type', 'languages')
+                        ->whereIn('ld_lang.dropdown_option_id', $languages);
+                })
+                ->where('u.is_online', 1)
+                ->where('l.is_busy', 0)
+                ->groupBy('l.id')
+                ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
+                ->pluck('l.id');
+
+    return $lawyers;
 }
 
 function getFormattedTimeline(ServiceRequest $serviceRequest, ?array $labels = null): array
@@ -1224,7 +1323,7 @@ function getFullStatusHistory(ServiceRequest $serviceRequest): array
 
     function isVendorCanCreateLawyers()
     {
-        $user = Auth::user();
+        $user = Auth::guard('frontend')->user();
 
         if (!$user) {
             return false;
@@ -1255,7 +1354,7 @@ function getFullStatusHistory(ServiceRequest $serviceRequest): array
 
     function isVendorCanCreateJobs()
     {
-        $user = Auth::user();
+        $user = Auth::guard('frontend')->user();
 
         if (!$user) {
             return false;
@@ -1282,4 +1381,11 @@ function getFullStatusHistory(ServiceRequest $serviceRequest): array
         $jobCount = JobPost::where('user_id', $vendor->id)->count();
 
         return $jobCount < $subscription->job_post_count;
+    }
+
+    function getOnlineStatus()
+    {
+        $userId = Auth::guard('frontend')->user()->id;
+        $user = User::find($userId);
+        return $user->is_online;
     }

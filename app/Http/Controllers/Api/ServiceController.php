@@ -15,6 +15,7 @@ use App\Models\ConsultationDuration;
 use App\Models\Vendor;
 use App\Models\AnnualRetainerBaseFee;
 use App\Models\User;
+use App\Models\Lawyer;
 use App\Models\Page;
 use App\Models\CourtRequest;
 use App\Models\PublicProsecution;
@@ -249,6 +250,7 @@ class ServiceController extends Controller
                 'url' => $ads->cta_url
             ];
         }
+        
         return response()->json([
             'status'    => true,
             'message'   => 'Success',
@@ -1201,7 +1203,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-court-case-submission', 'change-status-court-case-submission']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -1328,7 +1330,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-criminal-complaint', 'change-status-criminal-complaint']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -1434,7 +1436,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-last-will-and-testament','change-status-last-will-and-testament']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -1572,7 +1574,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-power-of-attorney','change-status-power-of-attorney']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -1699,7 +1701,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-memo-writing', 'change-status-memo-writing']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -1771,7 +1773,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-escrow-accounts','change-status-escrow-accounts']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -1892,7 +1894,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-debts-collection','change-status-debts-collection']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -2008,7 +2010,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-company-setup', 'change-status-company-setup']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -2137,7 +2139,7 @@ class ServiceController extends Controller
         
         $request->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-contract-drafting','change-status-contract-drafting']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         $pageData = getPageDynamicContent('request_success',$lang);
@@ -2266,7 +2268,8 @@ class ServiceController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
@@ -2438,7 +2441,8 @@ class ServiceController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
@@ -2607,7 +2611,8 @@ class ServiceController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
@@ -2749,7 +2754,8 @@ class ServiceController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
@@ -2984,7 +2990,8 @@ class ServiceController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $service_request->id .'--'.$service_request->reference_code;
 
@@ -3147,7 +3154,8 @@ class ServiceController extends Controller
         $customer = [
             'email' => 'jisha.tomsher@gmail.com',
             'name'  => 'Jisha P',
-            'phone' => '971568650838'
+            'phone' => '971568650838',
+            'address' => 'Abu Dhabi'
         ];
 
         $order = createOrder($customer, $amount, $currency, $orderReference);
@@ -3359,7 +3367,7 @@ class ServiceController extends Controller
 
                 $request->user()->notify(new ServiceRequestSubmitted($serviceRequest));
 
-                $usersToNotify = getUsersWithPermissions(['view_service_requests','export_service_requests','change_request_status','manage_service_requests']);
+                $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
                 Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
                 
                 return response()->json([
@@ -3567,7 +3575,25 @@ class ServiceController extends Controller
         
         $consultant_type    = $request->query('consultant_type') ?? NULL;
         $duration           = $request->query('duration') ?? NULL;
+        $case_type          = $request->query('case_type') ?? NULL;
+        $language           = $request->query('language') ?? NULL;
 
+        $lawyerData = [];
+        if($consultant_type == 'vip'){
+            $lawyers = findAvailableLawyer($case_type, $language);
+
+            $lawyerData = Lawyer::whereIn('id', $lawyers)
+                            ->with('translations') // eager load to avoid N+1 queries
+                            ->get()
+                            ->map(function ($lawyer) use ($lang) {
+                                return [
+                                    'id'   => $lawyer->id,
+                                    'name' => $lawyer->getTranslation('full_name', $lang),
+                                ];
+                            })
+                            ->toArray();
+        }
+        
         if ($consultant_type === NULL || $duration === NULL) {
             return response()->json([
                 'status'    => true,
@@ -3593,6 +3619,7 @@ class ServiceController extends Controller
                             'govt_fee' => 0,
                             'tax'       => 0,
                             'total'     => (float)($base->amount ?? 0),
+                            'lawyers'   => $lawyerData
                         ]
         ], 200);
     }

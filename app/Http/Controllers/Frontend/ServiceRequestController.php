@@ -38,6 +38,7 @@ use App\Models\RequestAnnualAgreement;
 use App\Models\RequestLegalTranslation;
 use App\Models\DefaultTranslatorAssignment;
 use App\Models\TranslatorLanguageRate;
+use App\Models\Translator;
 use App\Models\RequestLastWill;
 use App\Models\RequestSubmissionPricing;
 use App\Models\ServiceRequestTimeline;
@@ -62,6 +63,277 @@ use Carbon\Carbon;
 
 class ServiceRequestController extends Controller
 {
+
+    public function getAvailableLawyers(Request $request)
+    {
+        $language = $request->language;
+        $caseType = $request->case_type;
+        $lang       = $request->header('lang') ?? env('APP_LOCALE', 'en');
+
+        $lawyers = findAvailableLawyer($caseType, $language);
+
+        $lawyerData = Lawyer::whereIn('id', $lawyers)
+                        ->with('translations') // eager load to avoid N+1 queries
+                        ->get()
+                        ->map(function ($lawyer) use ($lang) {
+                            return [
+                                'id'   => $lawyer->id,
+                                'name' => $lawyer->getTranslation('full_name', $lang),
+                            ];
+                        })
+                        ->toArray();
+
+        return response()->json($lawyerData);
+    }
+
+
+    public function extendPay(Request $request) {
+        $data = $request->validate([
+            'consultation_id' => 'required|exists:consultations,id',
+            'duration' => 'required|numeric|min:1'
+        ]);
+
+        $lang       = $request->header('lang') ?? env('APP_LOCALE', 'en');
+        $user       = auth()->guard('frontend')->user();
+        $userId     = $user->id ?? null; 
+
+        $consultation = Consultation::findOrFail($data['consultation_id']);
+
+        if ($consultation->is_completed) {
+            return response()->json([
+                'status' => false,
+                'message' => __('frontend.consultation_completed_cannot_extend'),
+            ], 200);
+        }
+
+        $base = ConsultationDuration::where('type', $consultation->consultant_type)
+                                    ->where('duration', $data['duration'])
+                                    ->where('status', 1)
+                                    ->first();
+
+        $extendAmount = $data['amount'] ?? (float)($base->amount ?? 0);
+        $currency = env('APP_CURRENCY', 'AED');
+
+        // $extendAmount =0; // For Testing
+        if ($extendAmount > 0) {
+            $customer = [
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone,
+                'address' => $user->address,
+            ];
+
+            $consultationCount = ConsultationPayment::where('consultation_id', $consultation->id)->count();
+
+            $orderReference = $consultation->id . '--extend-'.$consultationCount.'--'. $consultation->ref_code;
+
+            $payment = createConsultationWebOrder($customer, $extendAmount, $currency, $orderReference, 'extend');
+
+            if (isset($payment['_links']['payment']['href'])) {
+                ConsultationPayment::create([
+                    'consultation_id' => $consultation->id,
+                    'user_id' => $user->id,
+                    'amount' => $extendAmount,
+                    'duration' => $data['duration'],
+                    'type' => 'extend',
+                    'status' => 'pending',
+                    'payment_reference' => $payment['reference'] ?? NULL,
+                ]);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => __('frontend.extension_payment_pending'),
+                    'payment_url' => $payment['_links']['payment']['href'] ?? '',
+                ], 200);
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => __('frontend.request_submit_failed'),
+                'payment_url' => json_encode($payment ?? []),
+            ], 200);
+        }
+
+        $consultation->duration += $data['duration'];
+        $consultation->is_extended = 1;
+        $consultation->save();
+
+        ConsultationPayment::create([
+            'consultation_id' => $consultation->id,
+            'user_id' => $user->id,
+            'amount' => $extendAmount,
+            'type' => 'extend',
+            'duration' => $data['duration'],
+            'status' => 'completed',
+            'payment_reference' => NULL,
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => __('frontend.consultation_extended_successfully'),
+            'payment_url' => '',
+            'data' => [
+                'consultation_id' => $consultation->id,
+                'duration' => $consultation->duration,
+            ],
+        ], 200);
+    }
+
+    public function paymentExtendSuccess(Request $request) {
+        $paymentReference = $request->query('ref') ?? NULL;
+        
+        if($paymentReference) {
+            $token = getAccessToken();
+
+            $baseUrl = config('services.ngenius.base_url');
+            $outletRef = config('services.ngenius.outlet_ref');
+
+            $response = Http::withToken($token)->get("{$baseUrl}/transactions/outlets/" . $outletRef . "/orders/{$paymentReference}");
+            $data = $response->json();
+        
+            $orderRef = $data['merchantOrderReference'] ?? NULL;
+            $serviceData = explode('--', $orderRef);
+
+            $consultationId = $serviceData[0];
+
+            $status = $data['_embedded']['payment'][0]['state'] ?? null;
+            $paid_amount = $data['_embedded']['payment'][0]['amount']['value'] ?? 0;
+
+            $paidAmount = ($paid_amount != 0) ? $paid_amount/100 : 0;
+        
+            $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+
+            $consultation = Consultation::findOrFail($consultationId);
+
+            if ($status === 'PURCHASED' || $status === 'CAPTURED') {
+                $servicePayment = ConsultationPayment::where('payment_reference', $paymentReference)
+                                                ->where('consultation_id', $consultationId)
+                                                ->first();
+
+                if ($servicePayment) {
+                    $servicePayment->update(['status' => 'completed']);
+                }
+
+                $lawyer = Lawyer::where('id', $consultation->lawyer_id)->first();
+                $total_amount = $paidAmount;
+                $commission = $lawyer->lawfirm?->consultation_commission ?? 0;
+
+                $admin_amount = ($commission > 0) ? ($total_amount * $commission) / 100 : 0;
+                $lawyer_amount = $total_amount - $admin_amount;
+            
+                $consultation->duration += $servicePayment?->duration ?? 0;
+                $consultation->amount += $paidAmount;
+                $consultation->admin_amount += $admin_amount;
+                $consultation->lawyer_amount += $lawyer_amount;
+                $consultation->is_extended = 1;
+                $consultation->status = 'in_progress';
+                $consultation->save();
+
+                $message = __('frontend.consultation_extended_successfully');
+                $success = 1;
+
+                return view('frontend.user.service-requests.extend_success', compact('message','success'));
+
+            }else{
+                $servicePayment = ConsultationPayment::where('payment_reference', $paymentReference)
+                                                ->where('consultation_id', $consultationId)
+                                                ->first();
+
+                if ($servicePayment) {
+                    $servicePayment->update(['status' => 'failed']);
+                }
+                $consultation->status = 'in_progress';
+                $consultation->save();
+                $message = __('frontend.consultation_extend_failed');
+                $success = 0;
+
+                return view('frontend.user.service-requests.extend_success', compact('message','success'));
+            }
+        }
+        
+        $message = __('frontend.consultation_extend_failed');
+        $success = 0;
+
+        return view('frontend.user.service-requests.extend_success', compact('message','success'));
+    }
+
+    public function paymentExtendCancel(Request $request) {
+        $ref = $request->get('ref'); 
+
+        $servicePayment = ConsultationPayment::where('status', 'pending')
+                                                ->where('payment_reference', $ref)
+                                                ->first();
+
+        if ($servicePayment) {
+            $servicePayment->update(['status' => 'failed']);
+        }
+
+        $message = __('frontend.consultation_extend_failed');
+        $success = 0;
+
+        return view('frontend.user.service-requests.extend_success', compact('message','success'));
+    }
+
+    public function checkPayment(Request $request) {
+        $servicePayment = ConsultationPayment::where('consultation_id', $request->consultation_id)
+                                                ->where('type', 'extend')
+                                                ->orderBy('id', 'desc')
+                                                ->first();
+
+        if ($servicePayment && $servicePayment->status == 'completed') {
+           
+            return response()->json([
+                'success' => true,
+                'extended_minutes' => $servicePayment->duration ?? 0,
+            ]);
+        }else{
+            return response()->json(['success' => false, 'extended_minutes' => 0]);
+        }
+    }
+
+    public function getPrice(Request $request)
+    {
+        $consultant_type = $request->query('consultant_type');
+        $duration = $request->query('duration');
+        $consultationId = $request->query('consultation_id');
+
+        $base = ConsultationDuration::where('type', $consultant_type)
+            ->where('duration', $duration)
+            ->where('status', 1)
+            ->first();
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'total' => (float)($base->amount ?? 0),
+            ]
+        ]);
+    }
+
+    public function getTimeslots(Request $request)
+    {
+        $consultationId = $request->query('consultation_id');
+        $consultantType  = $request->query('consultant_type');
+        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
+
+        $timeslots = ConsultationDuration::where('status', 1)
+            ->where('type', $consultantType)
+            ->orderBy('id')
+            ->get();
+
+        $response['timeslots'] = $timeslots->map(function ($timeslot) use($lang) {
+            return [
+                'duration' => $timeslot->duration,
+                'value'    => $timeslot->getTranslation('name', $lang),
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'timeslots' => $response['timeslots']
+        ]);
+    }
+
     public function getEmirates(Request $request)
     {
         $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
@@ -1008,9 +1280,13 @@ class ServiceRequestController extends Controller
             ...$data
         ]);
 
-        $lawyer = findBestFitLawyer($consultation);
+        if ($request->lawyer_id) {
+            $lawyer = Lawyer::find($request->lawyer_id);
+        }else{
+            $lawyer = findBestFitLawyer($consultation);
+        }
        
-        if ($lawyer) {
+        if ($lawyer && $lawyer->is_busy == 0 && $lawyer->user->is_online == 1) {
             reserveLawyer($lawyer->id, $consultation->id);
         } else {
             $consultation->delete();
@@ -1024,8 +1300,16 @@ class ServiceRequestController extends Controller
 
         $total_amount = (float)($base->amount ?? 0);
 
+        $commission = $lawyer->lawfirm?->consultation_commission ?? 0;
+
+        $admin_amount = ($commission > 0) ? ($total_amount * $commission) / 100 : 0;
+        $lawyer_amount = $total_amount - $admin_amount;
+      
         $consultation->update([
-            'amount' => $total_amount
+            'amount' => $total_amount,
+            'admin_amount' => $admin_amount,
+            'lawyer_amount' => $lawyer_amount,
+            'commission_percentage' => $commission
         ]);
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
@@ -1035,7 +1319,8 @@ class ServiceRequestController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
             $orderReference = $consultation->id .'--'.$consultation->ref_code;
 
@@ -1057,6 +1342,7 @@ class ServiceRequestController extends Controller
         }else{
             $consultation->refresh();
            
+            $consultation->request_success = 1;
             if ($consultation->lawyer_id) {
                 assignLawyer($consultation, $consultation->lawyer_id);
                 $consultation->status = 'waiting_lawyer';
@@ -1277,7 +1563,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-court-case-submission', 'change-status-court-case-submission']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -1390,7 +1676,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-criminal-complaint', 'change-status-criminal-complaint']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -1483,7 +1769,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-last-will-and-testament','change-status-last-will-and-testament']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -1542,7 +1828,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-escrow-accounts','change-status-escrow-accounts']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -1646,7 +1932,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-debts-collection','change-status-debts-collection']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -1757,7 +2043,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-memo-writing', 'change-status-memo-writing']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -1939,7 +2225,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-power-of-attorney','change-status-power-of-attorney']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -2055,7 +2341,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-contract-drafting','change-status-contract-drafting']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -2158,7 +2444,7 @@ class ServiceRequestController extends Controller
 
         Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($service_request));
 
-        $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+        $usersToNotify = getUsersWithPermissions(['view-company-setup', 'change-status-company-setup']);
         Notification::send($usersToNotify, new ServiceRequestSubmitted($service_request, true));
 
         return redirect()->route('user.request-success', ['reqid' => base64_encode($service_request->id)]);
@@ -2273,7 +2559,8 @@ class ServiceRequestController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
 
             $orderReference = $service_request->id . '--' . $service_request->reference_code;
@@ -2439,7 +2726,8 @@ class ServiceRequestController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
 
             $orderReference = $service_request->id . '--' . $service_request->reference_code;
@@ -2605,7 +2893,8 @@ class ServiceRequestController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
 
             $orderReference = $service_request->id . '--' . $service_request->reference_code;
@@ -2833,7 +3122,8 @@ class ServiceRequestController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
 
             $orderReference = $service_request->id . '--' . $service_request->reference_code;
@@ -2969,7 +3259,8 @@ class ServiceRequestController extends Controller
             $customer = [
                 'email' => $user->email,
                 'name'  => $user->name,
-                'phone' => $user->phone
+                'phone' => $user->phone,
+                'address' => $user->address
             ];
 
             $orderReference = $service_request->id . '--' . $service_request->reference_code;
@@ -3071,10 +3362,11 @@ class ServiceRequestController extends Controller
                     'to_language_id'   => $to,
                 ])->first();
 
-                $userToNotify = User::find()->where('translator_id', $assignment->translator_id);
+                $userToNotify = Translator::find($assignment->translator_id);
 
                 if ($userToNotify) {
-                    $userToNotify->notify(new ServiceRequestSubmitted($serviceRequest));
+                    $userNot = User::find($userToNotify->user_id);
+                    $userNot->notify(new ServiceRequestSubmitted($serviceRequest));
                 }
 
                 if ($assignment) {
@@ -3166,13 +3458,12 @@ class ServiceRequestController extends Controller
 
             Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest));
 
-            $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+            $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
             Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
 
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         } else {
-            $pageData = getPageDynamicContent('request_payment_failed', $lang);
-
+            
             if ($serviceRequest->service_slug === 'expert-report') {
                 $serviceRequest->update([
                     'payment_status' => 'failed',
@@ -3183,7 +3474,7 @@ class ServiceRequestController extends Controller
 
                 Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest));
 
-                $usersToNotify = getUsersWithPermissions(['view_service_requests', 'export_service_requests', 'change_request_status', 'manage_service_requests']);
+                $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
                 Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
             } else {
 
@@ -3423,7 +3714,7 @@ class ServiceRequestController extends Controller
         }
 
         if (!$serviceDetails) {
-            return response()->json(['success' => false, 'message' => 'Service details not found'], 404);
+            return response()->json(['success' => false, 'message' => __('frontend.service_details_not_found')], 404);
         }
 
         $requestFolder = "uploads/{$serviceRequest->service_slug}/{$serviceDetails->id}/";
@@ -3468,7 +3759,7 @@ class ServiceRequestController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Files uploaded successfully and status changed to pending',
+            'message' => __('frontend.files_uploaded_successfully'),
         ]);
     }
 }

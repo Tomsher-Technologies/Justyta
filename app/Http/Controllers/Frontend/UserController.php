@@ -15,7 +15,9 @@ use App\Models\Vendor;
 use App\Models\AnnualAgreementInstallment;
 use App\Models\TrainingRequest;
 use App\Models\ProblemReport;
+use App\Models\DropdownOption;
 use App\Models\ServiceRequest;
+use App\Models\Consultation;
 use App\Mail\JobApplicationReceived;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -94,7 +96,7 @@ class UserController extends Controller
 
         $pageData = getPageDynamicContent('report_problem_success', $lang);
 
-        return redirect()->back()->with('success', $pageData['content'] ?? __('messages.problem_report_success'));
+        return redirect()->route('user.dashboard')->with('success', $pageData['content'] ?? __('messages.problem_report_success'));
     }
 
     public function rateUs()
@@ -141,7 +143,7 @@ class UserController extends Controller
 
         $pageData = getPageDynamicContent('rate_us_success', $lang);
 
-        return redirect()->back()->with('success', $pageData['content'] ?? __('messages.thank_you_feedback'));
+        return redirect()->route('user.dashboard')->with('success', $pageData['content'] ?? __('messages.thank_you_feedback'));
     }
 
     public function getTrainingFormData()
@@ -241,7 +243,7 @@ class UserController extends Controller
 
         $trainingRequest->update($filePaths);
 
-        $request->user()->notify(new TrainingRequestSubmitted($trainingRequest));
+        auth()->guard('frontend')->user()->notify(new TrainingRequestSubmitted($trainingRequest));
 
         $usersToNotify = getUsersWithPermissions(['view_training_requests', 'export_training_requests']);
         Notification::send($usersToNotify, new TrainingRequestSubmitted($trainingRequest, true));
@@ -297,18 +299,32 @@ class UserController extends Controller
             ->where('user_id', $user->id)
             ->exists();
 
+         $specialties = json_decode($job->specialties);
+
+        if ($specialties) {
+             $specialties = DropdownOption::with('translations')->whereIn('id', $specialties)->get();
+
+            $specialties = $specialties->map(function ($item) {
+                return $item->getTranslatedName(app()->getLocale());
+            });
+        }
+       
+
         $jobPost = [
-            'id' => $job->id,
-            'ref_no' => $job->ref_no,
-            'type' => __('messages.' . $job->type),
-            'title' => $job->getTranslation('title', $lang) ?? NULL,
-            'description' => $job->getTranslation('description', $lang) ?? NULL,
-            'salary' => $job->getTranslation('salary', $lang) ?? NULL,
-            'location' => $job->location?->getTranslation('name', $lang) ?? NULL,
-            'job_posted_date' => $job->job_posted_date,
-            'deadline_date' => $job->deadline_date,
-            'status' => $job->status,
-        ];
+                    'id' => $job->id,
+                    'ref_no' => $job->ref_no,
+                    'type' => __('messages.' . $job->type),
+                    'title' => $job->getTranslation('title',$lang) ?? NULL,
+                    'description' => $job->getTranslation('description', $lang) ?? NULL,
+                    'salary' => $job->getTranslation('salary', $lang) ?? NULL,
+                    'location' => $job->location?->getTranslation('name', $lang) ?? NULL,
+                    'job_posted_date' => $job->job_posted_date,
+                    'deadline_date' => $job->deadline_date,
+                    'status' => $job->status,
+                    'no_of_vacancies' => $job->no_of_vacancies,
+                    'specialties' => $specialties,
+                    'years_of_experience' => $job->years_of_experience
+                ];
 
         return view('frontend.user.job-details', compact('lang', 'jobPost', 'hasApplied'));
     }
@@ -445,25 +461,9 @@ class UserController extends Controller
         $pageTitle = __('frontend.service_history');
         $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $tab        = $serviceSlug = $request->query('tab', 'online-live-consultancy');
-        $perPage    = 9;
+        $perPage    = 12;
 
         $request->session()->put('service_last_url', url()->full());
-
-        $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', auth()->id());
-
-        if ($serviceSlug) {
-            if ($serviceSlug === 'law-firm-services') {
-                $slugs = Service::whereHas('parent', function ($query) {
-                    $query->where('slug', 'law-firm-services');
-                })->pluck('slug');
-
-                $query->whereIn('service_slug', $slugs);
-            } else {
-                $query->where('service_slug', $serviceSlug);
-            }
-        }
-
-        $serviceRequests = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
 
         $services = Service::with(['translations' => function ($newquery) use ($lang) {
             $newquery->where('lang', $lang);
@@ -483,7 +483,32 @@ class UserController extends Controller
             ];
         });
 
-        return view('frontend.user.service-history', compact('serviceRequests', 'mainServices', 'tab', 'lang', 'page', 'pageTitle'));
+        if($serviceSlug != 'online-live-consultancy') {
+            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', auth('frontend')->id());
+
+            if ($serviceSlug) {
+                if ($serviceSlug === 'law-firm-services') {
+                    $slugs = Service::whereHas('parent', function ($query) {
+                        $query->where('slug', 'law-firm-services');
+                    })->pluck('slug');
+
+                    $query->whereIn('service_slug', $slugs);
+                } else {
+                    $query->where('service_slug', $serviceSlug);
+                }
+            }
+
+            $serviceRequests = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
+
+            return view('frontend.user.service-history', compact('serviceRequests', 'mainServices', 'tab', 'lang', 'page', 'pageTitle'));
+        }else{
+
+            $conQuery = Consultation::with(['user', 'lawyer', 'emirate'])->where('user_id', auth('frontend')->id())->where('request_success', 1);
+            
+            $consultations = $conQuery->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
+
+            return view('frontend.user.consultation-history', compact('consultations','mainServices', 'tab', 'lang', 'page', 'pageTitle'));
+        }
     }
 
     public function servicePending(Request $request)
@@ -498,7 +523,7 @@ class UserController extends Controller
         $query = ServiceRequest::with('user', 'service')
             ->where('status', 'pending')
             ->where('request_success', 1)
-            ->where('user_id', auth()->id());
+            ->where('user_id', auth('frontend')->id());
 
         if ($serviceSlug) {
             if ($serviceSlug === 'law-firm-services') {
@@ -547,7 +572,7 @@ class UserController extends Controller
         $query = ServiceRequest::with('user', 'service')
             ->whereNotNull('payment_status')
             ->where('request_success', 1)
-            ->where('user_id', auth()->id());
+            ->where('user_id', auth('frontend')->id());
 
         if ($serviceSlug) {
             if ($serviceSlug === 'law-firm-services') {
@@ -647,6 +672,15 @@ class UserController extends Controller
         return view('frontend.user.service_history_details', compact('dataService', 'lang'));
     }
 
+    public function getConsultationDetails(Request $request, $id)
+    {
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
+        $id             = base64_decode($id);
+        $consultation   = Consultation::with('user', 'lawyer', 'emirate')->findOrFail($id);
+        
+        return view('frontend.user.consultation_details', compact('consultation'));
+    }
+
     public function account()
     {
         $user   = Auth::guard('frontend')->user();
@@ -658,7 +692,7 @@ class UserController extends Controller
         $user = Auth::guard('frontend')->user();
 
         $validator = Validator::make($request->all(), [
-            'full_name'     => 'required|string|max:255',
+            'full_name'     => 'required|string|max:25',
             'phone'    => 'nullable|string|max:20',
             'language' => 'nullable|string|in:en,ar,fr,fa,ru,zh',
         ], [
@@ -752,7 +786,7 @@ class UserController extends Controller
 
         $paginatedNot = (clone $allNotifications)
             ->orderByDesc('created_at')
-            ->paginate(10);
+            ->paginate(15);
 
         $notifications = collect($paginatedNot->items())
             ->map(function ($notification) use ($lang, $serviceMap) {
@@ -766,7 +800,7 @@ class UserController extends Controller
                     'message'   => __($notification->data['message'], [
                         'service'   => $serviceName,
                         'reference' => $data['reference_code'],
-                        'status' => $data['status'] ?? "",
+                        'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                     ]),
                     'time'      => $notification->created_at->format('d M, Y h:i A'),
                 ];
@@ -842,5 +876,10 @@ class UserController extends Controller
         }
 
         return $this->fileService->download($id);
+    }
+
+    public function endedCall()
+    {
+        return view('frontend.user.consultation-ended');
     }
 }

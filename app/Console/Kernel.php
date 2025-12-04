@@ -12,14 +12,15 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('ads:deactivate-expired')->daily();
-        $schedule->command('check:vendor-expiry')->daily();
-        $schedule->command('subscriptions:check-expiry')->daily();
-        $schedule->command('membership:send-expiry-reminders')->everyMinute();
-        $schedule->command('consultations:release-expired')->everyMinute();
+        $schedule->command('ads:deactivate-expired')->daily()->description('Deactivate expired ads');
+        $schedule->command('check:vendor-expiry')->daily()->description('Check vendor expiry');
+        $schedule->command('subscriptions:check-expiry')->daily()->description('Check subscription expiry');
+        $schedule->command('membership:send-expiry-reminders')->everyMinute()->description('Send membership expiry reminders');
+        $schedule->command('consultations:release-expired')->everyMinute()->description('Release expired consultations');
+        $schedule->command('consultation:auto-cancel')->everyMinute()->description('Auto cancel consultations');
         $schedule->command('queue:work --stop-when-empty')
-                ->everyMinute()
-                ->withoutOverlapping();
+                ->everyMinute()->description('Process the queue');
+                // ->withoutOverlapping();
 
     }
 

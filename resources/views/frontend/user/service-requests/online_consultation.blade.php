@@ -4,7 +4,7 @@
     <form method="POST" action="{{ route('service.request.consultation') }}" id="consultationForm" enctype="multipart/form-data">
         @csrf
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-white p-10 rounded-[20px] border !border-[#FFE9B1]">
+            <div class="lg:col-span-2 bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1]">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">
                     {{ __('frontend.online_consultation') }}
                 </h2>
@@ -71,22 +71,6 @@
                     </div>
 
                     <div>
-                        <label for="case_stage" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ __('frontend.case_stage') }}<span class="text-red-500">*</span></label>
-
-                        <select id="case_stage" name="case_stage" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
-                            <option value="">{{ __('frontend.choose_option') }}</option>
-                            @foreach ($dropdownData['case_stage'] as $case_stage)
-                                <option value="{{ $case_stage['id'] }}" {{ (old('case_stage') == $case_stage['id']) ? 'selected' : '' }}>{{ $case_stage['value'] }}</option>
-                            @endforeach
-                        </select>
-
-                        @error('case_stage')
-                            <span class="text-red-500">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div>
                         <label for="languages" class="block text-sm font-medium text-gray-700 mb-2">
                             {{ __('frontend.preferred_language') }}<span class="text-red-500">*</span></label>
 
@@ -98,24 +82,6 @@
                         </select>
 
                         @error('languages')
-                            <span class="text-red-500">{{ $message }}</span>
-                        @enderror
-                    </div>
-                    
-
-                    <div class=" pb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.consultant_type') }}<span class="text-red-500">*</span></label>
-                        <div class="flex items-center space-x-4">
-                            <div class="flex items-center">
-                                <input id="consultant-normal" type="radio" value="normal" name="consultant_type" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"  {{ (old('consultant_type','normal') == 'normal') ? 'checked' : '' }} />
-                                <label for="consultant-normal" class="ms-2 text-sm text-gray-900">{{ __('frontend.normal') }}</label>
-                            </div>
-                            <div class="flex items-center">
-                                <input id="consultant-vip" type="radio" value="vip" name="consultant_type" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"  {{ (old('consultant_type') == 'vip') ? 'checked' : '' }}/>
-                                <label for="consultant-vip" class="ms-2 text-sm text-gray-900">{{ __('frontend.vip') }}</label>
-                            </div>
-                        </div>
-                        @error('consultant_type')
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
                     </div>
@@ -134,6 +100,41 @@
                     </div>
 
                     <div>
+                        <label for="case_stage" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ __('frontend.case_stage') }}<span class="text-red-500">*</span></label>
+
+                        <select id="case_stage" name="case_stage" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
+                            <option value="">{{ __('frontend.choose_option') }}</option>
+                            @foreach ($dropdownData['case_stage'] as $case_stage)
+                                <option value="{{ $case_stage['id'] }}" {{ (old('case_stage') == $case_stage['id']) ? 'selected' : '' }}>{{ $case_stage['value'] }}</option>
+                            @endforeach
+                        </select>
+
+                        @error('case_stage')
+                            <span class="text-red-500">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div class=" pb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.consultant_type') }}<span class="text-red-500">*</span></label>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center">
+                                <input id="consultant-normal" type="radio" value="normal" name="consultant_type" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"  {{ (old('consultant_type','normal') == 'normal') ? 'checked' : '' }} />
+                                <label for="consultant-normal" class="ms-2 text-sm text-gray-900">{{ __('frontend.normal') }}</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="consultant-vip" type="radio" value="vip" name="consultant_type" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"  {{ (old('consultant_type') == 'vip') ? 'checked' : '' }}/>
+                                <label for="consultant-vip" class="ms-2 text-sm text-gray-900">{{ __('frontend.vip') }}</label>
+                            </div>
+                        </div>
+                        @error('consultant_type')
+                            <span class="text-red-500">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    
+                    
+
+                    <div>
                         <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">
                             {{ __('frontend.consultation_time') }}<span class="text-red-500">*</span></label>
 
@@ -148,12 +149,25 @@
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
                     </div>
-                    
-                </div>
 
+                    <div id="lawyer-section" class="hidden">
+                        <label for="lawyer_id" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ __('frontend.lawyer') }} <span class="text-red-500">*</span>
+                        </label>
+
+                        <select id="lawyer_id" name="lawyer_id"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3.5">
+                            <option value="">{{ __('frontend.choose_option') }}</option>
+                        </select>
+
+                        @error('lawyer_id')
+                            <span class="text-red-500">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
             </div>
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)] flex flex-col justify-between">
+                <div class="bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1] h-[auto] xl:h-[calc(100vh-150px)] flex flex-col justify-between">
                     <div>
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">
                             {{ __('frontend.description') }}
@@ -166,7 +180,7 @@
                     </div>
 
                     <div>
-                        <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]" id="price_result_div">{{ __('frontend.AED') }} <span id="price_result">0.00</span></span></div>
+                        <div class="text-gray-700 text-lg mb-4 mt-5 xl:mt-0 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]" id="price_result_div">{{ __('frontend.AED') }} <span id="price_result">0.00</span></span></div>
                        
 
                         <button type="submit" class="text-white bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md w-full px-8 py-4 text-center transition-colors duration-200 uppercase cursor-pointer">
@@ -192,7 +206,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'
@@ -323,6 +337,49 @@
                 });
             }
           
+            document.querySelectorAll('input[name="consultant_type"]').forEach(function(radio) {
+                radio.addEventListener('change', function () {
+                    let isVip = this.value === 'vip';
+                    document.getElementById('lawyer-section').classList.toggle('hidden', !isVip);
+
+                    if (isVip) {
+                        loadAvailableLawyers();
+                    }
+                });
+            });
+
+            document.getElementById('languages').addEventListener('change', function(){
+                if(isVipSelected()) loadAvailableLawyers();
+            });
+
+            document.getElementById('case_type').addEventListener('change', function(){
+                if(isVipSelected()) loadAvailableLawyers();
+            });
+
+            function isVipSelected() {
+                return document.querySelector('input[name="consultant_type"]:checked')?.value === 'vip';
+            }
+
+            function loadAvailableLawyers() {
+
+                let language = document.getElementById('languages').value;
+                let caseType = document.getElementById('case_type').value;
+
+                if (!language || !caseType) return; // stop until both selected
+
+                fetch(`/user/get-available-lawyers?language=${language}&case_type=${caseType}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        let dropdown = document.getElementById('lawyer_id');
+                        dropdown.innerHTML = `<option value="">Select Lawyer</option>`;
+
+                        data.forEach(lawyer => {
+                            dropdown.innerHTML += `<option value="${lawyer.id}">${lawyer.name}</option>`;
+                        });
+                    });
+            }
+
+
         });
 
         

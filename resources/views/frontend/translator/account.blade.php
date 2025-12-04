@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="grid grid-cols-1 gap-6">
-        <div class=" bg-white p-10 rounded-[20px] border !border-[#FFE9B1] ">
+        <div class=" bg-white p-4 xl:p-10 rounded-[20px] border !border-[#FFE9B1] ">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">{{ __('frontend.edit_profile') }}</h2>
             <hr class="mb-5">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -59,8 +59,7 @@
 
                         <!-- Language -->
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.language') }}</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.language') }}</label>
                             <select name="language"
                                 class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-3.5">
                                 @php
@@ -153,49 +152,6 @@
 @section('script')
     <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
     <script>
-        document.getElementById('deleteAccountBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-
-            Swal.fire({
-                title: '{{ __('frontend.are_you_sure') }}',
-                text: '{{ __('frontend.delete_account_warning') }}',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: '{{ __('frontend.yes_delete') }}'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    fetch("{{ route('translator.delete.account') }}", {
-                            method: "DELETE",
-                            headers: {
-                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                                "Accept": "application/json",
-                                "Content-Type": "application/json"
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.status) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: '{{ __('frontend.deleted') }}',
-                                    text: data.message,
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                });
-
-                                setTimeout(() => {
-                                    window.location.href = '/';
-                                }, 2000);
-                            }
-                        })
-                        .catch(error => {
-                            Swal.fire('Error', '{{ __('frontend.something_went_wrong') }}', 'error');
-                            console.error(error);
-                        });
-                }
-            });
-        });
+       
     </script>
 @endsection

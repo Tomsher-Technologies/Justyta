@@ -18,6 +18,10 @@
     <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
 
     <style>
+
+        .select2-container{
+            width: 100% !important;
+        }
         /* Target the Select2 control box */
         .select2-container--default .select2-selection--single {
             background-color: #F9F9F9 !important;
@@ -58,12 +62,12 @@
     @yield('style')
 </head>
 
-<body class="min-h-screen flex flex-col">
-    <div class="flex min-h-screen bg-[#FDF8F4] text-[#1A1A1A] px-[50px] gradient-primary !pt-10">
+<body class="min-h-screen flex flex-col !m-0">
+    <div class="flex min-h-screen flex-wrap bg-[#FDF8F4] text-[#1A1A1A] px-[0px] xl:px-[50px] gradient-primary xl:!pt-10">
         <!-- Sidebar -->
         @include('frontend.translator.common.sidebar')
         <!-- Main Content -->
-        <main class="flex-1 p-6 pe-0 pt-0 h-full">
+        <main class="flex-1 p-4 xl:p-6 xl:pe-0 pt-0 h-full ">
             <!-- Header -->
             @include('frontend.translator.common.header')
 

@@ -61,7 +61,7 @@
                 @endphp
 
 
-                @if ($details['payment_status'] != null)
+                @if ($details['payment_status'] != null && Auth::guard('frontend')->user()->translator?->type == 'external')
                     <div class="flex items-center">
                         <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.amount') }}</p>
                         <p class="basis-3/5 text-gray-800">{{ __('frontend.AED') }}

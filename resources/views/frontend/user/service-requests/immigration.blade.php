@@ -4,7 +4,7 @@
     <form method="POST" action="{{ route('service.immigration-request') }}" id="immigrationForm" enctype="multipart/form-data">
         @csrf
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-white p-10 rounded-[20px] border !border-[#FFE9B1]">
+            <div class="lg:col-span-2 bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1]">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4">
                     {{ $service->getTranslation('title', $lang) }}
                 </h2>
@@ -68,9 +68,9 @@
                     </div>
 
                     <div class="row-span-3">
-                        <label for="you-represent" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.current_address') }}</label>
+                        <label for="you-represent" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.current_address') }}<span class="text-red-500">*</span></label>
                         <textarea id="address" name="address" rows="6" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 mb-1 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.type_here') }}">{{ old('address') }}</textarea>
-                        <span class="text-[#717171] text-sm">0/1000</span>
+                        {{-- <span class="text-[#717171] text-sm">0/1000</span> --}}
                         @error('address')
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
@@ -118,7 +118,7 @@
                     {{ __('frontend.upload_documents') }}
                 </h2>
 
-                <div class="grid grid-cols-2 gap-x-6 gap-6">
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-2 xl:gap-6">
                     
                     <div>
                         <label for="cv" class="block text-sm font-medium text-gray-700 mb-2">
@@ -191,7 +191,7 @@
                 
             </div>
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)] flex flex-col justify-between">
+                <div class="bg-white p-6 xl:p-10 rounded-[20px] border !border-[#FFE9B1] h-[auto] xl:h-[calc(100vh-150px)] flex flex-col justify-between">
                     <div>
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">
                             {{ __('frontend.description') }}
@@ -205,7 +205,7 @@
 
                     <div>
                         @if ($dropdownData['payment']['total_amount']  != 0)
-                             <div class="text-gray-700 text-lg mb-4 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]">{{ __('frontend.AED') }} {{ $dropdownData['payment']['total_amount'] ?? 0 }}</span></div>
+                             <div class="text-gray-700 text-lg mb-4 mt-5 xl:mt-0 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]">{{ __('frontend.AED') }} {{ $dropdownData['payment']['total_amount'] ?? 0 }}</span></div>
 
                         @endif
                        
@@ -232,7 +232,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'
@@ -317,12 +317,12 @@
                 rules: {
                     preferred_country: { required: true },
                     position: { required: true },
-                    age: { required: true },
+                    age: { required: true, maxlength: 2 },
                     nationality: { required: true },
-                    years_of_experience: { required: true },
-                    address: { required: true },
+                    years_of_experience: { required: true, maxlength: 2 },
+                    address: { required: true , maxlength: 1000 },
                     residency_status: { required: true },
-                    current_salary: { required: true },
+                    current_salary: { required: true, maxlength: 25 },
                     application_type: { required: true },
                 
                     "cv[]": {
@@ -354,15 +354,26 @@
                 messages: {
                     preferred_country: "{{ __('messages.preferred_country_required') }}",
                     position: "{{ __('messages.position_required') }}",
-                    age: "{{ __('messages.age_required') }}",
+                    age: {
+                        required: "{{ __('messages.age_required') }}",
+                        maxlength: "{{ __('frontend.maxlength2') }}"
+                    },
                     nationality: "{{ __('messages.nationality_required') }}",
-                    years_of_experience: "{{ __('messages.years_of_experience_required') }}",
-                    address: "{{ __('messages.address_required') }}",
+                    years_of_experience: {
+                        required: "{{ __('messages.years_of_experience_required') }}",
+                        maxlength: "{{ __('frontend.maxlength2') }}"
+                    },
+                    address: {
+                        required: "{{ __('messages.address_required') }}",
+                        maxlength: "{{ __('frontend.maxlength1000') }}"
+                    },
                     residency_status: "{{ __('messages.residency_status_required') }}",
-                    current_salary: "{{ __('messages.current_salary_required') }}",
+                    current_salary: {
+                        required: "{{ __('messages.current_salary_required') }}",
+                        maxlength: "{{ __('frontend.maxlength25') }}"
+                    },
                     application_type: "{{ __('messages.application_type_required') }}",
-                    years_of_experience: "{{ __('messages.years_of_experience_required') }}",
-                  
+                   
                     "cv[]": {
                         required: "{{ __('messages.cv_required') }}",
                         extension: "{{ __('messages.cv_mimes') }}",

@@ -14,11 +14,13 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use App\Notifications\ForgotPassword;
 use App\Models\User;
+use App\Models\UserOnlineLog;
 use App\Models\Vendor;
 use App\Models\MembershipPlan;
 use App\Models\VendorTranslation;
 use App\Models\VendorSubscription;
 use App\Mail\CommonMail;
+use App\Models\Lawyer;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
@@ -65,9 +67,23 @@ class AuthController extends Controller
         Auth::guard('frontend')->login($user);
 
         $user->update([
+            'is_online' => 1,
             'last_login_at' => now(),
             'last_login_ip' => request()->ip(),
         ]);
+
+        if ($user->user_type === 'lawyer') {
+            $lawyer = Lawyer::where('user_id', $user->id)->first();
+            $lawyer->is_busy = 0;
+            $lawyer->save();
+
+            UserOnlineLog::create([
+                'user_id' => $user->id,
+                'status'  => 1
+            ]);
+        }
+
+        
         session(['locale' => $user->language]);
        
         return match ($user->user_type) {
@@ -81,6 +97,21 @@ class AuthController extends Controller
 
     public function logout()
     {
+        $user = Auth::guard('frontend')->user();
+        $user->is_online = 0;
+        $user->save();
+
+        if ($user->user_type === 'lawyer') {
+            $lawyer = Lawyer::where('user_id', $user->id)->first();
+            $lawyer->is_busy = 0;
+            $lawyer->save();
+
+            UserOnlineLog::create([
+                'user_id' => $user->id,
+                'status'  => 0
+            ]);
+        }
+
         Auth::guard('frontend')->logout();
         return redirect()->route('frontend.login');
     }
@@ -413,7 +444,8 @@ class AuthController extends Controller
             $customer = [
                             'email' => $user->email,
                             'name'  => $user->name,
-                            'phone' => $user->phone
+                            'phone' => $user->phone,
+                            'address' => $user->address
                         ];
             $payment = createWebPlanOrder($customer, $totalAmount, env('APP_CURRENCY','AED'), $orderReference);
 
@@ -536,7 +568,7 @@ class AuthController extends Controller
                 </p>";
             Mail::to($vendor->owner_email)->queue(new CommonMail($array));
 
-            session()->flash('success', '{{ __("frontend.vendor_registration_success") }}');
+            session()->flash('success', __("frontend.vendor_registration_success"));
 
             return redirect()->route('frontend.login'); 
         }else{

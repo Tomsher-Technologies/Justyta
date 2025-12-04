@@ -225,7 +225,7 @@ return [
     'start_date_required' => 'Start date is required.',
     'training_request_submit_success' => 'Training request submitted successfully.',
     'training_request_submitted' => 'Your training request has been submitted successfully.',
-    'service_request_status_change' => 'Your :service service request (Ref: :reference) status has been updated to: :status',
+    'service_request_status_change' => 'Your :service service request (Ref: :reference) status has been updated to :status',
     'password_regex' => 'Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one digit, and one special character.',
     'phone_regex' => 'Please enter a valid phone number.',
     'password_confirmation_mismatch' => 'The password confirmation does not match.',

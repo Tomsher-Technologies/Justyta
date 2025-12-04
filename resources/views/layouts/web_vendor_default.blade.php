@@ -18,6 +18,10 @@
     <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
     
     <style>
+
+        .select2-container{
+            width: 100% !important;
+        }
         /* Target the Select2 control box */
         .select2-container--default .select2-selection--single {
             background-color: #F9F9F9 !important;
@@ -52,12 +56,12 @@
     @yield('style')
 </head>
 
-<body class="min-h-screen flex flex-col">
-    <div class="flex min-h-screen bg-[#FDF8F4] text-[#1A1A1A] px-[50px] gradient-primary !pt-10">
+<body class="min-h-screen flex flex-col !m-0">
+    <div class="flex min-h-screen flex-wrap bg-[#FDF8F4] text-[#1A1A1A] px-[0px] xl:px-[50px] gradient-primary xl:!pt-10">
         <!-- Sidebar -->
         @include('frontend.vendor.common.sidebar')
         <!-- Main Content -->
-        <main class="flex-1 p-6 pe-0 pt-0 h-full">
+        <main class="flex-1 p-4 xl:p-6 xl:pe-0 pt-0 h-full ">
             <!-- Header -->
             @include('frontend.vendor.common.header')
             
@@ -69,16 +73,42 @@
     @yield('ads')
 
     @include('frontend.include.footer')
-
+    @yield('script_first')
     <script src="{{ asset('assets/js/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('assets/js/additional-methods.min.js') }}"></script>
     <script src="{{ asset('assets/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('assets/js/moment.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap/daterangepicker.min.js') }}"></script>
 
     <script>
 
         $('.select2').select2({
             width: '100%',
             placeholder: "{{ __('frontend.choose_option') }}"
+        });
+
+        $('.date-range-picker').daterangepicker({
+            locale: {
+                format: 'YYYY-MM-DD'
+            },
+            opens: 'left', // or 'right'
+            autoUpdateInput: false,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        });
+
+        $('.date-range-picker').on('apply.daterangepicker', function(ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' to ' + picker.endDate.format('YYYY-MM-DD'));
+        });
+
+        $('.date-range-picker').on('cancel.daterangepicker', function(ev, picker) {
+            $(this).val('');
         });
 
         document.addEventListener("DOMContentLoaded", function() {

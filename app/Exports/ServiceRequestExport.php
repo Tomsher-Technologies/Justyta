@@ -23,13 +23,15 @@ class ServiceRequestExport implements FromArray, WithHeadings, WithStyles, WithE
     protected $customFields;
     protected $serviceName;
     protected $serviceSlug;
+    protected $canViewSales;
 
-    public function __construct($requests, $serviceName, $serviceSlug, $customFields = [])
+    public function __construct($requests, $serviceName, $serviceSlug, $customFields = [], $canViewSales = false)
     {
         $this->requests = $requests;
         $this->customFields = $customFields;
         $this->serviceName = $serviceName;
         $this->serviceSlug = $serviceSlug;
+        $this->canViewSales = $canViewSales;
     }
 
     public function array(): array
@@ -53,23 +55,36 @@ class ServiceRequestExport implements FromArray, WithHeadings, WithStyles, WithE
                         'Reference Code' => $request->reference_code,
                         'Request Status' => ucfirst($request->status),
                         'Payment Status' => $paymentStatus,
-                        'Amount' => number_format((float) $request->amount, 2) ?? '0.00',
-                        'Paid Date ' => $request->paid_at ? date('d, M Y h:i A', strtotime($request->paid_at)) : '',
-                        'User' => $request->user?->name ?? '',
-                        'Submitted At' => date('d, M Y h:i A', strtotime($request->submitted_at)),
-                        'Translator' => $request->legalTranslation?->assignedTranslator?->name ?? '',
                     ];
+
+                    if ($this->canViewSales) {
+                        $row['Admin Amount'] = number_format((float) $request->legalTranslation?->admin_amount, 2) ?? '0.00';
+                        $row['Translator Amount'] = number_format((float) $request->legalTranslation?->translator_amount, 2) ?? '0.00';
+                        $row['Delivery Amount'] = number_format((float) $request->legalTranslation?->delivery_amount, 2) ?? '0.00';
+                        $row['Tax Amount'] = number_format((float) $request->legalTranslation?->tax, 2) ?? '0.00';
+                        $row['Total Amount'] = number_format((float) $request->legalTranslation?->total_amount, 2) ?? '0.00';
+                        $row['Paid Date'] = $request->paid_at ? date('d, M Y h:i A', strtotime($request->paid_at)) : '';
+                    }
+
+                    $row['User'] = $request->user?->name ?? '';
+                    $row['Submitted At'] = date('d, M Y h:i A', strtotime($request->submitted_at));
+                    $row['Translator'] = $request->legalTranslation?->assignedTranslator?->name ?? '';
                 }else{
                     $row = [
                         'Sl No.' => $i+1,
                         'Reference Code' => $request->reference_code,
                         'Request Status' => ucfirst($request->status),
                         'Payment Status' => $paymentStatus,
-                        'Amount' => number_format((float) $request->amount, 2) ?? '0.00',
-                        'Paid Date ' => $request->paid_at ? date('d, M Y h:i A', strtotime($request->paid_at)) : '',
-                        'User' => $request->user?->name ?? '',
-                        'Submitted At' => date('d, M Y h:i A', strtotime($request->submitted_at)),
                     ];
+
+                    if ($this->canViewSales) {
+                        $row['Total Amount'] = number_format((float) $request->amount, 2) ?? '0.00';
+                        $row['Paid Date'] = $request->paid_at ? date('d, M Y h:i A', strtotime($request->paid_at)) : '';
+                    }
+
+                    $row['User'] = $request->user?->name ?? '';
+                    $row['Submitted At'] = date('d, M Y h:i A', strtotime($request->submitted_at));
+
                 }
                 
             }else{
@@ -120,28 +135,44 @@ class ServiceRequestExport implements FromArray, WithHeadings, WithStyles, WithE
     {
          if(in_array($this->serviceSlug, ['expert-report','annual-retainer-agreement','legal-translation','immigration-requests','request-submission']) ){
             if($this->serviceSlug === 'legal-translation'){
-                return array_values(array_merge([
+                $base = [
                     'Sl No.',
                     'Reference Code',
                     'Request Status',
                     'Payment Status',
-                    'Amount',
-                    'Paid Date',
-                    'User',
-                    'Submitted At',
-                    'Translator',
-                ], $this->customFields));
+                ];
+
+                if ($this->canViewSales) {
+                    $base[] = 'Admin Amount';
+                    $base[] = 'Translator Amount';
+                    $base[] = 'Delivery Amount';
+                    $base[] = 'Tax Amount';
+                    $base[] = 'Total Amount';
+                    $base[] = 'Paid Date';
+                }
+
+                $base[] = 'User';
+                $base[] = 'Submitted At';
+                $base[] = 'Translator';
+                return array_merge($base, $this->customFields);
             }
-            return array_values(array_merge([
+            
+            $base = [
                 'Sl No.',
                 'Reference Code',
                 'Request Status',
                 'Payment Status',
-                'Amount',
-                'Paid Date',
-                'User',
-                'Submitted At',
-            ], $this->customFields));
+            ];
+
+            if ($this->canViewSales) {
+                $base[] = 'Total Amount';
+                $base[] = 'Paid Date';
+            }
+
+            $base[] = 'User';
+            $base[] = 'Submitted At';
+
+            return array_merge($base, $this->customFields);
 
          }else{
             return array_values(array_merge([
@@ -156,39 +187,50 @@ class ServiceRequestExport implements FromArray, WithHeadings, WithStyles, WithE
     public function styles(Worksheet $sheet)
     {
         $sheet->getStyle('A1:Z1000')->getAlignment()->setWrapText(true);
-        
-        return [
-            1 => [ // First row (exported date + service name)
-                // 'font' => [
-                //     'bold' => true,
-                //     'size' => 13,
-                //     // 'color' => ['rgb' => '000000'],
-                // ],
+
+        $styles = [
+            1 => [
                 'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                    'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical'   => Alignment::VERTICAL_CENTER,
                 ],
             ],
             2 => [
                 'font' => ['bold' => true, 'color' => ['rgb' => '000000']],
-                // 'alignment' => ['horizontal' => 'center'],
             ],
-            
-            'A' => ['alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]],
-
-            // Center align "Amount" = You need to find the column letter for it dynamically if headings change
-            $this->getAmountColumnLetter() => ['alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]],
+            'A' => [
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                ],
+            ],
         ];
+
+        $amountColumn = $this->getAmountColumnLetter();
+        if ($amountColumn) {
+            $styles[$amountColumn] = [
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                ],
+            ];
+        }
+
+        return $styles;
     }
+
 
     private function getAmountColumnLetter()
     {
         $headings = $this->headings();
-        $index = array_search('Amount', $headings);
+        $index = array_search('Total Amount', $headings, true);
 
-        // Convert index to column letter (e.g., 0 = A, 1 = B...)
+        // If "Total Amount" is not present, do nothing
+        if ($index === false) {
+            return null;
+        }
+
         return \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($index + 1);
     }
+
     
     public function registerEvents(): array
     {
@@ -208,7 +250,11 @@ class ServiceRequestExport implements FromArray, WithHeadings, WithStyles, WithE
                     'Zone' => 30,
                     'Licence Type' => 30,
                     'Licence Activity' => 30,
-                    'Amount' => 15,
+                    'Admin Amount' => 15,
+                    'Translator Amount' => 15,
+                    'Delivery Amount' => 15,
+                    'Tax Amount' => 15,
+                    'Total Amount' => 15,
                     'About Case' => 60,
                     'About Deal' => 60,
                     'Documents' => 50,
@@ -227,16 +273,29 @@ class ServiceRequestExport implements FromArray, WithHeadings, WithStyles, WithE
 
                 $headings = $this->headings(); // your headings array
 
-                foreach ($headings as $index => $heading) {
-                    $width = $widthsByHeading[$heading] ?? 20;  // default width 20 if not defined
-                    $column = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($index + 1);
+                $colIndex = 1;
+
+                foreach ($headings as $heading) {
+                    $width = $widthsByHeading[$heading] ?? 20;
+                    $column = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
                     $sheet->getColumnDimension($column)->setWidth($width);
+
+                    $colIndex++;
                 }
+
 
                 // Optional: enable wrap text on whole sheet or specific range
                 $sheet->getStyle('A1:' . $column . $sheet->getHighestRow())
                     ->getAlignment()->setWrapText(true);
                 $sheet->getRowDimension(1)->setRowHeight(30);
+
+                $columnsToCenter = ['A', 'B', 'C', 'D', 'E','F', 'G', 'H','I', 'J',  'K','L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S','T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+                foreach ($columnsToCenter as $col) {
+                    $sheet->getStyle("{$col}:{$col}")
+                          ->getAlignment()
+                          ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                          ->setVertical(Alignment::VERTICAL_CENTER);
+                }
             },
             BeforeSheet::class => function(BeforeSheet $event) {
                 $timestamp = now()->format('d M Y h:i A');

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ConsultationPayment extends Model
 {
     protected $fillable = [
-        'consultation_id', 'user_id', 'type', 'amount', 'payment_reference', 'status'
+        'consultation_id', 'user_id', 'type','duration', 'amount', 'payment_reference', 'status'
     ];
 
     public function consultation() {
