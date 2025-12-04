@@ -219,15 +219,15 @@
                         </div>
                     @endcan
 
-                    {{-- <div class="col-md-4 mb-3">
+                    <div class="col-md-4 mb-3">
                         <div class="p-3 bg-white rounded shadow-sm d-flex align-items-center">
-                            <i class="fas fa-calendar text-secondary mr-3 fa-lg"></i>
+                            <i class="fas fa-video text-secondary mr-3 fa-lg"></i>
                             <div>
-                                <small class="text-muted">Created At</small>
-                                <div>{{ $consultation->created_at?->format('Y-m-d H:i') }}</div>
+                                <small class="text-muted">Zoom Session ID</small>
+                                <div>{{ $consultation->zoom_meeting_id ?? '-' }}</div>
                             </div>
                         </div>
-                    </div> --}}
+                    </div>
                 </div>
             </div>
         </div>

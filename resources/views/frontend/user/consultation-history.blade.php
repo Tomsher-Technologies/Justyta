@@ -140,7 +140,7 @@
             @php
                 $file = $ads->files->first();
                 $media = $file->file_type === 'video'
-                    ? '<video class="w-full h-100" autoplay loop>
+                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
                         <source src="' . asset($file->file_path) . '" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>'
