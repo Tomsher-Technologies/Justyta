@@ -132,7 +132,19 @@
 
                         if (response.length > 0) {
                             response.forEach(service => {
-                                suggestions.append(`<a href="/user/service-request/${service.slug}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">${service.title}</a>`);
+                               
+                                let url = `/user/service-request/${service.slug}`;
+
+                                if (service.slug === 'online-live-consultancy') {
+                                    url = `/user/online-live-consultancy`;   // <-- your custom route here
+                                }
+
+                                suggestions.append(`
+                                    <a href="${url}" 
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    ${service.title}
+                                    </a>
+                                `);
                             });
                             suggestions.show();
                         } else {
