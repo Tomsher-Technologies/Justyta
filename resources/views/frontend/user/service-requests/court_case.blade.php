@@ -56,7 +56,7 @@
                     <div class="row-span-3">
                         <label for="you-represent" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.about_case') }}</label>
                         <textarea id="about_case" name="about_case" rows="11" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 mb-1 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.type_here') }}">{{ old('about_case') }}</textarea>
-                        <span class="text-[#717171] text-sm">0/1000</span>
+                        {{-- <span class="text-[#717171] text-sm">0/1000</span> --}}
                     </div>
                     <div>
                         <label for="case_type" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.case_type') }}<span class="text-red-500">*</span></label>
@@ -261,6 +261,7 @@
                     applicant_type: { required: true },
                     litigation_type: { required: true },
                     emirate_id: { required: true },
+                    about_case: { required: false, maxlength: 1000 },
                     case_type: { required: true },
                     you_represent: { required: true },
                     "memo[]": {

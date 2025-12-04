@@ -506,5 +506,9 @@ return [
     'new_online_request' => 'New Consultation Request',
     'accept' => 'Accept',
     'reject' => 'Reject',
-
+    'maxlength100' => 'Maximum 100 characters allowed.',
+    'maxlength1000' => 'Maximum 1000 characters allowed.',
+    'max_select3' => 'You can select maximum 3 options.',
+    'maxlength2' => 'Maximum 2 characters allowed.',
+    'maxlength25' => 'Maximum 25 characters allowed.',
 ];

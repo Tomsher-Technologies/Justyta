@@ -300,7 +300,7 @@
                     emirate_id: { required: true },
                     sub_contract_type: { required: true },
                     contract_language: { required: true },
-                    company_name: { required: true },
+                    company_name: { required: true, maxlength: 100 },
                     industry: { required: true },
                     email: { required: true,email: true },
                     priority: { required: true },
@@ -329,7 +329,10 @@
                     emirate_id: "{{ __('messages.emirate_required') }}",
                     contract_type: "{{ __('messages.contract_type_required') }}",
                     contract_language: "{{ __('messages.contract_language_required') }}",
-                    company_name: "{{ __('messages.company_person_name_required') }}",
+                    company_name: {
+                        required: "{{ __('messages.company_person_name_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
                     industry: "{{ __('messages.industry_required') }}",
                     email: {
                         required: "{{ __('messages.email_required') }}",

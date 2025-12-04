@@ -73,7 +73,7 @@
                     <div class="col-span-2">
                         <label for="you-represent" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.about_deal') }}<span class="text-red-500">*</span></label>
                         <textarea id="about_deal" name="about_deal" rows="11" class="bg-[#F9F9F9] border border-gray-300 mb-1 text-gray-900 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.type_here') }}">{{ old('about_deal') }}</textarea>
-                        <span class="text-[#717171] text-sm">0/1000</span>
+                        {{-- <span class="text-[#717171] text-sm">0/1000</span> --}}
                     </div>
                     
         
@@ -147,19 +147,28 @@
                 ignore: [],
                 rules: {
                     applicant_type: { required: true },
-                    company_name: { required: true },
+                    company_name: { required: true, maxlength:100 },
                     company_origin: { required: true },
                     company_activity: { required: true },
-                    amount: { required: true },
-                    about_deal: { required: true },
+                    amount: { required: true, maxlength:25 },
+                    about_deal: { required: true, maxlength:1000 },
                 },
                 messages: {
                     applicant_type: "{{ __('messages.applicant_type_required') }}",
-                    company_name: "{{ __('messages.company_name_required') }}",
+                    company_name: {
+                        required: "{{ __('messages.company_name_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
                     company_origin: "{{ __('messages.company_origin_required') }}",
                     company_activity: "{{ __('messages.company_activity_required') }}",
-                    amount: "{{ __('messages.amount_required') }}",
-                    about_deal: "{{ __('messages.about_deal_required') }}",
+                    amount: {
+                        required: "{{ __('messages.amount_required') }}",
+                        maxlength: "{{ __('frontend.maxlength25') }}"
+                    },
+                    about_deal: {
+                        required: "{{ __('messages.about_deal_required') }}",
+                        maxlength: "{{ __('frontend.maxlength1000') }}"
+                    },
                 },
                 errorElement: 'span',
                 errorPlacement: function (error, element) {

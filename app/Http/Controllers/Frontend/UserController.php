@@ -692,7 +692,7 @@ class UserController extends Controller
         $user = Auth::guard('frontend')->user();
 
         $validator = Validator::make($request->all(), [
-            'full_name'     => 'required|string|max:255',
+            'full_name'     => 'required|string|max:25',
             'phone'    => 'nullable|string|max:20',
             'language' => 'nullable|string|in:en,ar,fr,fa,ru,zh',
         ], [

@@ -97,7 +97,7 @@
                     <div class="row-span-3">
                         <label for="you-represent" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.authorized_address') }} <span class="text-red-500">*</span></label>
                         <textarea id="authorized_address" name="authorized_address" rows="6" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 mb-1 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.type_here') }}">{{ old('authorized_address') }}</textarea>
-                        <span class="text-[#717171] text-sm">0/1000</span>
+                        {{-- <span class="text-[#717171] text-sm">0/1000</span> --}}
                         @error('authorized_address')
                             <span class="text-red-500">{{ $message }}</span>
                         @enderror
@@ -294,16 +294,16 @@
                 ignore: [],
                 rules: {
                     applicant_type: { required: true },
-                    appointer_name: { required: true },
+                    appointer_name: { required: true , maxlength:100},
                     emirate_id: { required: true },
-                    id_number: { required: true },
-                    appointer_mobile: { required: true },
+                    id_number: { required: true , maxlength:100},
+                    appointer_mobile: { required: true , maxlength:100},
                     poa_type: { required: true },
-                    name_of_authorized: { required: true },
-                    authorized_mobile: { required: true },
-                    id_number_authorized: { required: true },
-                    authorized_address: { required: true },
-                    relationship: { required: true },
+                    name_of_authorized: { required: true, maxlength:100 },
+                    authorized_mobile: { required: true , maxlength:100},
+                    id_number_authorized: { required: true , maxlength:100},
+                    authorized_address: { required: true , maxlength:1000 },
+                    relationship: { required: true},
                     
                     "authorized_passport[]": {
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
@@ -323,14 +323,35 @@
                 messages: {
                     applicant_type: "{{ __('messages.applicant_type_required') }}",
                     emirate_id: "{{ __('messages.emirate_required') }}",
-                    appointer_name: "{{ __('messages.appointer_name_required') }}",
-                    id_number: "{{ __('messages.id_number_required') }}",
-                    appointer_mobile: "{{ __('messages.appointer_mobile_required') }}",
+                    appointer_name: {
+                        required:"{{ __('messages.appointer_name_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
+                    id_number: {
+                        required:"{{ __('messages.id_number_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
+                    appointer_mobile: {
+                        required:"{{ __('messages.appointer_mobile_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
                     poa_type: "{{ __('messages.poa_type_required') }}",
-                    name_of_authorized: "{{ __('messages.name_of_authorized_required') }}",
-                    authorized_mobile: "{{ __('messages.authorized_mobile_required') }}",
-                    id_number_authorized: "{{ __('messages.id_number_authorized_required') }}",
-                    authorized_address: "{{ __('messages.authorized_address_required') }}",
+                    name_of_authorized: {
+                        required:"{{ __('messages.name_of_authorized_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
+                    authorized_mobile: {
+                        required:"{{ __('messages.authorized_mobile_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
+                    id_number_authorized: {
+                        required:"{{ __('messages.id_number_authorized_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
+                    authorized_address: {
+                        required:"{{ __('messages.authorized_address_required') }}",
+                        maxlength: "{{ __('frontend.maxlength1000') }}"
+                    },
                     relationship: "{{ __('messages.relationship_required') }}",
 
                     "authorized_passport[]": {

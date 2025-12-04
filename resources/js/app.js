@@ -197,12 +197,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const openBtn = document.getElementById('openSidebar');
     const closeBtn = document.getElementById('closeSidebar');
 
-    openBtn.addEventListener('click', () => {
-        sidebar.classList.remove('-translate-x-full');
-    });
+    if (openBtn && sidebar) {
+        openBtn.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+        });
+    }
 
-    closeBtn.addEventListener('click', () => {
-        sidebar.classList.add('-translate-x-full');
-    });
+    if (closeBtn && sidebar) {
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+        });
+    }
 
 

@@ -56,7 +56,7 @@
                     <div class="row-span-4">
                         <label for="you-represent" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.about_case') }}</label>
                         <textarea id="about_case" rows="15" name="about_case" rows="11" class="bg-[#F9F9F9] border border-gray-300 text-gray-900 mb-1 text-sm rounded-[10px] focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5" placeholder="{{ __('frontend.type_here') }}">{{ old('about_case') }}</textarea>
-                        <span class="text-[#717171] text-sm">0/1000</span>
+                        {{-- <span class="text-[#717171] text-sm">0/1000</span> --}}
                     </div>
                     
                     <div>
@@ -260,8 +260,8 @@
                     emirate_id: { required: true },
                     case_type: { required: true },
                     you_represent: { required: true },
-                    full_name: { required: true },
-                    
+                    full_name: { required: true, maxlength:100 },
+                    about_case: { required: false, maxlength: 1000 },
                     "documents[]": {
                         required: true,
                         extension: "pdf,jpg,jpeg,webp,png,svg,doc,docx",
@@ -289,7 +289,10 @@
                     emirate_id: "{{ __('messages.emirate_required') }}",
                     case_type: "{{ __('messages.case_type_required') }}",
                     you_represent: "{{ __('messages.you_represent_required') }}",
-                    full_name: "{{ __('messages.full_name_required') }}",
+                    full_name: {
+                        required: "{{ __('messages.full_name_required') }}",
+                        maxlength: "{{ __('frontend.maxlength100') }}"
+                    },
                     
                     "documents[]": {
                         required: "{{ __('messages.document_required') }}",
