@@ -499,4 +499,9 @@ return [
     'new_online_request' => '新的咨询请求',
     'accept' => '接受',
     'reject' => '拒绝',
+    'maxlength100'  => '最多允许 100 个字符。',
+'maxlength1000' => '最多允许 1000 个字符。',
+'max_select3'   => '最多只能选择 3 个选项。',
+'maxlength2'    => '最多允许 2 个字符。',
+'maxlength25'   => '最多允许 25 个字符。',
 ];

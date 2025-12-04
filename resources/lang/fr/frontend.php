@@ -499,4 +499,9 @@ return [
     'new_online_request' => 'Nouvelle demande de consultation',
     'accept' => 'Accepter',
     'reject' => 'Refuser',
+    'maxlength100'  => 'Maximum 100 caractères autorisés.',
+'maxlength1000' => 'Maximum 1000 caractères autorisés.',
+'max_select3'   => 'Vous pouvez sélectionner au maximum 3 options.',
+'maxlength2'    => 'Maximum 2 caractères autorisés.',
+'maxlength25'   => 'Maximum 25 caractères autorisés.',
 ];
