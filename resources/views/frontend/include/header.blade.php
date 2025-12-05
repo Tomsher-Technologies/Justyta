@@ -1,10 +1,10 @@
     <header class="container mx-auto mt-5 px-5 xl:px-0">
         <div class="flex items-start justify-between md:justify-start">
             <a href="{{ route('home') }}" >
-                <img src="{{ asset('assets/images/logo.png') }}" alt="Logo" >
+                <img src="{{ asset('assets/images/logo.png') }}"  class="hidden xl:block" alt="Logo" >
             </a>
             <!-- TOP NAV -->
-<nav class="flex items-center justify-between px-6 py-4">
+<nav class="flex items-center justify-between px-0 xl:px-6 py-0 xl:py-4">
 
 <!-- MOBILE MENU OPEN BUTTON -->
 <button id="btnMenuOpen" class="xl:hidden py-2">
@@ -39,7 +39,7 @@
 
 </nav>
 
-            <div class="flex md:flex items-center gap-4 ms-auto">
+            <div class="flex md:flex items-center gap-4 ms-auto flex-col xl:flex-row">
                
                     <a href="{{ route('frontend.login') }}" class="bg-[#04502E] text-white px-8 py-2 rounded-full w-auto ">
                         {{ __('frontend.sign_in') }}

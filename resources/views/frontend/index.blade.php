@@ -447,7 +447,7 @@
     <section class="bg-[#F7EADB] p-12 text-center">
         <div class="flex items-center justify-center gap-10">
             <div class="h-[2px] w-16 bg-[#B98E44]"></div>
-            <h4 class="font-cinzel text-[25px] whitespace-nowrap">
+            <h4 class="font-cinzel text-[25px] xl:whitespace-nowrap">
                 Injustice anywhere is a threat to justice everywhere.
             </h4>
             <div class="h-[2px] w-16 bg-[#B98E44]"></div>
@@ -656,7 +656,7 @@
                 <p class="text-[16px] font-medium">At Lawpoint, we are committed to upholding justice and protecting
                     your rights. With a strong foundation in legal research, advocacy, and client-focused solutions, we
                     provide expert legal services tailored to your needs. </p>
-                <div class="grid grid-cols-2 gap-12 mt-8 w-max">
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-12 mt-8 w-max">
                     <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
                         <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100%</h3>
                         <h5 class="text-[#000] text-[18px] font-medium">Customer <br> Satisfaction</h5>
