@@ -2,8 +2,9 @@
 
 @section('content')    
 
-    <section class="px-5 md:px-5 lg:px-5 xl:px-0 ms-[250px] flex justify-between items-start mt-[-50px]">
-        <h3 class="text-[50px] font-cinzel font-normal text-[#07683B]">Visa Made Easy Dreams <br> Made Possible</h3>
+    <section class="px-5 md:px-5 lg:px-5 xl:px-0 ms-0 lg:ms-[250px] flex-wrap xl:flex-col flex justify-between items-start pt-[-180px] xl:mt-[-50px]
+">
+        <h3 class="text-[20px] xl:text-[50px] font-cinzel font-normal text-[#07683B]">Visa Made Easy Dreams <br> Made Possible</h3>
         <button
             class="flex items-center justify-between px-6 pe-4 py-3 bg-[#07683B] text-white rounded-full shadow-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
             <span class="text-lg font-medium mr-4">Explore Service</span>
@@ -23,7 +24,7 @@
 
     <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 xl:px-0 py-10 mt-8">
         <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">Choose Service</h4>
-        <div class="grid grid-cols-5">
+        <div class="grid grid-cols-1 xl:grid-cols-5 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-2 gap-2 xl:gap-6">
             <div class="bg-white p-8 border !border-[#F5E4BA]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="mb-5" width="73" height="73" viewBox="0 0 73 73"
                     fill="none">
@@ -446,7 +447,7 @@
     <section class="bg-[#F7EADB] p-12 text-center">
         <div class="flex items-center justify-center gap-10">
             <div class="h-[2px] w-16 bg-[#B98E44]"></div>
-            <h4 class="font-cinzel text-[25px] whitespace-nowrap">
+            <h4 class="font-cinzel text-[25px] xl:whitespace-nowrap">
                 Injustice anywhere is a threat to justice everywhere.
             </h4>
             <div class="h-[2px] w-16 bg-[#B98E44]"></div>
@@ -454,7 +455,7 @@
     </section>
 
     <section class="bg-[#B9A572] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px]">
-        <div class="grid grid-cols-2">
+        <div class="grid grid-cols-1 xl:grid-cols-2">
             <div class="text-white">
                 <h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>
                 <h3 class="text-[40px] font-cinzel font-bold leading-[55px] mb-5">Justice served with <br> Lawpoint —
@@ -463,7 +464,7 @@
                     legal research, critical thinking, and effective communication.</p>
             </div>
             <div>
-                <div class="grid grid-cols-3 gap-2">
+                <div class="grid grid-cols-2 xl:grid-cols-3 gap-2">
                     <div class="bg-white p-8">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mb-5" width="73" height="73"
                             viewBox="0 0 73 73" fill="none">
@@ -644,10 +645,10 @@
     </section>
 
     <section class="bg-[#fff] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px] relative">
-        <div class="bg-[#FFF9F4] p-12 h-full ">
-            <div class="w-[60%]">
+        <div class="bg-[#FFF9F4] p-4 xl:p-12 h-full ">
+            <div class="w-[100%] xl:w-[60%]">
                 <h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>
-                <h3 class="text-[40px] font-cinzel font-bold leading-[55px] mb-5">Justice served with <br> Lawpoint —
+                <h3 class="text-[20px] xl:text-[40px] font-cinzel font-bold leading-[25px] xl:leading-[55px] mb-5">Justice served with <br> Lawpoint —
                     your rights, </h3>
                 <p class="text-[16px] font-medium">Working at a law firm helps you develop essential skills, such as
                     legal research, critical thinking, and effective communication.</p>
@@ -655,7 +656,7 @@
                 <p class="text-[16px] font-medium">At Lawpoint, we are committed to upholding justice and protecting
                     your rights. With a strong foundation in legal research, advocacy, and client-focused solutions, we
                     provide expert legal services tailored to your needs. </p>
-                <div class="grid grid-cols-2 gap-12 mt-8 w-max">
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-12 mt-8 w-max">
                     <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
                         <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100%</h3>
                         <h5 class="text-[#000] text-[18px] font-medium">Customer <br> Satisfaction</h5>
@@ -675,15 +676,15 @@
                 </div>
             </div>
         </div>
-        <img src="{{ asset('assets/images/law-img.png') }}" class="absolute end-0 bottom-0  h-auto" alt="">
+        <img src="{{ asset('assets/images/law-img.png') }}" class="absolute end-0 hidden xl:block bottom-0  h-auto" alt="">
     </section>
 
     <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px]">
-        <div class="grid grid-cols-2 w-[80%] m-auto items-center">
+        <div class="grid grid-cols-1 xl:grid-cols-2 w-[100%] xl:w-[80%] m-auto items-center">
             <img src="{{ asset('assets/images/about-Image.png') }}" alt="">
             <div>
                 <h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>
-                <h3 class="text-[40px] font-cinzel font-bold leading-[55px] mb-5">Justice served with <br> Lawpoint —
+                <h3 class="text-[28px] xl:text-[40px] font-cinzel font-bold leading-[32px] xl:leading-[55px] mb-5">Justice served with <br> Lawpoint —
                     your rights, </h3>
                 <p class="text-[16px] font-medium">Working at a law firm helps you develop essential skills, such as
                     legal research, critical thinking, and effective communication.</p>
@@ -745,9 +746,9 @@
     </section>
 
     <section class="bg-[#FFF] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px]">
-        <div class="grid grid-cols-2 items-center">
+        <div class="grid grid-cols-1 xl:grid-cols-2 items-center">
             <div>
-                <h3 class="text-[40px] font-cinzel font-bold leading-[55px] mb-5">Justice served with <br> Lawpoint —
+                <h3 class="xl:text-[40px] text-[28px] leading-[32px]  font-cinzel font-bold xl:leading-[55px] mb-5">Justice served with <br> Lawpoint —
                     your rights, </h3>
                 <p class="text-[16px] font-medium">Working at a law firm helps you develop essential skills, such as
                     legal research, critical thinking, and effective communication.</p>
@@ -762,7 +763,7 @@
 
     <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px]">
         <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">latest news</h4>
-        <div class="grid grid-cols-4">
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-4">
             <div>
                 <img src="{{ asset('assets/images/blog-img1.jpg') }}" class="mb-3" alt="">
                 <span class="text-[#121C27] text-[15px]">Court Law</span> <span>May 25, 2025</span>
