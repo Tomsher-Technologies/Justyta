@@ -2,12 +2,12 @@
 
 @section('content')    
 
-    <section class="px-5 md:px-5 lg:px-5 xl:px-0 ms-0 lg:ms-[250px] flex-wrap xl:flex-col flex justify-between items-start pt-[-180px] xl:mt-[-50px]
+    <section class="px-5 md:px-5 lg:px-5 xl:px-0 ms-0 lg:ms-[280px] flex-wrap xl:flex-col flex justify-between items-start pt-[50px] xl:mt-[-50px]
 ">
         <h3 class="text-[20px] xl:text-[50px] font-cinzel font-normal text-[#07683B]">Visa Made Easy Dreams <br> Made Possible</h3>
         <button
-            class="flex items-center justify-between px-6 pe-4 py-3 bg-[#07683B] text-white rounded-full shadow-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
-            <span class="text-lg font-medium mr-4">Explore Service</span>
+            class="flex items-center mt-3 justify-between px-6 pe-4 py-3 bg-[#07683B] text-white rounded-full shadow-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
+            <span class="text-base xl:text-lg font-medium mr-4">Explore Service</span>
             <div class="flex items-center justify-center w-10 h-10 bg-white text-green-700 rounded-full">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
@@ -18,13 +18,13 @@
         </button>
     </section>
 
-    <section class="w-full px-5 md:px-5 lg:px-5 xl:px-0 mt-8">
+    <section class="w-full px-5 md:px-5 lg:px-5 mt-8">
         <img src="{{ asset('assets/images/banner.png') }}" class="w-full" alt="">
     </section>
 
-    <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 xl:px-0 py-10 mt-8">
+    <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 py-10 mt-8">
         <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">Choose Service</h4>
-        <div class="grid grid-cols-1 xl:grid-cols-5 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-2 gap-2 xl:gap-6">
+        <div class="grid grid-cols-1 xl:grid-cols-5">
             <div class="bg-white p-8 border !border-[#F5E4BA]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="mb-5" width="73" height="73" viewBox="0 0 73 73"
                     fill="none">
@@ -454,13 +454,13 @@
         </div>
     </section>
 
-    <section class="bg-[#B9A572] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px]">
+    <section class="bg-[#B9A572] px-5 md:px-5 lg:px-5 py-[80px]">
         <div class="grid grid-cols-1 xl:grid-cols-2">
             <div class="text-white">
                 <h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>
-                <h3 class="text-[40px] font-cinzel font-bold leading-[55px] mb-5">Justice served with <br> Lawpoint —
+                <h3 class="text-[20px] xl:text-[40px] font-cinzel font-bold leading-[25px] xl:leading-[55px] mb-5">Justice served with <br> Lawpoint —
                     your rights, </h3>
-                <p class="text-[16px] font-medium">Working at a law firm helps you develop essential skills, such as
+                <p class="text-[16px] font-medium pb-5 xl:pb-0">Working at a law firm helps you develop essential skills, such as
                     legal research, critical thinking, and effective communication.</p>
             </div>
             <div>
@@ -644,7 +644,7 @@
         </div>
     </section>
 
-    <section class="bg-[#fff] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px] relative">
+    <section class="bg-[#fff] px-5 md:px-5 lg:px-5 py-[80px] relative">
         <div class="bg-[#FFF9F4] p-4 xl:p-12 h-full ">
             <div class="w-[100%] xl:w-[60%]">
                 <h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>
@@ -679,7 +679,7 @@
         <img src="{{ asset('assets/images/law-img.png') }}" class="absolute end-0 hidden xl:block bottom-0  h-auto" alt="">
     </section>
 
-    <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px]">
+    <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 py-[80px]">
         <div class="grid grid-cols-1 xl:grid-cols-2 w-[100%] xl:w-[80%] m-auto items-center">
             <img src="{{ asset('assets/images/about-Image.png') }}" alt="">
             <div>
@@ -732,7 +732,7 @@
                 </ul>
                 <button
                     class="flex items-center justify-between px-6 pe-4 py-3 bg-[#07683B] text-white rounded-full shadow-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
-                    <span class="text-lg font-medium mr-4">Explore Service</span>
+                    <span class="xl:text-lg text-base font-medium mr-4">Explore Service</span>
                     <div class="flex items-center justify-center w-10 h-10 bg-white text-green-700 rounded-full">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg">
@@ -745,7 +745,7 @@
         </div>
     </section>
 
-    <section class="bg-[#FFF] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px]">
+    <section class="bg-[#FFF] px-5 md:px-5 lg:px-5 py-[80px]">
         <div class="grid grid-cols-1 xl:grid-cols-2 items-center">
             <div>
                 <h3 class="xl:text-[40px] text-[28px] leading-[32px]  font-cinzel font-bold xl:leading-[55px] mb-5">Justice served with <br> Lawpoint —
@@ -761,7 +761,7 @@
         </div>
     </section>
 
-    <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 xl:px-0 py-[80px]">
+    <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 py-[80px]">
         <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">latest news</h4>
         <div class="grid grid-cols-1 xl:grid-cols-4 gap-4">
             <div>

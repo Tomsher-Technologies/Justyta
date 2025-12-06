@@ -7,7 +7,7 @@
 <nav class="flex items-center justify-between px-0 xl:px-6 py-0 xl:py-4">
 
 <!-- MOBILE MENU OPEN BUTTON -->
-<button id="btnMenuOpen" class="xl:hidden py-2">
+<button id="btnMenuOpen" class="xl:hidden py-0 xl:py-2">
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none"
         stroke="black" stroke-width="2">
         <path d="M4 8h24M4 16h24M4 24h24"></path>
@@ -29,6 +29,10 @@
 
     <!-- MENU LIST -->
     <ul id="navMenuList" class="flex flex-col xl:flex-row gap-8 font-cinzel font-bold text-[16px]">
+         <a href="{{ route('home') }}" >
+                <img src="{{ asset('assets/images/logo.png') }}"  class="block xl:hidden" width="80" alt="Logo" >
+            </a>
+
         <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.home') }}</a></li>
         <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.about_us') }}</a></li>
         <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.services') }}</a></li>
@@ -39,15 +43,16 @@
 
 </nav>
 
-            <div class="flex md:flex items-center gap-4 ms-auto flex-col xl:flex-row">
+            <div class="flex md:flex items-center gap-4 ms-auto ">
                
-                    <a href="{{ route('frontend.login') }}" class="bg-[#04502E] text-white px-8 py-2 rounded-full w-auto ">
+                    <a href="{{ route('frontend.login') }}" class="bg-[#04502E] block text-[8px] xl:text-[16px] text-white px-4 xl:px-8 py-2 rounded-full w-auto ">
                         {{ __('frontend.sign_in') }}
+                        
                     </a>
            <div x-data="{ open: false }" class="relative inline-block">
     <!-- Button -->
     <button @click="open = !open"
-        class="flex items-center gap-2 text-[#07683B] border !border-[#07683B] px-6 py-2 rounded-full w-auto">
+        class="flex items-center gap-2 text-[#07683B] border text-[8px] xl:text-[16px] !border-[#07683B] px-4 xl:px-6 py-1 xl:py-2 rounded-full w-auto">
         
         {{ __('frontend.sign_up') }}
 
