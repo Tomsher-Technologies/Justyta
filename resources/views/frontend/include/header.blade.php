@@ -1,26 +1,45 @@
     <header class="container mx-auto mt-5 px-5 xl:px-0">
         <div class="flex items-start justify-between md:justify-start">
             <a href="{{ route('home') }}" >
-                <img src="{{ asset('assets/images/logo.png') }}" alt="Logo" >
+                <img src="{{ asset('assets/images/logo.png') }}"  class="hidden xl:block" alt="Logo" >
             </a>
-            <ul class="flex items-center gap-8 font-cinzel font-bold text-[16px] ms-auto mt-3">
-                <li>
-                    <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.home') }}</a>
-                </li>
-                <li>
-                    <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.about_us') }}</a>
-                </li>
-                <li>
-                    <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.services') }}</a>
-                </li>
-                <li>
-                    <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.news') }}</a>
-                </li>
-                <li>
-                    <a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.contact') }}</a>
-                </li>
-            </ul>
-            <div class="flex md:flex items-center gap-4 ms-auto">
+            <!-- TOP NAV -->
+<nav class="flex items-center justify-between px-0 xl:px-6 py-0 xl:py-4">
+
+<!-- MOBILE MENU OPEN BUTTON -->
+<button id="btnMenuOpen" class="xl:hidden py-2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none"
+        stroke="black" stroke-width="2">
+        <path d="M4 8h24M4 16h24M4 24h24"></path>
+    </svg>
+</button>
+
+<!-- MOBILE / DESKTOP MENU WRAPPER -->
+<div id="mobileNavPanel"
+    class="fixed xl:static top-0 left-0 h-full xl:h-auto w-64 xl:w-auto
+           bg-white xl:bg-transparent shadow-xl xl:shadow-none
+           transform -translate-x-full xl:translate-x-0
+           transition-transform duration-300 p-10 xl:p-0 z-[9999]">
+
+    <!-- CLOSE BUTTON -->
+    <button id="btnMenuClose"
+        class="xl:hidden absolute top-4 right-4 text-2xl bg-white shadow p-2 rounded-full">
+        ✕
+    </button>
+
+    <!-- MENU LIST -->
+    <ul id="navMenuList" class="flex flex-col xl:flex-row gap-8 font-cinzel font-bold text-[16px]">
+        <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.home') }}</a></li>
+        <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.about_us') }}</a></li>
+        <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.services') }}</a></li>
+        <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.news') }}</a></li>
+        <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.contact') }}</a></li>
+    </ul>
+</div>
+
+</nav>
+
+            <div class="flex md:flex items-center gap-4 ms-auto flex-col xl:flex-row">
                
                     <a href="{{ route('frontend.login') }}" class="bg-[#04502E] text-white px-8 py-2 rounded-full w-auto ">
                         {{ __('frontend.sign_in') }}
