@@ -210,3 +210,72 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
+    
+
+ (function () {
+    // cached DOM refs
+    const openBtn = document.getElementById('btnMenuOpen');
+    const closeBtn = document.getElementById('btnMenuClose');
+    const panel = document.getElementById('mobileNavPanel');
+    const overlay = document.getElementById('menuOverlay');
+
+    if (!openBtn || !closeBtn || !panel) {
+      console.error('Menu script: required elements not found. IDs must match: btnMenuOpen, btnMenuClose, mobileNavPanel.');
+      return;
+    }
+
+    function openMenu() {
+      panel.classList.remove('-translate-x-full');
+      panel.setAttribute('aria-hidden', 'false');
+      openBtn.setAttribute('aria-expanded', 'true');
+      if (overlay) overlay.classList.remove('hidden');
+      // prevent body scroll when menu open on mobile
+      document.documentElement.classList.add('overflow-hidden');
+      document.body.classList.add('overflow-hidden');
+    }
+
+    function closeMenu() {
+      panel.classList.add('-translate-x-full');
+      panel.setAttribute('aria-hidden', 'true');
+      openBtn.setAttribute('aria-expanded', 'false');
+      if (overlay) overlay.classList.add('hidden');
+      document.documentElement.classList.remove('overflow-hidden');
+      document.body.classList.remove('overflow-hidden');
+    }
+
+    openBtn.addEventListener('click', openMenu);
+    closeBtn.addEventListener('click', closeMenu);
+    if (overlay) overlay.addEventListener('click', closeMenu);
+
+    // close with ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMenu();
+    });
+
+    // Optional: close on window resize if desktop breakpoint reached
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1280) { // xl breakpoint default 1280px
+        // make sure panel is visible in desktop layout (Tailwind handles xl:translate-x-0)
+        panel.classList.remove('-translate-x-full');
+        panel.setAttribute('aria-hidden', 'false');
+        if (overlay) overlay.classList.add('hidden');
+        document.documentElement.classList.remove('overflow-hidden');
+        document.body.classList.remove('overflow-hidden');
+      } else {
+        // ensure hidden by default on small screens
+        if (!panel.classList.contains('-translate-x-full') && openBtn.getAttribute('aria-expanded') !== 'true') {
+          panel.classList.add('-translate-x-full');
+          panel.setAttribute('aria-hidden', 'true');
+        }
+      }
+    });
+  })();
+
+
+
+
+
+
+
+
+
