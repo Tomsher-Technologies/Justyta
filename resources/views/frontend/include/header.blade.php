@@ -34,10 +34,10 @@
             </a>
 
         <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.home') }}</a></li>
-        <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.about_us') }}</a></li>
-        <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.services') }}</a></li>
-        <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.news') }}</a></li>
-        <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.contact') }}</a></li>
+        <li><a href="{{ route('aboutus') }}" class="text-[#07683B]">{{ __('frontend.about_us') }}</a></li>
+        <li><a href="{{ route('services') }}" class="text-[#07683B]">{{ __('frontend.services') }}</a></li>
+        <li><a href="{{ route('news') }}" class="text-[#07683B]">{{ __('frontend.news') }}</a></li>
+        <li><a href="{{ route('contactus') }}" class="text-[#07683B]">{{ __('frontend.contact') }}</a></li>
     </ul>
 </div>
 
