@@ -4,10 +4,10 @@
 
     <section class="px-5 md:px-5 lg:px-5 xl:px-0 ms-0 lg:ms-[280px] flex-wrap xl:flex-col flex justify-between items-start pt-[50px] xl:mt-[-50px]
 ">
-        <h3 class="text-[20px] xl:text-[50px] font-cinzel font-normal text-[#07683B]">Visa Made Easy Dreams <br> Made Possible</h3>
+        <h3 class="text-[20px] xl:text-[50px] font-cinzel font-normal text-[#07683B]">Justice Simplified. <br>Anytime. Anywhere</h3>
         <button
             class="flex items-center mt-3 justify-between px-6 pe-4 py-3 bg-[#07683B] text-white rounded-full shadow-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
-            <span class="text-base xl:text-lg font-medium mr-4">Explore Service</span>
+            <span class="text-base xl:text-lg font-medium mr-4"><a href="/services">Explore Service</a></span>
             <div class="flex items-center justify-center w-10 h-10 bg-white text-green-700 rounded-full">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
@@ -448,7 +448,8 @@
         <div class="flex items-center justify-center gap-10">
             <div class="h-[2px] w-16 bg-[#B98E44]"></div>
             <h4 class="font-cinzel text-[25px] xl:whitespace-nowrap">
-                Injustice anywhere is a threat to justice everywhere.
+                <!--Injustice anywhere is a threat to justice everywhere.-->
+                The UAE’s first 24/7 digital legal ecosystem, consultations, court requests, translation, and more… all in one tap
             </h4>
             <div class="h-[2px] w-16 bg-[#B98E44]"></div>
         </div>
@@ -457,11 +458,13 @@
     <section class="bg-[#B9A572] px-5 md:px-5 lg:px-5 py-[80px]">
         <div class="grid grid-cols-1 xl:grid-cols-2">
             <div class="text-white">
-                <h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>
-                <h3 class="text-[20px] xl:text-[40px] font-cinzel font-bold leading-[25px] xl:leading-[55px] mb-5">Justice served with <br> Lawpoint —
-                    your rights, </h3>
-                <p class="text-[16px] font-medium pb-5 xl:pb-0">Working at a law firm helps you develop essential skills, such as
-                    legal research, critical thinking, and effective communication.</p>
+                <!--<h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>-->
+                <h3 class="text-[20px] xl:text-[40px] font-cinzel font-bold leading-[25px] xl:leading-[55px] mb-5">A New Era of Legal Services Has Arrived </h3>
+                <p class="text-[16px] font-medium pb-5 xl:pb-0">Justyta transforms the entire legal journey into a seamless digital experience.
+From court & prosecution request submissions to legal consultations and translation services, every process is rebuilt around speed, accuracy, and accessibility.<br/>
+Whether through our mobile app or web platform, clients and law firms access a 24/7 legal world designed to eliminate waiting lines, paperwork pressure, and unnecessary costs.<br/>
+Justyta isn’t another legal tool ….. it’s the future legal hub of the UAE.
+</p>
             </div>
             <div>
                 <div class="grid grid-cols-2 xl:grid-cols-3 gap-2">
@@ -493,6 +496,17 @@
                             </defs>
                         </svg>
                         <h3 class="mb-6">Expert Report</h3>
+                        
+                        <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                    <span>Go to Service</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
+                        fill="none">
+                        <path
+                            d="M8.2137 6.52631L15.8141 6.34811C16.0203 6.34808 16.197 6.42169 16.3443 6.56895C16.4916 6.71622 16.5652 6.89296 16.5651 7.09917L16.3869 14.6995C16.3279 15.1709 16.0775 15.4213 15.6356 15.4509C15.1643 15.3921 14.9139 15.1417 14.8846 14.6998L15.0182 8.95536L7.50481 16.4688C7.15125 16.7634 6.79775 16.7635 6.4443 16.469C6.14978 16.1155 6.14984 15.762 6.4445 15.4084L13.9579 7.89505L8.21342 8.0287C7.77154 7.99932 7.52119 7.74897 7.46236 7.27765C7.49191 6.83576 7.74235 6.58531 8.2137 6.52631Z"
+                            fill="#07683B" />
+                    </svg>
+                </a>
+                
                     </div>
                     <div class="bg-white p-8">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mb-5" width="73" height="73"
@@ -522,6 +536,15 @@
                             </defs>
                         </svg>
                         <h3 class="mb-6">Contract Drafting</h3>
+                        <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                    <span>Go to Service</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
+                        fill="none">
+                        <path
+                            d="M8.2137 6.52631L15.8141 6.34811C16.0203 6.34808 16.197 6.42169 16.3443 6.56895C16.4916 6.71622 16.5652 6.89296 16.5651 7.09917L16.3869 14.6995C16.3279 15.1709 16.0775 15.4213 15.6356 15.4509C15.1643 15.3921 14.9139 15.1417 14.8846 14.6998L15.0182 8.95536L7.50481 16.4688C7.15125 16.7634 6.79775 16.7635 6.4443 16.469C6.14978 16.1155 6.14984 15.762 6.4445 15.4084L13.9579 7.89505L8.21342 8.0287C7.77154 7.99932 7.52119 7.74897 7.46236 7.27765C7.49191 6.83576 7.74235 6.58531 8.2137 6.52631Z"
+                            fill="#07683B" />
+                    </svg>
+                </a>
                     </div>
                     <div class="bg-white p-8">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mb-5" width="73" height="73"
@@ -551,6 +574,15 @@
                             </defs>
                         </svg>
                         <h3 class="mb-6">Company Setup</h3>
+                        <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                    <span>Go to Service</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
+                        fill="none">
+                        <path
+                            d="M8.2137 6.52631L15.8141 6.34811C16.0203 6.34808 16.197 6.42169 16.3443 6.56895C16.4916 6.71622 16.5652 6.89296 16.5651 7.09917L16.3869 14.6995C16.3279 15.1709 16.0775 15.4213 15.6356 15.4509C15.1643 15.3921 14.9139 15.1417 14.8846 14.6998L15.0182 8.95536L7.50481 16.4688C7.15125 16.7634 6.79775 16.7635 6.4443 16.469C6.14978 16.1155 6.14984 15.762 6.4445 15.4084L13.9579 7.89505L8.21342 8.0287C7.77154 7.99932 7.52119 7.74897 7.46236 7.27765C7.49191 6.83576 7.74235 6.58531 8.2137 6.52631Z"
+                            fill="#07683B" />
+                    </svg>
+                </a>
                     </div>
                     <div class="bg-white p-8">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mb-5" width="73" height="73"
@@ -580,6 +612,15 @@
                             </defs>
                         </svg>
                         <h3 class="mb-6">Escrow Accounts</h3>
+                        <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                    <span>Go to Service</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
+                        fill="none">
+                        <path
+                            d="M8.2137 6.52631L15.8141 6.34811C16.0203 6.34808 16.197 6.42169 16.3443 6.56895C16.4916 6.71622 16.5652 6.89296 16.5651 7.09917L16.3869 14.6995C16.3279 15.1709 16.0775 15.4213 15.6356 15.4509C15.1643 15.3921 14.9139 15.1417 14.8846 14.6998L15.0182 8.95536L7.50481 16.4688C7.15125 16.7634 6.79775 16.7635 6.4443 16.469C6.14978 16.1155 6.14984 15.762 6.4445 15.4084L13.9579 7.89505L8.21342 8.0287C7.77154 7.99932 7.52119 7.74897 7.46236 7.27765C7.49191 6.83576 7.74235 6.58531 8.2137 6.52631Z"
+                            fill="#07683B" />
+                    </svg>
+                </a>
                     </div>
                     <div class="bg-white p-8">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mb-5" width="73" height="73"
@@ -609,6 +650,15 @@
                             </defs>
                         </svg>
                         <h3 class="mb-6">Debts Collection</h3>
+                        <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                    <span>Go to Service</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
+                        fill="none">
+                        <path
+                            d="M8.2137 6.52631L15.8141 6.34811C16.0203 6.34808 16.197 6.42169 16.3443 6.56895C16.4916 6.71622 16.5652 6.89296 16.5651 7.09917L16.3869 14.6995C16.3279 15.1709 16.0775 15.4213 15.6356 15.4509C15.1643 15.3921 14.9139 15.1417 14.8846 14.6998L15.0182 8.95536L7.50481 16.4688C7.15125 16.7634 6.79775 16.7635 6.4443 16.469C6.14978 16.1155 6.14984 15.762 6.4445 15.4084L13.9579 7.89505L8.21342 8.0287C7.77154 7.99932 7.52119 7.74897 7.46236 7.27765C7.49191 6.83576 7.74235 6.58531 8.2137 6.52631Z"
+                            fill="#07683B" />
+                    </svg>
+                </a>
                     </div>
                     <div class="bg-white p-8">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mb-5" width="73" height="73"
@@ -638,6 +688,15 @@
                             </defs>
                         </svg>
                         <h3 class="mb-6">Online Live Consultancy</h3>
+                        <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                    <span>Go to Service</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
+                        fill="none">
+                        <path
+                            d="M8.2137 6.52631L15.8141 6.34811C16.0203 6.34808 16.197 6.42169 16.3443 6.56895C16.4916 6.71622 16.5652 6.89296 16.5651 7.09917L16.3869 14.6995C16.3279 15.1709 16.0775 15.4213 15.6356 15.4509C15.1643 15.3921 14.9139 15.1417 14.8846 14.6998L15.0182 8.95536L7.50481 16.4688C7.15125 16.7634 6.79775 16.7635 6.4443 16.469C6.14978 16.1155 6.14984 15.762 6.4445 15.4084L13.9579 7.89505L8.21342 8.0287C7.77154 7.99932 7.52119 7.74897 7.46236 7.27765C7.49191 6.83576 7.74235 6.58531 8.2137 6.52631Z"
+                            fill="#07683B" />
+                    </svg>
+                </a>
                     </div>
                 </div>
             </div>
@@ -647,31 +706,37 @@
     <section class="bg-[#fff] px-5 md:px-5 lg:px-5 py-[80px] relative">
         <div class="bg-[#FFF9F4] p-4 xl:p-12 h-full ">
             <div class="w-[100%] xl:w-[60%]">
-                <h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>
-                <h3 class="text-[20px] xl:text-[40px] font-cinzel font-bold leading-[25px] xl:leading-[55px] mb-5">Justice served with <br> Lawpoint —
-                    your rights, </h3>
-                <p class="text-[16px] font-medium">Working at a law firm helps you develop essential skills, such as
-                    legal research, critical thinking, and effective communication.</p>
+                <h4 class="text-[24px] font-medium mb-3">The Impact of Justyta</h4>
+                <h3 class="text-[20px] xl:text-[40px] font-cinzel font-bold leading-[25px] xl:leading-[55px] mb-5">Your Time Matters. Your Rights Matter More. Justyta Delivers Both.</h3>
+                <p class="text-[16px] font-medium">If Procedures moves slow. You don’t have to.</p>
                 <br>
-                <p class="text-[16px] font-medium">At Lawpoint, we are committed to upholding justice and protecting
-                    your rights. With a strong foundation in legal research, advocacy, and client-focused solutions, we
-                    provide expert legal services tailored to your needs. </p>
+                <!--<p class="text-[16px] font-medium">At Lawpoint, we are committed to upholding justice and protecting-->
+                <!--    your rights. With a strong foundation in legal research, advocacy, and client-focused solutions, we-->
+                <!--    provide expert legal services tailored to your needs. </p>-->
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-12 mt-8 w-max">
                     <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
-                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100%</h3>
-                        <h5 class="text-[#000] text-[18px] font-medium">Customer <br> Satisfaction</h5>
+                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">124/7 </h3>
+                        <h5 class="text-[#000] text-[18px] font-medium">Full legal <br/>service availability</h5>
                     </div>
                     <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
-                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100%</h3>
-                        <h5 class="text-[#000] text-[18px] font-medium">Customer <br> Satisfaction</h5>
+                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">1 Tap </h3>
+                        <h5 class="text-[#000] text-[18px] font-medium">To submit <br/>court & prosecution requests</h5>
                     </div>
                     <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
-                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100%</h3>
-                        <h5 class="text-[#000] text-[18px] font-medium">Customer <br> Satisfaction</h5>
+                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">60%</h3>
+                        <h5 class="text-[#000] text-[18px] font-medium">Faster Average<br/> processing time vs traditional methods</h5>
                     </div>
                     <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
-                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100%</h3>
-                        <h5 class="text-[#000] text-[18px] font-medium">Customer <br> Satisfaction</h5>
+                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">1000's </h3>
+                        <h5 class="text-[#000] text-[18px] font-medium">Served Daily <br/>legal interactions on the platform</h5>
+                    </div>
+                    <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
+                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">Zero </h3>
+                        <h5 class="text-[#000] text-[18px] font-medium"> Waiting Lines </h5>
+                    </div>
+                    <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
+                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100% </h3>
+                        <h5 class="text-[#000] text-[18px] font-medium">Digital workflow</h5>
                     </div>
                 </div>
             </div>
@@ -684,14 +749,10 @@
             <img src="{{ asset('assets/images/about-Image.png') }}" alt="">
             <div>
                 <h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>
-                <h3 class="text-[28px] xl:text-[40px] font-cinzel font-bold leading-[32px] xl:leading-[55px] mb-5">Justice served with <br> Lawpoint —
-                    your rights, </h3>
-                <p class="text-[16px] font-medium">Working at a law firm helps you develop essential skills, such as
-                    legal research, critical thinking, and effective communication.</p>
+                <h3 class="text-[28px] xl:text-[40px] font-cinzel font-bold leading-[32px] xl:leading-[55px] mb-5">Legal Services, Reimagined for Simplicity</h3>
+                <p class="text-[16px] font-medium">Justyta makes complex legal procedures fast, transparent, and effortless. Our platform covers the full spectrum of legal needs.</p>
                 <br>
-                <p class="text-[16px] font-medium">At Lawpoint, we are committed to upholding justice and protecting
-                    your rights. With a strong foundation in legal research, advocacy, and client-focused solutions, we
-                    provide expert legal services tailored to your needs. </p>
+                <p class="text-[16px] font-medium">Justyta, Designed for speed, Built for accuracy, Powered by trust. That’s How Justice Simplified. </p>
                 <ul class="mt-6 grid grid-cols-2 gap-3 mb-8">
                     <li class="flex items-center gap-3">
                         <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -700,7 +761,7 @@
                                 d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
                                 clip-rule="evenodd" />
                         </svg>
-                        <span>Advocating for You, Every Step</span>
+                        <span>Court & Public Prosecution Requests</span>
                     </li>
                     <li class="flex items-center gap-3">
                         <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -709,7 +770,7 @@
                                 d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
                                 clip-rule="evenodd" />
                         </svg>
-                        <span>Advocating for You, Every Step</span>
+                        <span>Legal Consultations</span>
                     </li>
                     <li class="flex items-center gap-3">
                         <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -718,7 +779,7 @@
                                 d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
                                 clip-rule="evenodd" />
                         </svg>
-                        <span>Advocating for You, Every Step</span>
+                        <span>Legal Translation</span>
                     </li>
                     <li class="flex items-center gap-3">
                         <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -727,12 +788,12 @@
                                 d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
                                 clip-rule="evenodd" />
                         </svg>
-                        <span>Advocating for You, Every Step</span>
+                        <span>Training Programs & Job Listings</span>
                     </li>
                 </ul>
                 <button
                     class="flex items-center justify-between px-6 pe-4 py-3 bg-[#07683B] text-white rounded-full shadow-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
-                    <span class="xl:text-lg text-base font-medium mr-4">Explore Service</span>
+                    <span class="xl:text-lg text-base font-medium mr-4"><a href="/services">Explore Service</a></span>
                     <div class="flex items-center justify-center w-10 h-10 bg-white text-green-700 rounded-full">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg">
@@ -748,10 +809,8 @@
     <section class="bg-[#FFF] px-5 md:px-5 lg:px-5 py-[80px]">
         <div class="grid grid-cols-1 xl:grid-cols-2 items-center">
             <div>
-                <h3 class="xl:text-[40px] text-[28px] leading-[32px]  font-cinzel font-bold xl:leading-[55px] mb-5">Justice served with <br> Lawpoint —
-                    your rights, </h3>
-                <p class="text-[16px] font-medium">Working at a law firm helps you develop essential skills, such as
-                    legal research, critical thinking, and effective communication.</p>
+                <h3 class="xl:text-[40px] text-[28px] leading-[32px]  font-cinzel font-bold xl:leading-[55px] mb-5">Take the Power of Legal Access Everywhere, Anytime. </h3>
+                <p class="text-[16px] font-medium">Download Justyta and access legal services whenever you need them no appointments, no lines, no delays.</p>
                 <div class="grid grid-cols-2 gap-3 w-max mt-6">
                     <img src="{{ asset('assets/images/play-store.svg') }}" alt="">
                     <img src="{{ asset('assets/images/app-store.svg') }}" alt="">

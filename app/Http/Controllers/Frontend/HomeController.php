@@ -22,6 +22,18 @@ class HomeController extends Controller
     public function about(){
         return view('frontend.about');
     }
+    public function aboutUs(){
+        return view('frontend.aboutus');
+    }
+    public function contactUs(){
+        return view('frontend.contactus');
+    }
+    public function services(){
+        return view('frontend.services');
+    }
+    public function news(){
+        return view('frontend.news');
+    }
 
     public function refundPolicy(){
         return view('frontend.refund-policy');
