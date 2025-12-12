@@ -150,7 +150,7 @@
                     company_name: { required: true, maxlength:100 },
                     company_origin: { required: true },
                     company_activity: { required: true },
-                    amount: { required: true, maxlength:25 },
+                    amount: { required: true, maxlength:15 },
                     about_deal: { required: true, maxlength:1000 },
                 },
                 messages: {
@@ -163,7 +163,7 @@
                     company_activity: "{{ __('messages.company_activity_required') }}",
                     amount: {
                         required: "{{ __('messages.amount_required') }}",
-                        maxlength: "{{ __('frontend.maxlength25') }}"
+                        maxlength: "{{ __('frontend.maxlength15') }}"
                     },
                     about_deal: {
                         required: "{{ __('messages.about_deal_required') }}",

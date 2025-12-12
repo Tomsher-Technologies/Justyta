@@ -511,4 +511,5 @@ return [
     'max_select3' => 'You can select maximum 3 options.',
     'maxlength2' => 'Maximum 2 characters allowed.',
     'maxlength25' => 'Maximum 25 characters allowed.',
+    'maxlength15' => 'Maximum 15 characters allowed.',
 ];

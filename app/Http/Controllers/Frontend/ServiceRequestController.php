@@ -1314,7 +1314,7 @@ class ServiceRequestController extends Controller
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
 
-        $total_amount = 0;
+        // $total_amount = 0;
         if($total_amount > 0) {
             $customer = [
                 'email' => $user->email,

@@ -18,7 +18,7 @@
         </div>
 
         <div class="text-center">
-            <a href="#"
+            <a href="{{ route('user.dashboard') }}"
                 class="mt-8 inline-flex items-center gap-3 px-6 py-3 bg-transparatnt border border-[#4D1717] text-[#4D1717]  rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="16" viewBox="0 0 15 16" fill="none">
                     <path
