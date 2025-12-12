@@ -13,6 +13,10 @@ use App\Http\Controllers\Frontend\VendorJobPostController;
 require __DIR__ . '/admin.php';
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
+Route::get('/aboutus', [HomeController::class, 'aboutUs'])->name('aboutus');
+Route::get('/contactus', [HomeController::class, 'contactUs'])->name('contactus');
+Route::get('/services', [HomeController::class, 'services'])->name('services');
+Route::get('/news', [HomeController::class, 'news'])->name('news');
 Route::get('/refund-policy', [HomeController::class, 'refundPolicy'])->name('refund-policy');
 Route::get('/privacy-policy', [HomeController::class, 'privacyPolicy'])->name('privacy-policy');
 Route::get('/terms-conditions', [HomeController::class, 'termsConditions'])->name('terms-conditions');

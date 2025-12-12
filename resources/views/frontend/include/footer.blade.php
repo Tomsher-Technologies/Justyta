@@ -4,22 +4,22 @@
                 <h3 class="font-cinzel font-bold text-[20px] mb-5">About Us</h3>
                 <p class="mb-5">Working at a law firm helps you develop essential skills, such as legal research,
                     critical thinking, and effective communication.</p>
-                <p>Justyta© 2025 All rights reserved. | Designed by <a href="https://www.tomsher.com/" target="_blank">Tomsher</a></p>
+                <p>Justyta© 2025 All rights reserved. <br/>Designed by <a href="https://www.tomsher.com/" target="_blank">Tomsher</a></p>
             </div>
             <div>
                 <h3 class="font-cinzel font-bold text-[20px] mb-5">Navigation</h3>
                 <ul class="flex flex-col items-start gap-2 xl:gap-4">
                     <li>
-                        <a href="#">Home</a>
+                        <a href="{{ route('home') }}">Home</a>
                     </li>
                     <li>
-                        <a href="#">About Us</a>
+                        <a href="{{ route('aboutus') }}">About Us</a>
                     </li>
                     <li>
-                        <a href="#">Services</a>
+                        <a href="{{ route('services') }}">Services</a>
                     </li>
                     <li>
-                        <a href="#">Contact Us</a>
+                        <a href="{{ route('contactus') }}">Contact Us</a>
                     </li>
                 </ul>
             </div>
@@ -43,10 +43,10 @@
                 <h3 class="font-cinzel font-bold text-[20px] mb-5">Contact Us</h3>
                 <ul class="flex flex-col items-start gap-2 xl:gap-4">
                     <li>
-                        <a href="#">+0 12 457 4578</a>
+                        <a href="#">info@justyta.com</a>
                     </li>
                     <li>
-                        <a href="#">Dubai, United Arab Emirates</a>
+                        <a href="#">Sharjah, United Arab Emirates</a>
                 </ul>
 
                 <ul class="grid grid-cols-6 gap-1 mt-6">
