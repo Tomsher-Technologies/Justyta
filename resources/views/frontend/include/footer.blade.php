@@ -4,7 +4,7 @@
                 <h3 class="font-cinzel font-bold text-[20px] mb-5">About Us</h3>
                 <p class="mb-5">Working at a law firm helps you develop essential skills, such as legal research,
                     critical thinking, and effective communication.</p>
-                <p>Justyta© 2025 All rights reserved. | Designed by <a href="https://www.tomsher.com/" target="_blank">Tomsher</a></p>
+                <p>Justyta© 2025 All rights reserved. <br/>Designed by <a href="https://www.tomsher.com/" target="_blank">Tomsher</a></p>
             </div>
             <div>
                 <h3 class="font-cinzel font-bold text-[20px] mb-5">Navigation</h3>

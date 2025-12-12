@@ -2,7 +2,7 @@
 
 @section('content') 
 
-      <section class="py-[40px] md:py-[0px] px-5 md:px-5 lg:px-5 xl:px-0">
+      <section class="py-[40px] md:py-[0px] px-5 md:px-5 lg:px-5">
 
          <div class="container m-auto">
                      <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">Get in Touch</h4>

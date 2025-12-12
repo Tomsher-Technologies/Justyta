@@ -1,4 +1,4 @@
-    <header class="container mx-auto mt-5 px-5 xl:px-0">
+    <header class="container mx-auto mt-5 px-5">
         <div class="flex items-start justify-between md:justify-start">
             <a href="{{ route('home') }}" >
                 <img src="{{ asset('assets/images/logo.png') }}"  class="hidden xl:block" alt="Logo" >
