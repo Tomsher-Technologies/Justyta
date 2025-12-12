@@ -2,10 +2,16 @@
 
 @section('content')    
 
-    <section class="px-5 md:px-5 lg:px-5 xl:px-0 ms-0 lg:ms-[280px] flex-wrap xl:flex-col flex justify-between items-start pt-[50px] xl:mt-[-50px]
+    <section class="container m-auto flex-wrap xl:flex-col flex justify-between items-start pt-[50px] xl:pb-6 xl:mt-[-150px] px-5
 ">
-        <h3 class="text-[20px] xl:text-[50px] font-cinzel font-normal text-[#07683B]">Justice Simplified. <br>Anytime. Anywhere</h3>
-        <button
+
+<div class="grid grid-cols-1 xl:grid-cols-[20%_1fr_20%] w-full justify-items-start items-center gap-6">
+    <div class="hidden xl:block "></div>
+    <div class="w-full">
+        <h3 class="text-[30px] xl:text-[60px] xl:leading-[60px] font-cinzel font-normal text-[#07683B]">Justice Simplified. <br>Anytime. Anywhere</h3>
+
+    </div>
+          <button
             class="flex items-center mt-3 justify-between px-6 pe-4 py-3 bg-[#07683B] text-white rounded-full shadow-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
             <span class="text-base xl:text-lg font-medium mr-4"><a href="/services">Explore Service</a></span>
             <div class="flex items-center justify-center w-10 h-10 bg-white text-green-700 rounded-full">
@@ -16,6 +22,14 @@
                 </svg>
             </div>
         </button>
+
+
+
+</div>
+
+
+
+
     </section>
 
     <section class="w-full px-5 md:px-5 lg:px-5 mt-8">
@@ -24,7 +38,7 @@
 
     <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 py-10 mt-8">
         <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">Choose Service</h4>
-        <div class="grid grid-cols-1 xl:grid-cols-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
             <div class="bg-white p-8 border !border-[#F5E4BA]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="mb-5" width="73" height="73" viewBox="0 0 73 73"
                     fill="none">
@@ -52,7 +66,7 @@
                         </clipPath>
                     </defs>
                 </svg>
-                <h3 class="mb-6">Online Live Consultancy</h3>
+                <h3 class="mb-6 min-h-min md:min-h-[46px]">Online Live Consultancy</h3>
                 <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
@@ -90,7 +104,7 @@
                         </clipPath>
                     </defs>
                 </svg>
-                <h3 class="mb-6">Request Submission</h3>
+                <h3 class="min-h-min md:min-h-[46px]">Request Submission</h3>
                 <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
@@ -128,7 +142,7 @@
                         </clipPath>
                     </defs>
                 </svg>
-                <h3 class="mb-6">Legal Translation</h3>
+                <h3 class="min-h-min md:min-h-[46px]">Legal Translation</h3>
                 <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
@@ -166,7 +180,7 @@
                         </clipPath>
                     </defs>
                 </svg>
-                <h3 class="mb-6">Companies Retainership Annual Agreement</h3>
+                <h3 class="min-h-min md:min-h-[46px]">Companies Retainership Annual Agreement</h3>
                 <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
@@ -204,7 +218,7 @@
                         </clipPath>
                     </defs>
                 </svg>
-                <h3 class="mb-6">Immigration Requests</h3>
+                <h3 class="min-h-min md:min-h-[46px]">Immigration Requests</h3>
                 <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
@@ -228,7 +242,7 @@
                      d="M52.2628 39.873C52.1521 39.6971 51.9977 39.5519 51.8143 39.4513C51.631 39.3506 51.4246 39.2978 51.2148 39.2977H43.5815C43.7277 38.9074 43.8045 38.4951 43.8086 38.079C43.8086 37.1093 43.4184 36.1793 42.724 35.4936C42.0295 34.8079 41.0876 34.4227 40.1055 34.4227C39.1233 34.4227 38.1814 34.8079 37.487 35.4936C36.7925 36.1793 36.4023 37.1093 36.4023 38.079C36.4064 38.4951 36.4833 38.9074 36.6295 39.2977H28.9961C28.7867 39.2977 28.5808 39.3503 28.3977 39.4505C28.2146 39.5507 28.0603 39.6953 27.9493 39.8705L21.7775 49.6205C21.6549 49.8142 21.5898 50.0381 21.5898 50.2665C21.5898 52.2059 22.3701 54.0658 23.7591 55.4372C25.148 56.8086 27.0318 57.579 28.9961 57.579C30.9604 57.579 32.8442 56.8086 34.2331 55.4372C35.622 54.0658 36.4023 52.2059 36.4023 50.2665C36.4023 50.0381 36.3373 49.8142 36.2147 49.6205L31.218 41.7352H38.8711V57.579H35.168V60.0165H45.043V57.579H41.3398V41.7352H48.993L44.0012 49.6205C43.8768 49.8137 43.8101 50.0376 43.8086 50.2665C43.8086 52.2059 44.5889 54.0658 45.9778 55.4372C47.3668 56.8086 49.2506 57.579 51.2148 57.579C53.1791 57.579 55.0629 56.8086 56.4519 55.4372C57.8408 54.0658 58.6211 52.2059 58.6211 50.2665C58.6211 50.0381 58.5561 49.8142 58.4335 49.6205L52.2628 39.873ZM28.9961 55.1415C27.9022 55.1397 26.8398 54.7798 25.9752 54.1182C25.1106 53.4566 24.4925 52.5307 24.2178 51.4852H33.7744C33.4997 52.5307 32.8816 53.4566 32.017 54.1182C31.1524 54.7798 30.09 55.1397 28.9961 55.1415ZM32.9461 49.0477H25.0584L28.9961 42.8163L32.9461 49.0477ZM40.1055 36.8602C40.3496 36.8602 40.5883 36.9317 40.7912 37.0656C40.9942 37.1995 41.1525 37.3899 41.2459 37.6126C41.3393 37.8353 41.3638 38.0803 41.3161 38.3167C41.2685 38.5532 41.1509 38.7703 40.9783 38.9408C40.8057 39.1112 40.5857 39.2273 40.3463 39.2743C40.1068 39.3213 39.8586 39.2972 39.6331 39.205C39.4075 39.1127 39.2148 38.9565 39.0791 38.7561C38.9435 38.5557 38.8711 38.32 38.8711 38.079C38.8711 37.7557 39.0011 37.4458 39.2326 37.2172C39.4641 36.9886 39.7781 36.8602 40.1055 36.8602ZM51.2148 42.8163L55.1648 49.0477H47.2772L51.2148 42.8163ZM51.2148 55.1415C50.121 55.1397 49.0586 54.7798 48.1939 54.1182C47.3293 53.4566 46.7113 52.5307 46.4366 51.4852H55.9931C55.7184 52.5307 55.1004 53.4566 54.2358 54.1182C53.3711 54.7798 52.3087 55.1397 51.2148 55.1415Z"
                      fill="#B9A572" />
                </svg>
-                <h3 class="mb-6">Court Case Submission</h3>
+                <h3 class="min-h-min md:min-h-[46px]">Court Case Submission</h3>
                 <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
@@ -318,7 +332,7 @@
                      d="M36.4274 53.4796C35.3517 53.4796 34.3835 53.0069 33.6304 52.1796C32.8774 51.3523 32.5547 50.2887 32.5547 49.1069L33.2001 27.1251C33.2001 26.5341 33.738 25.9432 34.2759 25.9432H38.5789C39.1168 25.9432 39.6547 26.416 39.6547 27.1251L40.3001 49.1069C40.3001 50.2887 39.9774 51.3523 39.2244 52.1796C38.4714 53.0069 37.5032 53.4796 36.4274 53.4796ZM35.3517 28.3069L34.8138 49.1069C34.8138 49.5796 34.9214 50.0523 35.2441 50.5251C35.8895 51.2341 37.0729 51.2341 37.7183 50.5251C38.041 50.1705 38.2562 49.6978 38.1486 49.2251L37.6107 28.4251H35.3517V28.3069Z"
                      fill="#B9A572" />
                </svg>
-                <h3 class="mb-6">Criminal Complaint</h3>
+                <h3 class="min-h-min md:min-h-[46px]">Criminal Complaint</h3>
                 <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
@@ -354,7 +368,7 @@
                      d="M16.8555 47.4227H39.6055C40.5025 47.4227 41.2305 46.6947 41.2305 45.7977C41.2305 44.9007 40.5025 44.1727 39.6055 44.1727H16.8555C15.9585 44.1727 15.2305 44.9007 15.2305 45.7977C15.2305 46.6947 15.9585 47.4227 16.8555 47.4227Z"
                      fill="#B9A572" />
                </svg>
-                <h3 class="mb-6">Power Of Attorney</h3>
+                <h3 class="min-h-min md:min-h-[46px]">Power Of Attorney</h3>
                 <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
@@ -392,7 +406,7 @@
                         </clipPath>
                     </defs>
                 </svg>
-                <h3 class="mb-6">Last Will & Testament</h3>
+                <h3 class="min-h-min md:min-h-[46px]">Last Will & Testament</h3>
                 <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
@@ -430,7 +444,7 @@
                         </clipPath>
                     </defs>
                 </svg>
-                <h3 class="mb-6">Memo Writing</h3>
+                <h3 class="min-h-min md:min-h-[46px]">Memo Writing</h3>
                 <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
@@ -447,7 +461,7 @@
     <section class="bg-[#F7EADB] p-12 text-center">
         <div class="flex items-center justify-center gap-10">
             <div class="h-[2px] w-16 bg-[#B98E44]"></div>
-            <h4 class="font-cinzel text-[25px] xl:whitespace-nowrap">
+            <h4 class="font-cinzel text-[25px]">
                 <!--Injustice anywhere is a threat to justice everywhere.-->
                 The UAE’s first 24/7 digital legal ecosystem, consultations, court requests, translation, and more… all in one tap
             </h4>
@@ -455,8 +469,8 @@
         </div>
     </section>
 
-    <section class="bg-[#B9A572] px-5 md:px-5 lg:px-5 py-[80px]">
-        <div class="grid grid-cols-1 xl:grid-cols-2">
+    <section class="bg-[#B9A572] px-5 md:px-5 lg:px-5 py-[80px] gap-4">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <div class="text-white">
                 <!--<h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>-->
                 <h3 class="text-[20px] xl:text-[40px] font-cinzel font-bold leading-[25px] xl:leading-[55px] mb-5">A New Era of Legal Services Has Arrived </h3>
@@ -713,28 +727,28 @@ Justyta isn’t another legal tool ….. it’s the future legal hub of the UAE.
                 <!--<p class="text-[16px] font-medium">At Lawpoint, we are committed to upholding justice and protecting-->
                 <!--    your rights. With a strong foundation in legal research, advocacy, and client-focused solutions, we-->
                 <!--    provide expert legal services tailored to your needs. </p>-->
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-12 mt-8 w-max">
-                    <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-12 mt-8 xl:w-max">
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-8">
                         <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">124/7 </h3>
                         <h5 class="text-[#000] text-[18px] font-medium">Full legal <br/>service availability</h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-8">
                         <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">1 Tap </h3>
                         <h5 class="text-[#000] text-[18px] font-medium">To submit <br/>court & prosecution requests</h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-8">
                         <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">60%</h3>
                         <h5 class="text-[#000] text-[18px] font-medium">Faster Average<br/> processing time vs traditional methods</h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-8">
                         <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">1000's </h3>
                         <h5 class="text-[#000] text-[18px] font-medium">Served Daily <br/>legal interactions on the platform</h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-8">
                         <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">Zero </h3>
                         <h5 class="text-[#000] text-[18px] font-medium"> Waiting Lines </h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-8">
                         <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100% </h3>
                         <h5 class="text-[#000] text-[18px] font-medium">Digital workflow</h5>
                     </div>
@@ -745,7 +759,7 @@ Justyta isn’t another legal tool ….. it’s the future legal hub of the UAE.
     </section>
 
     <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 py-[80px]">
-        <div class="grid grid-cols-1 xl:grid-cols-2 w-[100%] xl:w-[80%] m-auto items-center">
+        <div class="grid grid-cols-1 xl:grid-cols-2 w-[100%] xl:w-[80%] m-auto items-center gap-6">
             <img src="{{ asset('assets/images/about-Image.png') }}" alt="">
             <div>
                 <h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>
@@ -822,30 +836,30 @@ Justyta isn’t another legal tool ….. it’s the future legal hub of the UAE.
 
     <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 py-[80px]">
         <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">latest news</h4>
-        <div class="grid grid-cols-1 xl:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-                <img src="{{ asset('assets/images/blog-img1.jpg') }}" class="mb-3" alt="">
+                <img src="{{ asset('assets/images/blog-img1.jpg') }}" class="mb-3 w-full" alt="">
                 <span class="text-[#121C27] text-[15px]">Court Law</span> <span>May 25, 2025</span>
                 <h3 class="my-1 text-[#121C27] font-medium text-[20px]">What to Ask a Personal Injury Lawyer</h3>
                 <p class="text-[#4B535D] text-[16px]">This can help you make informed decisions and protect yourself
                     from potential legal issues</p>
             </div>
             <div>
-                <img src="{{ asset('assets/images/blog-img2.jpg') }}" class="mb-3" alt="">
+                <img src="{{ asset('assets/images/blog-img2.jpg') }}" class="mb-3 w-full" alt="">
                 <span class="text-[#121C27] text-[15px]">Court Law</span> <span>May 25, 2025</span>
                 <h3 class="my-1 text-[#121C27] font-medium text-[20px]">What to Ask a Personal Injury Lawyer</h3>
                 <p class="text-[#4B535D] text-[16px]">This can help you make informed decisions and protect yourself
                     from potential legal issues</p>
             </div>
             <div>
-                <img src="{{ asset('assets/images/blog-img3.jpg') }}" class="mb-3" alt="">
+                <img src="{{ asset('assets/images/blog-img3.jpg') }}" class="mb-3 w-full" alt="">
                 <span class="text-[#121C27] text-[15px]">Court Law</span> <span>May 25, 2025</span>
                 <h3 class="my-1 text-[#121C27] font-medium text-[20px]">What to Ask a Personal Injury Lawyer</h3>
                 <p class="text-[#4B535D] text-[16px]">This can help you make informed decisions and protect yourself
                     from potential legal issues</p>
             </div>
             <div>
-                <img src="{{ asset('assets/images/blog-img4.jpg')}}" class="mb-3" alt="">
+                <img src="{{ asset('assets/images/blog-img4.jpg')}}" class="mb-3 w-full" alt="">
                 <span class="text-[#121C27] text-[15px]">Court Law</span> <span>May 25, 2025</span>
                 <h3 class="my-1 text-[#121C27] font-medium text-[20px]">What to Ask a Personal Injury Lawyer</h3>
                 <p class="text-[#4B535D] text-[16px]">This can help you make informed decisions and protect yourself
