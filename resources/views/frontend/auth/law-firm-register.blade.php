@@ -1,7 +1,7 @@
 @extends('layouts.web_login', ['title' => __('frontend.sign_up')])
 
 @section('content')
-    <section class="px-[100px] py-[80px] pt-12">
+    <section class="px-[20px] py-[20px] md:px-[100px] md:py-[80px]">
         <div class="w-full p-8 space-y-6 p-5 bg-white rounded-lg ">
             <form action="{{ route('law-firm.register.submit') }}" id="signupForm" method="POST" enctype="multipart/form-data">
                 @csrf

@@ -2,7 +2,7 @@
 
 @section('content') 
 
-      <section class="py-[40px] my-14">
+      <section class="py-[40px] my-14 min-h-screen">
 
          <div class="container m-auto px-5">
                      <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">Get in Touch</h4>
@@ -54,8 +54,9 @@
          </div>
 
 
-@endsection
+
 
       </section>
       
+      @endsection
       

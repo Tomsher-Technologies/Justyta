@@ -1156,3 +1156,28 @@
   })
 
 })(jQuery);
+
+
+
+  function stickyFooter() {
+    const footer = $('#footer');
+    const footerHeight = footer.outerHeight();
+    const bodyHeight = $('body').outerHeight();
+    const windowHeight = $(window).height();
+
+    if (bodyHeight + footerHeight < windowHeight) {
+      footer.css({
+        position: 'fixed',
+        bottom: 0,
+        left: 0
+      });
+    } else {
+      footer.css({
+        position: 'static'
+      });
+    }
+  }
+
+  $(document).ready(stickyFooter);
+  $(window).resize(stickyFooter);
+

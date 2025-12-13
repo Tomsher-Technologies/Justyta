@@ -29,40 +29,42 @@ Justyta removes the obstacles, leaving only clarity, speed, affordability.</p>
 </p>
                <!--<p class="text-[16px] font-medium">At Lawpoint, we are committed to upholding justice and protecting your rights. With a strong foundation in legal research, advocacy, and client-focused solutions, we provide expert legal services tailored to your needs. </p>-->
                <ul class="mt-6 grid grid-cols-2 gap-3 mb-8">
-                  <li class="flex items-center gap-3">
-                     <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <li class="flex items-start gap-3">
+                    <span> <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
-                     </svg>
+                     </svg></span>
                      <span>Law Firm Services</span>
                   </li>
-                  <li class="flex items-center gap-3">
-                     <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <li class="flex items-start gap-3">
+                   <span>
+                       <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
                      </svg>
+                   </span>
                      <span>Court & Public Prosecution Request Submissions</span>
                   </li>
-                  <li class="flex items-center gap-3">
-                     <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <li class="flex items-start gap-3">
+                    <span> <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
-                     </svg>
+                     </svg></span>
                      <span>Legal Consultations</span>
                   </li>
-                  <li class="flex items-center gap-3">
-                     <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <li class="flex items-start gap-3">
+                  <span>   <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
-                     </svg>
+                     </svg></span>
                      <span>Legal Translation</span>
                   </li>
-                   <li class="flex items-center gap-3">
-                     <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                   <li class="flex items-start gap-3">
+                    <span> <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
-                     </svg>
+                     </svg></span>
                      <span>Training opportunities & Job Listings for Professional Development</span>
                   </li>
-                  <li class="flex items-center gap-3">
-                     <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <li class="flex items-start gap-3">
+                <span>     <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
-                     </svg>
+                     </svg></span>
                      <span>Annual Retainership Agreements for Businesses</span>
                   </li>
                </ul>
@@ -85,28 +87,28 @@ By placing advanced technology behind every step of the legal workflow, Justyta 
 </p>
 
  <ul class="mt-6 grid grid-cols-2 gap-3 mb-8">
-                  <li class="flex items-center gap-3">
-                     <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <li class="flex items-start gap-3">
+                  <span>   <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
-                     </svg>
+                     </svg></span>
                      <span>Speed without compromise</span>
                   </li>
-                  <li class="flex items-center gap-3">
-                     <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <li class="flex items-start gap-3">
+                 <span>    <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
-                     </svg>
+                     </svg></span>
                      <span>Accuracy without delay</span>
                   </li>
-                  <li class="flex items-center gap-3">
-                     <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <li class="flex items-start gap-3">
+                    <span> <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
-                     </svg>
+                     </svg></span>
                      <span>Transparency without complexity</span>
                   </li>
-                  <li class="flex items-center gap-3">
-                     <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <li class="flex items-start gap-3">
+                 <span>    <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z" clip-rule="evenodd"/>
-                     </svg>
+                     </svg></span>
                      <span>24/7 access without limitations</span>
                   </li>
                </ul>
@@ -137,19 +139,19 @@ Bring justice closer to everyone, and give legal professionals a platform that a
       <!--         <p class="text-[16px] font-medium">At Lawpoint, we are committed to upholding justice and protecting your rights. With a strong foundation in legal research, advocacy, and client-focused solutions, we provide expert legal services tailored to your needs. </p>-->
       <!--         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-8 w-full md:w-max">-->
       <!--            <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">-->
-      <!--               <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100%</h3>-->
+      <!--               <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">100%</h3>-->
       <!--               <h5 class="text-[#000] text-[18px] font-medium">Customer <br> Satisfaction</h5>-->
       <!--            </div>-->
       <!--            <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">-->
-      <!--               <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100%</h3>-->
+      <!--               <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">100%</h3>-->
       <!--               <h5 class="text-[#000] text-[18px] font-medium">Customer <br> Satisfaction</h5>-->
       <!--            </div>-->
       <!--            <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">-->
-      <!--               <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100%</h3>-->
+      <!--               <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">100%</h3>-->
       <!--               <h5 class="text-[#000] text-[18px] font-medium">Customer <br> Satisfaction</h5>-->
       <!--            </div>-->
       <!--            <div class="border-b !border-[#C9C5C1] flex items-center gap-5 pb-8">-->
-      <!--               <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100%</h3>-->
+      <!--               <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">100%</h3>-->
       <!--               <h5 class="text-[#000] text-[18px] font-medium">Customer <br> Satisfaction</h5>-->
       <!--            </div>-->
       <!--         </div>-->
