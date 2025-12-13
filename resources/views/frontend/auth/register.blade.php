@@ -1,7 +1,7 @@
 @extends('layouts.web_login', ['title' => 'Login In'])
 
 @section('content')
-    <section class="bg-[#FFF7F0] px-[100px] py-[80px] pt-0">
+    <section class="bg-[#FFF7F0] px-[20px] py-[20px] md:px-[100px] md:py-[80px]">
         <div class="flex items-center justify-center">
             <div class="w-full max-w-lg p-8 space-y-6 p-5 bg-white rounded-lg">
                 <h2 class="text-3xl font-semibold text-gray-900 mb-8">{{ __('frontend.sign_up') }}</h2>

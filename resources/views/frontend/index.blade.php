@@ -5,10 +5,10 @@
     <section class="container m-auto flex-wrap xl:flex-col flex justify-between items-start pt-[50px] xl:pb-6 xl:mt-[-150px] px-5
 ">
 
-<div class="grid grid-cols-1 xl:grid-cols-[20%_1fr_20%] w-full justify-items-start items-center gap-6">
+<div class="grid grid-cols-1 xl:grid-cols-[17.5%_1fr_20%] w-full justify-items-start items-center gap-6">
     <div class="hidden xl:block "></div>
     <div class="w-full">
-        <h3 class="text-[30px] xl:text-[60px] xl:leading-[60px] font-cinzel font-normal text-[#07683B]">Justice Simplified. <br>Anytime. Anywhere</h3>
+        <h3 class="text-[22px] md:text-[50px] xl:text-[60px] xl:leading-[60px] font-cinzel font-normal text-[#07683B]">Justice Simplified. <br>Anytime. Anywhere</h3>
 
     </div>
           <button
@@ -728,29 +728,29 @@ Justyta isn’t another legal tool ….. it’s the future legal hub of the UAE.
                 <!--    your rights. With a strong foundation in legal research, advocacy, and client-focused solutions, we-->
                 <!--    provide expert legal services tailored to your needs. </p>-->
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-12 mt-8 xl:w-max">
-                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-8">
-                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">124/7 </h3>
-                        <h5 class="text-[#000] text-[18px] font-medium">Full legal <br/>service availability</h5>
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">124/7 </h3>
+                        <h5 class="text-[#000] text-[15px] font-medium">Full legal <br/>service availability</h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-8">
-                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">1 Tap </h3>
-                        <h5 class="text-[#000] text-[18px] font-medium">To submit <br/>court & prosecution requests</h5>
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">1 Tap </h3>
+                        <h5 class="text-[#000] text-[15px] font-medium">To submit <br/>court & prosecution requests</h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-8">
-                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">60%</h3>
-                        <h5 class="text-[#000] text-[18px] font-medium">Faster Average<br/> processing time vs traditional methods</h5>
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">60%</h3>
+                        <h5 class="text-[#000] text-[15px] font-medium">Faster Average processing time <br/> vs traditional methods</h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-8">
-                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">1000's </h3>
-                        <h5 class="text-[#000] text-[18px] font-medium">Served Daily <br/>legal interactions on the platform</h5>
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">1000's </h3>
+                        <h5 class="text-[#000] text-[15px] font-medium">Served Daily <br/>legal interactions on the platform</h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-8">
-                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">Zero </h3>
-                        <h5 class="text-[#000] text-[18px] font-medium"> Waiting Lines </h5>
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">Zero </h3>
+                        <h5 class="text-[#000] text-[15px] font-medium"> Waiting Lines </h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-8">
-                        <h3 class="font-cinzel text-[54px] font-bold text-[#B9A572]">100% </h3>
-                        <h5 class="text-[#000] text-[18px] font-medium">Digital workflow</h5>
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">100% </h3>
+                        <h5 class="text-[#000] text-[15px] font-medium">Digital workflow</h5>
                     </div>
                 </div>
             </div>
