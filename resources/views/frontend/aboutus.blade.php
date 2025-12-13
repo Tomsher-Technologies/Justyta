@@ -5,13 +5,13 @@
 
 
 
-        <section class="py-[40px] md:py-[80px] px-5 md:px-5 lg:px-5 xl:px-0">
+        <section class="py-[30px] md:py-[80px] px-5 md:px-5 lg:px-5 xl:px-0">
          <div class="container m-auto">
                  <div class="flex justify-between flex-col xl:flex-row gap-[50px]">
             <img src="images/about-Image.png" alt="">
             <div>
                <h4 class="text-[24px] font-medium text-[#07683B]">About Us</h4>
-               <h3 class="text-[40px] font-cinzel font-bold leading-[55px] mb-5 text-[#034833]">A New Standard for Legal Access in the UAE </h3>
+               <h3 class="text-[26px] leading-[35px] md:text-[40px] font-cinzel font-bold md:leading-[55px] mb-5 text-[#034833]">A New Standard for Legal Access in the UAE </h3>
                <h4 class="text-[30px] font-cinzel font-bold leading-[55px] mb-5 text-[#034833]">Who We Are </h4>
                <p class="text-[16px] font-medium">We are a UAE-based legal-tech company committed to transforming how individuals and businesses interact with the legal system. Our platform works in partnership with licensed certified legal service providers, certified translators, and industry experts to ensure accuracy, compliance, and trust at every step.
 <br/><br/>

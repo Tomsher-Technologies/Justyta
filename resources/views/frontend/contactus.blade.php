@@ -2,11 +2,11 @@
 
 @section('content') 
 
-      <section class="py-[40px] md:py-[0px] px-5 md:px-5 lg:px-5">
+      <section class="py-[40px] my-14">
 
-         <div class="container m-auto">
+         <div class="container m-auto px-5">
                      <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">Get in Touch</h4>
-       <div class="grid grid-cols-2 gap-8">
+       <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
         <div>
 
             <form>
@@ -34,7 +34,7 @@
             </form>
         </div>
 
-         <div class="space-y-8">
+         <div class="space-y-8 mb-8 xl:mb-0">
       <div class="border rounded-lg p-6 border-gray-300">
         <h3 class="mb-2 text-[30px] text-[#034833] font-cinzel">Contact Info</h3>
         <p class="text-gray-600">You can reach us anytime via the following ways:</p>
