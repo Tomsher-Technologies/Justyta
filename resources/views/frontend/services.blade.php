@@ -3,9 +3,9 @@
 
 @section('content') 
 
-      <section class="py-[40px] md:py-[0px] px-5 md:px-5 lg:px-5">
+      <section class="py-[40px] md:py-[0px] px-5 md:px-5 lg:px-5 mb-12">
 
-         <div class="container m-auto">
+         <div class="container m-auto mt-8">
                      <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">Our Services</h4>
    <div class="grid grid-cols-1 xl:grid-cols-5 gap-3">
             <div class="bg-white p-8  rounded-lg border border-gray-300">
