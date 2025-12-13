@@ -2,7 +2,7 @@
 
 @section('content') 
 
-<section class="py-[40px] md:py-[0px] px-5 md:px-5 lg:px-5 my-14  relative overflow-hidden min-h-svh">
+<section class="py-[40px] px-5 md:px-5 lg:px-5 my-14 relative overflow-hidden flex-grow">
 
          <div class="container m-auto">
                      <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">latest news</h4>

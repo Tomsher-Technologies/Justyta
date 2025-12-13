@@ -1,4 +1,4 @@
- <footer class="bg-[#4D1717] px-4 xl:px-[100px] py-[40px] xl:py-[80px] text-white">
+ <footer class="bg-[#4D1717] px-4 xl:px-[100px] py-[40px] xl:py-[80px] text-white" id="footer">
         <div class="grid grid-cols-2 xl:grid-cols-4 gap-y-10 xl:gap-y-[unset]">
             <div class="col-span-2 xl:col-span-1">
                 <h3 class="font-cinzel font-bold text-[20px] mb-5">About Us</h3>
