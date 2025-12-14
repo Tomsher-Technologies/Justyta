@@ -171,6 +171,17 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 
     // Manage pages
     Route::resource('pages', PageController::class);
+    
+    // Manage page sections
+    Route::prefix('pages/{page}')->group(function () {
+        Route::get('/sections', [PageController::class, 'sections'])->name('pages.sections.index');
+        Route::get('/sections/create', [PageController::class, 'createSection'])->name('pages.sections.create');
+        Route::post('/sections', [PageController::class, 'storeSection'])->name('pages.sections.store');
+        Route::get('/sections/{section}/edit', [PageController::class, 'editSection'])->name('pages.sections.edit');
+        Route::put('/sections/{section}', [PageController::class, 'updateSection'])->name('pages.sections.update');
+        Route::delete('/sections/{section}', [PageController::class, 'destroySection'])->name('pages.sections.destroy');
+    });
+    Route::post('/page-sections/update-status', [PageController::class, 'updateSectionStatus'])->name('page-sections.update-status');
 
     //Manage news
     Route::resource('news', NewsController::class);

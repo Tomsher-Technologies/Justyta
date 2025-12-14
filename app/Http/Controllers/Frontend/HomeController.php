@@ -16,14 +16,41 @@ use App\Services\ZoomService;
 class HomeController extends Controller
 {
     public function home(){
-        return view('frontend.index');
+        $lang = app()->getLocale() ?? 'en';
+        
+        $page = \App\Models\Page::with(['sections' => function($q) {
+            $q->where('status', 1)->orderBy('order');
+        }, 'sections.translations'])
+        ->where('slug', 'home')
+        ->first();
+        
+        $news = \App\Models\News::with('translations')
+            ->where('status', 1)
+            ->orderBy('news_date', 'desc')
+            ->limit(6)
+            ->get();
+
+        $services = \App\Models\Service::with('translations')
+            ->where('status', 1)
+            ->orderBy('sort_order')
+            ->get();
+        
+        return view('frontend.index', compact('page', 'news', 'services', 'lang'));
     }
 
     public function about(){
         return view('frontend.about');
     }
     public function aboutUs(){
-        return view('frontend.aboutus');
+        $lang = app()->getLocale() ?? 'en';
+        
+        $page = \App\Models\Page::with(['sections' => function($q) {
+            $q->where('status', 1)->orderBy('order');
+        }, 'sections.translations'])
+        ->where('slug', 'about-us')
+        ->first();
+        
+        return view('frontend.aboutus', compact('page', 'lang'));
     }
     public function contactUs(){
         return view('frontend.contactus');
@@ -32,7 +59,14 @@ class HomeController extends Controller
         return view('frontend.services');
     }
     public function news(){
-        return view('frontend.news');
+        $lang = app()->getLocale() ?? 'en';
+        
+        $news = \App\Models\News::with('translations')
+            ->where('status', 1)
+            ->orderBy('news_date', 'desc')
+            ->paginate(9);
+            
+        return view('frontend.news', compact('news', 'lang'));
     }
 
     public function refundPolicy(){

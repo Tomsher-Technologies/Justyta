@@ -1,0 +1,61 @@
+    <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 py-[80px]">
+        <div class="grid grid-cols-1 xl:grid-cols-2 w-[100%] xl:w-[80%] m-auto items-center gap-6">
+            <img src="{{ asset('assets/images/about-Image.png') }}" alt="">
+            <div>
+                <h4 class="text-[24px] font-medium mb-3">Law Firm Services</h4>
+                <h3 class="text-[28px] xl:text-[40px] font-cinzel font-bold leading-[32px] xl:leading-[55px] mb-5">Legal Services, Reimagined for Simplicity</h3>
+                <p class="text-[16px] font-medium">Justyta makes complex legal procedures fast, transparent, and effortless. Our platform covers the full spectrum of legal needs.</p>
+                <br>
+                <p class="text-[16px] font-medium">Justyta, Designed for speed, Built for accuracy, Powered by trust. That’s How Justice Simplified. </p>
+                <ul class="mt-6 grid grid-cols-2 gap-3 mb-8">
+                    <li class="flex items-center gap-3">
+                        <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd"
+                                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span>Court & Public Prosecution Requests</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd"
+                                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span>Legal Consultations</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd"
+                                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span>Legal Translation</span>
+                    </li>
+                    <li class="flex items-center gap-3">
+                        <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                            width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd"
+                                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        <span>Training Programs & Job Listings</span>
+                    </li>
+                </ul>
+                <button
+                    class="flex items-center justify-between px-6 pe-4 py-3 bg-[#07683B] text-white rounded-full shadow-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
+                    <span class="xl:text-lg text-base font-medium mr-4"><a href="/services">Explore Service</a></span>
+                    <div class="flex items-center justify-center w-10 h-10 bg-white text-green-700 rounded-full">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                        </svg>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </section>

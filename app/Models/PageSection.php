@@ -4,18 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Page extends Model
+class PageSection extends Model
 {
-    protected $fillable = ['name', 'slug','content'];
+    protected $fillable = ['page_id', 'section_type', 'section_key', 'image', 'order', 'status'];
+
+    public function page()
+    {
+        return $this->belongsTo(Page::class);
+    }
 
     public function translations()
     {
-        return $this->hasMany(PageTranslation::class);
-    }
-
-    public function sections()
-    {
-        return $this->hasMany(PageSection::class)->orderBy('order', 'asc');
+        return $this->hasMany(PageSectionTranslation::class);
     }
 
     public function translation($lang)
@@ -34,5 +34,14 @@ class Page extends Model
 
         return $translations != null ? $translations->$field : $this->$field;
     }
-}
 
+    public function scopeActive($query)
+    {
+        return $query->where('status', 1);
+    }
+
+    public function scopeOrdered($query)
+    {
+        return $query->orderBy('order', 'asc');
+    }
+}
