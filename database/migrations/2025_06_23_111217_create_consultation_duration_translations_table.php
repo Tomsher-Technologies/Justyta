@@ -11,23 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('consultation_duration_translations', function (Blueprint $table) {
-            $table->engine('InnoDB');
-            $table->charset = 'utf8mb4';
-            $table->collation = 'utf8mb4_unicode_ci';
-            $table->id();
-            $table->unsignedBigInteger('consultation_duration_id');
-            $table->string('lang', 5);
-            $table->string('name');
-            $table->timestamps();
+        if (!Schema::hasTable('consultation_duration_translations')) {
+            Schema::create('consultation_duration_translations', function (Blueprint $table) {
+                $table->engine('InnoDB');
+                $table->charset = 'utf8mb4';
+                $table->collation = 'utf8mb4_unicode_ci';
+                $table->id();
+                $table->unsignedBigInteger('consultation_duration_id');
+                $table->string('lang', 5);
+                $table->string('name');
+                $table->timestamps();
 
-            // Shorter unique constraint name
-            $table->unique(['consultation_duration_id', 'lang'], 'uniq_cd_trans_duration_lang');
+                // Shorter unique constraint name
+                $table->unique(['consultation_duration_id', 'lang'], 'uniq_cd_trans_duration_lang');
 
-            $table->foreign('consultation_duration_id', 'fk_cd_trans_duration_id')
-                ->references('id')->on('consultation_durations')
-                ->onDelete('cascade');
-        });
+                $table->foreign('consultation_duration_id', 'fk_cd_trans_duration_id')
+                    ->references('id')->on('consultation_durations')
+                    ->onDelete('cascade');
+            });
+        }
     }
 
     /**

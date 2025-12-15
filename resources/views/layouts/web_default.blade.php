@@ -4,28 +4,31 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow">
     <title>{{ $title ?? env('APP_NAME') }}</title>
     <link rel="icon" href="{{ asset('assets/img/favicon.ico') }}">
-   
+
     <link rel="stylesheet" href="{{ asset('assets/css/web/custom.css') }}">
-    
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <link rel="stylesheet" href="{{ asset('assets/css/select2.min.css') }}">
     <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
-    
+
     <style>
         /* Target the Select2 control box */
         .select2-container--default .select2-selection--single {
             background-color: #F9F9F9 !important;
-            border: 1px solid #D1D5DB !important; /* border-gray-300 */
+            border: 1px solid #D1D5DB !important;
+            /* border-gray-300 */
             border-radius: 10px !important;
-            padding: 0.875rem 1rem !important;     /* matches p-3.5 */
+            padding: 0.875rem 1rem !important;
+            /* matches p-3.5 */
             height: auto !important;
-            min-height: 48px !important;           /* consistent with Tailwind input height */
+            min-height: 48px !important;
+            /* consistent with Tailwind input height */
             display: flex !important;
             align-items: center !important;
         }
@@ -40,15 +43,19 @@
 
         /* Style the selected text */
         .select2-container--default .select2-selection--single .select2-selection__rendered {
-            color: #1F2937 !important; /* text-gray-900 */
-            font-size: 0.875rem !important; /* text-sm */
+            color: #1F2937 !important;
+            /* text-gray-900 */
+            font-size: 0.875rem !important;
+            /* text-sm */
             line-height: 1.5 !important;
             padding: 0 !important;
-        }       
+        }
+
         .select2-container--default .select2-selection--single .select2-selection__placeholder {
             color: #000;
         }
-        .select2-container{
+
+        .select2-container {
             /* width: 100% !important; */
         }
     </style>
@@ -63,7 +70,7 @@
         <main class="flex-1 p-4 xl:p-6 xl:pe-0 pt-0 h-full ">
             <!-- Header -->
             @include('frontend.user.common.header')
-            
+
             @yield('content')
         </main>
     </div>
@@ -78,7 +85,6 @@
     <script src="{{ asset('assets/js/select2.full.min.js') }}"></script>
 
     <script>
-
         $('.select2').select2({
             width: '100%',
             placeholder: "{{ __('frontend.choose_option') }}"
@@ -97,25 +103,25 @@
                 hideMethod: "fadeOut"
             };
 
-            @if (session('success'))
-                toastr.success("{{ session('success') }}");
+            @if(session('success'))
+            toastr.success("{{ session('success') }}");
             @endif
 
-            @if (session('error'))
-                toastr.error("{{ session('error') }}");
+            @if(session('error'))
+            toastr.error("{{ session('error') }}");
             @endif
 
-            @if (session('info'))
-                toastr.info("{{ session('info') }}");
+            @if(session('info'))
+            toastr.info("{{ session('info') }}");
             @endif
 
-            @if (session('warning'))
-                toastr.warning("{{ session('warning') }}");
+            @if(session('warning'))
+            toastr.warning("{{ session('warning') }}");
             @endif
         });
 
-        $(document).ready(function () {
-            $('#search-navbar').on('input', function () {
+        $(document).ready(function() {
+            $('#search-navbar').on('input', function() {
                 let query = $(this).val();
                 if (query.length < 2) {
                     $('#search-suggestions').hide();
@@ -125,18 +131,20 @@
                 $.ajax({
                     url: "{{ route('user.search.services') }}",
                     method: 'GET',
-                    data: { q: query },
-                    success: function (response) {
+                    data: {
+                        q: query
+                    },
+                    success: function(response) {
                         let suggestions = $('#search-suggestions');
                         suggestions.empty();
 
                         if (response.length > 0) {
                             response.forEach(service => {
-                               
+
                                 let url = `/user/service-request/${service.slug}`;
 
                                 if (service.slug === 'online-live-consultancy') {
-                                    url = `/user/online-live-consultancy`;   // <-- your custom route here
+                                    url = `/user/online-live-consultancy`; // <-- your custom route here
                                 }
 
                                 suggestions.append(`
@@ -156,7 +164,7 @@
             });
 
             // Optional: hide suggestions when clicking outside
-            $(document).click(function (e) {
+            $(document).click(function(e) {
                 if (!$(e.target).closest('#search-navbar, #search-suggestions').length) {
                     $('#search-suggestions').hide();
                 }
@@ -165,6 +173,17 @@
     </script>
 
     @yield('script')
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const serverLang = "{{ app()->getLocale() }}";
+            const localLang = localStorage.getItem('lang');
+
+            if (localLang && localLang !== serverLang) {
+                window.location.href = "{{ url('/lang') }}/" + localLang;
+            }
+        });
+    </script>
 </body>
 
 </html>
