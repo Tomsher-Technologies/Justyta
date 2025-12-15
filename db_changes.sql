@@ -126,3 +126,9 @@ ALTER TABLE `consultations` ADD FOREIGN KEY (`case_type`) REFERENCES `case_types
 
 ALTER TABLE page_section_translations 
 ADD COLUMN content LONGTEXT NULL AFTER button_link;
+
+INSERT INTO `pages` (`name`, `slug`, `content`) VALUES
+('Services Page', 'services-page', NULL);
+
+INSERT INTO `pages` (`name`, `slug`, `content`) VALUES
+('Contact us Page', 'contact_page', NULL);

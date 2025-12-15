@@ -6,12 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\Consultation;
-use App\Models\ConsultationAssignment;
-use App\Models\ConsultationDuration;
-use App\Models\ConsultationPayment;
-use App\Models\Lawyer;
-use Illuminate\Support\Facades\Http;
-use App\Services\ZoomService;
 
 class HomeController extends Controller
 {
@@ -50,18 +44,35 @@ class HomeController extends Controller
         $page = \App\Models\Page::with(['sections' => function ($q) {
             $q->where('status', 1)->orderBy('order');
         }, 'sections.translations'])
-            ->where('slug', 'about-us')
+            ->where('slug', 'about_us')
             ->first();
 
         return view('frontend.aboutus', compact('page', 'lang'));
     }
     public function contactUs()
     {
-        return view('frontend.contactus');
+
+        $page = \App\Models\Page::with(['sections' => function ($q) {
+            $q->where('status', 1)->orderBy('order');
+        }, 'sections.translations'])
+            ->where('slug', 'contact_page')
+            ->first();
+
+        $lang = app()->getLocale() ?? 'en';
+
+
+        return view('frontend.contactus', compact('page', 'lang'));
     }
     public function services()
     {
-        return view('frontend.services');
+        $lang = app()->getLocale() ?? 'en';
+        $page = \App\Models\Page::with(['sections' => function ($q) {
+            $q->where('status', 1)->orderBy('order');
+        }, 'sections.translations'])
+            ->where('slug', 'services_page')
+            ->first();
+
+        return view('frontend.services', compact('page', 'lang'));
     }
     public function news()
     {
@@ -72,7 +83,14 @@ class HomeController extends Controller
             ->orderBy('news_date', 'desc')
             ->paginate(9);
 
-        return view('frontend.news', compact('news', 'lang'));
+        $page = \App\Models\Page::with(['sections' => function ($q) {
+            $q->where('status', 1)->orderBy('order');
+        }, 'sections.translations'])
+            ->where('slug', 'news')
+            ->first();
+
+
+        return view('frontend.news', compact('news', 'lang', 'page'));
     }
 
     public function newsDetails($id)
@@ -180,5 +198,25 @@ class HomeController extends Controller
         return response()->json([
             'status' => $consultation->status, // e.g., 'completed', 'ongoing'
         ]);
+    }
+    public function contactSubmit(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'mobile' => 'required|string|max:20',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        \App\Models\Contacts::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->mobile,
+            'subject' => $request->subject,
+            'message' => $request->message,
+        ]);
+
+        return redirect()->back()->with('success', __('Your message has been sent successfully.'));
     }
 }

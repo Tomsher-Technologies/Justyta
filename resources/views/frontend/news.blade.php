@@ -1,69 +1,38 @@
 @extends('layouts.web_login', ['title' => 'Services'])
 
-@section('content') 
+@section('content')
 
 <section class="py-[40px] px-5 md:px-5 lg:px-5 my-14 relative overflow-hidden flex-grow">
 
-         <div class="container m-auto">
-                     <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">latest news</h4>
-         <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-            <div>
-               <img src="images/blog-img1.jpg" class="mb-3" alt="">
-                 <span>May 25, 2025</span>
-               <h3 class="my-1 text-[#121C27] font-medium text-[20px]">What to Ask a Personal Injury Lawyer</h3>
-               <p class="text-[#4B535D] text-[16px]">This can help you make informed decisions and protect yourself from potential legal issues</p>
-            </div>
-            <div>
-               <img src="images/blog-img2.jpg" class="mb-3" alt="">
-                 <span>May 25, 2025</span>
-               <h3 class="my-1 text-[#121C27] font-medium text-[20px]">What to Ask a Personal Injury Lawyer</h3>
-               <p class="text-[#4B535D] text-[16px]">This can help you make informed decisions and protect yourself from potential legal issues</p>
-            </div>
-            <div>
-               <img src="images/blog-img3.jpg" class="mb-3" alt="">
-                 <span>May 25, 2025</span>
-               <h3 class="my-1 text-[#121C27] font-medium text-[20px]">What to Ask a Personal Injury Lawyer</h3>
-               <p class="text-[#4B535D] text-[16px]">This can help you make informed decisions and protect yourself from potential legal issues</p>
-            </div>
-            <div>
-               <img src="images/blog-img4.jpg" class="mb-3" alt="">
-                 <span>May 25, 2025</span>
-               <h3 class="my-1 text-[#121C27] font-medium text-[20px]">What to Ask a Personal Injury Lawyer</h3>
-               <p class="text-[#4B535D] text-[16px]">This can help you make informed decisions and protect yourself from potential legal issues</p>
-            </div>
-
-             <div>
-               <img src="images/blog-img1.jpg" class="mb-3" alt="">
-                 <span>May 25, 2025</span>
-               <h3 class="my-1 text-[#121C27] font-medium text-[20px]">What to Ask a Personal Injury Lawyer</h3>
-               <p class="text-[#4B535D] text-[16px]">This can help you make informed decisions and protect yourself from potential legal issues</p>
-            </div>
-            <div>
-               <img src="images/blog-img2.jpg" class="mb-3" alt="">
-                 <span>May 25, 2025</span>
-               <h3 class="my-1 text-[#121C27] font-medium text-[20px]">What to Ask a Personal Injury Lawyer</h3>
-               <p class="text-[#4B535D] text-[16px]">This can help you make informed decisions and protect yourself from potential legal issues</p>
-            </div>
-            <div>
-               <img src="images/blog-img3.jpg" class="mb-3" alt="">
-                 <span>May 25, 2025</span>
-               <h3 class="my-1 text-[#121C27] font-medium text-[20px]">What to Ask a Personal Injury Lawyer</h3>
-               <p class="text-[#4B535D] text-[16px]">This can help you make informed decisions and protect yourself from potential legal issues</p>
-            </div>
-            <div>
-               <img src="images/blog-img4.jpg" class="mb-3" alt="">
-                 <span>May 25, 2025</span>
-               <h3 class="my-1 text-[#121C27] font-medium text-[20px]">What to Ask a Personal Injury Lawyer</h3>
-               <p class="text-[#4B535D] text-[16px]">This can help you make informed decisions and protect yourself from potential legal issues</p>
-            </div>
-
-            
+   @php
+   $pageData = $page->sections->first();
+   @endphp
+   <div class="container m-auto">
+      <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">{{ $pageData?->getTranslation('title', $lang) }}</h4>
+      <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+         @foreach($news as $item)
+         @php
+         $translation = $item->translate($lang);
+         @endphp
+         <div>
+            <a href="{{ route('news.details', $item->id) }}">
+               <img src="{{ asset($item->image) }}" class="mb-3 w-full h-[200px] object-cover" alt="{{ $translation->title ?? '' }}">
+               <span>{{ date('M d, Y', strtotime($item->news_date)) }}</span>
+               <h3 class="my-1 text-[#121C27] font-medium text-[20px] line-clamp-2">{{ $translation->title ?? '' }}</h3>
+               <p class="text-[#4B535D] text-[16px] line-clamp-3">{{ Str::limit(strip_tags($translation->description ?? ''), 100) }}</p>
+            </a>
          </div>
-         </div>
+         @endforeach
+      </div>
+
+      <div class="mt-8 flex justify-center">
+         {{ $news->links() }}
+      </div>
+   </div>
 
 
 
 
-      </section>
-      
-      @endsection
+</section>
+
+@endsection

@@ -15,6 +15,7 @@ require __DIR__ . '/admin.php';
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/aboutus', [HomeController::class, 'aboutUs'])->name('aboutus');
 Route::get('/contactus', [HomeController::class, 'contactUs'])->name('contactus');
+Route::post('/contact-submit', [HomeController::class, 'contactSubmit'])->name('contact.submit');
 Route::get('/services', [HomeController::class, 'services'])->name('services');
 Route::get('/news', [HomeController::class, 'news'])->name('news');
 Route::get('/news/{id}', [HomeController::class, 'newsDetails'])->name('news.details');
