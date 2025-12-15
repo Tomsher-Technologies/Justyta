@@ -121,3 +121,8 @@ INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is
 (182, 181, 'view_consultation_requests', 'View Consultation Requests', 'web', 1, NULL, NULL),
 (181, NULL, 'manage_consultation_requests', 'Manage Consultation Requests', 'web', 1, NULL, NULL);
 ALTER TABLE `consultations` ADD FOREIGN KEY (`case_type`) REFERENCES `case_types`(`id`) ON DELETE SET NULL ON UPDATE SET NULL;
+
+
+
+ALTER TABLE page_section_translations 
+ADD COLUMN content LONGTEXT NULL AFTER button_link;

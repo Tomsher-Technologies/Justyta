@@ -25,14 +25,14 @@ class PageController extends Controller
         $languages = Language::where('status', 1)->get();
         $translations = $page->translations->keyBy('lang');
         $services = Service::where('status', 1)->orderBy('sort_order')->get();
-        return view('admin.pages.edit', compact('page', 'languages', 'translations','services'));
+        return view('admin.pages.edit', compact('page', 'languages', 'translations', 'services'));
     }
 
     public function update(Request $request, Page $page)
     {
         $page->update($request->only('name', 'slug'));
 
-        if($request->has('translations')) {
+        if ($request->has('translations')) {
             foreach ($request->translations as $lang => $data) {
                 $page->translations()->updateOrCreate(
                     ['lang' => $lang],
@@ -45,17 +45,17 @@ class PageController extends Controller
             }
         }
 
-        if($page->slug === 'user_app_home') {
-            if($request->has('service_id')) {
+        if ($page->slug === 'user_app_home') {
+            if ($request->has('service_id')) {
                 $page->content = json_encode($request->service_id);
                 $page->save();
-            }else{
+            } else {
                 $page->content = json_encode([]);
                 $page->save();
             }
         }
-        
-        
+
+
         session()->flash('success', 'Page content updated successfully.');
         return redirect()->route('pages.index');
     }
@@ -84,7 +84,7 @@ class PageController extends Controller
             'order' => 'required|integer',
             'translations.en.title' => 'required|string|max:255',
             'translations.en.description' => 'nullable|string',
-        ],[
+        ], [
             'translations.en.title.required' => 'The english title field is required.',
             'translations.en.title.max' => 'The english title may not be greater than 255 characters.',
             'section_key.unique' => 'This section key already exists.',
@@ -108,6 +108,7 @@ class PageController extends Controller
                 'description' => $trans['description'] ?? null,
                 'button_text' => $trans['button_text'] ?? null,
                 'button_link' => $trans['button_link'] ?? null,
+                'content' => $trans['content'] ?? null, // Add content field
             ]);
         }
 
@@ -131,7 +132,7 @@ class PageController extends Controller
             'order' => 'required|integer',
             'translations.en.title' => 'required|string|max:255',
             'translations.en.description' => 'nullable|string',
-        ],[
+        ], [
             'translations.en.title.required' => 'The english title field is required.',
             'translations.en.title.max' => 'The english title may not be greater than 255 characters.',
         ]);
@@ -159,6 +160,7 @@ class PageController extends Controller
                     'description' => $trans['description'] ?? null,
                     'button_text' => $trans['button_text'] ?? null,
                     'button_link' => $trans['button_link'] ?? null,
+                    'content' => $trans['content'] ?? null, // Add content field
                 ]
             );
         }
@@ -185,8 +187,7 @@ class PageController extends Controller
         $section = PageSection::findOrFail($request->id);
         $section->status = $request->status;
         $section->save();
-        
+
         return 1;
     }
-
 }

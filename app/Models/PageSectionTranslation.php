@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class PageSectionTranslation extends Model
 {
     public $timestamps = false;
-    protected $fillable = ['page_section_id', 'lang', 'title', 'subtitle', 'description', 'button_text', 'button_link'];
+    protected $fillable = ['page_section_id', 'lang', 'title', 'subtitle', 'description', 'button_text', 'button_link', 'content'];
+
+    protected $casts = [
+        'content' => 'array',
+    ];
 
     public function pageSection()
     {

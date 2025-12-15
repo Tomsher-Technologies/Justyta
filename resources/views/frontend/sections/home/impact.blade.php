@@ -4,16 +4,25 @@
                 <h4 class="text-[24px] font-medium mb-3"> {!! $section->getTranslation('subtitle', $lang) !!}</h4>
                 <h3 class="text-[20px] xl:text-[40px] font-cinzel font-bold leading-[25px] xl:leading-[55px] mb-5">
                     {!! $section->getTranslation('title', $lang) !!}</h3>
-                <p class="text-[16px] font-medium">If Procedures moves slow. You don’t have to.</p>
+                <p class="text-[16px] font-medium"> {!! $section->getTranslation('description', $lang) !!}</p>
                 <br>
-                <!--<p class="text-[16px] font-medium">At Lawpoint, we are committed to upholding justice and protecting-->
-                <!--    your rights. With a strong foundation in legal research, advocacy, and client-focused solutions, we-->
-                <!--    provide expert legal services tailored to your needs. </p>-->
+
+                @php
+                $items = $section->getTranslation('content', $lang);
+                @endphp
+
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-12 mt-8 xl:w-max">
-                    {!! $section->getTranslation('description', $lang) !!}
+                    @if(!empty($items) && is_array($items) && count($items) > 0)
+                    @foreach($items as $item)
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]"> {!! $item['title'] !!}</h3>
+                        <h5 class="text-[#000] text-[15px] font-medium"> {!! $item['description'] !!}</h5>
+                    </div>
+                    @endforeach
+                    @endif
                 </div>
             </div>
         </div>
-        <img src="{{ asset('assets/images/law-img.png') }}" class="absolute end-0 hidden xl:block bottom-0  h-auto"
+        <img src="{{ asset($section->image) }}" class="absolute end-0 hidden xl:block bottom-0  h-auto"
             alt="">
     </section>

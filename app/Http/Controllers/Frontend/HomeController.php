@@ -15,15 +15,16 @@ use App\Services\ZoomService;
 
 class HomeController extends Controller
 {
-    public function home(){
+    public function home()
+    {
         $lang = app()->getLocale() ?? 'en';
-        
-        $page = \App\Models\Page::with(['sections' => function($q) {
+
+        $page = \App\Models\Page::with(['sections' => function ($q) {
             $q->where('status', 1)->orderBy('order');
         }, 'sections.translations'])
-        ->where('slug', 'home')
-        ->first();
-        
+            ->where('slug', 'home')
+            ->first();
+
         $news = \App\Models\News::with('translations')
             ->where('status', 1)
             ->orderBy('news_date', 'desc')
@@ -34,60 +35,77 @@ class HomeController extends Controller
             ->where('status', 1)
             ->orderBy('sort_order')
             ->get();
-        
+
         return view('frontend.index', compact('page', 'news', 'services', 'lang'));
     }
 
-    public function about(){
+    public function about()
+    {
         return view('frontend.about');
     }
-    public function aboutUs(){
+    public function aboutUs()
+    {
         $lang = app()->getLocale() ?? 'en';
-        
-        $page = \App\Models\Page::with(['sections' => function($q) {
+
+        $page = \App\Models\Page::with(['sections' => function ($q) {
             $q->where('status', 1)->orderBy('order');
         }, 'sections.translations'])
-        ->where('slug', 'about-us')
-        ->first();
-        
+            ->where('slug', 'about-us')
+            ->first();
+
         return view('frontend.aboutus', compact('page', 'lang'));
     }
-    public function contactUs(){
+    public function contactUs()
+    {
         return view('frontend.contactus');
     }
-    public function services(){
+    public function services()
+    {
         return view('frontend.services');
     }
-    public function news(){
+    public function news()
+    {
         $lang = app()->getLocale() ?? 'en';
-        
+
         $news = \App\Models\News::with('translations')
             ->where('status', 1)
             ->orderBy('news_date', 'desc')
             ->paginate(9);
-            
+
         return view('frontend.news', compact('news', 'lang'));
     }
 
-    public function refundPolicy(){
+    public function newsDetails($id)
+    {
+        $lang = app()->getLocale() ?? 'en';
+        $news = \App\Models\News::with('translations')->findOrFail($id);
+
+        return view('frontend.news-details', compact('news', 'lang'));
+    }
+
+    public function refundPolicy()
+    {
         return view('frontend.refund-policy');
     }
 
-    public function privacyPolicy(){
+    public function privacyPolicy()
+    {
         return view('frontend.privacy-policy');
     }
-    public function termsConditions(){
+    public function termsConditions()
+    {
         return view('frontend.terms-conditions');
     }
-    public function userDashboard(){
-        $lang = app()->getLocale() ?? env('APP_LOCALE','en'); 
+    public function userDashboard()
+    {
+        $lang = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $services = Service::with(['translations' => function ($query) use ($lang) {
-                            $query->where('lang', $lang);
-                        }])
-                        ->whereNotIn('slug',['law-firm-services'])
-                        ->where('status', 1)
-                        ->orderBy('sort_order', 'ASC')
-                        ->get();
+            $query->where('lang', $lang);
+        }])
+            ->whereNotIn('slug', ['law-firm-services'])
+            ->where('status', 1)
+            ->orderBy('sort_order', 'ASC')
+            ->get();
 
         return view('frontend.user.dashboard', compact('services'));
     }
@@ -95,33 +113,33 @@ class HomeController extends Controller
     public function checkUserConsultationStatus(Request $request)
     {
         $user = auth()->guard('frontend')->user();
-        $consultation = Consultation::where('id',$request->consultation_id)
-                            ->where('user_id',$user->id)
-                            ->first();
+        $consultation = Consultation::where('id', $request->consultation_id)
+            ->where('user_id', $user->id)
+            ->first();
 
-        if($consultation && $consultation->status == 'accepted') {
+        if ($consultation && $consultation->status == 'accepted') {
             $signature = generateZoomSignature($consultation->zoom_meeting_id, $user->id, 0);
 
             return response()->json([
-                'status'=>true,
-                'data'=>[
-                    'consultation_id'=>$consultation->id,
-                    'meeting_number'=>$consultation->zoom_meeting_id,
-                    'role'=> 0,
-                    'sdk_key'=>config('services.zoom.sdk_key'),
-                    'signature'=>$signature,
-                    'duration'=>$consultation->duration ?? 0
+                'status' => true,
+                'data' => [
+                    'consultation_id' => $consultation->id,
+                    'meeting_number' => $consultation->zoom_meeting_id,
+                    'role' => 0,
+                    'sdk_key' => config('services.zoom.sdk_key'),
+                    'signature' => $signature,
+                    'duration' => $consultation->duration ?? 0
                 ]
             ]);
         } else {
-            return response()->json(['status'=>false,'message'=>'No active consultation', 'data' => $consultation->status],200);
+            return response()->json(['status' => false, 'message' => 'No active consultation', 'data' => $consultation->status], 200);
         }
     }
 
     public function consultationCancel(Request $request)
     {
-        $lang = app()->getLocale() ?? env('APP_LOCALE','en');
-        $data = getPageDynamicContent('consultancy_request_failed',$lang);
+        $lang = app()->getLocale() ?? env('APP_LOCALE', 'en');
+        $data = getPageDynamicContent('consultancy_request_failed', $lang);
         return view('frontend.user.consultation-cancel', compact('data'));
     }
 
@@ -132,7 +150,7 @@ class HomeController extends Controller
         $consult->status = 'in_progress';
 
         if (!$consult->meeting_start_time) {
-            $start_time = $request->start_time / 1000; 
+            $start_time = $request->start_time / 1000;
             $consult->meeting_start_time = date('Y-m-d H:i:s');
         }
         $consult->save();
@@ -163,6 +181,4 @@ class HomeController extends Controller
             'status' => $consultation->status, // e.g., 'completed', 'ongoing'
         ]);
     }
-
-
 }
