@@ -585,7 +585,7 @@
                 residence_visa: {
                     required: false, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 102400
+                    filesize: 104857600
                 },
                 residence_visa_expiry: {
                     required: true, 
@@ -602,12 +602,12 @@
                 emirate_id_front: {
                     required: false, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 102400
+                    filesize: 104857600
                 }, 
                 emirate_id_back:  {
                     required: false, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 102400
+                    filesize: 104857600
                 },
                 emirates_id_expiry: {
                     required: true, 
@@ -616,7 +616,7 @@
                 passport: {
                     required: false, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 102400
+                    filesize: 104857600
                 },
                 passport_expiry: {
                     required: true, 
@@ -625,7 +625,7 @@
                 bar_card: {
                     required: false, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 102400
+                    filesize: 104857600
                 },
                 bar_card_expiry: {
                     required: true, 
@@ -634,7 +634,7 @@
                 practicing_lawyer_card: {
                     required: false, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 102400
+                    filesize: 104857600
                 },
                 ministry_of_justice_card_expiry: {
                     required: true, 
