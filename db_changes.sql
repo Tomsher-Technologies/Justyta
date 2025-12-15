@@ -124,8 +124,49 @@ ALTER TABLE `consultations` ADD FOREIGN KEY (`case_type`) REFERENCES `case_types
 
 
 
-ALTER TABLE page_section_translations 
-ADD COLUMN content LONGTEXT NULL AFTER button_link;
+
+
+-- Shamil Queries
+
+CREATE TABLE `page_sections` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `page_id` BIGINT UNSIGNED NOT NULL,
+  `section_type` VARCHAR(255) NOT NULL COMMENT 'hero, features, services, testimonial, cta, custom, news',
+  `section_key` VARCHAR(255) NOT NULL,
+  `image` VARCHAR(255) DEFAULT NULL,
+  `order` INT NOT NULL DEFAULT 0,
+  `status` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `page_sections_section_key_unique` (`section_key`),
+  KEY `page_sections_page_id_index` (`page_id`),
+  CONSTRAINT `page_sections_page_id_foreign`
+    FOREIGN KEY (`page_id`) REFERENCES `pages` (`id`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE `page_section_translations` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `page_section_id` BIGINT UNSIGNED NOT NULL,
+  `lang` VARCHAR(10) NOT NULL,
+  `title` VARCHAR(255) DEFAULT NULL,
+  `subtitle` VARCHAR(255) DEFAULT NULL,
+  `description` TEXT DEFAULT NULL,
+  `button_text` VARCHAR(255) DEFAULT NULL,
+  `button_link` VARCHAR(255) DEFAULT NULL,
+  `content` LONGTEXT DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `page_section_translations_page_section_id_index` (`page_section_id`),
+  CONSTRAINT `page_section_translations_page_section_id_foreign`
+    FOREIGN KEY (`page_section_id`) REFERENCES `page_sections` (`id`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `pages` (`name`, `slug`, `content`) VALUES
 ('Services Page', 'services-page', NULL);
