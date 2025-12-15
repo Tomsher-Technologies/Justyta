@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\WebsiteContentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\Auth\AuthController;
@@ -109,6 +110,8 @@ Route::prefix('vendor')->middleware(['auth.frontend', 'checkFrontendUserType:ven
     Route::get('/lawyer-details/{id}', [VendorHomeController::class, 'viewLawyer'])->name('vendor.view.lawyers');
 
     //Manage job posts
+
+
     Route::resource('jobs', VendorJobPostController::class);
     Route::post('/jobs/status', [VendorJobPostController::class, 'updateStatus'])->name('jobs.status');
     Route::get('/jobs/details/{id}', [VendorJobPostController::class, 'jobPostDetails'])->name('jobs.details');

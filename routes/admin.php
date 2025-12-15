@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\CaseTypeController;
 use App\Http\Controllers\Admin\RequestTypeController;
 use App\Http\Controllers\Admin\RequestTitleController;
 use App\Http\Controllers\Admin\ConsultationController;
+use App\Http\Controllers\Admin\WebsiteContentController;
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [LoginController::class, 'showLoginForm'])->name('admin.login');
@@ -56,7 +57,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::resource('staffs', StaffController::class);
     Route::get('/staffs/destroy/{id}', [StaffController::class, 'destroy'])->name('staffs.destroy');
     Route::post('/staff/status', [StaffController::class, 'updateStatus'])->name('staff.status');
-    
+
     // Manage roles & permissions
     Route::resource('roles', RoleController::class);
     Route::get('/roles/edit/{id}', [RoleController::class, 'edit'])->name('roles.edit');
@@ -171,7 +172,11 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 
     // Manage pages
     Route::resource('pages', PageController::class);
-    
+
+    // Website Contents
+    Route::get('/menu-appearance', [WebsiteContentController::class, 'menuAppearance'])->name('menu-appearance');
+    Route::post('/menu-appearance', [WebsiteContentController::class, 'updateMenuAppearance'])->name('menu-appearance.update');
+
     // Manage page sections
     Route::prefix('pages/{page}')->group(function () {
         Route::get('/sections', [PageController::class, 'sections'])->name('pages.sections.index');
@@ -189,12 +194,12 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 
     //Manage job posts
     Route::resource('job-posts', JobPostController::class);
-    Route::post('/job-posts/status', [JobPostController::class, 'updateStatus'])->name('job-posts.status');  
+    Route::post('/job-posts/status', [JobPostController::class, 'updateStatus'])->name('job-posts.status');
     Route::get('/job/applications/{id}', [JobPostController::class, 'applications'])->name('job-applications');
 
     //Manage faqs
     Route::resource('faqs', FaqController::class)->except(['show']);
-    Route::post('/faq/status', [FaqController::class, 'updateStatus'])->name('faqs.status');  
+    Route::post('/faq/status', [FaqController::class, 'updateStatus'])->name('faqs.status');
 
     // Manage lawyers
     Route::resource('lawyers', LawyerController::class);
@@ -204,7 +209,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::get('default', [TranslatorController::class, 'showDefaultForm'])->name('translators.default');
     Route::post('/assign', [TranslatorController::class, 'assign'])->name('translators.set-default');
     Route::get('/default-translators/history/{from_language_id}/{to_language_id}', [TranslatorController::class, 'historyForPair'])
-    ->name('default-translators.history');
+        ->name('default-translators.history');
     Route::get('/translator-pricing/{id}', [TranslatorController::class, 'indexPricing'])->name('translator-pricing');
     Route::get('/translator-pricing-create/{id}', [TranslatorController::class, 'createPricing'])->name('translator-pricing.create');
     Route::post('translator-pricing/store', [TranslatorController::class, 'storePricing'])->name('translator-pricing.store');
@@ -230,7 +235,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 
     //Training requests
     Route::get('/training-requests', [FeedbackController::class, 'trainingRequests'])->name('training-requests.index');
-   
+
     // User Feedbacks
     Route::get('/reported-problems', [FeedbackController::class, 'reportedProblems'])->name('user-reported-problems.feedback');
     Route::get('/user-reported-problems/export', [FeedbackController::class, 'exportUserReportProblems'])->name('user-reported-problems.export');
@@ -260,5 +265,3 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 Route::prefix('admin')->middleware(['auth', 'user_type:translator'])->group(function () {
     // Translator-specific routes
 });
-
-
