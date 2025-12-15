@@ -1,10 +1,10 @@
 <nav class="grid grid-cols-2 gap-5 grid-cols-[2fr_1fr] items-center justify-between mb-5">
     <!-- Mobile Menu Button -->
-<button id="openSidebar" class="xl:hidden py-3">
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="black" stroke-width="2">
-        <path d="M4 8h24M4 16h24M4 24h24"/>
-    </svg>
-</button>
+    <button id="openSidebar" class="xl:hidden py-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="black" stroke-width="2">
+            <path d="M4 8h24M4 16h24M4 24h24" />
+        </svg>
+    </button>
 
     <div class="relative hidden lg:block w-full">
         {{-- <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
@@ -27,7 +27,7 @@
     <div class="flex items-center justify-end gap-4">
         <button type="button"
             class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
-             <a href="{{ route('vendor.notifications.index') }}">
+            <a href="{{ route('vendor.notifications.index') }}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="33" viewBox="0 0 28 33" fill="none">
                     <path
                         d="M18.6965 25.8946V27.0701C18.6965 28.3171 18.2012 29.513 17.3194 30.3948C16.4376 31.2765 15.2417 31.7719 13.9947 31.7719C12.7477 31.7719 11.5517 31.2765 10.67 30.3948C9.7882 29.513 9.29283 28.3171 9.29283 27.0701V25.8946M26.6074 23.5018C24.7208 21.1927 23.3888 20.0173 23.3888 13.6514C23.3888 7.82183 20.412 5.74493 17.9619 4.73623C17.6364 4.60252 17.3301 4.29543 17.2309 3.96116C16.8011 2.49844 15.5963 1.20984 13.9947 1.20984C12.3931 1.20984 11.1875 2.49918 10.7622 3.96263C10.663 4.30058 10.3566 4.60252 10.0312 4.73623C7.57812 5.7464 4.60419 7.81595 4.60419 13.6514C4.60052 20.0173 3.26857 21.1927 1.38195 23.5018C0.600268 24.4583 1.28498 25.8946 2.65219 25.8946H25.3445C26.7044 25.8946 27.3847 24.4539 26.6074 23.5018Z"
@@ -50,13 +50,13 @@
             </svg>
         </button>
         <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-32">
-            <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownDefaultButton">
-                <li><a href="{{ route('lang.switch', 'en') }}" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
-                <li><a href="{{ route('lang.switch', 'ar') }}" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
-                <li><a href="{{ route('lang.switch', 'fr') }}" class="block px-4 py-2 hover:bg-gray-100">FR</a></li>
-                <li><a href="{{ route('lang.switch', 'fa') }}" class="block px-4 py-2 hover:bg-gray-100">FA</a></li>
-                <li><a href="{{ route('lang.switch', 'ru') }}" class="block px-4 py-2 hover:bg-gray-100">RU</a></li>
-                <li><a href="{{ route('lang.switch', 'zh') }}" class="block px-4 py-2 hover:bg-gray-100">ZH</a></li>
+            <ul class="py-2 text-sm text-gray-700" aria-labelledby="langDropdownBtn">
+                <li><a href="{{ route('lang.switch', 'en') }}" onclick="localStorage.setItem('lang', 'en')" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
+                <li><a href="{{ route('lang.switch', 'ar') }}" onclick="localStorage.setItem('lang', 'ar')" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
+                <li><a href="{{ route('lang.switch', 'fr') }}" onclick="localStorage.setItem('lang', 'fr')" class="block px-4 py-2 hover:bg-gray-100">FR</a></li>
+                <li><a href="{{ route('lang.switch', 'fa') }}" onclick="localStorage.setItem('lang', 'fa')" class="block px-4 py-2 hover:bg-gray-100">FA</a></li>
+                <li><a href="{{ route('lang.switch', 'ru') }}" onclick="localStorage.setItem('lang', 'ru')" class="block px-4 py-2 hover:bg-gray-100">RU</a></li>
+                <li><a href="{{ route('lang.switch', 'zh') }}" onclick="localStorage.setItem('lang', 'zh')" class="block px-4 py-2 hover:bg-gray-100">ZH</a></li>
             </ul>
         </div>
 
@@ -83,7 +83,7 @@
                         d="m1 1 4 4 4-4" />
                 </svg>
             </button>
-            
+
             <div id="userDropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow p-6 w-64 absolute right-0 mt-2">
 
                 <a href="{{ route('vendor.my-account') }}" class="flex items-center justify-between w-full border-b">
@@ -125,11 +125,11 @@
                             <span>{{ __('frontend.notifications') }}</span>
                         </a>
                     </li>
-                    
-                
+
+
                     <li class="mt-2">
                         <a href="{{ route('frontend.logout') }}" class="flex items-center gap-2 py-2">
-                            
+
                             <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21"
                                 fill="none">
                                 <path
