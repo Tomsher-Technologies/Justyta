@@ -23,10 +23,9 @@ $translation = $news->translate($lang);
                 {!! $translation->description ?? '' !!}
             </div>
 
-            <div class="mt-8 border-t pt-6">
+            <!-- <div class="mt-8 border-t pt-6">
                 <h3 class="text-xl font-bold text-[#034833] font-cinzel mb-4">{{ __('Share this news') }}</h3>
                 <div class="flex gap-4">
-                    <!-- Add social share buttons here if needed -->
                     <a href="https://www.facebook.com/sharer/sharer.php?u={{ url()->current() }}" target="_blank" class="text-[#3b5998] hover:text-[#2d4373]">
                         <i class="fab fa-facebook fa-2x"></i>
                     </a>
@@ -37,7 +36,7 @@ $translation = $news->translate($lang);
                         <i class="fab fa-linkedin fa-2x"></i>
                     </a>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </section>
