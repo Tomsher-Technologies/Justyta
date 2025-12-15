@@ -325,7 +325,7 @@ class AuthController extends Controller
                     ->where('user_type', 'vendor'),
             ],
             'owner_phone'                       => 'required|string|max:20',
-            'logo'                              => 'nullable|image|mimes:jpg,jpeg,png|max:200',
+            'logo'                              => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'emirate_id'                        => 'required',
             'trn'                               => 'required',
             'firm_description'                  => 'required',
