@@ -272,7 +272,22 @@ Route::prefix('user')->middleware(['auth.frontend', 'checkFrontendUserType:user'
 });
 
 
+// Route::get('/debug-dev/test-mail', function () {
+//     $email = request('email');
+//     if (!$email) {
+//         return 'Please provide an email address via query parameter: /test-mail?email=your@email.com';
+//     }
 
+//     try {
+//         \Illuminate\Support\Facades\Mail::raw('This is a test email to verify SMTP settings.', function ($message) use ($email) {
+//             $message->to($email)
+//                 ->subject('SMTP Verification Test');
+//         });
+//         return 'Email sent successfully to ' . $email;
+//     } catch (\Exception $e) {
+//         return 'Failed to send email: ' . $e->getMessage();
+//     }
+// });
 
 Route::get('/lang/{lang}', function ($lang) {
     if (in_array($lang, ['en', 'ar', 'fr', 'fa', 'ru', 'zh'])) {
