@@ -1,10 +1,10 @@
 <nav class="grid grid-cols-2 gap-5 grid-cols-[2fr_1fr] items-center justify-between mb-5">
-  <!-- Mobile Menu Button -->
-<button id="openSidebar" class="xl:hidden py-3">
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="black" stroke-width="2">
-        <path d="M4 8h24M4 16h24M4 24h24"/>
-    </svg>
-</button>
+    <!-- Mobile Menu Button -->
+    <button id="openSidebar" class="xl:hidden py-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="black" stroke-width="2">
+            <path d="M4 8h24M4 16h24M4 24h24" />
+        </svg>
+    </button>
 
 
     <div class="relative hidden lg:block w-full">
@@ -53,13 +53,13 @@
             </svg>
         </button>
         <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-32">
-            <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownDefaultButton">
-                <li><a href="{{ route('lang.switch', 'en') }}" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
-                <li><a href="{{ route('lang.switch', 'ar') }}" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
-                <li><a href="{{ route('lang.switch', 'fr') }}" class="block px-4 py-2 hover:bg-gray-100">FR</a></li>
-                <li><a href="{{ route('lang.switch', 'fa') }}" class="block px-4 py-2 hover:bg-gray-100">FA</a></li>
-                <li><a href="{{ route('lang.switch', 'ru') }}" class="block px-4 py-2 hover:bg-gray-100">RU</a></li>
-                <li><a href="{{ route('lang.switch', 'zh') }}" class="block px-4 py-2 hover:bg-gray-100">ZH</a></li>
+            <ul class="py-2 text-sm text-gray-700" aria-labelledby="langDropdownBtn">
+                <li><a href="{{ route('lang.switch', 'en') }}" onclick="localStorage.setItem('lang', 'en')" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
+                <li><a href="{{ route('lang.switch', 'ar') }}" onclick="localStorage.setItem('lang', 'ar')" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
+                <li><a href="{{ route('lang.switch', 'fr') }}" onclick="localStorage.setItem('lang', 'fr')" class="block px-4 py-2 hover:bg-gray-100">FR</a></li>
+                <li><a href="{{ route('lang.switch', 'fa') }}" onclick="localStorage.setItem('lang', 'fa')" class="block px-4 py-2 hover:bg-gray-100">FA</a></li>
+                <li><a href="{{ route('lang.switch', 'ru') }}" onclick="localStorage.setItem('lang', 'ru')" class="block px-4 py-2 hover:bg-gray-100">RU</a></li>
+                <li><a href="{{ route('lang.switch', 'zh') }}" onclick="localStorage.setItem('lang', 'zh')" class="block px-4 py-2 hover:bg-gray-100">ZH</a></li>
             </ul>
         </div>
 
@@ -163,7 +163,7 @@
                         <span>{{ __('frontend.payment_history') }}</span>
                     </a>
                 </li>
-                
+
                 <li class="mt-10">
                     <a href="{{ route('frontend.logout') }}" class="flex items-center justify-between gap-2 py-2">
                         <span>{{ __('frontend.sign_out') }}</span>

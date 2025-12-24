@@ -1,5 +1,5 @@
 <nav class="grid grid-cols-3 gap-5 items-center justify-between mb-5">
-  
+
 
     <div class="relative hidden lg:block w-full">
         {{-- <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
@@ -21,18 +21,20 @@
 
     <div class="flex items-center">
         @php
-            $onlineStatus = getOnlineStatus();
+        $onlineStatus = getOnlineStatus();
         @endphp
         <label for="switch-online" class="flex items-center cursor-pointer">
             <span class="mr-3 text-sm font-medium text-gray-900 dark:text-gray-300">
                 @if($onlineStatus == 1)
-                    {{ __('frontend.online') }}
+                {{ __('frontend.online') }}
                 @else
-                    {{ __('frontend.offline') }}    
+                {{ __('frontend.offline') }}
                 @endif
             </span>
             <div class="relative">
-                <input type="checkbox" class="sr-only peer" id="switch-online" onchange="changeOnlineStatus(this.checked)" <?php if ($onlineStatus == 1) { echo 'checked'; } ?>/>
+                <input type="checkbox" class="sr-only peer" id="switch-online" onchange="changeOnlineStatus(this.checked)" <?php if ($onlineStatus == 1) {
+                                                                                                                                echo 'checked';
+                                                                                                                            } ?> />
                 <div class="w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-all">
                 </div>
                 <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-5">
@@ -42,7 +44,7 @@
     </div>
 
     <div class="flex items-center justify-end gap-4">
-        
+
         <button type="button"
             class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
             <a href="{{ route('lawyer.notifications.index') }}">
@@ -68,13 +70,13 @@
             </svg>
         </button>
         <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-32">
-            <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownDefaultButton">
-                <li><a href="{{ route('lang.switch', 'en') }}" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
-                <li><a href="{{ route('lang.switch', 'ar') }}" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
-                <li><a href="{{ route('lang.switch', 'fr') }}" class="block px-4 py-2 hover:bg-gray-100">FR</a></li>
-                <li><a href="{{ route('lang.switch', 'fa') }}" class="block px-4 py-2 hover:bg-gray-100">FA</a></li>
-                <li><a href="{{ route('lang.switch', 'ru') }}" class="block px-4 py-2 hover:bg-gray-100">RU</a></li>
-                <li><a href="{{ route('lang.switch', 'zh') }}" class="block px-4 py-2 hover:bg-gray-100">ZH</a></li>
+            <ul class="py-2 text-sm text-gray-700" aria-labelledby="langDropdownBtn">
+                <li><a href="{{ route('lang.switch', 'en') }}" onclick="localStorage.setItem('lang', 'en')" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
+                <li><a href="{{ route('lang.switch', 'ar') }}" onclick="localStorage.setItem('lang', 'ar')" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
+                <li><a href="{{ route('lang.switch', 'fr') }}" onclick="localStorage.setItem('lang', 'fr')" class="block px-4 py-2 hover:bg-gray-100">FR</a></li>
+                <li><a href="{{ route('lang.switch', 'fa') }}" onclick="localStorage.setItem('lang', 'fa')" class="block px-4 py-2 hover:bg-gray-100">FA</a></li>
+                <li><a href="{{ route('lang.switch', 'ru') }}" onclick="localStorage.setItem('lang', 'ru')" class="block px-4 py-2 hover:bg-gray-100">RU</a></li>
+                <li><a href="{{ route('lang.switch', 'zh') }}" onclick="localStorage.setItem('lang', 'zh')" class="block px-4 py-2 hover:bg-gray-100">ZH</a></li>
             </ul>
         </div>
 
@@ -141,11 +143,11 @@
                         <span>{{ __('frontend.notifications') }}</span>
                     </a>
                 </li>
-                
-               
+
+
                 <li class="mt-2">
                     <a href="{{ route('frontend.logout') }}" class="flex items-center gap-2 py-2">
-                        
+
                         <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21"
                             fill="none">
                             <path

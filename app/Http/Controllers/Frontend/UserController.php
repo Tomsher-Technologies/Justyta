@@ -299,32 +299,32 @@ class UserController extends Controller
             ->where('user_id', $user->id)
             ->exists();
 
-         $specialties = json_decode($job->specialties);
+        $specialties = json_decode($job->specialties);
 
         if ($specialties) {
-             $specialties = DropdownOption::with('translations')->whereIn('id', $specialties)->get();
+            $specialties = DropdownOption::with('translations')->whereIn('id', $specialties)->get();
 
             $specialties = $specialties->map(function ($item) {
                 return $item->getTranslatedName(app()->getLocale());
             });
         }
-       
+
 
         $jobPost = [
-                    'id' => $job->id,
-                    'ref_no' => $job->ref_no,
-                    'type' => __('messages.' . $job->type),
-                    'title' => $job->getTranslation('title',$lang) ?? NULL,
-                    'description' => $job->getTranslation('description', $lang) ?? NULL,
-                    'salary' => $job->getTranslation('salary', $lang) ?? NULL,
-                    'location' => $job->location?->getTranslation('name', $lang) ?? NULL,
-                    'job_posted_date' => $job->job_posted_date,
-                    'deadline_date' => $job->deadline_date,
-                    'status' => $job->status,
-                    'no_of_vacancies' => $job->no_of_vacancies,
-                    'specialties' => $specialties,
-                    'years_of_experience' => $job->years_of_experience
-                ];
+            'id' => $job->id,
+            'ref_no' => $job->ref_no,
+            'type' => __('messages.' . $job->type),
+            'title' => $job->getTranslation('title', $lang) ?? NULL,
+            'description' => $job->getTranslation('description', $lang) ?? NULL,
+            'salary' => $job->getTranslation('salary', $lang) ?? NULL,
+            'location' => $job->location?->getTranslation('name', $lang) ?? NULL,
+            'job_posted_date' => $job->job_posted_date,
+            'deadline_date' => $job->deadline_date,
+            'status' => $job->status,
+            'no_of_vacancies' => $job->no_of_vacancies,
+            'specialties' => $specialties,
+            'years_of_experience' => $job->years_of_experience
+        ];
 
         return view('frontend.user.job-details', compact('lang', 'jobPost', 'hasApplied'));
     }
@@ -483,7 +483,7 @@ class UserController extends Controller
             ];
         });
 
-        if($serviceSlug != 'online-live-consultancy') {
+        if ($serviceSlug != 'online-live-consultancy') {
             $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', auth('frontend')->id());
 
             if ($serviceSlug) {
@@ -501,13 +501,13 @@ class UserController extends Controller
             $serviceRequests = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
 
             return view('frontend.user.service-history', compact('serviceRequests', 'mainServices', 'tab', 'lang', 'page', 'pageTitle'));
-        }else{
+        } else {
 
             $conQuery = Consultation::with(['user', 'lawyer', 'emirate'])->where('user_id', auth('frontend')->id())->where('request_success', 1);
-            
+
             $consultations = $conQuery->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
 
-            return view('frontend.user.consultation-history', compact('consultations','mainServices', 'tab', 'lang', 'page', 'pageTitle'));
+            return view('frontend.user.consultation-history', compact('consultations', 'mainServices', 'tab', 'lang', 'page', 'pageTitle'));
         }
     }
 
@@ -677,7 +677,7 @@ class UserController extends Controller
         $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $id             = base64_decode($id);
         $consultation   = Consultation::with('user', 'lawyer', 'emirate')->findOrFail($id);
-        
+
         return view('frontend.user.consultation_details', compact('consultation'));
     }
 
@@ -867,7 +867,7 @@ class UserController extends Controller
 
     public function downloadServiceCompletedFiles($id)
     {
-        $user = Auth::user();
+        $user = Auth::guard('frontend')->user();
 
         $serviceRequest = ServiceRequest::findOrFail($id);
 
