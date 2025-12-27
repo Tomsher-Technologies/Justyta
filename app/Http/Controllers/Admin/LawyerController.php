@@ -122,8 +122,12 @@ class LawyerController extends Controller
                 'user_type' => 'lawyer',
             ]);
 
+            $lawfirm = Vendor::find($request->law_firm);
+            $defaultLawfirm = $lawfirm && $lawfirm->is_default;
+
             $lawyer = new Lawyer([
                 'lawfirm_id'                        => $request->law_firm,
+                'is_default'                        => $defaultLawfirm ? 1 : 0,
                 'full_name'                         => $request->translations['en']['name'], 
                 'email'                             => $request->email,
                 'phone'                             => $request->phone, 
@@ -158,6 +162,20 @@ class LawyerController extends Controller
                 }
             }
 
+            $emirates = [
+                $request->emirate_id => ['priority' => 1], // Home
+            ];
+
+            if (!empty($request->secondary_emirates)) {
+                foreach (array_unique($request->secondary_emirates) as $emirateId) {
+                    if ($emirateId != $request->emirate_id) {
+                        $emirates[$emirateId] = ['priority' => 2];
+                    }
+                }
+            }
+
+            $lawyer->emirates()->sync($emirates);
+
             $dropdowns = collect([
                 'specialities' => $request->specialities,
                 'languages' => $request->languages,
@@ -183,14 +201,18 @@ class LawyerController extends Controller
          
         $specialityIds = $lawyer->dropdownOptions()->wherePivot('type', 'specialities')->pluck('dropdown_option_id')->toArray();
         $languageIds = $lawyer->dropdownOptions()->wherePivot('type', 'languages')->pluck('dropdown_option_id')->toArray();
-
+        $secondaryEmirates = $lawyer->emirates
+                                ->where('pivot.priority', 2)
+                                ->pluck('id')
+                                ->toArray();
+        
         $dropdowns = Dropdown::with(['options.translations' => function ($q) {
             $q->where('language_code', 'en');
         }])->whereIn('slug', ['specialities', 'languages', 'years_experience'])->get()->keyBy('slug');
 
         $lawfirms = Vendor::orderBy('law_firm_name', 'ASC')->get();
         $languages = Language::where('status', 1)->get();
-        return view('admin.lawyers.edit', compact('lawyer','dropdowns','lawfirms','languages','specialityIds','languageIds'));
+        return view('admin.lawyers.edit', compact('lawyer','dropdowns','lawfirms','languages','specialityIds','languageIds','secondaryEmirates'));
     }
 
     public function update(Request $request, $id)
@@ -241,9 +263,12 @@ class LawyerController extends Controller
         ]);
 
         $uploadPath = 'lawyers/' . $user->id;
+        $lawfirm = Vendor::find($request->law_firm);
+        $defaultLawfirm = $lawfirm && $lawfirm->is_default;
 
         $lawyer->update([
             'lawfirm_id'                        => $request->law_firm,
+            'is_default'                        => $defaultLawfirm ? 1 : 0,
             'full_name'                         => $request->translations['en']['name'], 
             'email'                             => $request->email,
             'phone'                             => $request->phone, 
@@ -277,6 +302,21 @@ class LawyerController extends Controller
                 );
             }
         }
+        
+        $emirates = [
+            $request->emirate_id => ['priority' => 1], // Home
+        ];
+
+        if (!empty($request->secondary_emirates)) {
+            foreach (array_unique($request->secondary_emirates) as $emirateId) {
+                if ($emirateId != $request->emirate_id) {
+                    $emirates[$emirateId] = ['priority' => 2];
+                }
+            }
+        }
+
+        $lawyer->emirates()->sync($emirates);
+
 
         $dropdowns = collect([
             'specialities' => $request->specialities,

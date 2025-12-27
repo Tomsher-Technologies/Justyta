@@ -152,7 +152,7 @@
 
                     <div id="lawyer-section" class="hidden">
                         <label for="lawyer_id" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ __('frontend.lawyer') }} <span class="text-red-500">*</span>
+                            {{ __('frontend.lawyer') }}
                         </label>
 
                         <select id="lawyer_id" name="lawyer_id"

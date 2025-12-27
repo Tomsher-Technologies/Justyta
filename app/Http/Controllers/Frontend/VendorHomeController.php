@@ -519,6 +519,11 @@ class VendorHomeController extends Controller
                 }
             }
 
+            $emirates = [
+                $request->emirate_id => ['priority' => 1], // Home
+            ];
+            $lawyer->emirates()->sync($emirates);
+
             $dropdowns = collect([
                 'specialities' => $request->specialities,
                 'languages' => $request->languages,
@@ -629,7 +634,7 @@ class VendorHomeController extends Controller
         ]);
 
         $user->lawyer()->save($lawyer);
-
+        
         foreach ($request->translations as $lang => $fields) {
             if (!empty($fields['name'])) {
                 $lawyer->translations()->updateOrCreate(
@@ -638,6 +643,11 @@ class VendorHomeController extends Controller
                 );
             }
         }
+
+        $emirates = [
+            $request->emirate_id => ['priority' => 1], // Home
+        ];
+        $lawyer->emirates()->sync($emirates);
 
         $dropdowns = collect([
             'specialities' => $request->specialities,

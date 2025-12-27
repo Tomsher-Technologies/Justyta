@@ -243,7 +243,7 @@
                 ignore: [],
                 rules: {
                     applicant_type: { required: true },
-                    debt_amount: { required: true ,maxlength: 25},
+                    debt_amount: { required: true ,maxlength: 15},
                     emirate_id: { required: true },
                     debt_type: { required: true },
                     debt_category: { required: true },
@@ -270,7 +270,7 @@
                     applicant_type: "{{ __('messages.applicant_type_required') }}",
                     debt_amount: {
                         required: "{{ __('messages.debt_amount_required') }}",
-                        maxlength: "{{ __('frontend.maxlength25') }}"
+                        maxlength: "{{ __('frontend.maxlength15') }}"
                     },
                     emirate_id: "{{ __('messages.emirate_required') }}",
                     debt_type: "{{ __('messages.debt_type_required') }}",

@@ -68,7 +68,7 @@ class ServiceRequestController extends Controller
     {
         $language = $request->language;
         $caseType = $request->case_type;
-        $lang       = $request->header('lang') ?? env('APP_LOCALE', 'en');
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
         $lawyers = findAvailableLawyer($caseType, $language);
 
@@ -93,7 +93,7 @@ class ServiceRequestController extends Controller
             'duration' => 'required|numeric|min:1'
         ]);
 
-        $lang       = $request->header('lang') ?? env('APP_LOCALE', 'en');
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = auth()->guard('frontend')->user();
         $userId     = $user->id ?? null; 
 
@@ -201,7 +201,7 @@ class ServiceRequestController extends Controller
 
             $paidAmount = ($paid_amount != 0) ? $paid_amount/100 : 0;
         
-            $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+            $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
             $consultation = Consultation::findOrFail($consultationId);
 
@@ -314,7 +314,7 @@ class ServiceRequestController extends Controller
     {
         $consultationId = $request->query('consultation_id');
         $consultantType  = $request->query('consultant_type');
-        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
         $timeslots = ConsultationDuration::where('status', 1)
             ->where('type', $consultantType)
@@ -336,8 +336,8 @@ class ServiceRequestController extends Controller
 
     public function getEmirates(Request $request)
     {
-        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
-
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
+        
         $litigation_type   = $request->litigation_type ?? NULL;
         $litigation_place   = $request->litigation_place ?? NULL;
         $service            = $request->service ?? NULL;
@@ -380,7 +380,7 @@ class ServiceRequestController extends Controller
 
     public function getCaseTypes(Request $request)
     {
-        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
         $litigation_type   = $request->litigation_type ?? NULL;
         $litigation_place   = $request->litigation_place ?? NULL;
@@ -436,7 +436,7 @@ class ServiceRequestController extends Controller
         
     public function getAnnualAgreementPrice(Request $request)
     {
-        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
         $calls          = $request->query('calls');
         $visits         = $request->query('visits');
@@ -1314,7 +1314,7 @@ class ServiceRequestController extends Controller
         $currency = env('APP_CURRENCY','AED');
         $payment = [];
 
-        $total_amount = 0;
+        // $total_amount = 0;
         if($total_amount > 0) {
             $customer = [
                 'email' => $user->email,
@@ -1427,7 +1427,7 @@ class ServiceRequestController extends Controller
         return redirect()->route('user.dashboard')->with('error', 'Payment failed or cancelled.');
     }
 
-    public function consultationCancelPayment(Request $request){
+    public function consultationPaymentCancel(Request $request){
         $ref = $request->get('ref'); 
 
         $servicePayment = ConsultationPayment::where('payment_reference', $ref)->first();

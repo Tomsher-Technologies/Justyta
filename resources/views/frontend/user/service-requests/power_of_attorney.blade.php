@@ -297,10 +297,10 @@
                     appointer_name: { required: true , maxlength:100},
                     emirate_id: { required: true },
                     id_number: { required: true , maxlength:100},
-                    appointer_mobile: { required: true , maxlength:100},
+                    appointer_mobile: { required: true , maxlength:15},
                     poa_type: { required: true },
                     name_of_authorized: { required: true, maxlength:100 },
-                    authorized_mobile: { required: true , maxlength:100},
+                    authorized_mobile: { required: true , maxlength:15},
                     id_number_authorized: { required: true , maxlength:100},
                     authorized_address: { required: true , maxlength:1000 },
                     relationship: { required: true},
@@ -333,7 +333,7 @@
                     },
                     appointer_mobile: {
                         required:"{{ __('messages.appointer_mobile_required') }}",
-                        maxlength: "{{ __('frontend.maxlength100') }}"
+                        maxlength: "{{ __('frontend.maxlength15') }}"
                     },
                     poa_type: "{{ __('messages.poa_type_required') }}",
                     name_of_authorized: {
@@ -342,7 +342,7 @@
                     },
                     authorized_mobile: {
                         required:"{{ __('messages.authorized_mobile_required') }}",
-                        maxlength: "{{ __('frontend.maxlength100') }}"
+                        maxlength: "{{ __('frontend.maxlength15') }}"
                     },
                     id_number_authorized: {
                         required:"{{ __('messages.id_number_authorized_required') }}",

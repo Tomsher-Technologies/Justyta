@@ -504,4 +504,5 @@ return [
 'max_select3'   => '最多只能选择 3 个选项。',
 'maxlength2'    => '最多允许 2 个字符。',
 'maxlength25'   => '最多允许 25 个字符。',
+'maxlength15'   => '最多允许 15 个字符。',
 ];

@@ -287,7 +287,7 @@
                     license_activity: { required: true },
                     contract_language: { required: true },
                     company_name: { required: true, maxlength: 100 },
-                    mobile : { required: true, maxlength: 25 },
+                    mobile : { required: true, maxlength: 15 },
                     industry: { required: true },
                     email: { required: true,email: true },
                     priority: { required: true },
@@ -318,7 +318,7 @@
                     },
                     mobile:{
                         required: "{{ __('frontend.this_field_required') }}",
-                        maxlength: "{{ __('frontend.maxlength25') }}"
+                        maxlength: "{{ __('frontend.maxlength15') }}"
                     },
                     industry: "{{ __('messages.industry_required') }}",
                     email: {

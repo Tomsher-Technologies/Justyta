@@ -600,9 +600,9 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
     switch ($slug) {
         case 'request-submission':
             return [
-                'applicant_type'        => $model->applicant_type,
-                'litigation_type'       => $model->litigation_type,
-                'litigation_place'      => $model->litigation_place,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
+                'litigation_type'       => __('frontend.'.$model->litigation_type),
+                'litigation_place'      => __('frontend.'.$model->litigation_place),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'case_type'             => $model->caseType?->getTranslation('title', $lang) ?? NULL,
                 'request_type'          => $model->requestType?->getTranslation('title', $lang) ?? NULL,
@@ -615,12 +615,12 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'legal-translation':
             return [
-                'priority_level'        => $model->priority_level,
+                'priority_level'        => __('frontend.'.$model->priority_level),
                 'document_language'     => $model->documentLanguage?->getTranslation('name', $lang) ?? NULL,
                 'translation_language'  => $model->translationLanguage?->getTranslation('name', $lang) ?? NULL,
                 'document_type'         => $model->documentType?->getTranslation('name', $lang) ?? NULL,
                 'document_sub_type'     => $model->documentSubType?->getTranslation('name', $lang) ?? NULL,
-                'receive_by'            => $model->receive_by,
+                'receive_by'            => __('frontend.'.$model->receive_by),
                 'no_of_pages'           => $model->no_of_pages,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
@@ -661,8 +661,8 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'court-case-submission':
             return [
-                'applicant_type'        => $model->applicant_type,
-                'litigation_type'       => $model->litigation_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
+                'litigation_type'       => __('frontend.'.$model->litigation_type),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'case_type'             => $model->caseType?->getTranslation('title', $lang) ?? NULL,
                 'you_represent'         => $model->youRepresent?->getTranslation('name', $lang) ?? NULL,
@@ -674,8 +674,8 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'criminal-complaint':
             return [
-                'applicant_type'        => $model->applicant_type,
-                'litigation_type'       => $model->litigation_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
+                'litigation_type'       => __('frontend.'.$model->litigation_type),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'case_type'             => $model->caseType?->getTranslation('title', $lang) ?? NULL,
                 'you_represent'         => $model->youRepresent?->getTranslation('name', $lang) ?? NULL,
@@ -687,7 +687,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'power-of-attorney':
             return [
-                'applicant_type'        => $model->applicant_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
                 'appointer_name'        => $model->appointer_name,
                 'id_number'             => $model->id_number,
                 'appointer_mobile'      => $model->appointer_mobile,
@@ -704,7 +704,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'last-will-and-testament':
             return [
-                'testament_place'       => $model->testament_place,
+                'testament_place'       => __('frontend.'.$model->testament_place),
                 'nationality'           => $model->nationalityOption?->getTranslation('name', $lang) ?? NULL,
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'full_name'             => $model->full_name,
@@ -715,8 +715,8 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'memo-writing':
             return [
-                'applicant_type'        => $model->applicant_type,
-                'litigation_type'       => $model->litigation_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
+                'litigation_type'       => __('frontend.'.$model->litigation_type),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'case_type'             => $model->caseType?->getTranslation('title', $lang) ?? NULL,
                 'you_represent'         => $model->youRepresent?->getTranslation('name', $lang) ?? NULL,
@@ -728,8 +728,8 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'expert-report':
             return [
-                'applicant_type'            => $model->applicant_type,
-                'applicant_place'           => $model->applicant_place,
+                'applicant_type'            => __('frontend.'.$model->applicant_type),
+                'applicant_place'           => __('frontend.'.$model->applicant_place),
                 'emirate_id'                => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'expert_report_type'        => $model->expertReportType?->getTranslation('name', $lang) ?? NULL,
                 'expert_report_language'    => $model->expertReportLanguage?->getTranslation('name', $lang) ?? NULL,
@@ -740,7 +740,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'contract-drafting':
             return [
-                'applicant_type'        => $model->applicant_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'contract_type'         => $model->contractType?->getTranslation('name', $lang) ?? NULL,
                 'sub_contract_type'     => $model->subContractType?->getTranslation('name', $lang) ?? NULL,
@@ -748,14 +748,14 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'company_name'          => $model->company_name,
                 'industry'              => $model->industryOption?->getTranslation('name', $lang) ?? NULL,
                 'email'                 => $model->email,
-                'priority'              => $model->priority,
+                'priority'              => __('frontend.'.$model->priority),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
                 'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
             ];
         case 'company-setup':
             return [
-                'applicant_type'        => $model->applicant_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'zone'                  => $model->zoneOption?->getTranslation('name', $lang) ?? NULL,
                 'license_type'          => $model->licenseType?->getTranslation('name', $lang) ?? NULL,
@@ -769,7 +769,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'escrow-accounts':
             return [
-                'applicant_type'        => $model->applicant_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
                 'company_name'          => $model->company_name,
                 'company_activity'      => $model->companyActivity?->getTranslation('name', $lang) ?? NULL,
                 'company_origin'        => $model->companyOrigin?->getTranslation('name', $lang) ?? NULL,
@@ -778,7 +778,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'debts-collection':
             return [
-                'applicant_type'        => $model->applicant_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'debt_type'             => $model->debtType?->getTranslation('name', $lang) ?? NULL,
                 'debt_amount'           => $model->debt_amount,
@@ -1152,7 +1152,11 @@ function findBestFitLawyer($consultation)
 {
     $languages   = (array) $consultation->language;
     $caseType    = $consultation->case_type;
-    // $emirateId   = $consultation->emirate_id;
+     $emirateId = $consultation->emirate_id;
+    $planMap = [
+        'vip'    => 1,
+        'normal' => 3,
+    ];
 
     // Already rejected lawyers
     $lawyerIdsAlreadyRejected = ConsultationAssignment::where('consultation_id', $consultation->id)
@@ -1162,7 +1166,12 @@ function findBestFitLawyer($consultation)
     $countLanguages = count($languages);
 
     $lawyerId =  DB::table('lawyers as l')
+                    ->select('l.id',DB::raw('COUNT(ca.id) as assignment_count'), DB::raw('MIN(le.priority) as emirate_priority'))
                     ->join('users as u', 'u.id', '=', 'l.user_id')
+                    ->join('lawyer_emirates as le', function ($join) use ($emirateId) {
+                        $join->on('le.lawyer_id', '=', 'l.id')
+                            ->where('le.emirate_id', $emirateId);
+                    })
                     ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
                         $join->on('ld_speciality.lawyer_id', '=', 'l.id')
                             ->where('ld_speciality.type', 'specialities')
@@ -1174,20 +1183,47 @@ function findBestFitLawyer($consultation)
                             ->where('ld_lang.type', 'languages')
                             ->whereIn('ld_lang.dropdown_option_id', $languages);
                     })
+                    ->when(isset($planMap[$consultation->consultant_type]), function ($q) use ($planMap, $consultation) {
+                        $q->join('vendors as v', 'v.id', '=', 'l.lawfirm_id')
+                        ->join('vendor_subscriptions as vs', function ($join) use ($planMap, $consultation) {
+                            $join->on('vs.vendor_id', '=', 'v.id')
+                                ->where('vs.status', 'active')
+                                ->where('vs.membership_plan_id', $planMap[$consultation->consultant_type]);
+                        });
+                    })
 
-                    // ->when($emirateId, function ($q) use ($emirateId) {
-                    //     $q->where('l.emirate_id', $emirateId);
-                    // })
-
+                    ->leftJoin('consultation_assignments as ca', function ($join) {
+                        $join->on('ca.lawyer_id', '=', 'l.id')
+                            ->whereIn('ca.status', ['assigned', 'accepted', 'rejected']);
+                    })
                     ->where('u.is_online', 1)
                     ->where('l.is_busy', 0)
                     ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
                     ->groupBy('l.id')
                     ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
-                    ->pluck('l.id')
-                    ->first();
+                    /* ---------- Priority Logic ---------- */
+                    ->orderBy('emirate_priority', 'asc')   // 1 → Home, 2 → Secondary
+                    ->orderBy('assignment_count', 'asc')   // Least assigned
+                    ->orderByRaw('RAND()')                 // Tie breaker
+                    ->value('l.id');
 
-    $lawyer = $lawyerId ? \App\Models\Lawyer::find($lawyerId) : null;
+    if($lawyerId){
+        $lawyer = \App\Models\Lawyer::find($lawyerId);
+    }else{
+        $lawyerId = DB::table('lawyers as l')
+                        ->select('l.id', DB::raw('COUNT(ca.id) as assignment_count'))
+                        ->join('users as u', 'u.id', '=', 'l.user_id')
+                        ->leftJoin('consultation_assignments as ca', 'ca.lawyer_id', '=', 'l.id')
+                        ->where('u.is_online', 1)
+                        ->where('l.is_busy', 0)
+                        ->where('l.is_default', 1)
+                        ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
+                        ->groupBy('l.id')
+                        ->orderBy('assignment_count', 'asc')
+                        ->orderByRaw('RAND()')
+                        ->value('l.id');
+        $lawyer = \App\Models\Lawyer::find($lawyerId);
+    }
 
     return $lawyer;
 }

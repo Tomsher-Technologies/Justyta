@@ -28,7 +28,7 @@
                 <div>
                     <label for="case_type" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.type_of_case') }}<span class="text-red-500">*</span></label>
                     <select id="case_type" name="case_type[]" multiple class="select2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5">
-                        <option value="">{{ __('frontend.choose_option') }}</option>
+                        
                         @foreach ($dropdownData['case_type'] as $casetype)
                         <option value="{{ $casetype['id'] }}" {{ (old('case_type') == $casetype['id']) ? 'selected' : '' }}>{{ $casetype['value'] }}</option>
                         @endforeach
