@@ -600,9 +600,9 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
     switch ($slug) {
         case 'request-submission':
             return [
-                'applicant_type'        => $model->applicant_type,
-                'litigation_type'       => $model->litigation_type,
-                'litigation_place'      => $model->litigation_place,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
+                'litigation_type'       => __('frontend.'.$model->litigation_type),
+                'litigation_place'      => __('frontend.'.$model->litigation_place),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'case_type'             => $model->caseType?->getTranslation('title', $lang) ?? NULL,
                 'request_type'          => $model->requestType?->getTranslation('title', $lang) ?? NULL,
@@ -615,12 +615,12 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'legal-translation':
             return [
-                'priority_level'        => $model->priority_level,
+                'priority_level'        => __('frontend.'.$model->priority_level),
                 'document_language'     => $model->documentLanguage?->getTranslation('name', $lang) ?? NULL,
                 'translation_language'  => $model->translationLanguage?->getTranslation('name', $lang) ?? NULL,
                 'document_type'         => $model->documentType?->getTranslation('name', $lang) ?? NULL,
                 'document_sub_type'     => $model->documentSubType?->getTranslation('name', $lang) ?? NULL,
-                'receive_by'            => $model->receive_by,
+                'receive_by'            => __('frontend.'.$model->receive_by),
                 'no_of_pages'           => $model->no_of_pages,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
@@ -661,8 +661,8 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'court-case-submission':
             return [
-                'applicant_type'        => $model->applicant_type,
-                'litigation_type'       => $model->litigation_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
+                'litigation_type'       => __('frontend.'.$model->litigation_type),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'case_type'             => $model->caseType?->getTranslation('title', $lang) ?? NULL,
                 'you_represent'         => $model->youRepresent?->getTranslation('name', $lang) ?? NULL,
@@ -674,8 +674,8 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'criminal-complaint':
             return [
-                'applicant_type'        => $model->applicant_type,
-                'litigation_type'       => $model->litigation_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
+                'litigation_type'       => __('frontend.'.$model->litigation_type),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'case_type'             => $model->caseType?->getTranslation('title', $lang) ?? NULL,
                 'you_represent'         => $model->youRepresent?->getTranslation('name', $lang) ?? NULL,
@@ -687,7 +687,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'power-of-attorney':
             return [
-                'applicant_type'        => $model->applicant_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
                 'appointer_name'        => $model->appointer_name,
                 'id_number'             => $model->id_number,
                 'appointer_mobile'      => $model->appointer_mobile,
@@ -704,7 +704,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'last-will-and-testament':
             return [
-                'testament_place'       => $model->testament_place,
+                'testament_place'       => __('frontend.'.$model->testament_place),
                 'nationality'           => $model->nationalityOption?->getTranslation('name', $lang) ?? NULL,
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'full_name'             => $model->full_name,
@@ -715,8 +715,8 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'memo-writing':
             return [
-                'applicant_type'        => $model->applicant_type,
-                'litigation_type'       => $model->litigation_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
+                'litigation_type'       => __('frontend.'.$model->litigation_type),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'case_type'             => $model->caseType?->getTranslation('title', $lang) ?? NULL,
                 'you_represent'         => $model->youRepresent?->getTranslation('name', $lang) ?? NULL,
@@ -728,8 +728,8 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'expert-report':
             return [
-                'applicant_type'            => $model->applicant_type,
-                'applicant_place'           => $model->applicant_place,
+                'applicant_type'            => __('frontend.'.$model->applicant_type),
+                'applicant_place'           => __('frontend.'.$model->applicant_place),
                 'emirate_id'                => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'expert_report_type'        => $model->expertReportType?->getTranslation('name', $lang) ?? NULL,
                 'expert_report_language'    => $model->expertReportLanguage?->getTranslation('name', $lang) ?? NULL,
@@ -740,7 +740,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'contract-drafting':
             return [
-                'applicant_type'        => $model->applicant_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'contract_type'         => $model->contractType?->getTranslation('name', $lang) ?? NULL,
                 'sub_contract_type'     => $model->subContractType?->getTranslation('name', $lang) ?? NULL,
@@ -748,14 +748,14 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'company_name'          => $model->company_name,
                 'industry'              => $model->industryOption?->getTranslation('name', $lang) ?? NULL,
                 'email'                 => $model->email,
-                'priority'              => $model->priority,
+                'priority'              => __('frontend.'.$model->priority),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
                 'eid'                   => formatFilePathsWithFullUrl($model->eid ?? []),
                 'trade_license'         => formatFilePathsWithFullUrl($model->trade_license ?? []),
             ];
         case 'company-setup':
             return [
-                'applicant_type'        => $model->applicant_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'zone'                  => $model->zoneOption?->getTranslation('name', $lang) ?? NULL,
                 'license_type'          => $model->licenseType?->getTranslation('name', $lang) ?? NULL,
@@ -769,7 +769,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'escrow-accounts':
             return [
-                'applicant_type'        => $model->applicant_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
                 'company_name'          => $model->company_name,
                 'company_activity'      => $model->companyActivity?->getTranslation('name', $lang) ?? NULL,
                 'company_origin'        => $model->companyOrigin?->getTranslation('name', $lang) ?? NULL,
@@ -778,7 +778,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
             ];
         case 'debts-collection':
             return [
-                'applicant_type'        => $model->applicant_type,
+                'applicant_type'        => __('frontend.'.$model->applicant_type),
                 'emirate_id'            => $model->emirate?->getTranslation('name', $lang) ?? NULL,
                 'debt_type'             => $model->debtType?->getTranslation('name', $lang) ?? NULL,
                 'debt_amount'           => $model->debt_amount,

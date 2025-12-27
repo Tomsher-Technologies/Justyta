@@ -87,7 +87,7 @@
 
                 @foreach ($details['service_details'] as $key => $value)
                     @if (!is_array($value))
-                        <div class="flex ">
+                        <div class="flex  break-all">
                             <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.' . $key) }}</p>
                             <p class="basis-3/5 text-gray-800">
                                 @if (Str::startsWith($value, '[') && Str::endsWith($value, ']'))
