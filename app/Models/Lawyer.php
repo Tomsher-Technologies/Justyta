@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Lawyer extends Model
 {
     protected $fillable = [
-        'lawfirm_id','is_busy', 'full_name', 'email', 'phone', 'gender', 'date_of_birth', 'emirate_id', 'nationality', 'years_of_experience', 'profile_photo', 'emirate_id_front', 'emirate_id_back', 'emirate_id_expiry', 'passport', 'passport_expiry', 'residence_visa', 'residence_visa_expiry', 'bar_card', 'bar_card_expiry', 'practicing_lawyer_card', 'practicing_lawyer_card_expiry','working_hours'
+        'lawfirm_id','is_default','is_busy', 'full_name', 'email', 'phone', 'gender', 'date_of_birth', 'emirate_id', 'nationality', 'years_of_experience', 'profile_photo', 'emirate_id_front', 'emirate_id_back', 'emirate_id_expiry', 'passport', 'passport_expiry', 'residence_visa', 'residence_visa_expiry', 'bar_card', 'bar_card_expiry', 'practicing_lawyer_card', 'practicing_lawyer_card_expiry','working_hours'
     ];
 
     public function user()
@@ -92,5 +92,19 @@ class Lawyer extends Model
         }
 
         return $translations != null ? $translations->$field : $this->$field;
+    }
+
+    public function emirates()
+    {
+        return $this->belongsToMany(Emirate::class,'lawyer_emirates','lawyer_id','emirate_id')->withPivot('priority');
+    }
+
+    public function totalConsultations()
+    {
+        return $this->hasMany(ConsultationAssignment::class,'lawyer_id');
+    }
+    public function completedConsultations()
+    {
+        return $this->hasMany(Consultation::class,'lawyer_id')->where('request_success',1)->where('status','completed');
     }
 }

@@ -119,7 +119,7 @@
                     @foreach ($dataService['service_details'] as $key => $value)
                         @if (!is_array($value))
                             {{-- Only simple fields --}}
-                            <div class="flex "> {{-- items-center --}}
+                            <div class="flex break-all"> {{-- items-center --}}
                                 <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.' . $key) }}</p>
                                 <p class="basis-3/5 text-gray-800">
                                     @if (Str::startsWith($value, '[') && Str::endsWith($value, ']'))

@@ -199,7 +199,7 @@
                 rules: {
                     full_name: { required: true, maxlength: 100 },
                     email: { required: true },
-                    phone: { required: true, maxlength: 25 },
+                    phone: { required: true, maxlength: 15 },
                     position: { required: true },
                     "resume": {
                         required: true,
@@ -215,7 +215,7 @@
                     email: "{{ __('messages.email_required') }}",
                     phone: {
                         required: "{{ __('messages.phone_required') }}",
-                        maxlength: "{{ __('frontend.maxlength25') }}"
+                        maxlength: "{{ __('frontend.maxlength15') }}"
                     },
                     position: "{{ __('messages.position_required') }}",
                     "resume": {

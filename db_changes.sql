@@ -114,13 +114,13 @@
 -- INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, '59', 'sales-request-submission', 'View Sales - Request Submission Requests', 'web', '1', NULL, NULL);
 
 
-ALTER TABLE `consultations` ADD `is_extended` TINYINT(1) NOT NULL DEFAULT '0' AFTER `amount`;
+-- ALTER TABLE `consultations` ADD `is_extended` TINYINT(1) NOT NULL DEFAULT '0' AFTER `amount`;
 
-INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES
-(183, 181, 'export_consultation_requests', 'Export Consultation Requests', 'web', 1, NULL, NULL),
-(182, 181, 'view_consultation_requests', 'View Consultation Requests', 'web', 1, NULL, NULL),
-(181, NULL, 'manage_consultation_requests', 'Manage Consultation Requests', 'web', 1, NULL, NULL);
-ALTER TABLE `consultations` ADD FOREIGN KEY (`case_type`) REFERENCES `case_types`(`id`) ON DELETE SET NULL ON UPDATE SET NULL;
+-- INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES
+-- (183, 181, 'export_consultation_requests', 'Export Consultation Requests', 'web', 1, NULL, NULL),
+-- (182, 181, 'view_consultation_requests', 'View Consultation Requests', 'web', 1, NULL, NULL),
+-- (181, NULL, 'manage_consultation_requests', 'Manage Consultation Requests', 'web', 1, NULL, NULL);
+-- ALTER TABLE `consultations` ADD FOREIGN KEY (`case_type`) REFERENCES `case_types`(`id`) ON DELETE SET NULL ON UPDATE SET NULL;
 
 
 
@@ -184,3 +184,25 @@ ALTER TABLE `consultations` ADD FOREIGN KEY (`case_type`) REFERENCES `case_types
 -- ) ENGINE=InnoDB
 --   DEFAULT CHARSET=utf8mb4
 --   COLLATE=utf8mb4_unicode_ci;
+
+
+
+CREATE TABLE IF NOT EXISTS `lawyer_emirates` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `lawyer_id` bigint UNSIGNED DEFAULT NULL,
+  `emirate_id` bigint UNSIGNED DEFAULT NULL,
+  `priority` tinyint DEFAULT NULL COMMENT '1 = Home, 2 = Secondary',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `lawyer_emirate_unique` (`lawyer_id`,`emirate_id`),
+  KEY `lawyer_emirates_ibfk_1` (`emirate_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+ALTER TABLE `lawyer_emirates`
+  ADD CONSTRAINT `lawyer_emirates_ibfk_1` FOREIGN KEY (`emirate_id`) REFERENCES `emirates` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `lawyer_emirates_ibfk_2` FOREIGN KEY (`lawyer_id`) REFERENCES `lawyers` (`id`) ON DELETE SET NULL;
+
+
+ALTER TABLE `vendors` ADD `is_default` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'default lawfirm for consultation' AFTER `law_firm_name`;
+ALTER TABLE `lawyers` ADD `is_default` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'default lawfirm lawyer for consultation' AFTER `ref_no`;
