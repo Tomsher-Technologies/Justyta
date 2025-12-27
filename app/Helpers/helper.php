@@ -1152,7 +1152,11 @@ function findBestFitLawyer($consultation)
 {
     $languages   = (array) $consultation->language;
     $caseType    = $consultation->case_type;
-    // $emirateId   = $consultation->emirate_id;
+     $emirateId = $consultation->emirate_id;
+    $planMap = [
+        'vip'    => 1,
+        'normal' => 3,
+    ];
 
     // Already rejected lawyers
     $lawyerIdsAlreadyRejected = ConsultationAssignment::where('consultation_id', $consultation->id)
@@ -1162,7 +1166,12 @@ function findBestFitLawyer($consultation)
     $countLanguages = count($languages);
 
     $lawyerId =  DB::table('lawyers as l')
+                    ->select('l.id',DB::raw('COUNT(ca.id) as assignment_count'), DB::raw('MIN(le.priority) as emirate_priority'))
                     ->join('users as u', 'u.id', '=', 'l.user_id')
+                    ->join('lawyer_emirates as le', function ($join) use ($emirateId) {
+                        $join->on('le.lawyer_id', '=', 'l.id')
+                            ->where('le.emirate_id', $emirateId);
+                    })
                     ->join('lawyer_dropdown_options as ld_speciality', function ($join) use ($caseType) {
                         $join->on('ld_speciality.lawyer_id', '=', 'l.id')
                             ->where('ld_speciality.type', 'specialities')
@@ -1174,20 +1183,47 @@ function findBestFitLawyer($consultation)
                             ->where('ld_lang.type', 'languages')
                             ->whereIn('ld_lang.dropdown_option_id', $languages);
                     })
+                    ->when(isset($planMap[$consultation->consultant_type]), function ($q) use ($planMap, $consultation) {
+                        $q->join('vendors as v', 'v.id', '=', 'l.lawfirm_id')
+                        ->join('vendor_subscriptions as vs', function ($join) use ($planMap, $consultation) {
+                            $join->on('vs.vendor_id', '=', 'v.id')
+                                ->where('vs.status', 'active')
+                                ->where('vs.membership_plan_id', $planMap[$consultation->consultant_type]);
+                        });
+                    })
 
-                    // ->when($emirateId, function ($q) use ($emirateId) {
-                    //     $q->where('l.emirate_id', $emirateId);
-                    // })
-
+                    ->leftJoin('consultation_assignments as ca', function ($join) {
+                        $join->on('ca.lawyer_id', '=', 'l.id')
+                            ->whereIn('ca.status', ['assigned', 'accepted', 'rejected']);
+                    })
                     ->where('u.is_online', 1)
                     ->where('l.is_busy', 0)
                     ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
                     ->groupBy('l.id')
                     ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
-                    ->pluck('l.id')
-                    ->first();
+                    /* ---------- Priority Logic ---------- */
+                    ->orderBy('emirate_priority', 'asc')   // 1 → Home, 2 → Secondary
+                    ->orderBy('assignment_count', 'asc')   // Least assigned
+                    ->orderByRaw('RAND()')                 // Tie breaker
+                    ->value('l.id');
 
-    $lawyer = $lawyerId ? \App\Models\Lawyer::find($lawyerId) : null;
+    if($lawyerId){
+        $lawyer = \App\Models\Lawyer::find($lawyerId);
+    }else{
+        $lawyerId = DB::table('lawyers as l')
+                        ->select('l.id', DB::raw('COUNT(ca.id) as assignment_count'))
+                        ->join('users as u', 'u.id', '=', 'l.user_id')
+                        ->leftJoin('consultation_assignments as ca', 'ca.lawyer_id', '=', 'l.id')
+                        ->where('u.is_online', 1)
+                        ->where('l.is_busy', 0)
+                        ->where('l.is_default', 1)
+                        ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
+                        ->groupBy('l.id')
+                        ->orderBy('assignment_count', 'asc')
+                        ->orderByRaw('RAND()')
+                        ->value('l.id');
+        $lawyer = \App\Models\Lawyer::find($lawyerId);
+    }
 
     return $lawyer;
 }

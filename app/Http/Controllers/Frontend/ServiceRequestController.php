@@ -1427,7 +1427,7 @@ class ServiceRequestController extends Controller
         return redirect()->route('user.dashboard')->with('error', 'Payment failed or cancelled.');
     }
 
-    public function consultationCancelPayment(Request $request){
+    public function consultationPaymentCancel(Request $request){
         $ref = $request->get('ref'); 
 
         $servicePayment = ConsultationPayment::where('payment_reference', $ref)->first();

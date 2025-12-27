@@ -76,6 +76,11 @@
                                 </div>
                             </form>
 
+                            <div class="d-flex align-items-center mb-2">
+                                <span style="width: 26px;height: 16px;background-color: #d4ffe6;border: 1px solid #9fd9b8;display: inline-block;margin-right: 8px;border-radius: 3px;"></span>
+                                <span style="color: #000;">Default Law Firm for online consultation</span>
+                            </div>
+
                             <div class="table-responsive">
                                 <table class="table table-bordered table-basic mb-0">
                                     <thead>
@@ -97,11 +102,11 @@
                                             @if ($vendors->isNotEmpty())
                                                 @foreach ($vendors as $key => $vendor)
                                                     <tr>
-                                                        <td class="text-center">
+                                                        <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             {{ $key + 1 + ($vendors->currentPage() - 1) * $vendors->perPage() }}
                                                         </td>
-                                                        <td class="text-center">{{ $vendor->ref_no }}</td>
-                                                        <td>
+                                                        <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>{{ $vendor->ref_no }}</td>
+                                                        <td @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             <div class="d-flex align-items-center">
                                                                 {{-- @if ($vendor->logo)
                                                                     <img src="{{ asset(getUploadedImage($vendor->logo)) }}"
@@ -131,17 +136,22 @@
                                                             </div>
                                                         </td>
                                                         
-                                                        <td class="text-center">
+                                                        <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             {{ $vendor->currentSubscription->plan->title ?? 'N/A' }}</td>
-                                                        <td class="text-center">
+                                                        <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             {{ $vendor->currentSubscription?->subscription_start ? \Carbon\Carbon::parse($vendor->currentSubscription->subscription_start)->format('d M Y') : '-' }}
                                                         </td>
-                                                        <td class="text-center">
+                                                        <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             {{ $vendor->currentSubscription?->subscription_end ? \Carbon\Carbon::parse($vendor->currentSubscription->subscription_end)->format('d M Y') : '-' }}
                                                         </td>
 
-                                                        <td class="text-center"> 0</td>
-                                                        <td class="text-center">
+                                                        <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif> 
+                                                            <a href="{{ route('lawyers.index', ['lawfirm_id' => $vendor->id]) }}" style="color: black; text-decoration: underline;">
+                                                                {{ $vendor->lawyers->count() }}
+                                                            </a>
+                                                            
+                                                        </td>
+                                                        <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             @can('edit_vendor')
                                                                 <div class="atbd-switch-wrap">
                                                                     <div
@@ -159,7 +169,7 @@
                                                             @endcan
                                                         </td>
 
-                                                        <td class="text-center">
+                                                        <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             @if($vendor->user->approved == 0)
                                                                 @can('approve_vendor')
                                                                     <div class="d-flex ">
@@ -187,7 +197,7 @@
                                                                 @endif
                                                             @endif
                                                         </td>
-                                                        <td class="text-center">
+                                                        <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             @can('edit_vendor')
                                                                 <div class="table-actions">
                                                                     <a href="{{ route('vendors.edit', $vendor->id) }}"
