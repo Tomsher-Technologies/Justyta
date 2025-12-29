@@ -124,6 +124,15 @@
 
 
 
+
+
+
+
+
+
+
+
+
 -- Shamil Queries
 
 -- CREATE TABLE `page_sections` (
@@ -207,15 +216,15 @@
 -- ALTER TABLE `lawyers` ADD `is_default` TINYINT(1) NOT NULL DEFAULT '0' COMMENT 'default lawfirm lawyer for consultation' AFTER `ref_no`;
 
 
-ALTER TABLE `page_sections` ADD `services` JSON NULL DEFAULT NULL AFTER `image`;
-ALTER TABLE `page_sections` ADD `image1` VARCHAR(255) NULL DEFAULT NULL AFTER `status`, ADD `image2` VARCHAR(255) NULL DEFAULT NULL AFTER `image1`, ADD `link1` TEXT NULL DEFAULT NULL AFTER `image2`, ADD `link2` TEXT NULL DEFAULT NULL AFTER `link1`;
+-- ALTER TABLE `page_sections` ADD `services` JSON NULL DEFAULT NULL AFTER `image`;
+-- ALTER TABLE `page_sections` ADD `image1` VARCHAR(255) NULL DEFAULT NULL AFTER `status`, ADD `image2` VARCHAR(255) NULL DEFAULT NULL AFTER `image1`, ADD `link1` TEXT NULL DEFAULT NULL AFTER `image2`, ADD `link2` TEXT NULL DEFAULT NULL AFTER `link1`;
 
-INSERT INTO `pages` (`id`, `name`, `slug`, `content`, `created_at`, `updated_at`) VALUES (NULL, 'Terms and Conditions', 'terms_conditions', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-INSERT INTO `pages` (`id`, `name`, `slug`, `content`, `created_at`, `updated_at`) VALUES (NULL, 'Privacy Policy', 'privacy_policy', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-INSERT INTO `pages` (`id`, `name`, `slug`, `content`, `created_at`, `updated_at`) VALUES (NULL, 'Refund Policy', 'refund_policy', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+-- INSERT INTO `pages` (`id`, `name`, `slug`, `content`, `created_at`, `updated_at`) VALUES (NULL, 'Terms and Conditions', 'terms_conditions', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+-- INSERT INTO `pages` (`id`, `name`, `slug`, `content`, `created_at`, `updated_at`) VALUES (NULL, 'Privacy Policy', 'privacy_policy', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+-- INSERT INTO `pages` (`id`, `name`, `slug`, `content`, `created_at`, `updated_at`) VALUES (NULL, 'Refund Policy', 'refund_policy', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-INSERT INTO `page_sections` (`id`, `page_id`, `section_type`, `section_key`, `image`, `services`, `order`, `status`, `image1`, `image2`, `link1`, `link2`, `created_at`, `updated_at`) VALUES (NULL, '36', 'custom', 'terms_conditions_main', NULL, NULL, '0', '1', NULL, NULL, NULL, NULL, '2025-12-29 14:21:49', '2025-12-29 14:21:49');
+-- INSERT INTO `page_sections` (`id`, `page_id`, `section_type`, `section_key`, `image`, `services`, `order`, `status`, `image1`, `image2`, `link1`, `link2`, `created_at`, `updated_at`) VALUES (NULL, '36', 'custom', 'terms_conditions_main', NULL, NULL, '0', '1', NULL, NULL, NULL, NULL, '2025-12-29 14:21:49', '2025-12-29 14:21:49');
 
-INSERT INTO `page_sections` (`id`, `page_id`, `section_type`, `section_key`, `image`, `services`, `order`, `status`, `image1`, `image2`, `link1`, `link2`, `created_at`, `updated_at`) VALUES (NULL, '37', 'custom', 'privacy_policy_main', NULL, NULL, '0', '1', NULL, NULL, NULL, NULL, '2025-12-29 14:21:49', '2025-12-29 14:21:49');
+-- INSERT INTO `page_sections` (`id`, `page_id`, `section_type`, `section_key`, `image`, `services`, `order`, `status`, `image1`, `image2`, `link1`, `link2`, `created_at`, `updated_at`) VALUES (NULL, '37', 'custom', 'privacy_policy_main', NULL, NULL, '0', '1', NULL, NULL, NULL, NULL, '2025-12-29 14:21:49', '2025-12-29 14:21:49');
 
-INSERT INTO `page_sections` (`id`, `page_id`, `section_type`, `section_key`, `image`, `services`, `order`, `status`, `image1`, `image2`, `link1`, `link2`, `created_at`, `updated_at`) VALUES (NULL, '38', 'custom', 'refund_policy_main', NULL, NULL, '0', '1', NULL, NULL, NULL, NULL, '2025-12-29 14:21:49', '2025-12-29 14:21:49');
+-- INSERT INTO `page_sections` (`id`, `page_id`, `section_type`, `section_key`, `image`, `services`, `order`, `status`, `image1`, `image2`, `link1`, `link2`, `created_at`, `updated_at`) VALUES (NULL, '38', 'custom', 'refund_policy_main', NULL, NULL, '0', '1', NULL, NULL, NULL, NULL, '2025-12-29 14:21:49', '2025-12-29 14:21:49');
