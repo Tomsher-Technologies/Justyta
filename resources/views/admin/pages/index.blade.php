@@ -24,12 +24,13 @@
                                             <div class="card-body">
                                                 <h6 class="card-title mb-3">{{ $page->name }}</h6>
                                                 <div class="d-flex justify-content-center " style="gap: 10px;">
-                                                    <a href="{{ route('pages.sections.index', $page->id) }}"
-                                                        class="btn btn-primary btn-xs">
-                                                        <i class="la la-th-list"></i> Manage Sections
-                                                    </a>
-                                                    <a href="{{ route('pages.edit', $page->id) }}"
-                                                        class="btn btn-primary btn-xs">
+                                                    @if(in_array($page->slug, ['contact_page','services_page','news','about-us','home','terms_conditions','privacy_policy','refund_policy']))
+                                                        <a href="{{ route('pages.sections.index', $page->id) }}" class="btn btn-primary btn-xs">
+                                                            <i class="la la-th-list"></i> Manage Sections
+                                                        </a>
+                                                    @endif
+                                                    
+                                                    <a href="{{ route('pages.edit', $page->id) }}" class="btn btn-primary btn-xs">
                                                         <i class="la la-edit"></i> Edit
                                                     </a>
                                                 </div>
