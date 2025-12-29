@@ -103,16 +103,34 @@ class HomeController extends Controller
 
     public function refundPolicy()
     {
-        return view('frontend.refund-policy');
+        $lang = app()->getLocale() ?? 'en';
+        $page = \App\Models\Page::with(['sections' => function ($q) {
+                                    $q->where('status', 1)->orderBy('order');
+                                }, 'sections.translations'])
+                                ->where('slug', 'refund_policy')
+                                ->first();
+        return view('frontend.refund-policy', compact('page', 'lang'));
     }
 
     public function privacyPolicy()
     {
-        return view('frontend.privacy-policy');
+        $lang = app()->getLocale() ?? 'en';
+        $page = \App\Models\Page::with(['sections' => function ($q) {
+                                    $q->where('status', 1)->orderBy('order');
+                                }, 'sections.translations'])
+                                ->where('slug', 'privacy_policy')
+                                ->first();
+        return view('frontend.privacy-policy', compact('page', 'lang'));
     }
     public function termsConditions()
     {
-        return view('frontend.terms-conditions');
+        $lang = app()->getLocale() ?? 'en';
+        $page = \App\Models\Page::with(['sections' => function ($q) {
+                                    $q->where('status', 1)->orderBy('order');
+                                }, 'sections.translations'])
+                                ->where('slug', 'terms_conditions')
+                                ->first();
+        return view('frontend.terms-conditions', compact('page', 'lang'));
     }
     public function userDashboard()
     {

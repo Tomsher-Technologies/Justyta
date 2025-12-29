@@ -1427,3 +1427,27 @@ function getFullStatusHistory(ServiceRequest $serviceRequest): array
         $user = User::find($userId);
         return $user->is_online;
     }
+
+    function getServiceData($serviceids){
+        $lang = app()->getLocale() ?? 'en';
+        $services = Service::with(['translations' => function ($query) use ($lang) {
+                        $query->where('lang', $lang);
+                    }])
+                    ->whereIn('id', $serviceids)
+                    ->where('status', 1)
+                    ->orderBy('sort_order', 'ASC')
+                    ->get();
+        return $services;
+    }
+
+    function getAllServiceData(){
+        $lang = app()->getLocale() ?? 'en';
+        $services = Service::with(['translations' => function ($query) use ($lang) {
+                        $query->where('lang', $lang);
+                    }])
+                    ->where('status', 1)
+                    ->where('slug', '!=', 'law-firm-services')
+                    ->orderBy('sort_order', 'ASC')
+                    ->get();
+        return $services;
+    }
