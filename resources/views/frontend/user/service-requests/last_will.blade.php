@@ -101,9 +101,15 @@
 
                 <hr class="my-8 mb-5" />
 
-                <h2 class="text-xl font-medium text-[#07683B] mb-4">
+                <h2 class="text-xl font-medium text-[#07683B]">
                     {{ __('frontend.upload_documents') }}
                 </h2>
+
+                <div class="mb-6">
+                    <small class="text-gray-500 d-block mb-4">
+                        ({{ __('frontend.file_size_info') }})
+                    </small>
+                </div>
 
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-2 xl:gap-6">
                     

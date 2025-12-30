@@ -505,4 +505,10 @@ return [
 'maxlength2'    => 'حداکثر ۲ کاراکتر مجاز است.',
 'maxlength25'   => 'حداکثر ۲۵ کاراکتر مجاز است.',
 'maxlength15'   => 'حداکثر ۱۵ کاراکتر مجاز است.',
+'privacy_policy' => 'سیاست حفظ حریم خصوصی',
+'refund_policy' => 'سیاست بازپرداخت',
+'go_to_service' => 'رفتن به سرویس',
+'file_size_info' => 'فرمت‌های مجاز فایل: PDF، JPG، JPEG، WEBP، PNG، SVG، DOC، DOCX • حداکثر حجم: ۱۰۰ مگابایت',
+'file_size_info_image' => 'فرمت‌های مجاز فایل: PDF، JPG، JPEG، WEBP، PNG، SVG • حداکثر حجم: ۱۰۰ مگابایت',
+'including_vat' => 'شامل مالیات بر ارزش افزوده',
 ];

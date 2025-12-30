@@ -514,4 +514,7 @@ return [
     'privacy_policy' => 'Privacy Policy',
     'refund_policy' => 'Refund Policy',
     'go_to_service' => 'Go to Service',
+    'file_size_info' => 'File upload allowed formats: PDF, JPG, JPEG, WEBP, PNG, SVG, DOC, DOCX • Max size: 100 MB',
+    'file_size_info_image' => 'File upload allowed formats: PDF, JPG, JPEG, WEBP, PNG, SVG • Max size: 100 MB',
+    'including_vat' => 'Including VAT',
 ];

@@ -87,14 +87,21 @@
 
                 <hr class="my-8 mb-5" />
 
-                <h2 class="text-xl font-medium text-[#07683B] mb-4">
+                <h2 class="text-xl font-medium text-[#07683B]">
                     {{ __('frontend.upload_documents') }}
                 </h2>
 
+                <div class="mb-6">
+                    <small class="text-gray-500 d-block mb-4">
+                        ({{ __('frontend.file_size_info') }})
+                    </small>
+                </div>
+                
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-2 xl:gap-6">
                     <div>
                         <label for="memo" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.memo') }}
                             {{-- <span class="text-red-500">*</span> --}}
+                            
                         </label>
                         <input class="file-input block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" id="memo" type="file"  name="memo[]" multiple data-preview="memo-preview"/>
                         <div id="memo-preview" class="mt-2 grid grid-cols-4 gap-2"></div>
