@@ -25,7 +25,7 @@
                                 class="block mb-2 text-sm font-medium text-gray-900 ">{{ __('frontend.full_name') }}<span
                                     class="text-red-500">*</span></label>
                             <input type="text" id="name" name="name" value="{{ old('name') }}"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-4 "
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-4 " 
                                 placeholder="{{ __('frontend.enter_full_name') }}" required />
                             @error('name')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
@@ -63,6 +63,7 @@
                             <input type="text" id="subject" name="subject" value="{{ old('subject') }}"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-4 "
                                 placeholder="{{ __('frontend.enter') }}" required />
+                            <small id="subjectCount" class="float-right">0/255</small>
                             @error('subject')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
@@ -75,6 +76,7 @@
                             <textarea id="message" name="message" rows="6"
                                 class="block p-3.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 "
                                 placeholder="{{ __('frontend.message') }}">{{ old('message') }}</textarea>
+                            <small id="messageCount" class="float-right">0/2000</small>
                             @error('message')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
@@ -102,4 +104,60 @@
 
 
     </section>
+@endsection
+
+@section('script')
+    <script>
+        const subjectInput = document.querySelector('[name="subject"]');
+        const maxSubjectLength = 255;
+
+        subjectInput.addEventListener('input', function () {
+            if (this.value.length > maxSubjectLength) {
+                this.value = this.value.slice(0, maxSubjectLength);
+            }
+
+            document.getElementById('subjectCount').innerText =
+                this.value.length + '/' + maxSubjectLength;
+        });
+
+        const messageInput = document.querySelector('[name="message"]');
+        const maxMessageLength = 2000;
+
+        messageInput.addEventListener('input', function () {
+            if (this.value.length > maxMessageLength) {
+                this.value = this.value.slice(0, maxMessageLength);
+            }
+
+            document.getElementById('messageCount').innerText =
+                this.value.length + '/' + maxMessageLength;
+        });
+
+        const nameInput = document.querySelector('[name="name"]');
+        const maxNameLength = 150;
+
+        nameInput.addEventListener('input', function () {
+            if (this.value.length > maxNameLength) {
+                this.value = this.value.slice(0, maxNameLength);
+            }
+        });
+
+        const emailInput = document.querySelector('[name="email"]');
+        const maxEmailLength = 100;
+
+        emailInput.addEventListener('input', function () {
+            if (this.value.length > maxEmailLength) {
+                this.value = this.value.slice(0, maxEmailLength);
+            }
+        });
+
+        const mobileInput = document.querySelector('[name="mobile"]');
+        const maxMobileLength = 20;
+
+        mobileInput.addEventListener('input', function () {
+            if (this.value.length > maxMobileLength) {
+                this.value = this.value.slice(0, maxMobileLength);
+            }
+        });
+          
+    </script>
 @endsection
