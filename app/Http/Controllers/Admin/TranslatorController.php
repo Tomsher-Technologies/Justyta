@@ -89,7 +89,6 @@ class TranslatorController extends Controller
                     'required',
                     'email',
                     Rule::unique('users', 'email')
-                        ->where('user_type', 'translator'),
                 ],
             'phone' => 'required|string|max:20',
             'company_name' => 'nullable|string|max:255',
@@ -176,7 +175,6 @@ class TranslatorController extends Controller
                     'email',
                     Rule::unique('users', 'email')
                         ->ignore($user->id)
-                        ->where('user_type', 'translator'),
                 ],
             'phone' => 'required|string|max:20',
             'company_name' => 'nullable|string|max:255',

@@ -104,7 +104,6 @@ class VendorController extends Controller
                     'required',
                     'email',
                     Rule::unique('users', 'email')
-                        ->where('user_type', 'vendor'),
                 ],
             'owner_phone' => 'required|string|max:20',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:200',
@@ -229,7 +228,6 @@ class VendorController extends Controller
                     'email',
                     Rule::unique('users', 'email')
                         ->ignore($user->id)
-                        ->where('user_type', 'vendor'),
                 ],
             'owner_phone' => 'required|string|max:20',
             'logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:200',

@@ -130,7 +130,6 @@ class AuthController extends Controller
                 'required',
                 'email',
                 Rule::unique('users', 'email')
-                    ->where('user_type', 'user'),
             ],
             'phone'     => 'required|regex:/^[0-9+\-\(\)\s]+$/|max:20',
             'password' => [
@@ -322,7 +321,6 @@ class AuthController extends Controller
                 'required',
                 'email',
                 Rule::unique('users', 'email')
-                    ->where('user_type', 'vendor'),
             ],
             'owner_phone'                       => 'required|string|max:20',
             'logo'                              => 'nullable|image|mimes:jpg,jpeg,png|max:102400',

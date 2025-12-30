@@ -443,7 +443,6 @@ class VendorHomeController extends Controller
                     'required',
                     'email',
                     Rule::unique('users', 'email')
-                        ->where('user_type', 'lawyer'),
                 ],
             'phone' => 'required|string|max:20',
             'emirate_id' => 'required|string',

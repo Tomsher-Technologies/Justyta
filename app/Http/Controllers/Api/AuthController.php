@@ -101,7 +101,6 @@ class AuthController extends Controller
                     'required',
                     'email',
                     Rule::unique('users', 'email')
-                        ->where('user_type', 'user'),
                 ],
             'phone'     => 'required|string|max:20',
             'password'  => 'required|string|min:6',
