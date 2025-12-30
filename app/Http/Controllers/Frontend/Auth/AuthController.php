@@ -562,6 +562,7 @@ class AuthController extends Controller
                 <li><strong>Firm Name : </strong> $vendor->law_firm_name </li>
                 <li><strong>Registered Email : </strong> $vendor->owner_email </li>
                 <li><strong>Plan : </strong> $plan->title </li>
+                <li><strong>Plan Amount : </strong> AED $plan->amount </li>
                 <li><strong>Plan Expiry Date : </strong> " . now()->addYear() . " </li>
                 </ul>
                 <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>

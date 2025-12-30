@@ -505,4 +505,10 @@ return [
 'maxlength2'    => '最多允许 2 个字符。',
 'maxlength25'   => '最多允许 25 个字符。',
 'maxlength15'   => '最多允许 15 个字符。',
+'privacy_policy' => '隐私政策',
+'refund_policy' => '退款政策',
+'go_to_service' => '前往服务',
+'file_size_info' => '允许的文件格式：PDF、JPG、JPEG、WEBP、PNG、SVG、DOC、DOCX • 最大大小：100 MB',
+'file_size_info_image' => '允许的文件格式：PDF、JPG、JPEG、WEBP、PNG、SVG • 最大大小：100 MB',
+'including_vat' => '含增值税', 
 ];

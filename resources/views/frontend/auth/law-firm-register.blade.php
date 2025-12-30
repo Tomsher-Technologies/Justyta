@@ -141,7 +141,12 @@
                 <hr class="my-8 border-gray-300">
 
                 <div>
-                    <h3 class="text-xl font-medium text-[#07683B] mb-4">{{ __('frontend.owner_information') }}</h3>
+                    <h3 class="text-xl font-medium text-[#07683B]">{{ __('frontend.owner_information') }}</h3>
+                    <div class="mb-6">
+                        <small class="text-gray-500 d-block mb-4">
+                            ({{ __('frontend.file_size_info_image') }})
+                        </small>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div>
                             <label
@@ -440,7 +445,7 @@
                                             <p class="text-2xl font-semibold text-gray-800 mb-0">
                                                 {{ number_format($plan->amount, 2) }} {{ __('frontend.AED') }}
                                             </p>
-                                            <span class="text-xs">plus applicable taxes</span>
+                                            <span class="text-xs">{{ __('frontend.including_vat') }} {{ __('frontend.AED') }} {{ number_format($plan->vat_amount, 2) }}</span>
                                             {!! $plan->is_active
                                             ? '<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Active</span>'
                                             : '<span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">Inactive</span>' !!}

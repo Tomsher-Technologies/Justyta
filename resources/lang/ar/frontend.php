@@ -505,4 +505,10 @@ return [
 'maxlength2'    => 'الحد الأقصى المسموح به 2 حرف.',
 'maxlength25'   => 'الحد الأقصى المسموح به 25 حرف.',
 'maxlength15'   => 'الحد الأقصى المسموح به 15 حرف.',
+'privacy_policy' => 'سياسة الخصوصية',
+'refund_policy' => 'سياسة الاسترداد',
+'go_to_service' => 'الانتقال إلى الخدمة',
+'file_size_info' => 'صيغ الملفات المسموح بها: PDF، JPG، JPEG، WEBP، PNG، SVG، DOC، DOCX • الحد الأقصى للحجم: 100 ميجابايت',
+'file_size_info_image' => 'صيغ الملفات المسموح بها: PDF، JPG، JPEG، WEBP، PNG، SVG • الحد الأقصى للحجم: 100 ميجابايت',
+'including_vat' => 'شامل ضريبة القيمة المضافة', 
 ];
