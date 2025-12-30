@@ -465,8 +465,8 @@ class AuthController extends Controller
                     'annual_free_ad_days'               => $plan->annual_free_ad_days,
                     'unlimited_training_applications'   => $plan->unlimited_training_applications,
                     'welcome_gift'                      => $plan->welcome_gift,
-                    'subscription_start'                => now(),
-                    'subscription_end'                  => now()->addYear(),
+                    'subscription_start'                => NULL,
+                    'subscription_end'                  => NULL,
                     'status'                            => 'pending',
                     'payment_reference'                 => $payment['reference'] ?? null,
                 ]);
@@ -561,7 +561,7 @@ class AuthController extends Controller
                 <ul>
                 <li><strong>Firm Name : </strong> $vendor->law_firm_name </li>
                 <li><strong>Registered Email : </strong> $vendor->owner_email </li>
-                <li><strong>Plan : </strong> $plan->title ?? '' </li>
+                <li><strong>Plan : </strong> $plan->title </li>
                 <li><strong>Plan Expiry Date : </strong> " . now()->addYear() . " </li>
                 </ul>
                 <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>

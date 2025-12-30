@@ -178,10 +178,16 @@
                                         <option value="">Select Plan</option>
                                         @foreach ($plans as $plan)
                                             <option value="{{ $plan->id }}"
-                                                {{ old('subscription_plan_id', $vendor->currentSubscription?->membership_plan_id) == $plan->id ? 'selected' : '' }}>
+                                                {{ old('subscription_plan_id', $vendor->latestSubscription?->membership_plan_id) == $plan->id ? 'selected' : '' }}>
                                                 {{ $plan->title }}</option>
                                         @endforeach
                                     </select>
+                                    <div class="form-check mt-2">
+                                        <input type="checkbox" name="update_subscription" value="1" class="form-check-input float-left mt-2" style="width: 5%;height:55%;"
+                                            {{ old('update_subscription') ? 'checked' : '' }}>
+                                        <label class="col-form-label color-dark fw-500 align-center ml-1">Update Subscription
+                                            Details</label>
+                                    </div>
                                     @error('subscription_plan_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
