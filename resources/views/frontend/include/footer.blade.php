@@ -2,71 +2,74 @@
      <div class="grid grid-cols-2 xl:grid-cols-4 gap-y-10 xl:gap-y-[unset]">
          <div class="col-span-2 xl:col-span-1">
              @php
-             $aboutDescription = \App\Models\WebsiteSetting::where('key', 'shop_description')->value('value');
+                $settings = \App\Models\WebsiteSetting::pluck('value', 'key')->toArray();
              @endphp
-             <h3 class="font-cinzel font-bold text-[20px] mb-5">About Us</h3>
-             <p class="mb-5">{{ $aboutDescription }}</p>
-             <p>Justyta© 2025 All rights reserved. <br />Designed by <a href="https://www.tomsher.com/" target="_blank">Tomsher</a></p>
+             <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ $settings['block_heading_1'] }}</h3>
+             <p class="mb-5">{{ $settings['shop_description'] }}</p>
+             <p>{{ $settings['footer_copyright'] }}
+                 <br />Designed by <a href="https://www.tomsher.com/"
+                     target="_blank">Tomsher</a></p>
          </div>
          <div>
-             <h3 class="font-cinzel font-bold text-[20px] mb-5">Navigation</h3>
+             <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ $settings['block_heading_2'] }}</h3>
              <ul class="flex flex-col items-start gap-2 xl:gap-4">
                  <li>
-                     <a href="{{ route('home') }}">Home</a>
+                     <a href="{{ route('home') }}">{{ __('frontend.home') }}</a>
                  </li>
                  <li>
-                     <a href="{{ route('aboutus') }}">About Us</a>
+                     <a href="{{ route('aboutus') }}">{{ __('frontend.about_us') }}</a>
                  </li>
                  <li>
-                     <a href="{{ route('services') }}">Services</a>
+                     <a href="{{ route('services') }}">{{ __('frontend.services') }}</a>
                  </li>
                  <li>
-                     <a href="{{ route('contactus') }}">Contact Us</a>
+                     <a href="{{ route('contactus') }}">{{ __('frontend.contact_us') }}</a>
                  </li>
              </ul>
          </div>
          <div>
-             <h3 class="font-cinzel font-bold text-[20px] mb-5">Quick Links</h3>
+             <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ $settings['block_heading_3'] }}</h3>
              <ul class="flex flex-col items-start gap-2 xl:gap-4">
 
                  <li>
-                     <a href="{{ route('terms-conditions') }}">Terms and Conditions</a>
+                     <a href="{{ route('terms-conditions') }}">{{ __('frontend.terms') }}</a>
                  </li>
                  <li>
-                     <a href="{{ route('privacy-policy') }}">Privacy Policy</a>
+                     <a href="{{ route('privacy-policy') }}">{{ __('frontend.privacy_policy') }}</a>
                  </li>
                  <li>
-                     <a href="{{ route('refund-policy') }}">Refund Policy</a>
+                     <a href="{{ route('refund-policy') }}">{{ __('frontend.refund_policy') }}</a>
                  </li>
 
              </ul>
          </div>
          <div class="col-span-2 xl:col-span-1">
-             <h3 class="font-cinzel font-bold text-[20px] mb-5">Contact Us</h3>
+             <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ $settings['block_heading_4'] }}</h3>
              <ul class="flex flex-col items-start gap-2 xl:gap-4">
                  <li>
-                     <a href="#">info@justyta.com</a>
+                     <a href="mailto:{{ $settings['email'] }}">{{ $settings['email'] }}</a>
                  </li>
-                 <li>
-                     <a href="#">Sharjah, United Arab Emirates</a>
+                 <li> {!! nl2br($settings['address']) !!}</li>
              </ul>
 
              <ul class="flex items-center gap-4 mt-6">
                  @php
-                 $footerLinks = \App\Models\WebsiteSetting::where('key', 'footer_links')->value('value');
-                 $footerLinks = $footerLinks ? json_decode($footerLinks, true) : [];
+                     $footerLinks = \App\Models\WebsiteSetting::where('key', 'footer_links')->value('value');
+                     $footerLinks = $footerLinks ? json_decode($footerLinks, true) : [];
                  @endphp
 
-                 @if(!empty($footerLinks))
-                 @foreach($footerLinks as $link)
-                 @if(!empty($link['icon']) && !empty($link['url']))
-                 <li>
-                     <a href="{{ $link['url'] }}" target="_blank" class="bg-white block h-8 w-8 xl:h-12 xl:w-12 p-1.5 xl:p-3 rounded-full social-icon-svg" title="{{ $link['title'] ?? '' }}">
-                         {!! $link['icon'] !!}
-                     </a>
-                 </li>
-                 @endif
-                 @endforeach
+                 @if (!empty($footerLinks))
+                     @foreach ($footerLinks as $link)
+                         @if (!empty($link['icon']) && !empty($link['url']))
+                             <li>
+                                 <a href="{{ $link['url'] }}" target="_blank"
+                                     class="bg-white block h-8 w-8 xl:h-12 xl:w-12 p-1.5 xl:p-3 rounded-full social-icon-svg"
+                                     title="{{ $link['title'] ?? '' }}">
+                                     {!! $link['icon'] !!}
+                                 </a>
+                             </li>
+                         @endif
+                     @endforeach
                  @endif
              </ul>
          </div>

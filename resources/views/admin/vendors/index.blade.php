@@ -87,12 +87,13 @@
                                         <tr class="userDatatable-header">
                                             <th class="text-center">#</th>
                                             <th>Reference No</th>
-                                            <th width="25%">Law Firm Info</th>
+                                            <th style="width: 20%">Law Firm Info</th>
                                             <th class="text-center">Plan</th>
-                                            <th class="text-center">Start Date</th>
-                                            <th class="text-center">End Date</th>
+                                            <th class="text-center">StartDate</th>
+                                            <th class="text-center">EndDate</th>
                                             <th class="text-center">Total Members</th>
                                             <th class="text-center">Status</th>
+                                            <th class="text-center">Registration Date</th>
                                             <th class="text-center">Approval</th>
                                             <th class="text-center">Action</th>
                                         </tr>
@@ -137,12 +138,24 @@
                                                         </td>
                                                         
                                                         <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>
-                                                            {{ $vendor->currentSubscription->plan->title ?? 'N/A' }}</td>
+                                                            {{ $vendor->latestSubscription->plan->title ?? 'N/A' }}
+                                                            <br>
+                                                            @if($vendor->latestSubscription->status == 'pending')
+                                                                <span class="badge badge-warning">Payment Pending</span>
+                                                            @elseif($vendor->latestSubscription->status == 'cancelled')
+                                                                <span class="badge badge-danger">Cancelled</span>
+                                                            @elseif($vendor->latestSubscription->status == 'active')
+                                                                <span class="badge badge-success">Active</span>
+                                                            @elseif($vendor->latestSubscription->status == 'expired')
+                                                                <span class="badge badge-danger">Expired</span>
+                                                            @endif
+                                                        </td>
+
                                                         <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>
-                                                            {{ $vendor->currentSubscription?->subscription_start ? \Carbon\Carbon::parse($vendor->currentSubscription->subscription_start)->format('d M Y') : '-' }}
+                                                            {{ $vendor->latestSubscription?->subscription_start ? \Carbon\Carbon::parse($vendor->latestSubscription->subscription_start)->format('d M Y') : '-' }}
                                                         </td>
                                                         <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>
-                                                            {{ $vendor->currentSubscription?->subscription_end ? \Carbon\Carbon::parse($vendor->currentSubscription->subscription_end)->format('d M Y') : '-' }}
+                                                            {{ $vendor->latestSubscription?->subscription_end ? \Carbon\Carbon::parse($vendor->latestSubscription->subscription_end)->format('d M Y') : '-' }}
                                                         </td>
 
                                                         <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif> 
@@ -167,6 +180,10 @@
                                                                     </div>
                                                                 </div>
                                                             @endcan
+                                                        </td>
+
+                                                        <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>
+                                                            {{ \Carbon\Carbon::parse($vendor->created_at)->format('d M Y') }}
                                                         </td>
 
                                                         <td class="text-center" @if ($vendor->is_default == 1) style="background-color: #d4ffe6;" @endif>

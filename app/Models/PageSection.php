@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PageSection extends Model
 {
-    protected $fillable = ['page_id', 'section_type', 'section_key', 'image', 'order', 'status'];
+    protected $fillable = ['page_id', 'section_type', 'section_key', 'image', 'order', 'status','services', 'image1', 'image2', 'link1', 'link2'];
 
     public function page()
     {

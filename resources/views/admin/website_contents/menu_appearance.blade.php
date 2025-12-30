@@ -28,8 +28,8 @@
                         class="row">
                         @csrf
 
-                        <div class="col-12 mb-3">
-                            <label for="logo" class="col-form-label fw-500">Site Logo</label>
+                        <div class="col-6 mb-3">
+                            <label for="logo" class="col-form-label fw-500 color-dark">Site Logo</label>
                             <input type="file"
                                 name="logo"
                                 id="logo"
@@ -48,8 +48,43 @@
                             @enderror
                         </div>
 
+                        <div class="col-6 mb-3">
+                            <label for="footer_copyright" class="col-form-label fw-500 color-dark">
+                                Footer Copyright
+                            </label>
+                            <input type="text" name="footer_copyright" id="footer_copyright" class="form-control" value="{{ $settings['footer_copyright'] ?? '' }}">
+
+                            @error('footer_copyright')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+
+                        <div class="col-6 mb-3">
+                            <label for="email" class="col-form-label fw-500 color-dark">
+                                Contact Email
+                            </label>
+                            <input type="email" name="email" id="email" class="form-control" value="{{ $settings['email'] ?? '' }}">
+
+                            @error('email')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-6 mb-3">
+                            <label for="address" class="col-form-label fw-500 color-dark">
+                                Contact Address
+                            </label>
+                            <textarea type="text" name="address" id="address" class="form-control" rows="3">{{ $settings['address'] ?? '' }}</textarea>
+
+                            @error('address')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+
                         <div class="col-12 mb-3">
-                            <label for="shop_description" class="col-form-label fw-500">
+                            <label for="shop_description" class="col-form-label fw-500 color-dark">
                                 Shop Description
                             </label>
                             <textarea name="shop_description"
@@ -62,8 +97,10 @@
                             @enderror
                         </div>
 
+                        
+
                         <div class="col-12 mb-3">
-                            <label class="col-form-label fw-500">Footer Social Links</label>
+                            <label class="col-form-label fw-500 color-dark">Footer Social Links</label>
 
                             @php
                             $footerLinks = isset($settings['footer_links'])
@@ -113,6 +150,56 @@
                             </button>
                         </div>
 
+                        <div class="col-12">
+                            <hr>
+                            <h6><u>Block Headings</u></h6>
+                            
+                            <div class="row mt-2">
+                                <div class="col-6 mb-3">
+                                    <label for="block_heading_1" class="col-form-label fw-500 color-dark">
+                                        Block Heading 1
+                                    </label>
+                                    <input type="text" name="block_heading_1" id="block_heading_1" class="form-control" value="{{ $settings['block_heading_1'] ?? '' }}">
+
+                                    @error('block_heading_1')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-6 mb-3">
+                                    <label for="block_heading_2" class="col-form-label fw-500 color-dark">
+                                        Block Heading 2
+                                    </label>
+                                    <input type="text" name="block_heading_2" id="block_heading_2" class="form-control" value="{{ $settings['block_heading_2'] ?? '' }}">
+
+                                    @error('block_heading_2')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-6 mb-3">
+                                    <label for="block_heading_3" class="col-form-label fw-500 color-dark">
+                                        Block Heading 3
+                                    </label>
+                                    <input type="text" name="block_heading_3" id="block_heading_3" class="form-control" value="{{ $settings['block_heading_3'] ?? '' }}">
+
+                                    @error('block_heading_3')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-6 mb-3">
+                                    <label for="block_heading_4" class="col-form-label fw-500 color-dark">
+                                        Block Heading 4
+                                    </label>
+                                    <input type="text" name="block_heading_4" id="block_heading_4" class="form-control" value="{{ $settings['block_heading_4'] ?? '' }}">
+
+                                    @error('block_heading_4')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-12 d-flex justify-content-end mt-4">
                             <button type="submit" class="btn btn-primary btn-sm">
                                 Update Settings

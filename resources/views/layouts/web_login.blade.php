@@ -17,6 +17,13 @@
     <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
 
     @yield('style')
+     <style>
+      /* .content-article li {
+         list-style: auto;
+         margin-left: 1.5rem;
+      } */
+
+   </style>
 </head>
 
 <body class="bg-white min-h-screen flex flex-col">

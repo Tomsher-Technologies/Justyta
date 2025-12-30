@@ -19,7 +19,7 @@ $translation = $news->translate($lang);
 
             <h1 class="text-3xl font-bold text-[#034833] mb-6 font-cinzel">{{ $translation->title ?? '' }}</h1>
 
-            <div class="prose max-w-none text-[#4B535D]">
+            <div class="prose max-w-none text-[#4B535D] content-article" >
                 {!! $translation->description ?? '' !!}
             </div>
 

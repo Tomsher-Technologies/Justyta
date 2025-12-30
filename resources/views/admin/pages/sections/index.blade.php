@@ -10,8 +10,8 @@
                         <div class="action-btn d-flex" style="gap: 10px;">
                             <a href="{{ route('pages.index') }}" class="btn btn-sm btn-secondary btn-add">
                                 <i class="la la-arrow-left"></i> Back to Pages</a>
-                            <a href="{{ route('pages.sections.create', $page) }}" class="btn btn-sm btn-primary btn-add">
-                                <i class="la la-plus"></i> Add New Section</a>
+                            {{-- <a href="{{ route('pages.sections.create', $page) }}" class="btn btn-sm btn-primary btn-add">
+                                <i class="la la-plus"></i> Add New Section</a> --}}
                         </div>
                     </div>
                 </div>
@@ -61,7 +61,7 @@
                                                             <a href="{{ route('pages.sections.edit', [$page, $section]) }}" title="Edit Section">
                                                                 <span data-feather="edit"></span>
                                                             </a>
-                                                            <form id="delete-form-{{ $section->id }}"
+                                                            {{-- <form id="delete-form-{{ $section->id }}"
                                                                 action="{{ route('pages.sections.destroy', [$page, $section]) }}"
                                                                 method="POST" style="display:none;">
                                                                 @csrf
@@ -70,7 +70,7 @@
                                                             <a href="javascript:void(0)" onclick="confirmDelete({{ $section->id }})"
                                                                 title="Delete Section">
                                                                 <span data-feather="trash-2"></span>
-                                                            </a>
+                                                            </a> --}}
                                                         </div>
                                                     </td>
                                                 </tr>

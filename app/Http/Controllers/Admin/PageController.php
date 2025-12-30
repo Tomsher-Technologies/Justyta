@@ -120,13 +120,14 @@ class PageController extends Controller
     {
         $section->load('translations');
         $languages = Language::where('status', 1)->get();
-        return view('admin.pages.sections.edit', compact('page', 'section', 'languages'));
+        $services = Service::where('status', 1)->where('slug', '!=', 'law-firm-services')->orderBy('sort_order')->get();
+        return view('admin.pages.sections.edit', compact('page', 'section', 'languages','services'));
     }
 
     public function updateSection(Request $request, Page $page, PageSection $section)
     {
         $request->validate([
-            'section_type' => 'required|string',
+            // 'section_type' => 'required|string',
             'section_key' => 'required|string|unique:page_sections,section_key,' . $section->id,
             'image' => 'nullable|image',
             'order' => 'required|integer',
@@ -137,7 +138,7 @@ class PageController extends Controller
             'translations.en.title.max' => 'The english title may not be greater than 255 characters.',
         ]);
 
-        $data = $request->only('section_type', 'section_key', 'order');
+        $data = $request->only('section_type', 'order');
         $data['status'] = $request->status ?? 1;
 
         $data['image'] = $section->image;
@@ -149,6 +150,25 @@ class PageController extends Controller
             $data['image'] = uploadImage('page-sections', $request->image, 'section_image');
         }
 
+        if ($request->hasfile('image1')) {
+            $icon = str_replace('/storage/', '', $section->image1);
+            if ($icon && Storage::disk('public')->exists($icon)) {
+                Storage::disk('public')->delete($icon);
+            }
+            $data['image1'] = uploadImage('page-sections', $request->image1, 'playstore_image');
+        }
+
+        if ($request->hasfile('image2')) {
+            $icon = str_replace('/storage/', '', $section->image2);
+            if ($icon && Storage::disk('public')->exists($icon)) {
+                Storage::disk('public')->delete($icon);
+            }
+            $data['image2'] = uploadImage('page-sections', $request->image2, 'appstore_image');
+        }
+
+        $data['link1'] = $request->link1 ?? null;
+        $data['link2'] = $request->link2 ?? null;
+        $data['services'] = $request->services ?? null;
         $section->update($data);
 
         foreach ($request->translations as $lang => $trans) {
