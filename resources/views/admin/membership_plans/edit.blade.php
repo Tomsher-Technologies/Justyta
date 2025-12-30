@@ -83,9 +83,31 @@
                                     <label class="col-form-label color-dark fw-500 align-center">Amount (Plan Price/Year)
                                         <span class="text-danger">*</span></label>
                                     <input type="number" step="0.01" name="amount"
-                                        value="{{ old('amount', $plan->amount) }}"
+                                        value="{{ old('amount', $plan->plain_amount) }}"
                                         class="form-control ih-medium ip-gray radius-xs b-light px-15">
                                     @error('amount')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6 mb-25">
+                                    <label class="col-form-label color-dark fw-500 align-center">VAT Amount
+                                        <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" name="vat_amount"
+                                        value="{{ old('vat_amount', $plan->vat_amount) }}"
+                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                    @error('vat_amount')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6 mb-25">
+                                    <label class="col-form-label color-dark fw-500 align-center">Total Amount
+                                        <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" name="total_amount" readonly
+                                        value="{{ old('total_amount', $plan->amount) }}"
+                                        class="form-control ih-medium ip-gray radius-xs b-light px-15">
+                                    @error('total_amount')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -254,4 +276,25 @@
             background-color: #fff;
         }
     </style>
+@endsection
+
+@section('script')
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const amountInput = document.querySelector('[name="amount"]');
+    const vatInput = document.querySelector('[name="vat_amount"]');
+    const totalInput = document.querySelector('[name="total_amount"]');
+
+    function calculateTotal() {
+        const amount = parseFloat(amountInput.value) || 0;
+        const vat = parseFloat(vatInput.value) || 0;
+        totalInput.value = (amount + vat).toFixed(2);
+    }
+
+    amountInput.addEventListener('input', calculateTotal);
+    vatInput.addEventListener('input', calculateTotal);
+});
+</script>
+
 @endsection

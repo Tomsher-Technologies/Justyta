@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class MembershipPlan extends Model
 {
     protected $fillable = [
-        'title', 'icon', 'amount', 'member_count', 'en_ar_price', 'for_ar_price', 'job_post_count', 'is_active', 'live_online', 'specific_law_firm_choice', 'annual_legal_contract', 'annual_free_ad_days', 'unlimited_training_applications', 'welcome_gift', 'created_at'
+        'title', 'icon', 'plain_amount', 'vat_amount', 'amount', 'member_count', 'en_ar_price', 'for_ar_price', 'job_post_count', 'is_active', 'live_online', 'specific_law_firm_choice', 'annual_legal_contract', 'annual_free_ad_days', 'unlimited_training_applications', 'welcome_gift', 'created_at'
     ];
 
     public function translations()

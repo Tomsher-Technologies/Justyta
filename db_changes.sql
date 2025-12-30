@@ -228,3 +228,5 @@
 -- INSERT INTO `page_sections` (`id`, `page_id`, `section_type`, `section_key`, `image`, `services`, `order`, `status`, `image1`, `image2`, `link1`, `link2`, `created_at`, `updated_at`) VALUES (NULL, '37', 'custom', 'privacy_policy_main', NULL, NULL, '0', '1', NULL, NULL, NULL, NULL, '2025-12-29 14:21:49', '2025-12-29 14:21:49');
 
 -- INSERT INTO `page_sections` (`id`, `page_id`, `section_type`, `section_key`, `image`, `services`, `order`, `status`, `image1`, `image2`, `link1`, `link2`, `created_at`, `updated_at`) VALUES (NULL, '38', 'custom', 'refund_policy_main', NULL, NULL, '0', '1', NULL, NULL, NULL, NULL, '2025-12-29 14:21:49', '2025-12-29 14:21:49');
+
+ALTER TABLE `membership_plans` ADD `plain_amount` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `icon`, ADD `vat_amount` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `plain_amount`;
