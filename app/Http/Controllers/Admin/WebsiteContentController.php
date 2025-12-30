@@ -19,6 +19,8 @@ class WebsiteContentController extends Controller
         $request->validate([
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'shop_description' => 'nullable|string',
+            'email' => 'nullable|email',
+            'address' => 'nullable|string',
             'footer_links' => 'nullable|array',
             'footer_links.*.title' => 'nullable|string',
             'footer_links.*.icon' => 'nullable|string',
@@ -32,9 +34,26 @@ class WebsiteContentController extends Controller
             WebsiteSetting::updateOrCreate(['key' => 'logo'], ['value' => 'storage/' . $logoPath]);
         }
 
-        if ($request->has('shop_description')) {
-            WebsiteSetting::updateOrCreate(['key' => 'shop_description'], ['value' => $request->shop_description]);
+        $keys = [
+            'shop_description',
+            'address',
+            'email',
+            'footer_copyright',
+            'block_heading_1',
+            'block_heading_2',
+            'block_heading_3',
+            'block_heading_4',
+        ];
+
+        foreach ($keys as $key) {
+            if ($request->filled($key)) {
+                WebsiteSetting::updateOrCreate(
+                    ['key' => $key],
+                    ['value' => $request->input($key)]
+                );
+            }
         }
+
 
         if ($request->has('footer_links')) {
             $links = array_filter($request->footer_links, function ($link) {

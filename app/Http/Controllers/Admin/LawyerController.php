@@ -85,7 +85,6 @@ class LawyerController extends Controller
                     'required',
                     'email',
                     Rule::unique('users', 'email')
-                        ->where('user_type', 'lawyer'),
                 ],
             'phone' => 'required|string|max:20',
             'emirate_id' => 'required|string',
@@ -228,7 +227,6 @@ class LawyerController extends Controller
                     'email',
                     Rule::unique('users', 'email')
                         ->ignore($user->id)
-                        ->where('user_type', 'lawyer'),
                 ],
             'phone' => 'required|string|max:20',
             'emirate_id' => 'required|string',

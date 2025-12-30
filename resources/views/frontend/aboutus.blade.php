@@ -27,7 +27,7 @@
                                 @endif
                                 
                                @if($section->getTranslation('description', $lang))
-                                    <div class="text-[16px] font-medium prose max-w-none">
+                                    <div class="text-[16px] font-medium prose max-w-none content-article">
                                         {!! $section->getTranslation('description', $lang) !!}
                                     </div>
                                 @endif
@@ -76,7 +76,7 @@
                         @endif
                         
                         @if($section->getTranslation('description', $lang))
-                            <div class="text-[16px] font-medium prose max-w-none">
+                            <div class="text-[16px] font-medium prose max-w-none content-article">
                                 {!! $section->getTranslation('description', $lang) !!}
                             </div>
                         @endif

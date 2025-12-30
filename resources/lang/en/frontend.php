@@ -501,8 +501,6 @@ return [
     'special_welcome_gift' => 'Special Welcome Gift',
     'no_welcome_gift' => 'No Welcome Gift',
     'search_services' => 'Search Services...',
-
-
     'new_online_request' => 'New Consultation Request',
     'accept' => 'Accept',
     'reject' => 'Reject',
@@ -512,4 +510,8 @@ return [
     'maxlength2' => 'Maximum 2 characters allowed.',
     'maxlength25' => 'Maximum 25 characters allowed.',
     'maxlength15' => 'Maximum 15 characters allowed.',
+
+    'privacy_policy' => 'Privacy Policy',
+    'refund_policy' => 'Refund Policy',
+    'go_to_service' => 'Go to Service',
 ];

@@ -1197,6 +1197,7 @@ function findBestFitLawyer($consultation)
                             ->whereIn('ca.status', ['assigned', 'accepted', 'rejected']);
                     })
                     ->where('u.is_online', 1)
+                    ->where('l.is_default', 0)
                     ->where('l.is_busy', 0)
                     ->whereNotIn('l.id', $lawyerIdsAlreadyRejected)
                     ->groupBy('l.id')
@@ -1254,6 +1255,7 @@ function findAvailableLawyer($caseType, $languages)
                         ->whereIn('ld_lang.dropdown_option_id', $languages);
                 })
                 ->where('u.is_online', 1)
+                ->where('l.is_default', 0)
                 ->where('l.is_busy', 0)
                 ->groupBy('l.id')
                 ->havingRaw('COUNT(DISTINCT ld_lang.dropdown_option_id) = ?', [$countLanguages])
@@ -1424,4 +1426,28 @@ function getFullStatusHistory(ServiceRequest $serviceRequest): array
         $userId = Auth::guard('frontend')->user()->id;
         $user = User::find($userId);
         return $user->is_online;
+    }
+
+    function getServiceData($serviceids){
+        $lang = app()->getLocale() ?? 'en';
+        $services = Service::with(['translations' => function ($query) use ($lang) {
+                        $query->where('lang', $lang);
+                    }])
+                    ->whereIn('id', $serviceids)
+                    ->where('status', 1)
+                    ->orderBy('sort_order', 'ASC')
+                    ->get();
+        return $services;
+    }
+
+    function getAllServiceData(){
+        $lang = app()->getLocale() ?? 'en';
+        $services = Service::with(['translations' => function ($query) use ($lang) {
+                        $query->where('lang', $lang);
+                    }])
+                    ->where('status', 1)
+                    ->where('slug', '!=', 'law-firm-services')
+                    ->orderBy('sort_order', 'ASC')
+                    ->get();
+        return $services;
     }

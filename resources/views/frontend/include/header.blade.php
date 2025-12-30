@@ -97,7 +97,7 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div id="langDropdown" class="hidden z-10 mt-2 w-28 divide-y bg-white divide-gray-100 rounded-lg shadow">
+                        <div id="langDropdown" class="hidden z-10 mt-2 w-15 divide-y bg-white divide-gray-100 rounded-lg shadow">
                             <ul class="py-2 text-sm text-gray-700" aria-labelledby="langDropdownBtn">
                                 <li><a href="{{ route('lang.switch', 'en') }}" onclick="localStorage.setItem('lang', 'en')" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
                                 <li><a href="{{ route('lang.switch', 'ar') }}" onclick="localStorage.setItem('lang', 'ar')" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
