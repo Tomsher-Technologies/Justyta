@@ -4640,6 +4640,36 @@ table.fc-scrollgrid thead .fc-scroller-harness .card.fc-scroller .card-body,
     }
 }
 
+.fs-32 {
+    font-size: 32px !important;
+}
+@media (max-width: 1200px) {
+    .fs-32 {
+        font-size: calc(17.6px + 1.2vw);
+    }
+}
+
+.fs-36 {
+    font-size: 36px !important;
+}
+@media (max-width: 1200px) {
+    .fs-36 {
+        font-size: calc(18.0px + 1.5vw);
+    }
+}
+
+
+.fs-40 {
+    font-size: 40px !important;
+}
+
+@media (max-width: 1200px) {
+    .fs-40 {
+        font-size: calc(18.4px + 1.8vw);
+    }
+}
+
+
 .fw-400 {
     font-weight: 400;
 }

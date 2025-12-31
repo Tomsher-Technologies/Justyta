@@ -47,6 +47,11 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::get('/service-sales', [AdminDashboardController::class, 'getServiceSalesData'])->name('admin.service-sales');
     Route::get('/service-sales/export', [AdminDashboardController::class, 'exportServiceSales'])->name('service-sales.export');
 
+    Route::get('/subscription-sales', [AdminDashboardController::class, 'getSubscriptionSalesData'])->name('admin.subscription-sales');
+    Route::get('/subscription-sales/export', [AdminDashboardController::class, 'exportSubscriptionSales'])->name('subscription-sales.export');
+
+    Route::get('/users', [AdminDashboardController::class, 'allUsers'])->name('users.index');
+
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

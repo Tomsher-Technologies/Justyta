@@ -12,6 +12,9 @@ use App\Models\TrainingRequest;
 use App\Models\Consultation;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ServiceSalesExport;
+use App\Exports\SubscriptionSalesExport;
+use App\Models\Vendor;
+use App\Models\VendorSubscription;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use DB;
@@ -55,6 +58,18 @@ class AdminDashboardController extends Controller
       
         $totalSales = $serviceSales + $consultationSales;
 
+        $totalSubscriptionSales = VendorSubscription::whereIn('status', ['active','expired'])
+                                    ->whereHas('vendor', function ($q) {
+                                        $q->where('is_default', 0);
+                                    })
+                                    ->when($date1Common && $date2Common, $dateFilter)
+                                    ->get()
+                                    ->sum('amount');
+
+        // Total Users
+        $totalUsers = User::where('user_type', 'user')
+                            ->when($date1Common && $date2Common, $dateFilter)
+                            ->count();
         // Service request chart
 
         $daterangeService = $request->has('daterangeService') ? $request->daterangeService : null;
@@ -127,7 +142,7 @@ class AdminDashboardController extends Controller
                                         ->get(); 
 
         
-        return view('admin.dashboard', compact('data', 'services','serviceCounts','userCounts','totalJobs','totalTrainings','chartData','recentRequests','totalSales','paymentServices'));
+        return view('admin.dashboard', compact('data', 'services','serviceCounts','userCounts','totalJobs','totalTrainings','chartData','recentRequests','totalSales','paymentServices','totalSubscriptionSales','totalUsers'));
     }
 
     public function getSalesData(Request $request)
@@ -327,5 +342,81 @@ class AdminDashboardController extends Controller
         }
 
         return Excel::download(new ServiceSalesExport($serviceSlug, $dates), $fileName);
+    }
+
+    public function getSubscriptionSalesData(Request $request)
+    {
+        $plans = \App\Models\MembershipPlan::where('is_active', 1)->orderBy('title', 'asc')->get();
+        $vendors = Vendor::where('is_default', 0)->orderBy('law_firm_name', 'asc')->get();
+
+        $subscriptionSales = VendorSubscription::with(['vendor', 'plan'])
+                                            ->whereHas('vendor', function ($q) {
+                                                $q->where('is_default', 0);
+                                            });
+        // Status filter
+        if ($request->filled('status')) {
+            $subscriptionSales->where('status', $request->status);
+        } else {
+            $subscriptionSales->whereIn('status', ['active', 'expired']);
+        }
+
+        // Vendor filter
+        if ($request->filled('vendor_id')) {
+            $subscriptionSales->where('vendor_id', $request->vendor_id);
+        }
+
+        // Plan filter
+        if ($request->filled('plan_id')) {
+            $subscriptionSales->where('membership_plan_id', $request->plan_id);
+        }
+
+        // Date range filter
+        if ($request->filled('daterange')) {
+            $dates = explode(' to ', $request->daterange);
+
+            if (count($dates) === 2) {
+                $subscriptionSales->whereBetween('created_at', [
+                    Carbon::parse($dates[0])->startOfDay(),
+                    Carbon::parse($dates[1])->endOfDay()
+                ]);
+            }
+        }
+        $subscriptionSales = $subscriptionSales->orderBy('id', 'desc')->paginate(20);
+
+        return view('admin.sales.subscription-sales', compact('subscriptionSales', 'plans', 'vendors'));
+    }
+
+    public function exportSubscriptionSales(Request $request)
+    {
+        $fileName = "subscription-sales-".date('d-m-Y').".xlsx";
+        $filters = [
+            'status' => $request->status ?? null,
+            'vendor_id' => $request->vendor_id ?? null,
+            'plan_id' => $request->plan_id ?? null,
+            'daterange' => $request->daterange ?? null,
+        ];
+
+        return Excel::download(new SubscriptionSalesExport($filters), $fileName);
+    }
+
+    public function allUsers(Request $request)
+    {
+        $usersQuery = User::where('user_type', 'user');
+
+        // Date range filter
+        if ($request->filled('daterange')) {
+            $dates = explode(' to ', $request->daterange);
+
+            if (count($dates) === 2) {
+                $usersQuery->whereBetween('created_at', [
+                    Carbon::parse($dates[0])->startOfDay(),
+                    Carbon::parse($dates[1])->endOfDay()
+                ]);
+            }
+        }
+
+        $users = $usersQuery->orderBy('id', 'desc')->paginate(20);
+
+        return view('admin.users', compact('users'));
     }
 }
