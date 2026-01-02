@@ -214,7 +214,7 @@ class JobPostController extends Controller
             'email'     => 'required',
             'phone'     => 'required',
             'position'  => 'required',
-            'resume'    => 'required|file|mimes:pdf,doc,docx|max:2048', // 2MB max
+            'resume'    => 'required|file|mimes:pdf,doc,docx|max:102400', // 100MB max
         ],[
             'full_name.required'    => __('messages.full_name_required'),
             'email.required'        => __('messages.email_required'),

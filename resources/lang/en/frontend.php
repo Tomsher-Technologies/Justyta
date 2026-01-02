@@ -510,7 +510,6 @@ return [
     'maxlength2' => 'Maximum 2 characters allowed.',
     'maxlength25' => 'Maximum 25 characters allowed.',
     'maxlength15' => 'Maximum 15 characters allowed.',
-
     'privacy_policy' => 'Privacy Policy',
     'refund_policy' => 'Refund Policy',
     'go_to_service' => 'Go to Service',
