@@ -50,18 +50,19 @@ class AuthController extends Controller
             return response()->json(['status' => false, 'message' => __('messages.invalid_credentials'), 'user' => null], 200);
         }
 
-        if ($user->is_banned) {
+        if ($user->banned) {
             return response()->json([
                 'status' => false,
                 'message' => __('messages.account_disabled_deleted'),
             ], 200);
         }
-        return $this->loginSuccess($user);
+        return $this->loginSuccess($user, $request);
     }
 
-    protected function loginSuccess($user)
+    protected function loginSuccess($user, $request)
     {
         $user->is_online = 1;
+        $user->device_token = $request->has('device_token') ? $request->device_token : null;
         $user->save();
 
         if ($user->user_type === 'lawyer') {

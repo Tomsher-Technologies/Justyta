@@ -81,20 +81,20 @@ class VendorHomeController extends Controller
             //             ->where('user_type', 'vendor'),
             //     ],
             'owner_phone' => 'required|string|max:20',
-            'logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:200',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:102400',
             'emirate_id' => 'required',
             'country' => 'nullable|string|max:255',
             'password' => 'nullable|string|min:6|confirmed',
-            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             'trade_license_expiry' => 'required|date',
-            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
-            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
+            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             'emirates_id_expiry' => 'required|date',
-            // 'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            // 'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             // 'residence_visa_expiry' => 'required|date',
-            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             'passport_expiry' => 'required|date',
-            'card_of_law' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'card_of_law' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             'card_of_law_expiry' => 'required|date'
         ],[
             '*.required' => 'This field is required.',
@@ -457,12 +457,12 @@ class VendorHomeController extends Controller
             'bar_card_expiry' => 'required|date',
             'ministry_of_justice_card_expiry' => 'required|date',
             'password' => 'required|string|min:6|confirmed',
-            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf',
-            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf',
-            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp',
-            'bar_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp',
-            'ministry_of_justice_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp',
-            'photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp'
+            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'bar_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'ministry_of_justice_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp|max:102400'
         ],[
             '*.required' => __('frontend.this_field_required'),
         ]);
@@ -584,12 +584,12 @@ class VendorHomeController extends Controller
             'bar_card_expiry' => 'required|date',
             'ministry_of_justice_card_expiry' => 'required|date',
             'password' => 'nullable|string|min:6|confirmed',
-            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf',
-            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf',
-            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp',
-            'bar_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp',
-            'practicing_lawyer_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp',
-            'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp'
+            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'bar_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'practicing_lawyer_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp|max:102400'
         ],[
             '*.required' => __('frontend.this_field_required'),
         ]);
@@ -950,8 +950,8 @@ class VendorHomeController extends Controller
                     $requiredFiles[] = 'supporting_docs_any';
                 }
 
-                $validationRules['supporting_docs'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240';
-                $validationRules['supporting_docs_any'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240';
+                $validationRules['supporting_docs'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:102400';
+                $validationRules['supporting_docs_any'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:102400';
 
                 $customMessages['supporting_docs.file'] = __('frontend.supporting_docs_must_be_file');
                 $customMessages['supporting_docs.mimes'] = __('frontend.supporting_docs_invalid_type');
