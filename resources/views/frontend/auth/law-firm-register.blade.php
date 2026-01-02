@@ -669,7 +669,7 @@
                 trade_license: {
                     required: false,
                     fileext: "jpg,jpeg,png,svg,pdf,webp",
-                    filesize: 104857600
+                    filesize: 104857600 // 100MB
                 },
                 residence_visa: {
                     required: false,

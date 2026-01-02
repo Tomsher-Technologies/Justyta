@@ -230,3 +230,11 @@
 -- INSERT INTO `page_sections` (`id`, `page_id`, `section_type`, `section_key`, `image`, `services`, `order`, `status`, `image1`, `image2`, `link1`, `link2`, `created_at`, `updated_at`) VALUES (NULL, '38', 'custom', 'refund_policy_main', NULL, NULL, '0', '1', NULL, NULL, NULL, NULL, '2025-12-29 14:21:49', '2025-12-29 14:21:49');
 
 ALTER TABLE `membership_plans` ADD `plain_amount` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `icon`, ADD `vat_amount` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `plain_amount`;
+
+INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, '184', 'view_dashboard_service_requests', 'View Dashboard Service Requests', 'web', '1', NULL, NULL);
+
+INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, NULL, 'manage_users', 'Manage Users', 'web', '1', NULL, NULL);
+INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, '178', 'view_users', 'View All Users', 'web', '1', NULL, NULL);
+INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, '178', 'ban_user', 'Ban User', 'web', '1', NULL, NULL);
+
+ALTER TABLE `users` ADD `device_token` TEXT NULL DEFAULT NULL AFTER `approved`;

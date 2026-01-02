@@ -72,7 +72,7 @@ class ServiceController extends Controller
         $service = Service::findOrFail($id);
     
         $request->validate([
-            'icon' => 'nullable|mimes:png,jpg,jpeg,svg|max:150',
+            'icon' => 'nullable|mimes:png,jpg,jpeg,svg|max:102400',
             'sort_order' => 'nullable|integer',
             'status' => 'required|boolean',
             'translations.en.description' => 'required|string',

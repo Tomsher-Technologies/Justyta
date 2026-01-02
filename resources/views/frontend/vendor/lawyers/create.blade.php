@@ -538,7 +538,7 @@
                 ministry_of_justice_card: {
                     required: true, 
                     fileext: "jpg,jpeg,png,svg,pdf,webp", 
-                    filesize: 102400
+                    filesize: 104857600
                 },
                 ministry_of_justice_card_expiry: {
                     required: true, 

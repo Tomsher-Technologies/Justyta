@@ -262,7 +262,9 @@
                     }
                 }
                 return true;
-            }, "File size must be less than {0}KB");
+            }, function (param, element) {
+                return "File size must be less than " + (param / 1024) + " MB";
+            });
 
             $("#legalTranslationForm").validate({
                 ignore: [],

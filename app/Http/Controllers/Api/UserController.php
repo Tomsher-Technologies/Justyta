@@ -801,7 +801,7 @@ class UserController extends Controller
             'start_date'        => 'required',
             'residency_status'  => 'required',
             'documents'         => 'nullable|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:10240',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'emirate_id.required'       => __('messages.emirate_required'),
             'position.required'         => __('messages.position_required'),

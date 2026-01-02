@@ -3673,8 +3673,8 @@ class ServiceRequestController extends Controller
                     $requiredFiles[] = 'supporting_docs_any';
                 }
 
-                $validationRules['supporting_docs'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240';
-                $validationRules['supporting_docs_any'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240';
+                $validationRules['supporting_docs'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:102400';
+                $validationRules['supporting_docs_any'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:102400';
 
                 $customMessages['supporting_docs.file'] = __('frontend.supporting_docs_must_be_file');
                 $customMessages['supporting_docs.mimes'] = __('frontend.supporting_docs_invalid_type');

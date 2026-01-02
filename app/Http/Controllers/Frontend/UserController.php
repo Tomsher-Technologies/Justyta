@@ -189,7 +189,7 @@ class UserController extends Controller
             'start_date'        => 'required',
             'residency_status'  => 'required',
             'documents'         => 'nullable|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'emirate_id.required'       => __('messages.emirate_required'),
             'position.required'         => __('messages.position_required'),
@@ -404,7 +404,7 @@ class UserController extends Controller
             'email'     => 'required',
             'phone'     => 'required',
             'position'  => 'required',
-            'resume'    => 'required|file|mimes:pdf,doc,docx|max:2048', // 2MB max
+            'resume'    => 'required|file|mimes:pdf,doc,docx|max:102400', // 2MB max
         ], [
             'full_name.required'    => __('messages.full_name_required'),
             'email.required'        => __('messages.email_required'),

@@ -204,7 +204,7 @@
                     "resume": {
                         required: true,
                         extension: "pdf,doc,docx",
-                        fileSize: 102400
+                        fileSize: 104857600
                     }
                 },
                 messages: {

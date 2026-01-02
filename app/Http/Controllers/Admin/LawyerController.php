@@ -99,12 +99,12 @@ class LawyerController extends Controller
             'bar_card_expiry' => 'required|date',
             'practicing_lawyer_card_expiry' => 'required|date',
             'password' => 'required|string|min:6|confirmed',
-            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:500',
-            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:500',
-            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:500',
-            'bar_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:500',
-            'practicing_lawyer_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:500',
-            'photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp|max:500'
+            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'bar_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'practicing_lawyer_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp|max:102400'
         ],[
             '*.required' => 'This field is required.',
             'translations.en.name.required' => 'The lawyer name in english is required.',
@@ -240,12 +240,12 @@ class LawyerController extends Controller
             'passport_expiry' => 'required|date',
             'bar_card_expiry' => 'required|date',
             'practicing_lawyer_card_expiry' => 'required|date',
-            'emirate_id_front' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:500',
-            'emirate_id_back' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:500',
-            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:500',
-            'bar_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:500',
-            'practicing_lawyer_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:500',
-            'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp|max:500'
+            'emirate_id_front' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'emirate_id_back' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'bar_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'practicing_lawyer_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp|max:102400'
         ],[
             '*.required' => 'This field is required.',
             'translations.en.name.required' => 'The lawyer name in english is required.',
