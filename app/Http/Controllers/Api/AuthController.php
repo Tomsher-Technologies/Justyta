@@ -50,7 +50,7 @@ class AuthController extends Controller
             return response()->json(['status' => false, 'message' => __('messages.invalid_credentials'), 'user' => null], 200);
         }
 
-        if ($user->is_banned) {
+        if ($user->banned) {
             return response()->json([
                 'status' => false,
                 'message' => __('messages.account_disabled_deleted'),

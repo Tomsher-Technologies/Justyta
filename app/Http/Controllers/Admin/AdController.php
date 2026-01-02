@@ -87,8 +87,8 @@ class AdController extends Controller
             'customer_email'    => 'nullable|email|max:255',
             'customer_phone'    => 'nullable|string|max:30',
             'redirection_url'   => 'nullable|url|max:255',
-            'web_file'          => 'required|file|mimes:jpeg,jpg,png,avif,webp,svg,gif,mp4,mov,avi|max:10240', // max 10MB
-            'mob_file'          => 'required|file|mimes:jpeg,jpg,png,avif,webp,svg,gif,mp4,mov,avi|max:10240', // max 10MB
+            'web_file'          => 'required|file|mimes:jpeg,jpg,png,avif,webp,svg,gif,mp4,mov,avi|max:102400', // max 10MB
+            'mob_file'          => 'required|file|mimes:jpeg,jpg,png,avif,webp,svg,gif,mp4,mov,avi|max:102400', // max 10MB
         ];
 
         $validated = $request->validate($rules);
@@ -190,8 +190,8 @@ class AdController extends Controller
             'customer_email'    => 'nullable|email|max:255',
             'customer_phone'    => 'nullable|string|max:30',
             'redirection_url'   => 'nullable|url|max:255',
-            'web_file'          => 'nullable|file|mimes:jpeg,jpg,png,avif,webp,svg,gif,mp4,mov,avi|max:10240', // max 10MB
-            'mob_file'          => 'nullable|file|mimes:jpeg,jpg,png,avif,webp,svg,gif,mp4,mov,avi|max:10240', // max 10MB
+            'web_file'          => 'nullable|file|mimes:jpeg,jpg,png,avif,webp,svg,gif,mp4,mov,avi|max:102400', // max 10MB
+            'mob_file'          => 'nullable|file|mimes:jpeg,jpg,png,avif,webp,svg,gif,mp4,mov,avi|max:102400', // max 10MB
         ];
 
         $validated = $request->validate($rules);

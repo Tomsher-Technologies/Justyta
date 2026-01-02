@@ -25,8 +25,7 @@
                                 <div class="col-md-3 input-group  mb-1">
                                     <input type="text" class="form-control ih-small ip-gray radius-xs b-light px-15"
                                         id="search"
-                                        name="search"@isset($sort_search) value="{{ $sort_search }}" @endisset
-                                        placeholder="Type name,email or phone">
+                                        name="search" value="{{ request('search') }}" placeholder="Type name,email or phone">
                                 </div>
 
                                 <div class="col-md-3 input-group  mb-1">
@@ -37,6 +36,13 @@
                                         <option value="2" {{ request()->status == 2 ? 'selected' : '' }}>Inactive
                                         </option>
                                     </select>
+                                </div>
+
+                                <div class="col-md-3 input-group  mb-1">
+                                    <input type="text"
+                                        class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker"
+                                        name="daterange" placeholder="From Date - To Date"
+                                        value="{{ request('daterange') }}">
                                 </div>
 
                                 <div class="col-md-3 mb-1 d-flex flex-wrap align-items-end">
@@ -59,7 +65,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @can('view_staff')
+                                        @can('view_users')
                                             @if ($users->isNotEmpty())
                                                 @foreach ($users as $key => $us)
                                                     <tr>
@@ -107,7 +113,7 @@
                                     </tbody>
                                 </table>
                                 <div class="aiz-pagination mt-4">
-                                    @can('view_staff')
+                                    @can('view_users')
                                         {{ $users->appends(request()->input())->links('pagination::bootstrap-5') }}
                                     @endcan
                                 </div>
@@ -132,7 +138,7 @@
             } else {
                 var status = 1;
             }
-            $.post('{{ route('staff.status') }}', {
+            $.post('{{ route('user.status') }}', {
                 _token: '{{ csrf_token() }}',
                 id: el.value,
                 status: status

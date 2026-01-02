@@ -286,7 +286,8 @@ $ads = getActiveAd('legal_translation', 'web');
     });
 
     $(document).ready(function() {
-        $.validator.addMethod("fileSize", function(value, element, param) {
+
+        $.validator.addMethod("fileSize", function (value, element, param) {
             if (!element.files || element.files.length === 0) {
                 return true;
             }
@@ -296,7 +297,9 @@ $ads = getActiveAd('legal_translation', 'web');
                 }
             }
             return true;
-        }, "File size must be less than {0}KB");
+        }, function (param, element) {
+            return "File size must be less than " + (param / 1024) + " MB";
+        });
 
         $("#legalTranslationForm").validate({
             ignore: [],

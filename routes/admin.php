@@ -51,7 +51,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
     Route::get('/subscription-sales/export', [AdminDashboardController::class, 'exportSubscriptionSales'])->name('subscription-sales.export');
 
     Route::get('/users', [AdminDashboardController::class, 'allUsers'])->name('users.index');
-
+    Route::post('/user/status', [AdminDashboardController::class, 'updateUserStatus'])->name('user.status');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

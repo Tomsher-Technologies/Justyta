@@ -21,6 +21,15 @@ use DB;
 
 class AdminDashboardController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('auth');
+       
+        $this->middleware('permission:dashboard_total_sales_view',  ['only' => ['getServiceSalesData','exportServiceSales','getSubscriptionSalesData','exportSubscriptionSales']]);
+        $this->middleware('permission:manage_users',  ['only' => ['allUsers']]);
+        $this->middleware('permission:view_users',  ['only' => ['allUsers']]);
+        $this->middleware('permission:ban_user',  ['only' => ['updateUserStatus']]);
+    }
     public function dashboard(Request $request){
         $data = [];
 
@@ -401,22 +410,50 @@ class AdminDashboardController extends Controller
 
     public function allUsers(Request $request)
     {
-        $usersQuery = User::where('user_type', 'user');
+        $sort_search = $request->has('search') ? $request->search : '';
+        $users = User::where('user_type', 'user');
+
+        if($sort_search){
+            $users = $users->where(function ($query) use ($sort_search){
+                        $query->where('name', 'like','%' . $sort_search . '%')
+                            ->orWhere('email', 'like', '%' . $sort_search . '%')
+                            ->orWhere('phone', 'like', '%' . $sort_search . '%');
+                    });
+        }
 
         // Date range filter
         if ($request->filled('daterange')) {
             $dates = explode(' to ', $request->daterange);
 
             if (count($dates) === 2) {
-                $usersQuery->whereBetween('created_at', [
+                $users->whereBetween('created_at', [
                     Carbon::parse($dates[0])->startOfDay(),
                     Carbon::parse($dates[1])->endOfDay()
                 ]);
             }
         }
 
-        $users = $usersQuery->orderBy('id', 'desc')->paginate(20);
+        if ($request->filled('status')) {
+            // 1 = active, 2 = inactive; 
+            if ($request->status == 1) {
+                $users->where('banned', 0);
+            } elseif ($request->status == 2) {
+                $users->where('banned', 1);
+            }
+        }
+
+        $users = $users->orderBy('id', 'desc')->paginate(20);
 
         return view('admin.users', compact('users'));
+    }
+
+    public function updateUserStatus(Request $request)
+    {
+        $user = User::findOrFail($request->id);
+        
+        $user->banned = $request->status;
+        $user->save();
+       
+        return 1;
     }
 }

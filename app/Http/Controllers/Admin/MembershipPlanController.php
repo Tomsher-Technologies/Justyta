@@ -49,7 +49,7 @@ class MembershipPlanController extends Controller
     {
         $request->validate([
             'translations.en.title' => 'required|string|max:255',
-            'icon' => 'required|image|mimes:png,jpg,jpeg,svg|max:2048',
+            'icon' => 'required|image|mimes:png,jpg,jpeg,svg|max:102400',
             'amount' => 'required|numeric',
             'member_count' => 'required|integer',
             'en_ar_price' => 'required|numeric',
@@ -119,7 +119,7 @@ class MembershipPlanController extends Controller
 
         $request->validate([
             'translations.en.title' => 'required|string|max:255',
-            'icon' => 'nullable|image|mimes:png,jpg,jpeg,svg|max:2048',
+            'icon' => 'nullable|image|mimes:png,jpg,jpeg,svg|max:102400',
             'amount' => 'required|numeric',
             'vat_amount' => 'required|numeric',
             'member_count' => 'required|integer',

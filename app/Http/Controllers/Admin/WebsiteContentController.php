@@ -17,7 +17,7 @@ class WebsiteContentController extends Controller
     public function updateMenuAppearance(Request $request)
     {
         $request->validate([
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:102400',
             'shop_description' => 'nullable|string',
             'email' => 'nullable|email',
             'address' => 'nullable|string',

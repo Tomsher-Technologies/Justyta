@@ -236,3 +236,5 @@ INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is
 INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, NULL, 'manage_users', 'Manage Users', 'web', '1', NULL, NULL);
 INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, '178', 'view_users', 'View All Users', 'web', '1', NULL, NULL);
 INSERT INTO `permissions` (`id`, `parent_id`, `name`, `title`, `guard_name`, `is_active`, `created_at`, `updated_at`) VALUES (NULL, '178', 'ban_user', 'Ban User', 'web', '1', NULL, NULL);
+
+ALTER TABLE `users` ADD `device_token` TEXT NULL DEFAULT NULL AFTER `approved`;
