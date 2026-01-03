@@ -159,7 +159,7 @@ class VendorHomeController extends Controller
             </p>";
 
             Mail::to($vendor->owner_email)->queue(new CommonMail($array));
-            return redirect()->route('vendor.membership-plan')->with('success', __('frontend.subscription_successful'));
+            return redirect()->route('vendor.membership-plan')->with('success', __('frontend.subscription_success'));
         }    
     }
 
@@ -226,7 +226,7 @@ class VendorHomeController extends Controller
             </p>";
 
             Mail::to($vendor->owner_email)->queue(new CommonMail($array));
-            return redirect()->route('vendor.membership-plan')->with('success', __('frontend.subscription_successful'));
+            return redirect()->route('vendor.membership-plan')->with('success', __('frontend.subscription_success'));
         } else {
             $lastPlanStatus = $vendor->latestSubscription?->status;
 

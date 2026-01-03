@@ -511,4 +511,11 @@ return [
     'file_size_info' => 'صيغ الملفات المسموح بها: PDF، JPG، JPEG، WEBP، PNG، SVG، DOC، DOCX • الحد الأقصى للحجم: 100 ميجابايت',
     'file_size_info_image' => 'صيغ الملفات المسموح بها: PDF، JPG، JPEG، WEBP، PNG، SVG • الحد الأقصى للحجم: 100 ميجابايت',
     'including_vat' => 'شامل ضريبة القيمة المضافة', 
+    'subscribe_now' => 'اشترك الآن',
+    'current_plan' => 'الخطة الحالية',
+    'sdate' => 'تاريخ البدء',
+    'edate' => 'تاريخ الانتهاء',
+    'subscription_failed' => 'فشل الاشتراك. يرجى المحاولة مرة أخرى.',
+    'subscription_success' => 'تم الاشتراك بنجاح. خطتك نشطة الآن.',
+
 ];

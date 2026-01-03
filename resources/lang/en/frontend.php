@@ -516,4 +516,10 @@ return [
     'file_size_info' => 'File upload allowed formats: PDF, JPG, JPEG, WEBP, PNG, SVG, DOC, DOCX • Max size: 100 MB',
     'file_size_info_image' => 'File upload allowed formats: PDF, JPG, JPEG, WEBP, PNG, SVG • Max size: 100 MB',
     'including_vat' => 'Including VAT',
+    'subscribe_now' => 'Subscribe Now',
+    'current_plan' => 'Current Plan',
+    'sdate' => 'Start Date',
+    'edate' => 'End Date',
+    'subscription_failed' => 'Subscription failed. Please try again.',
+    'subscription_success' => 'Subscription successful. Your plan is now active.',
 ];

@@ -162,7 +162,6 @@
                     </ul>
 
                     <div class="mt-4">
-                        
                         <form action="{{ route('vendor.subscribe.plan', $plan->id) }}" method="POST">
                             @csrf
                             <button type="submit" class="w-full bg-[#07683B] text-white py-2 rounded-xl transition">

@@ -511,4 +511,11 @@ return [
     'file_size_info' => 'فرمت‌های مجاز فایل: PDF، JPG، JPEG، WEBP، PNG، SVG، DOC، DOCX • حداکثر حجم: ۱۰۰ مگابایت',
     'file_size_info_image' => 'فرمت‌های مجاز فایل: PDF، JPG، JPEG، WEBP، PNG، SVG • حداکثر حجم: ۱۰۰ مگابایت',
     'including_vat' => 'شامل مالیات بر ارزش افزوده',
+    'subscribe_now' => 'همین حالا اشتراک بگیرید',
+    'current_plan' => 'پلن فعلی',
+    'sdate' => 'تاریخ شروع',
+    'edate' => 'تاریخ پایان',
+    'subscription_failed' => 'اشتراک ناموفق بود. لطفاً دوباره تلاش کنید.',
+    'subscription_success' => 'اشتراک با موفقیت انجام شد. پلن شما فعال است.',
+
 ];
