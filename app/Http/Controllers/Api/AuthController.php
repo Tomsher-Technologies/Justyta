@@ -19,6 +19,22 @@ use Carbon\Carbon;
 
 class AuthController extends Controller
 {
+    public function testPushNotification(Request $request)
+    {
+        $deviceToken = $request->input('device_token');
+
+        if (!$deviceToken) {
+            return response()->json(['status' => false, 'message' => 'Device token is required'], 400);
+        }
+
+        $title = 'Test Notification';
+        $body = 'This is a test push notification from Justyta.';
+
+        $result = sendPushNotification($deviceToken, $title, $body);
+
+        return $result;
+    }
+
     public function login(Request $request)
     {
         

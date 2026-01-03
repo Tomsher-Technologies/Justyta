@@ -451,9 +451,7 @@
                                             @endphp
 
                                             <span class="text-xs">{{ __('frontend.including_vat') }} {{ __('frontend.AED') }} {{ number_format($vatValue, 2) }}</span>
-                                            {!! $plan->is_active
-                                            ? '<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Active</span>'
-                                            : '<span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">Inactive</span>' !!}
+                                            
                                         </div>
                                         @if ($plan->icon)
                                         <img src="{{ asset(getUploadedImage($plan->icon)) }}"

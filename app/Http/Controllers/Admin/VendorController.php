@@ -183,10 +183,16 @@ class VendorController extends Controller
                 );
             }
         }
+        $amount = $plan->plain_amount ?? 0;
+        $vatPercent = $plan->vat_amount ?? 0;
+
+        $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
+
         
         $vendor->subscriptions()->create([
             'membership_plan_id'                => $plan->id,
             'amount'                            => $plan->amount,
+            'vat_amount'                        => $vatValue,
             'member_count'                      => $plan->member_count,
             'job_post_count'                    => $plan->job_post_count,
             'en_ar_price'                       => $plan->en_ar_price,
@@ -310,18 +316,24 @@ class VendorController extends Controller
 
         $plan = MembershipPlan::findOrFail($request->subscription_plan_id);
 
+        $amount = $plan->plain_amount ?? 0;
+        $vatPercent = $plan->vat_amount ?? 0;
+
+        $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
+
         if($request->has('update_subscription') && $request->update_subscription == 1){
             if ($vendor->currentSubscription) {
                 if($vendor->currentSubscription->membership_plan_id != $plan->id){
 
                     $vendor->currentSubscription->update([
                         'status' => 'expired',
-                        'subscription_end' => now(), 
+                        // 'subscription_end' => now(), 
                     ]);
 
                     $vendor->subscriptions()->create([
                         'membership_plan_id'                => $plan->id,
                         'amount'                            => $plan->amount,
+                        'vat_amount'                        => $vatValue,
                         'member_count'                      => $plan->member_count,
                         'job_post_count'                    => $plan->job_post_count,
                         'en_ar_price'                       => $plan->en_ar_price,
@@ -341,14 +353,15 @@ class VendorController extends Controller
                 if ($vendor->latestSubscription && $vendor->latestSubscription->status != 'active' && $vendor->latestSubscription->status != 'expired') {
                     $vendor->latestSubscription->update([
                         'status' => 'cancelled',
-                        'subscription_start' => now(),
-                        'subscription_end' => now(), 
+                        // 'subscription_start' => now(),
+                        // 'subscription_end' => now(), 
                     ]);
                 }
 
                 $vendor->subscriptions()->create([
                     'membership_plan_id'                => $plan->id,
                     'amount'                            => $plan->amount,
+                    'vat_amount'                        => $vatValue,
                     'member_count'                      => $plan->member_count,
                     'job_post_count'                    => $plan->job_post_count,
                     'en_ar_price'                       => $plan->en_ar_price,
