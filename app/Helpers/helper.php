@@ -26,8 +26,37 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 use Firebase\JWT\JWT;
 use Carbon\Carbon;
+
+
+function sendNotification($deviceToken, $title = null, $body = null)
+{
+    $firebase = (new Factory)->withServiceAccount(env('FIREBASE_CREDENTIALS'));
+
+    $messaging = $firebase->createMessaging();
+
+    if (empty($deviceToken)) {
+        return response()->json(['error' => 'Device token is missing'], 400);
+    }
+
+    $notification = Notification::create($title ?? 'Test Title', $body ?? 'Test Body');
+
+    $message = CloudMessage::withTarget('token', $deviceToken)->withNotification($notification);
+
+    try {
+        $messaging->send($message);
+        return response()->json(['message' => 'Notification sent successfully']);
+    } catch (\Kreait\Firebase\Exception\Messaging\InvalidMessage $e) {
+        return response()->json(['error' => 'Invalid message: ' . $e->getMessage()], 400);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error sending notification: ' . $e->getMessage()], 500);
+    }
+
+}
 
 function generateZoomSignature($meetingNumber, $userId, $role = 0)
 {
