@@ -445,7 +445,12 @@
                                             <p class="text-2xl font-semibold text-gray-800 mb-0">
                                                 {{ number_format($plan->amount, 2) }} {{ __('frontend.AED') }}
                                             </p>
-                                            <span class="text-xs">{{ __('frontend.including_vat') }} {{ __('frontend.AED') }} {{ number_format($plan->vat_amount, 2) }}</span>
+
+                                            @php
+                                                $vatValue =  ($plan->plain_amount != 0 && $plan->vat_amount != 0) ? ($plan->plain_amount * $plan->vat_amount) / 100 : 0;
+                                            @endphp
+
+                                            <span class="text-xs">{{ __('frontend.including_vat') }} {{ __('frontend.AED') }} {{ number_format($vatValue, 2) }}</span>
                                             {!! $plan->is_active
                                             ? '<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Active</span>'
                                             : '<span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">Inactive</span>' !!}

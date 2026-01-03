@@ -142,7 +142,12 @@ class MembershipPlanController extends Controller
         $data = $request->only([ 'member_count', 'job_post_count', 'annual_free_ad_days', 'welcome_gift', 'live_online', 'specific_law_firm_choice', 'annual_legal_contract', 'unlimited_training_applications', 'is_active',
         ]);
 
-        $data['amount'] = ($request->amount + $request->vat_amount) ?? 0;
+        $amount = $request->amount ?? 0;
+        $vatPercent = $request->vat_amount ?? 0;
+
+        $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
+        $data['amount'] = $amount + $vatValue;
+
         $data['plain_amount'] = $request->amount ?? 0;
         $data['vat_amount'] = $request->vat_amount ?? 0;
 
