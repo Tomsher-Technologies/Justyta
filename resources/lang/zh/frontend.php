@@ -511,4 +511,11 @@ return [
     'file_size_info' => '允许的文件格式：PDF、JPG、JPEG、WEBP、PNG、SVG、DOC、DOCX • 最大大小：100 MB',
     'file_size_info_image' => '允许的文件格式：PDF、JPG、JPEG、WEBP、PNG、SVG • 最大大小：100 MB',
     'including_vat' => '含增值税', 
+    'subscribe_now' => '立即订阅',
+    'current_plan' => '当前套餐',
+    'sdate' => '开始日期',
+    'edate' => '结束日期',
+    'subscription_failed' => '订阅失败，请重试。',
+    'subscription_success' => '订阅成功，您的套餐已激活。',
+
 ];

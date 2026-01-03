@@ -18,6 +18,8 @@ Route::middleware('set_api_locale')->group(function () {
         return 'test';
     });
 
+    Route::get('/test-push',  [AuthController::class, 'testPushNotification']);
+
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/user-register', [AuthController::class, 'register']);
     Route::post('/forget-password', [AuthController::class, 'forgetRequest']);

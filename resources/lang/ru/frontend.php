@@ -511,4 +511,11 @@ return [
     'file_size_info' => 'Допустимые форматы файлов: PDF, JPG, JPEG, WEBP, PNG, SVG, DOC, DOCX • Максимальный размер: 100 МБ',
     'file_size_info_image' => 'Допустимые форматы файлов: PDF, JPG, JPEG, WEBP, PNG, SVG • Максимальный размер: 100 МБ',
     'including_vat' => 'Включая НДС', 
+    'subscribe_now' => 'Подписаться сейчас',
+    'current_plan' => 'Текущий план',
+    'sdate' => 'Дата начала',
+    'edate' => 'Дата окончания',
+    'subscription_failed' => 'Не удалось оформить подписку. Пожалуйста, попробуйте снова.',
+    'subscription_success' => 'Подписка успешно оформлена. Ваш план активен.',
+
 ];

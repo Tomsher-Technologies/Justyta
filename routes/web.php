@@ -35,6 +35,9 @@ Route::post('/register', [AuthController::class, 'register'])->name('frontend.re
 Route::get('vendor-success-payment', [AuthController::class, 'purchaseSuccess'])->name('purchase-success');
 Route::get('vendor-cancel-payment', [AuthController::class, 'purchaseCancel'])->name('purchase-cancel');
 
+Route::get('plan-renew-success-payment', [VendorHomeController::class, 'purchaseSuccess'])->name('renew-purchase-success');
+Route::get('plan-renew-cancel-payment', [VendorHomeController::class, 'purchaseCancel'])->name('renew-purchase-cancel');
+
 // Vendor/Law firm registration
 Route::get('/law-firm-register', [AuthController::class, 'showLawfirmRegisterForm'])->name('law-firm.register');
 Route::post('/law-firm-register', [AuthController::class, 'registerLawfirm'])->name('law-firm.register.submit');
@@ -46,7 +49,6 @@ Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('otp.veri
 Route::get('/resend-otp', [AuthController::class, 'resendOtp'])->name('otp.resend');
 Route::get('/new-password', [AuthController::class, 'newPasswordForm'])->name('new-password');
 Route::post('/set-new-password', [AuthController::class, 'submitNewPassword'])->name('password.set.submit');
-
 
 Route::get('success-payment', [ServiceRequestController::class, 'paymentSuccess'])->name('successPayment');
 Route::get('cancel-payment', [ServiceRequestController::class, 'paymentCancel'])->name('cancelPayment');
@@ -92,6 +94,10 @@ Route::prefix('vendor')->middleware(['auth.frontend', 'checkFrontendUserType:ven
     Route::delete('/account/delete', [VendorHomeController::class, 'deleteAccount'])->name('vendor.delete.account');
     Route::get('/change-password', [VendorHomeController::class, 'changePassword'])->name('vendor.change-password');
     Route::post('/update-password', [VendorHomeController::class, 'updateNewPassword'])->name('vendor.update-new-password');
+
+    Route::get('/membership-plan', [VendorHomeController::class, 'membershipPlan'])->name('vendor.membership-plan');
+    Route::post('/subscribe-plan/{id}', [VendorHomeController::class, 'subscribePlan'])->name('vendor.subscribe.plan');
+
 
     Route::get('/notifications', [VendorHomeController::class, 'notifications'])->name('vendor.notifications.index');
     Route::post('/notifications/clear', [VendorHomeController::class, 'clearAllNotifications'])->name('vendor.notifications.clear');

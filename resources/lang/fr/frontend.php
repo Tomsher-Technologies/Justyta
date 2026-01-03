@@ -511,4 +511,11 @@ return [
     'file_size_info' => 'Formats de fichiers autorisés : PDF, JPG, JPEG, WEBP, PNG, SVG, DOC, DOCX • Taille maximale : 100 Mo',
     'file_size_info_image' => 'Formats de fichiers autorisés : PDF, JPG, JPEG, WEBP, PNG, SVG • Taille maximale : 100 Mo',
     'including_vat' => 'TVA incluse',
+    'subscribe_now' => 'S’abonner maintenant',
+    'current_plan' => 'Forfait actuel',
+    'sdate' => 'Date de début',
+    'edate' => 'Date de fin',
+    'subscription_failed' => 'Échec de l’abonnement. Veuillez réessayer.',
+    'subscription_success' => 'Abonnement réussi. Votre forfait est maintenant actif.',
+
 ];

@@ -11,7 +11,9 @@
         ✕
     </button>
     <div>
-        <img src="{{ asset('assets/images/logo1.png') }}" alt="Justyta Logo" class="w-24 mx-auto mb-6" />
+        <a href="{{ route('home') }}">
+            <img src="{{ asset('assets/images/logo1.png') }}" alt="Justyta Logo" class="w-24 mx-auto mb-6" />
+        </a>    
         <ul class="space-y-8 text-sm mt-10">
             <li class="flex items-center gap-2">
                 <a href="{{ route('user.dashboard') }}" class="contents {{ areActiveWebRoutes(['user.dashboard','service.request.form','user.request-success','user.payment-request-success','user-report-problem','user-rate-us','user-training-request','user.job.details','user-lawfirm-jobs','user.job.details.apply']) }}">

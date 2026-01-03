@@ -441,6 +441,11 @@ class AuthController extends Controller
         ]);
 
         $totalAmount = $plan->amount;
+
+        $amount = $plan->plain_amount ?? 0;
+        $vatPercent = $plan->vat_amount ?? 0;
+
+        $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
         if ($totalAmount != 0) {
             $orderReference = $vendor->id . '--' . $vendor->ref_no;
             $customer = [
@@ -455,6 +460,7 @@ class AuthController extends Controller
                 $vendor->subscriptions()->create([
                     'membership_plan_id'                => $plan->id,
                     'amount'                            => $plan->amount,
+                    'vat_amount'                        => $vatValue,
                     'member_count'                      => $plan->member_count,
                     'job_post_count'                    => $plan->job_post_count,
                     'en_ar_price'                       => $plan->en_ar_price,
@@ -478,6 +484,7 @@ class AuthController extends Controller
             $vendor->subscriptions()->create([
                 'membership_plan_id'                => $plan->id,
                 'amount'                            => $plan->amount,
+                'vat_amount'                        => $vatValue,
                 'member_count'                      => $plan->member_count,
                 'job_post_count'                    => $plan->job_post_count,
                 'en_ar_price'                       => $plan->en_ar_price,
@@ -505,6 +512,7 @@ class AuthController extends Controller
                 <li><strong>Registered Email : </strong> $request->email </li>
                 <li><strong>Plan : </strong> $plan->title </li>
                 <li><strong>Plan Expiry Date : </strong> " . now()->addYear() . " </li>
+                <li><strong>Paid Amount:</strong> " . env('APP_CURRENCY', 'AED') . " " . number_format($plan->amount, 2) . " (Including VAT " . env('APP_CURRENCY', 'AED') . " " . number_format($vatValue, 2) . ")</li>
                 </ul>
                 <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
                 <p style='font-size: 12px; color: #777;'>
@@ -551,6 +559,10 @@ class AuthController extends Controller
             }
 
             $plan = MembershipPlan::findOrFail($subscription->membership_plan_id);
+            $amount = $plan->plain_amount ?? 0;
+            $vatPercent = $plan->vat_amount ?? 0;
+
+            $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
 
             $array['subject'] = 'Registration Successful - Welcome to ' . env('APP_NAME', 'Justyta') . '!';
             $array['from'] = env('MAIL_FROM_ADDRESS');
@@ -564,6 +576,7 @@ class AuthController extends Controller
                 <li><strong>Plan : </strong> $plan->title </li>
                 <li><strong>Plan Amount : </strong> AED $plan->amount </li>
                 <li><strong>Plan Expiry Date : </strong> " . now()->addYear() . " </li>
+                 <li><strong>Paid Amount:</strong> " . env('APP_CURRENCY', 'AED') . " " . number_format($plan->amount, 2) . " (Including VAT " . env('APP_CURRENCY', 'AED') . " " . number_format($vatValue, 2) . ")</li>
                 </ul>
                 <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
                 <p style='font-size: 12px; color: #777;'>
