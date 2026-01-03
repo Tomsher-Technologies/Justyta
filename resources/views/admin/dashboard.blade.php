@@ -139,7 +139,6 @@
                                         </div>
                                     </div>
                                 @endcan
-
                             </div>
                         </div>
                     </div>
@@ -170,7 +169,7 @@
                                                 <a href="{{ route('service-requests.index', ['service_id' => $service->slug]) }}" style="color: inherit;">
                                             @endif
                                             
-                                                <div class="icon">
+                                                <div class="icon mb-3">
                                                     <img src="{{ asset(getUploadedImage($service->icon)) }}" class="card-img-top"
                                                         style="height: 45px; object-fit: contain;" alt="{{ $service->name }}" />
                                                 </div>
@@ -451,7 +450,7 @@
         .service-count {
             font-weight: 700;
             color: #333;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .service-status {

@@ -91,7 +91,7 @@
                                 </div>
 
                                 <div class="col-md-6 mb-25">
-                                    <label class="col-form-label color-dark fw-500 align-center">VAT Amount
+                                    <label class="col-form-label color-dark fw-500 align-center">VAT %
                                         <span class="text-danger">*</span></label>
                                     <input type="number" step="0.01" name="vat_amount"
                                         value="{{ old('vat_amount', $plan->vat_amount) }}"
@@ -283,13 +283,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const amountInput = document.querySelector('[name="amount"]');
-    const vatInput = document.querySelector('[name="vat_amount"]');
+    const vatInput = document.querySelector('[name="vat_amount"]'); // percentage
     const totalInput = document.querySelector('[name="total_amount"]');
 
     function calculateTotal() {
         const amount = parseFloat(amountInput.value) || 0;
-        const vat = parseFloat(vatInput.value) || 0;
-        totalInput.value = (amount + vat).toFixed(2);
+        const vatPercent = parseFloat(vatInput.value) || 0;
+
+        const vatValue = (amount * vatPercent) / 100;
+        const total = amount + vatValue;
+
+        totalInput.value = total.toFixed(2);
     }
 
     amountInput.addEventListener('input', calculateTotal);
