@@ -35,7 +35,6 @@
                         <li><a href="{{ route('contactus') }}" class="text-[#07683B]">{{ __('frontend.contact') }}</a></li>
                     </ul>
                 </div>
-
             </nav>
 
             <div class="flex md:flex items-center gap-4 ms-auto ">
