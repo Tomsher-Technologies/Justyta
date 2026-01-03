@@ -40,39 +40,75 @@
 
             <div class="flex md:flex items-center gap-4 ms-auto ">
 
-                <a href="{{ route('frontend.login') }}" class="bg-[#04502E] block text-[8px] xl:text-[16px] text-white px-4 xl:px-8 py-2 rounded-full w-auto ">
-                    {{ __('frontend.sign_in') }}
+                @guest('frontend')
+                    <a href="{{ route('frontend.login') }}" class="bg-[#04502E] block text-[8px] xl:text-[16px] text-white px-4 xl:px-8 py-2 rounded-full w-auto ">
+                        {{ __('frontend.sign_in') }}
 
-                </a>
-                <div x-data="{ open: false }" class="relative inline-block">
-                    <button @click="open = !open"
-                        class="flex items-center gap-2 text-[#07683B] border text-[8px] xl:text-[16px] !border-[#07683B] px-4 xl:px-6 py-1 xl:py-2 rounded-full w-auto">
+                    </a>
 
-                        {{ __('frontend.sign_up') }}
+                    <div x-data="{ open: false }" class="relative inline-block">
+                        <button @click="open = !open"
+                            class="flex items-center gap-2 text-[#07683B] border text-[8px] xl:text-[16px] !border-[#07683B] px-4 xl:px-6 py-1 xl:py-2 rounded-full w-auto">
 
-                        <svg :class="open ? 'rotate-180' : 'rotate-0'"
-                            class="w-4 h-4 transition-transform duration-200"
-                            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
+                            {{ __('frontend.sign_up') }}
 
-                    <div x-show="open" @click.away="open = false"
-                        class="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-44 z-50 py-1">
+                            <svg :class="open ? 'rotate-180' : 'rotate-0'"
+                                class="w-4 h-4 transition-transform duration-200"
+                                fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
 
-                        <a href="{{ route('frontend.register') }}"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            {{ __('frontend.user_signup') }}
-                        </a>
+                        <div x-show="open" @click.away="open = false"
+                            class="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-44 z-50 py-1">
 
-                        <a href="{{ route('law-firm.register') }}"
-                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            {{ __('frontend.lawfirm_signup') }}
-                        </a>
+                            <a href="{{ route('frontend.register') }}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                {{ __('frontend.user_signup') }}
+                            </a>
 
+                            <a href="{{ route('law-firm.register') }}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                {{ __('frontend.lawfirm_signup') }}
+                            </a>
+
+                        </div>
                     </div>
-                </div>
+                @endguest
+
+                @auth('frontend')
+                    @php
+                        $user = Auth::guard('frontend')->user();
+                   
+                        switch ($user->user_type) {
+                            case 'lawyer':
+                                $myaccountRoute = route('lawyer.dashboard');
+                                break;
+                            case 'vendor':
+                                $myaccountRoute = route('vendor.dashboard');
+                                break;
+                            case 'translator':
+                                $myaccountRoute = route('translator.dashboard');
+                                break;
+                            default:
+                                $myaccountRoute = route('user.dashboard');
+                                break;
+                        }
+                    @endphp     
+                    <a href="{{ $myaccountRoute }}" class="bg-[#04502E] block text-[8px] xl:text-[16px] text-white px-4 xl:px-8 py-2 rounded-full w-auto">
+                        {{ __('frontend.my_account') }}
+                    </a>
+
+                    <a href="{{ route('frontend.logout') }}" class="gap-2 text-[#07683B] border text-[8px] xl:text-[16px] !border-[#07683B] px-4 xl:px-6 py-1 xl:py-2 rounded-full w-auto">
+                        {{ __('frontend.sign_out') }}
+
+                    </a>
+                @endauth
+
+
+
+                
 
 
                 <div class="relative">
