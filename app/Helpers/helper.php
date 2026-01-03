@@ -1224,8 +1224,8 @@ function assignLawyer($consultation, $lawyerId)
     $deviceToken = $user->device_token;
     $title = 'New Consultation Request';
     $body = 'A new consultation request is waiting for your response. Please check now.';
-    if ($deviceToken){
-        // sendPushNotification($deviceToken, $title, $body);
+    if ($deviceToken != null) {
+        sendPushNotification($deviceToken, $title, $body);
     }
 }
 
