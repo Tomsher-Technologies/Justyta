@@ -33,19 +33,22 @@ use Firebase\JWT\JWT;
 use Carbon\Carbon;
 
 
-function sendNotification($deviceToken, $title = null, $body = null)
-{
-    $firebase = (new Factory)->withServiceAccount(env('FIREBASE_CREDENTIALS'));
-
-    $messaging = $firebase->createMessaging();
+function sendPushNotification(string $deviceToken, string $title = '', string $body = '', array $data = []){
 
     if (empty($deviceToken)) {
-        return response()->json(['error' => 'Device token is missing'], 400);
+        return false;
     }
 
-    $notification = Notification::create($title ?? 'Test Title', $body ?? 'Test Body');
+    static $messaging = null;
 
-    $message = CloudMessage::withTarget('token', $deviceToken)->withNotification($notification);
+    if ($messaging === null) {
+        $factory = (new Factory)->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')));
+        $messaging = $factory->createMessaging();
+    }
+
+    $message = CloudMessage::withTarget('token', $deviceToken)
+                            ->withNotification(Notification::create($title, $body))
+                            ->withData($data);
 
     try {
         $messaging->send($message);
@@ -55,7 +58,6 @@ function sendNotification($deviceToken, $title = null, $body = null)
     } catch (\Exception $e) {
         return response()->json(['error' => 'Error sending notification: ' . $e->getMessage()], 500);
     }
-
 }
 
 function generateZoomSignature($meetingNumber, $userId, $role = 0)
@@ -1158,6 +1160,50 @@ function createWebPlanOrder($customer, float $amount, string $currency = 'AED', 
 }
 
 
+function createWebPlanRenewOrder($customer, float $amount, string $currency = 'AED', ?string $orderReference = null)
+{
+
+    $accessToken = getAccessToken();
+    if (!$accessToken) return null;
+
+    $baseUrl = config('services.ngenius.base_url');
+    $outletRef = config('services.ngenius.outlet_ref');
+
+    $payload = [
+        'action' => 'PURCHASE',
+        'amount' => [
+            'currencyCode' => $currency,
+            'value' => intval($amount * 100), // AED 10.00 => 1000
+        ],
+        'merchantOrderReference' => $orderReference,
+        'merchantAttributes' => [
+            'merchantOrderReference' => $orderReference,
+            'redirectUrl' => route('renew-purchase-success'),
+            'cancelUrl'   => route('renew-purchase-cancel')
+        ],
+        'emailAddress' => $customer['email'],
+        'billingAddress' => [
+            'firstName' => $customer['name'] ?? '',
+            'lastName' => $customer['name'] ?? '',
+            'address1' => $customer['address'] ?? '',
+            'city' => '',
+            'countryCode' => 'AE'
+        ]
+    ];
+
+    $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . $accessToken,
+        'Accept' => 'application/vnd.ni-payment.v2+json',
+        'Content-Type' => 'application/vnd.ni-payment.v2+json',
+    ])->post("{$baseUrl}/transactions/outlets/{$outletRef}/orders", $payload);
+
+    if (!$response->successful()) {
+        Log::error('N-Genius: Order create failed', ['response' => $response->body()]);
+        return null;
+    }
+    return $response->json(); // returns _id, reference, _links etc.
+}
+
 function assignLawyer($consultation, $lawyerId)
 {
     ConsultationAssignment::create([
@@ -1174,6 +1220,13 @@ function assignLawyer($consultation, $lawyerId)
 
     $user = User::find($lawyer->user_id);
     $user->notify(new ConsultationAssignedNotification($consultation));
+
+    $deviceToken = $user->device_token;
+    $title = 'New Consultation Request';
+    $body = 'A new consultation request is waiting for your response. Please check now.';
+    if ($deviceToken != null) {
+        sendPushNotification($deviceToken, $title, $body);
+    }
 }
 
 
