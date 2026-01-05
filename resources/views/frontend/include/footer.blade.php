@@ -2,16 +2,17 @@
      <div class="grid grid-cols-2 xl:grid-cols-4 gap-y-10 xl:gap-y-[unset]">
          <div class="col-span-2 xl:col-span-1">
              @php
+                $lang = app()->getLocale() ??   'en';
                 $settings = \App\Models\WebsiteSetting::pluck('value', 'key')->toArray();
              @endphp
-             <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ $settings['block_heading_1'] }}</h3>
-             <p class="mb-5">{{ $settings['shop_description'] }}</p>
-             <p>{{ $settings['footer_copyright'] }}
+             <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ setting('block_heading_1', $lang, $settings) }}</h3>
+             <p class="mb-5">{{ setting('shop_description', $lang, $settings) }}</p>
+             <p>{{ setting('footer_copyright', $lang, $settings) }}
                  <br />Designed by <a href="https://www.tomsher.com/"
                      target="_blank">Tomsher</a></p>
          </div>
          <div>
-             <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ $settings['block_heading_2'] }}</h3>
+             <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ setting('block_heading_2', $lang, $settings) }}</h3>
              <ul class="flex flex-col items-start gap-2 xl:gap-4">
                  <li>
                      <a href="{{ route('home') }}">{{ __('frontend.home') }}</a>
@@ -28,7 +29,7 @@
              </ul>
          </div>
          <div>
-             <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ $settings['block_heading_3'] }}</h3>
+             <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ setting('block_heading_3', $lang, $settings) }}</h3>
              <ul class="flex flex-col items-start gap-2 xl:gap-4">
 
                  <li>
@@ -44,12 +45,12 @@
              </ul>
          </div>
          <div class="col-span-2 xl:col-span-1">
-             <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ $settings['block_heading_4'] }}</h3>
+             <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ setting('block_heading_4', $lang, $settings) }}</h3>
              <ul class="flex flex-col items-start gap-2 xl:gap-4">
                  <li>
                      <a href="mailto:{{ $settings['email'] }}">{{ $settings['email'] }}</a>
                  </li>
-                 <li> {!! nl2br($settings['address']) !!}</li>
+                 <li> {!! nl2br(setting('address', $lang, $settings)) !!}</li>
              </ul>
 
              <ul class="flex items-center gap-4 mt-6">

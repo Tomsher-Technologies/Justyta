@@ -4,23 +4,25 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Language;
 use App\Models\WebsiteSetting;
 
 class WebsiteContentController extends Controller
 {
     public function menuAppearance()
     {
+        $languages = Language::where('status', 1)->get();
         $settings = WebsiteSetting::pluck('value', 'key')->toArray();
-        return view('admin.website_contents.menu_appearance', compact('settings'));
+        return view('admin.website_contents.menu_appearance', compact('settings', 'languages'));
     }
 
     public function updateMenuAppearance(Request $request)
     {
         $request->validate([
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:102400',
-            'shop_description' => 'nullable|string',
+            // 'shop_description' => 'nullable|string',
             'email' => 'nullable|email',
-            'address' => 'nullable|string',
+            // 'address' => 'nullable|string',
             'footer_links' => 'nullable|array',
             'footer_links.*.title' => 'nullable|string',
             'footer_links.*.icon' => 'nullable|string',
@@ -34,10 +36,10 @@ class WebsiteContentController extends Controller
             WebsiteSetting::updateOrCreate(['key' => 'logo'], ['value' => 'storage/' . $logoPath]);
         }
 
-        $keys = [
+        $languages = Language::where('status', 1)->get();
+        $languageKeys = [
             'shop_description',
             'address',
-            'email',
             'footer_copyright',
             'block_heading_1',
             'block_heading_2',
@@ -45,7 +47,25 @@ class WebsiteContentController extends Controller
             'block_heading_4',
         ];
 
-        foreach ($keys as $key) {
+        $singleKeys = [
+            'email',
+        ];
+
+        // Save language-specific keys
+        foreach ($languageKeys as $key) {
+            foreach ($languages as $lang) {
+                $inputName = $key . '_' . $lang->code; // e.g., shop_description_en
+                if ($request->filled($inputName)) {
+                    WebsiteSetting::updateOrCreate(
+                        ['key' => $inputName],
+                        ['value' => $request->input($inputName)]
+                    );
+                }
+            }
+        }
+
+        // Save language-independent keys
+        foreach ($singleKeys as $key) {
             if ($request->filled($key)) {
                 WebsiteSetting::updateOrCreate(
                     ['key' => $key],
@@ -53,6 +73,7 @@ class WebsiteContentController extends Controller
                 );
             }
         }
+
 
 
         if ($request->has('footer_links')) {
