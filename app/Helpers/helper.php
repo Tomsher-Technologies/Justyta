@@ -1229,6 +1229,18 @@ function assignLawyer($consultation, $lawyerId)
     }
 }
 
+function setting($key, $lang = 'en', $settings = []) {
+    $langKey = $key . '_' . $lang;
+    $fallbackKey = $key . '_en';
+
+    if (!empty($settings[$langKey])) {
+        return $settings[$langKey];
+    } elseif (!empty($settings[$fallbackKey])) {
+        return $settings[$fallbackKey];
+    }
+
+    return ''; // default empty
+}
 
 function findBestFitLawyer($consultation)
 {

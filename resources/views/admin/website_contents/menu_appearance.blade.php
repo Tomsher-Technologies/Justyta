@@ -49,18 +49,6 @@
                         </div>
 
                         <div class="col-6 mb-3">
-                            <label for="footer_copyright" class="col-form-label fw-500 color-dark">
-                                Footer Copyright
-                            </label>
-                            <input type="text" name="footer_copyright" id="footer_copyright" class="form-control" value="{{ $settings['footer_copyright'] ?? '' }}">
-
-                            @error('footer_copyright')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-
-                        <div class="col-6 mb-3">
                             <label for="email" class="col-form-label fw-500 color-dark">
                                 Contact Email
                             </label>
@@ -70,34 +58,6 @@
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        <div class="col-6 mb-3">
-                            <label for="address" class="col-form-label fw-500 color-dark">
-                                Contact Address
-                            </label>
-                            <textarea type="text" name="address" id="address" class="form-control" rows="3">{{ $settings['address'] ?? '' }}</textarea>
-
-                            @error('address')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-
-                        <div class="col-12 mb-3">
-                            <label for="shop_description" class="col-form-label fw-500 color-dark">
-                                Shop Description
-                            </label>
-                            <textarea name="shop_description"
-                                id="shop_description"
-                                class="form-control"
-                                rows="4">{{ $settings['shop_description'] ?? '' }}</textarea>
-
-                            @error('shop_description')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        
 
                         <div class="col-12 mb-3">
                             <label class="col-form-label fw-500 color-dark">Footer Social Links</label>
@@ -150,56 +110,147 @@
                             </button>
                         </div>
 
-                        <div class="col-12">
-                            <hr>
-                            <h6><u>Block Headings</u></h6>
-                            
-                            <div class="row mt-2">
-                                <div class="col-6 mb-3">
-                                    <label for="block_heading_1" class="col-form-label fw-500 color-dark">
-                                        Block Heading 1
-                                    </label>
-                                    <input type="text" name="block_heading_1" id="block_heading_1" class="form-control" value="{{ $settings['block_heading_1'] ?? '' }}">
+                         <div class="col-md-12">
+                            <!-- Language Tabs -->
+                            <ul class="nav nav-tabs custom-lang-tabs w-100" id="langTabs" role="tablist"
+                                style="display: flex; flex-wrap: wrap;">
+                                @foreach ($languages as $lang)
+                                    <li class="nav-item flex-fill text-center">
+                                        <a class="nav-link @if ($loop->first) active @endif"
+                                            id="tab-{{ $lang->code }}" data-toggle="tab"
+                                            href="#lang-{{ $lang->code }}" role="tab"
+                                            aria-controls="lang-{{ $lang->code }}"
+                                            aria-selected="{{ $loop->first ? 'true' : 'false' }}">
+                                            <span class="flag-icon flag-icon-{{ $lang->flag }} mr-1"></span>
+                                            {{ $lang->name }}
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
 
-                                    @error('block_heading_1')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                            <!-- Tab Contents -->
+                            <div class="tab-content custom-tab-content" id="langTabsContent">
+                                @foreach ($languages as $lang)
+                                   
+                                    <div class="tab-pane fade @if ($loop->first) show active @endif"
+                                        id="lang-{{ $lang->code }}" role="tabpanel"
+                                        aria-labelledby="tab-{{ $lang->code }}">
 
-                                <div class="col-6 mb-3">
-                                    <label for="block_heading_2" class="col-form-label fw-500 color-dark">
-                                        Block Heading 2
-                                    </label>
-                                    <input type="text" name="block_heading_2" id="block_heading_2" class="form-control" value="{{ $settings['block_heading_2'] ?? '' }}">
+                                        <div class="row mt-2">
+                                            <div class="col-6 mb-3">
+                                                <label for="footer_copyright_{{ $lang->code }}" class="col-form-label fw-500 color-dark">
+                                                    Footer Copyright ({{ $lang->name }})
+                                                </label>
+                                                <input type="text" name="footer_copyright_{{ $lang->code }}" id="footer_copyright_{{ $lang->code }}" class="form-control" value="{{ $settings['footer_copyright_' . $lang->code] ?? '' }}">
 
-                                    @error('block_heading_2')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                                @error('footer_copyright_' . $lang->code)
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
 
-                                <div class="col-6 mb-3">
-                                    <label for="block_heading_3" class="col-form-label fw-500 color-dark">
-                                        Block Heading 3
-                                    </label>
-                                    <input type="text" name="block_heading_3" id="block_heading_3" class="form-control" value="{{ $settings['block_heading_3'] ?? '' }}">
+                                            <div class="col-6 mb-3">
+                                                <label for="address_{{ $lang->code }}" class="col-form-label fw-500 color-dark">
+                                                    Contact Address ({{ $lang->name }})
+                                                </label>
+                                                <textarea type="text" name="address_{{ $lang->code }}" id="address_{{ $lang->code }}" class="form-control" rows="3">{{ $settings['address_' . $lang->code] ?? '' }}</textarea>
 
-                                    @error('block_heading_3')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                                @error('address_' . $lang->code)
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
 
-                                <div class="col-6 mb-3">
-                                    <label for="block_heading_4" class="col-form-label fw-500 color-dark">
-                                        Block Heading 4
-                                    </label>
-                                    <input type="text" name="block_heading_4" id="block_heading_4" class="form-control" value="{{ $settings['block_heading_4'] ?? '' }}">
+                                            <div class="col-12 mb-3">
+                                                <label for="shop_description_{{ $lang->code }}" class="col-form-label fw-500 color-dark">
+                                                    Shop Description ({{ $lang->name }})
+                                                </label>
+                                                <textarea name="shop_description_{{ $lang->code }}"
+                                                    id="shop_description_{{ $lang->code }}"
+                                                    class="form-control"
+                                                    rows="4">{{ $settings['shop_description_' . $lang->code] ?? '' }}</textarea>
 
-                                    @error('block_heading_4')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                                                @error('shop_description_' . $lang->code)
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+
+                                        
+
+                                        {{-- @if ($page->slug === 'payment-page' || $page->slug === 'consultancy_waiting_page')
+                                            <div class="form-group">
+                                                <label class="col-form-label color-dark fw-500">Title
+                                                    ({{ $lang->name }})
+                                                    @if ($lang->code == 'en')
+                                                        <span class="text-danger">*</span>
+                                                    @endif
+                                                </label>
+                                                <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
+                                                    name="translations[{{ $lang->code }}][title]"
+                                                    class="form-control" value="{{ $trans->title ?? '' }}"
+                                                    @if ($lang->code == 'en') required @endif>
+                                            </div>
+                                        @endif --}}
+
+                                        <div class="col-12">
+                                            <hr>
+                                            <h6><u>Block Headings</u></h6>
+                                            
+                                            <div class="row mt-2">
+                                                <div class="col-6 mb-3">
+                                                    <label for="block_heading_1_{{ $lang->code }}" class="col-form-label fw-500 color-dark">
+                                                        Block Heading 1 ({{ $lang->name }})
+                                                    </label>
+                                                    <input type="text" name="block_heading_1_{{ $lang->code }}" id="block_heading_1_{{ $lang->code }}" class="form-control" value="{{ $settings['block_heading_1_' . $lang->code] ?? '' }}">
+
+                                                    @error('block_heading_1_' . $lang->code)
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+
+                                                <div class="col-6 mb-3">
+                                                    <label for="block_heading_2_{{ $lang->code }}" class="col-form-label fw-500 color-dark">
+                                                        Block Heading 2 ({{ $lang->name }})
+                                                    </label>
+                                                    <input type="text" name="block_heading_2_{{ $lang->code }}" id="block_heading_2_{{ $lang->code }}" class="form-control" value="{{ $settings['block_heading_2_' . $lang->code] ?? '' }}">
+
+                                                    @error('block_heading_2_' . $lang->code)
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+
+                                                <div class="col-6 mb-3">
+                                                    <label for="block_heading_3_{{ $lang->code }}" class="col-form-label fw-500 color-dark">
+                                                        Block Heading 3 ({{ $lang->name }})
+                                                    </label>
+                                                    <input type="text" name="block_heading_3_{{ $lang->code }}" id="block_heading_3_{{ $lang->code }}" class="form-control" value="{{ $settings['block_heading_3_' . $lang->code] ?? '' }}">
+
+                                                    @error('block_heading_3_' . $lang->code)
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+
+                                                <div class="col-6 mb-3">
+                                                    <label for="block_heading_4_{{ $lang->code }}" class="col-form-label fw-500 color-dark">
+                                                        Block Heading 4 ({{ $lang->name }})
+                                                    </label>
+                                                    <input type="text" name="block_heading_4_{{ $lang->code }}" id="block_heading_4_{{ $lang->code }}" class="form-control" value="{{ $settings['block_heading_4_' . $lang->code] ?? '' }}">
+
+                                                    @error('block_heading_4_' . $lang->code)
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                       
+                                    </div>
+                                @endforeach
+
                             </div>
                         </div>
+
+                        
                         <div class="col-12 d-flex justify-content-end mt-4">
                             <button type="submit" class="btn btn-primary btn-sm">
                                 Update Settings
