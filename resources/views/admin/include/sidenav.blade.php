@@ -449,8 +449,8 @@
                     @endcan
 
                     @can('manage_roles')
-                        <li class="has-child {{ areActiveRoutes(['roles.create', 'roles.edit', 'roles.index']) }}">
-                            <a href="#" class="{{ areActiveRoutes(['roles.create', 'roles.edit', 'roles.index']) }}">
+                        <li class="has-child {{ areActiveRoutes(['roles.create', 'role.edit', 'roles.index']) }}">
+                            <a href="#" class="{{ areActiveRoutes(['roles.create', 'role.edit', 'roles.index']) }}">
                                 <span data-feather="lock" class="nav-icon"></span>
                                 <span class="menu-text">Roles & Permissions</span>
                                 <span class="toggle-icon"></span>
@@ -464,7 +464,7 @@
                                     </li>
                                 @endcan
                                 <li>
-                                    <a class="{{ areActiveRoutes(['roles.edit', 'roles.index']) }}"
+                                    <a class="{{ areActiveRoutes(['role.edit', 'roles.index']) }}"
                                         href="{{ route('roles.index') }}">All Roles</a>
                                 </li>
                             </ul>

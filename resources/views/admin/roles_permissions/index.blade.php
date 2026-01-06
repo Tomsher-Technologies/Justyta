@@ -41,7 +41,7 @@
                                                 <td class="text-center">
                                                     @can('edit_role')
                                                         <div class="table-actions">
-                                                            <a href="{{route('roles.edit', ['id'=>$role->id] )}}" title="Edit Role">
+                                                            <a href="{{route('role.edit', ['id'=>$role->id] )}}" title="Edit Role">
                                                                 <span data-feather="edit"></span>
                                                             </a>
                                                         </div>
