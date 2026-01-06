@@ -65,7 +65,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 
     // Manage roles & permissions
     Route::resource('roles', RoleController::class);
-    Route::get('/roles/edit/{id}', [RoleController::class, 'edit'])->name('roles.edit');
+    Route::get('/roles/edit/{id}', [RoleController::class, 'edit'])->name('role.edit');
 
     // Manage membership plans
     Route::resource('membership-plans', MembershipPlanController::class);
