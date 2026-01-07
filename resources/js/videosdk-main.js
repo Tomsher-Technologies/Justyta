@@ -54,7 +54,7 @@
                     resumeCallTimer(data.additionalMs || 0, false);
                 }else if (data.action === "end-call") {
                     console.log("Received end-call command");
-                    await leaveCall();
+                    leaveCall();
                 }
 
                 if (data.action === "pause-av") {
@@ -173,6 +173,7 @@
 
 
     async function leaveCall() {
+        console.log('leavecall');
         if (window.statusCheckInterval) clearInterval(window.statusCheckInterval);
         const mediaStream = client.getMediaStream();
 
@@ -212,7 +213,7 @@
         }
 
         stopCallTimer();
-
+        console.log('complete status');
         const response = await fetch(window.consultationStatusUpdateUrl, {
             method: 'POST',
             headers: {
@@ -289,7 +290,7 @@
             toggleVideoBtn.style.display = "none";
             mute.style.display = "none";
             stopCallTimer();
-
+            console.log('stopbutton');
             if (commandChannel) {
                 const commandData = JSON.stringify({ action: "end-call" });
                 await commandChannel.send(commandData);
@@ -417,7 +418,7 @@
                 const data = await res.json();
                 if (data.status === 'completed') {
                     console.log("Consultation ended via backend");
-                    await leaveCall();
+                    leaveCall();
                 }
             } catch (err) {
                 console.warn("Failed to check consultation status", err);
