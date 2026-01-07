@@ -91,7 +91,7 @@
             startCallTimer(result.start_time);
         }
 
-        startStatusPolling();
+        // startStatusPolling();
     }
 
     let callStarted = false;
@@ -296,7 +296,7 @@
                 await commandChannel.send(commandData);
             }
             stopBtn.style.display = "none";
-           
+            leaveCall();
         });
 
         toggleVideoBtn.addEventListener("click", async () => {
@@ -313,7 +313,7 @@
     window.toggleVideo = toggleVideo;
     window.extendCall = extendCall;
     window.resumeCallTimer = resumeCallTimer;
-    window.startStatusPolling = startStatusPolling;
+    // window.startStatusPolling = startStatusPolling;
 
     function startCallTimer(baseTime = null) {
         const timerElement = document.getElementById("call-timer");
@@ -408,23 +408,23 @@
     }
 
 
-    function startStatusPolling() {
-        if (!window.consultation_id) return;
+    // function startStatusPolling() {
+    //     if (!window.consultation_id) return;
 
-        // store interval ID to clear later
-        window.statusCheckInterval = setInterval(async () => {
-            try {
-                const res = await fetch(`/consultation/status/${window.consultation_id}`);
-                const data = await res.json();
-                if (data.status === 'completed') {
-                    console.log("Consultation ended via backend");
-                    leaveCall();
-                }
-            } catch (err) {
-                console.warn("Failed to check consultation status", err);
-            }
-        }, 5000); // every 5 seconds
-    }
+    //     // store interval ID to clear later
+    //     window.statusCheckInterval = setInterval(async () => {
+    //         try {
+    //             const res = await fetch(`/consultation/status/${window.consultation_id}`);
+    //             const data = await res.json();
+    //             if (data.status === 'completed') {
+    //                 console.log("Consultation ended via backend");
+    //                 leaveCall();
+    //             }
+    //         } catch (err) {
+    //             console.warn("Failed to check consultation status", err);
+    //         }
+    //     }, 5000); // every 5 seconds
+    // }
 
     async function extendCall(consultationId, consultantType) {
         if (!commandChannel) return;
