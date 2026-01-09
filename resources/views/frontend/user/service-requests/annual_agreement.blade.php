@@ -453,7 +453,7 @@ $ads = getActiveAd('company_annual_agreement', 'web');
                                     </div> `;
                             } else {
                                 installmentHtml += `
-                                    <div class="flex justify-between text-md mb-2">
+                                    <div class="flex justify-between text-sm mb-2">
                                         <span>{{ __('frontend.pay_now') }}</span>
                                         <span>{{ __('frontend.AED') }} ${perInstallmentAmount}</span>
                                     </div> `;
@@ -463,7 +463,10 @@ $ads = getActiveAd('company_annual_agreement', 'web');
 
                         $('#annual_price_result').html(`
                                 <div class="bg-gray-50 p-4 border rounded-md shadow">
-                                    <p class="text-md  mb-3">{{ __('frontend.total_payable') }}: <span class="text-blue-600">{{ __('frontend.AED') }} ${parseFloat(data.final_total).toFixed(2)}</span></p>
+                                    <p class="text-md  mb-3">{{ __('frontend.total_payable') }}<br> 
+                                        <span class="text-blue-600">{{ __('frontend.AED') }} ${parseFloat(data.final_total).toFixed(2)}</span><br>
+                                         <small class="text-sm">({{ __('frontend.monthly') }}: {{ __('frontend.AED') }} ${parseFloat(data.final_total / 12).toFixed(2)})</small>
+                                    </p>
                                     <div>
                                         ${installmentHtml}
                                     </div>
