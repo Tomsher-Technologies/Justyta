@@ -114,7 +114,7 @@ class ServiceRequestController extends Controller
         $extendAmount = $data['amount'] ?? (float)($base->amount ?? 0);
         $currency = env('APP_CURRENCY', 'AED');
 
-        // $extendAmount =0; // For Testing
+        $extendAmount =0; // For Testing
         if ($extendAmount > 0) {
             $customer = [
                 'email' => $user->email,
