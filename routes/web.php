@@ -75,7 +75,7 @@ Route::prefix('lawyer')->middleware(['auth.frontend', 'checkFrontendUserType:law
     Route::get('/lawyer/video', [LawyerController::class, 'lawyerDashboard'])->name('web.lawyer.video');
     Route::get('/web/lawyer/poll', [LawyerController::class, 'poll'])->name('web.lawyer.poll');
     Route::post('/web/lawyer/response', [LawyerController::class, 'lawyerResponse'])->name('web.lawyer.response');
-    Route::get('/lawyer/consultation/ended', [LawyerController::class, 'endedCall'])->name('lawyer.consultation.ended');
+    Route::get('/consultation/ended', [LawyerController::class, 'endedCall'])->name('lawyer.consultation.ended');
 
     // Consultation Requests
     Route::get('/consultations', [LawyerController::class, 'consultationsIndex'])->name('lawyer.consultations.index');
@@ -198,7 +198,7 @@ Route::prefix('user')->middleware(['auth.frontend', 'checkFrontendUserType:user'
 
     Route::get('/online-live-consultancy', [ServiceRequestController::class, 'showConsultationForm'])->name('service.online.consultation');
     Route::post('/request-consultation', [ServiceRequestController::class, 'requestConsultation'])->name('service.request.consultation');
-    Route::get('/user/consultation/ended', [UserController::class, 'endedCall'])->name('user.consultation.ended');
+    Route::get('/consultation/ended', [UserController::class, 'endedCall'])->name('user.consultation.ended');
     Route::get('/consultation/timeslots', [ServiceRequestController::class, 'getTimeslots'])->name('consultation.timeslots');
     Route::get('/consultation/price', [ServiceRequestController::class, 'getPrice'])->name('consultation.price');
     Route::post('/consultation/extend/pay', [ServiceRequestController::class, 'extendPay'])->name('consultation.extend.pay');
