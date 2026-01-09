@@ -517,5 +517,5 @@ return [
     'edate' => 'Date de fin',
     'subscription_failed' => 'Échec de l’abonnement. Veuillez réessayer.',
     'subscription_success' => 'Abonnement réussi. Votre forfait est maintenant actif.',
-
+    'monthly' => 'Mensuel',
 ];

@@ -59,10 +59,19 @@
             height: auto !important;
         }
 
+        #remote-video video,
+        #local-video video {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+        }
+
     </style>
 
     <div class="grid grid-cols-1 gap-6">
-        <div class="bg-white p-4 rounded-[20px] border !border-[#FFE9B1] flex flex-col h-[calc(100vh-150px)]">
+        <div class="bg-white p-4 rounded-[20px] border !border-[#FFE9B1] flex flex-col  h-[calc(100vh-150px)]  min-h-0">
 
             <!-- Waiting Message -->
             <div id="waitingMessage" class="flex-1 flex items-center justify-center">
@@ -83,8 +92,8 @@
             </div>
 
             <!-- Video Call Container -->
-            <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full ">
-                <div class="relative w-full flex-1 max-w-5xl bg-black">
+            <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-[85%]  min-h-0 m-auto">
+                <div class="relative w-full flex-1 max-w-5xl bg-black  min-h-0">
                     <!-- Remote Video Large -->
                     <video-player-container id="remote-video"
                         class="relative w-full h-full bg-black rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(2,6,23,0.3)]">

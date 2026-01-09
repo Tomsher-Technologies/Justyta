@@ -83,6 +83,16 @@
             height: auto !important;
         }
 
+        #remote-video video,
+        #local-video video {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+        }
+
+
         
 
         @keyframes fadeIn {
@@ -119,9 +129,9 @@
             </div>
             
             <div class="hidden grid grid-cols-1 gap-6" id="video-call-container">
-                <div class="bg-white p-4 rounded-[20px] border !border-[#FFE9B1] flex flex-col h-[calc(100vh-150px)]">
-                    <div  class=" flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full ">
-                        <div class="relative w-full flex-1 max-w-5xl ">
+                <div class="bg-white p-4 rounded-[20px] border !border-[#FFE9B1] flex flex-col h-[calc(100vh-150px)] min-h-0">
+                    <div  class=" flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full  min-h-0">
+                        <div class="relative w-full flex-1 max-w-5xl  min-h-0">
                             <!-- Remote Video Large -->
                             <video-player-container id="remote-video"
                                 class="relative w-full h-full bg-black rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(2,6,23,0.3)]">
@@ -339,6 +349,9 @@
                         document.getElementById('language').textContent = currentConsultation.language;
                         document.getElementById('duration').textContent = currentConsultation.duration;
                         document.getElementById('incomingPopup').classList.remove('hidden');
+                    }else{
+                        document.getElementById('incomingPopup').classList.add('hidden');
+                        currentConsultation = null;
                     }
                 } catch (err) {
                     console.error(err);
