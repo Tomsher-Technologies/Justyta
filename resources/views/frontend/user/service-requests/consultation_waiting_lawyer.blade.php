@@ -233,17 +233,23 @@
             $("#extension-cancel").on("click", function() {
                 $("#extendModal").addClass("hidden");
                 resumeCallTimer(0, true);
-                if (commandChannel) {
-                    const commandData = JSON.stringify({
-                        action: "resume-timer",
-                        additionalMs: 0
-                    });
-                    try {
-                        commandChannel.send(commandData);
-                    } catch (e) {
-                        console.warn("commandChannel.send failed", e);
-                    }
-                }
+                // sendCommand({
+                //     action: "resume-timer",
+                //     additionalMs: 0
+                // });
+
+                sendCommand("resume-timer", 0);
+                // if (commandChannel) {
+                //     const commandData = JSON.stringify({
+                //         action: "resume-timer",
+                //         additionalMs: 0
+                //     });
+                //     try {
+                //         commandChannel.send(commandData);
+                //     } catch (e) {
+                //         console.warn("commandChannel.send failed", e);
+                //     }
+                // }
             });
 
             let checkInterval = null;
@@ -305,17 +311,23 @@
                             const extendedMinutes = Number(res.extended_minutes) || 0;
                             resumeCallTimer(extendedMinutes, true);
 
-                            if (commandChannel) {
-                                const commandData = JSON.stringify({
-                                    action: "resume-timer",
-                                    additionalMs: extendedMinutes * 60 * 1000
-                                });
-                                try {
-                                    commandChannel.send(commandData);
-                                } catch (e) {
-                                    console.warn("commandChannel.send failed", e);
-                                }
-                            }
+                            // sendCommand({
+                            //     action: "resume-timer",
+                            //     additionalMs: extendedMinutes * 60 * 1000
+                            // });
+
+                            sendCommand("resume-timer", extendedMinutes * 60 * 1000);
+                            // if (commandChannel) {
+                            //     const commandData = JSON.stringify({
+                            //         action: "resume-timer",
+                            //         additionalMs: extendedMinutes * 60 * 1000
+                            //     });
+                            //     try {
+                            //         commandChannel.send(commandData);
+                            //     } catch (e) {
+                            //         console.warn("commandChannel.send failed", e);
+                            //     }
+                            // }
 
                             $("#extendModal").addClass("hidden");
 
