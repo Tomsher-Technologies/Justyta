@@ -248,6 +248,7 @@
 
                 const consultation_Id = $("#modal-consultation-id").val();
                 checkPaymentStatus(consultation_Id);
+                $("#extension-pay").prop("disabled", false).text("Pay & Extend");
                 
                 // sendCommand({
                 //     action: "resume-timer",
@@ -279,7 +280,7 @@
                     return;
                 }
 
-                // $("#extension-pay").prop("disabled", true).text("Processing...");
+                $("#extension-pay").prop("disabled", true).text("Processing...");
 
                 $.ajax({
                     url: "{{ route('consultation.extend.pay') }}",  // new route
