@@ -96,6 +96,7 @@
 
                 if (data.action === "pause-timer") stopCallTimer(true);
                 else if (data.action === "resume-timer") resumeCallTimer(data.additionalMs || 0, false);
+                else if (data.action === "start-timer") startCallTimer(data.additionalMs || now);
                 else if (data.action === "end-call") leaveCall();
                 else if (data.action === "pause-av") pauseLocalAV();
                 else if (data.action === "resume-av") resumeLocalAV();
@@ -124,7 +125,8 @@
 
         if (result.start_time) {
             window.zoomCallStartTime = result.start_time;
-            startCallTimer(result.start_time);
+            // startCallTimer(result.start_time);
+            sendCommand("start-timer", result.start_time);
         }
 
         // startStatusPolling();
@@ -152,7 +154,8 @@
             });
 
             window.zoomCallStartTime = now;
-            startCallTimer(now);
+            // startCallTimer(now);
+            sendCommand("start-timer", now);
         }
     }
 
@@ -438,7 +441,8 @@
         // clear paused flag and (re)start interval
         isTimerPaused = false;
         if (timerInterval) clearInterval(timerInterval);
-        startCallTimer(); // no baseTime needed since we set callStartTime above
+        // startCallTimer(); // no baseTime needed since we set callStartTime above
+        sendCommand("start-timer", Date.now());
         document.getElementById("extend-call-btn").classList.add("hidden");
 
         resumeLocalAV();
