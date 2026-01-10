@@ -241,13 +241,21 @@
            
             $("#extension-cancel").on("click", function() {
                 $("#extendModal").addClass("hidden");
-                resumeCallTimer(0, true);
+
+
+                // resumeCallTimer(0, true);
+                // sendCommand("resume-timer", 0);
+
+                const consultation_Id = $("#modal-consultation-id").val();
+                checkPaymentStatus(consultation_Id);
+                $("#extension-pay").prop("disabled", false).text("Pay & Extend");
+                
                 // sendCommand({
                 //     action: "resume-timer",
                 //     additionalMs: 0
                 // });
 
-                sendCommand("resume-timer", 0);
+                
                 // if (commandChannel) {
                 //     const commandData = JSON.stringify({
                 //         action: "resume-timer",
@@ -272,7 +280,7 @@
                     return;
                 }
 
-                // $("#extension-pay").prop("disabled", true).text("Processing...");
+                $("#extension-pay").prop("disabled", true).text("Processing...");
 
                 $.ajax({
                     url: "{{ route('consultation.extend.pay') }}",  // new route
