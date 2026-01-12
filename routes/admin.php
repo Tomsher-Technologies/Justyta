@@ -240,6 +240,7 @@ Route::prefix('admin')->middleware(['web', 'auth', 'user_type:admin,staff'])->gr
 
     //Training requests
     Route::get('/training-requests', [FeedbackController::class, 'trainingRequests'])->name('training-requests.index');
+    Route::delete('training-requests/{id}', [FeedbackController::class, 'destroyTrainingRequest'])->name('training-requests.destroy');
 
     // User Feedbacks
     Route::get('/reported-problems', [FeedbackController::class, 'reportedProblems'])->name('user-reported-problems.feedback');
