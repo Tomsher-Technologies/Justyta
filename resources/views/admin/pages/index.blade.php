@@ -24,7 +24,7 @@
                                             <div class="card-body">
                                                 <h6 class="card-title mb-3">{{ $page->name }}</h6>
                                                 <div class="d-flex justify-content-center " style="gap: 10px;">
-                                                    @if(in_array($page->slug, ['contact_page','services_page','news','about-us','home','terms_conditions','privacy_policy','refund_policy']))
+                                                    @if(in_array($page->slug, ['contact_page','services_page','news','about_us','home','terms_conditions','privacy_policy','refund_policy']))
                                                         <a href="{{ route('pages.sections.index', $page->id) }}" class="btn btn-primary btn-xs">
                                                             <i class="la la-th-list"></i> Manage Sections
                                                         </a>

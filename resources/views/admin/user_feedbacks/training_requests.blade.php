@@ -81,6 +81,7 @@
                                             <th class="text-center w-20">Documents</th>
                                             {{-- <th class="text-center">Status</th> --}}
                                             <th class="text-center">Created</th>
+                                            <th class="text-center">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -164,6 +165,22 @@
                                                 </td> --}}
 
                                                 <td class="text-center">{{ date('d, M Y h:i A', strtotime($req->created_at)) }}</td>
+
+                                                <td class="text-center">
+                                                    <div class="table-actions">
+                                                        
+                                                        <form id="delete-form-{{ $req->id }}" action="{{ route('training-requests.destroy', $req->id) }}" method="POST" style="display:none;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                        </form>
+
+                                                        <a href="javascript:void(0)"
+                                                            onclick="confirmDelete({{ $req->id }})"
+                                                            title="Delete Request">
+                                                            <span data-feather="trash-2"></span>
+                                                        </a>
+                                                    </div>
+                                                </td>
                                             </tr>
                                         @empty
                                             <tr>
@@ -186,6 +203,7 @@
 @endsection
 
 @section('style')
+<link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
     <link href="{{ asset('assets/css/lightbox.min.css') }}" rel="stylesheet">
     <style>
 
@@ -230,6 +248,7 @@
 
 
 @section('script')
+ <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('assets/js/lightbox.min.js') }}"></script>
     <script type="text/javascript">
         lightbox.option({
@@ -272,5 +291,22 @@
                 if (window.feather) feather.replace();
             });
         });
+
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action cannot be undone.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            });
+        }
     </script>
 @endsection
