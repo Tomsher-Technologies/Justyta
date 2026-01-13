@@ -69,10 +69,11 @@ class TranslatorController extends Controller
             });
         }
 
+        $totalTranslators = $query->count();
         $translators = $query->orderBy('id', 'DESC')->paginate(15);
 
         $languages = TranslationLanguage::where('status', 1)->get();
-        return view('admin.translators.index', compact('translators', 'languages'));
+        return view('admin.translators.index', compact('translators', 'languages','totalTranslators'));
     }
 
     public function create()

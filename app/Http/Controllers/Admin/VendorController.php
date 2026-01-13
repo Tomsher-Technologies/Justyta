@@ -78,11 +78,13 @@ class VendorController extends Controller
             });
         }
 
+        $totalLawfirms = $query->count();
+
         $vendors = $query->orderBy('id', 'DESC')->paginate(15); 
 
         $plans = MembershipPlan::get();
 
-        return view('admin.vendors.index', compact('vendors', 'plans'));
+        return view('admin.vendors.index', compact('vendors', 'plans','totalLawfirms'));
     }
 
     public function create()

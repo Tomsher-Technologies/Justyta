@@ -442,9 +442,11 @@ class AdminDashboardController extends Controller
             }
         }
 
+        $totalUsers = $users->count();
+
         $users = $users->orderBy('id', 'desc')->paginate(20);
 
-        return view('admin.users', compact('users'));
+        return view('admin.users', compact('users','totalUsers'));
     }
 
     public function updateUserStatus(Request $request)

@@ -73,9 +73,11 @@ class JobPostController extends Controller
             }
         }
 
+        $totalJobPosts = $query->count();
+
         $job_posts = $query->paginate(15);
         $users = User::whereIn('user_type', ['admin','staff','vendor'])->orderBy('name','asc')->get();
-        return view('admin.job_posts.index', compact('job_posts','users'));
+        return view('admin.job_posts.index', compact('job_posts','users','totalJobPosts'));
     }
 
     public function create()
