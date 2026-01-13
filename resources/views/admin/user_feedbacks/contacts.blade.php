@@ -70,11 +70,11 @@
                                                     {{ $con->phone }}
                                                 </td> --}}
 
-                                                <td>
+                                                <td style="word-break: break-word;">
                                                     {{ $con->subject }}
                                                 </td>
 
-                                                <td>
+                                                <td style="word-break: break-word;">
                                                     {{ $con->message }}
                                                 </td>
 
