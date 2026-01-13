@@ -200,25 +200,28 @@
 
     @if ($ads && $ads->files->isNotEmpty())
 
-        <div class="w-full mb-12 px-[50px]">
-            {{-- <img src="{{ asset('assets/images/ad-img.jpg') }}" class="w-full" alt="" /> --}}
-           {{-- muted --}}
+        <div class="relative w-full mb-12 px-[50px]">
             @php
                 $file = $ads->files->first();
-                $media = $file->file_type === 'video'
-                    ? '<video class="" style="height: 500px; width: 100%; object-fit: cover;" autoplay muted loop playsinline>
-                        <source src="' . asset($file->file_path) . '" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>'
-                    : '<img src="' . asset($file->file_path) . '" class="w-full h-80" alt="Ad Image">';
             @endphp
 
-            @if (!empty($ads->cta_url))
-                <a href="{{ $ads->cta_url }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
-                    {!! $media !!}
-                </a>
-            @else
-                {!! $media !!}
+            <a href="{{ $ads->cta_url ?? '#' }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
+                @if($file->file_type === 'video')
+                    <video id="adVideo{{ $ads->id }}" class="w-full object-cover"  style="height: 500px;" autoplay muted loop playsinline>
+                        <source src="{{ asset($file->file_path) }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                @else
+                    <img src="{{ asset($file->file_path) }}" class="w-full h-80 object-cover" alt="Ad Image">
+                @endif
+            </a>
+
+            @if($file->file_type === 'video')
+                <button 
+                    onclick="toggleMute('adVideo{{ $ads->id }}', this)" 
+                    class="absolute bottom-2 bg-gray-800 bg-opacity-50 text-white px-3 py-1 rounded hover:bg-opacity-80 z-10" style="right: 4rem;">
+                    🔇
+                </button>
             @endif
         </div>
     @endif

@@ -79,11 +79,11 @@
                                                     {{ $prbm->phone }}
                                                 </td> --}}
 
-                                                <td>
+                                                <td style="word-break: break-word;">
                                                     {{ $prbm->subject }}
                                                 </td>
 
-                                                <td>
+                                                <td style="word-break: break-word;">
                                                     {{ $prbm->message }}
                                                 </td>
 

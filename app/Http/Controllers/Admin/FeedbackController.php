@@ -104,6 +104,7 @@ class FeedbackController extends Controller
             $query->where('position', $request->position);
         }
 
+        $totalRequests = $query->count();
         $requests = $query->orderBy('created_at', 'desc')->paginate(10);
 
         $dropdowns  = Dropdown::with([
@@ -134,7 +135,7 @@ class FeedbackController extends Controller
             });
         }
 
-        return view('admin.user_feedbacks.training_requests', compact('requests', 'response'));
+        return view('admin.user_feedbacks.training_requests', compact('requests', 'response','totalRequests'));
     }
 
     public function destroyTrainingRequest($id)
