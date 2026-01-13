@@ -85,6 +85,8 @@
     <script src="{{ asset('assets/js/select2.full.min.js') }}"></script>
 
     <script>
+        
+
         $('.select2').select2({
             width: '100%',
             placeholder: "{{ __('frontend.choose_option') }}"
@@ -169,6 +171,8 @@
                     $('#search-suggestions').hide();
                 }
             });
+
+            
         });
     </script>
 
@@ -182,7 +186,15 @@
             if (localLang && localLang !== serverLang) {
                 window.location.href = "{{ url('/lang') }}/" + localLang;
             }
+
+            
         });
+
+        function toggleMute(videoId, btn) {
+            const video = document.getElementById(videoId);
+            video.muted = !video.muted;
+            btn.textContent = video.muted ? '🔇' : '🔊';
+        }
     </script>
 </body>
 

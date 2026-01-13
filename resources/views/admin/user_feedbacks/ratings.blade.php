@@ -75,7 +75,7 @@
                                                     {{ $rat->rating }}
                                                 </td>
 
-                                                <td>
+                                                <td style="word-break: break-word;">
                                                     {{ $rat->comment }}
                                                 </td>
 

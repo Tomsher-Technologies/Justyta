@@ -68,8 +68,10 @@ class ConsultationController extends Controller
             });
         }
 
-        $consultations = $conQuery->where('request_success', 1)->orderBy('id', 'desc')
-                            ->paginate(15);
+        $conQuery->where('request_success', 1)->orderBy('id', 'desc');
+        $totalRequests = $conQuery->count();
+
+        $consultations = $conQuery->paginate(15);
 
         $lawyers = Lawyer::select('id', 'full_name')->get();
 
@@ -79,7 +81,7 @@ class ConsultationController extends Controller
 
         $lawfirms = Vendor::select('id', 'law_firm_name')->get();
 
-        return view('admin.consultations.index', compact('consultations', 'lawyers', 'dropdowns', 'lawfirms'));
+        return view('admin.consultations.index', compact('consultations', 'lawyers', 'dropdowns', 'lawfirms','totalRequests'));
     }
 
     public function show($id)

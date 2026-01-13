@@ -58,11 +58,13 @@ class LawyerController extends Controller
             });
         }
 
+        $totalLawyers = $query->count();
+
         $lawyers = $query->orderBy('id', 'DESC')->paginate(15);
 
         // $emirates = Emirate::orderBy('name','ASC')->get();
         $lawfirms = Vendor::orderBy('law_firm_name','ASC')->get();
-        return view('admin.lawyers.index', compact('lawyers', 'lawfirms'));
+        return view('admin.lawyers.index', compact('lawyers', 'lawfirms','totalLawyers'));
     }
 
     public function create()
