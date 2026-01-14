@@ -14,6 +14,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use App\Notifications\ForgotPassword;
 use App\Models\User;
+use App\Models\Invoice;
+use App\Services\InvoiceService;
 use App\Models\UserOnlineLog;
 use App\Models\Vendor;
 use App\Models\MembershipPlan;
@@ -21,6 +23,7 @@ use App\Models\VendorTranslation;
 use App\Models\VendorSubscription;
 use App\Mail\CommonMail;
 use App\Models\Lawyer;
+
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
@@ -512,7 +515,7 @@ class AuthController extends Controller
                 <li><strong>Registered Email : </strong> $request->email </li>
                 <li><strong>Plan : </strong> $plan->title </li>
                 <li><strong>Plan Expiry Date : </strong> " . now()->addYear() . " </li>
-                <li><strong>Paid Amount:</strong> " . env('APP_CURRENCY', 'AED') . " " . number_format($plan->amount, 2) . " (Including VAT " . env('APP_CURRENCY', 'AED') . " " . number_format($vatValue, 2) . ")</li>
+                <li><strong>Paid Amount : </strong> Payment Failed</li>
                 </ul>
                 <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
                 <p style='font-size: 12px; color: #777;'>
@@ -564,6 +567,27 @@ class AuthController extends Controller
 
             $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
 
+            $user_id = $vendor->user_id;
+            $user = User::find($user_id);
+
+            $invoice = Invoice::create([
+                'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                'billable_type' => User::class,
+                'billable_id' => $user->id,
+                'amount' => $plan->plain_amount,
+                'tax' => $vatValue,
+                'total' => $plan->amount,
+                'paid_at' => now(),
+            ]);
+
+            // 2. Generate PDF
+            $pdfPath = InvoiceService::generate(
+                $invoice,
+                $user,
+                'User Registration Fee'
+            );
+
+
             $array['subject'] = 'Registration Successful - Welcome to ' . env('APP_NAME', 'Justyta') . '!';
             $array['from'] = env('MAIL_FROM_ADDRESS');
             $array['content'] = "Hi $vendor->owner_name, <p> Congratulations and welcome to " . env('APP_NAME') . "! We are delighted to inform you that your registration has been successfully completed. Thank you for choosing us as your trusted partner. We're excited to have your law firm onboard.</p>
@@ -582,6 +606,8 @@ class AuthController extends Controller
                 <p style='font-size: 12px; color: #777;'>
                     This email was sent to $vendor->owner_email. If you did not register on our platform, please ignore this message.
                 </p>";
+
+            $array['invoice_path'] = $pdfPath;
             Mail::to($vendor->owner_email)->queue(new CommonMail($array));
 
             session()->flash('success', __("frontend.vendor_registration_success"));

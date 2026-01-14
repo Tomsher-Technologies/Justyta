@@ -11,6 +11,11 @@ use App\Models\ConsultationPayment;
 use App\Models\Lawyer;
 use Illuminate\Support\Facades\Http;
 use App\Services\ZoomService;
+use App\Models\Invoice;
+use App\Services\InvoiceService;
+use App\Mail\CommonMail;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
 class ConsultationController extends Controller
 {
@@ -207,6 +212,44 @@ class ConsultationController extends Controller
                         return response()->json(['status' => false,'message'=> __('frontend.no_lawyer_available')],200);
                     }
                 }
+
+                $user = User::find($consultation->user_id);
+            
+                $totalAmount = $consultation->amount;
+                $vatRate = 5;    
+
+                $subtotal = $totalAmount / (1 + ($vatRate / 100));
+                $tax = $totalAmount - $subtotal;
+
+                $invoice = Invoice::create([
+                    'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                    'billable_type' => Consultation::class,
+                    'billable_id' => $consultation->id,
+                    'amount' => $subtotal,
+                    'tax' => $tax,
+                    'total' => $totalAmount,
+                    'paid_at' => now(),
+                ]);
+
+                $pdfPath = InvoiceService::generate(
+                    $invoice,
+                    $user,
+                    'Online Consultation Request'
+                );
+
+                $array['subject'] =  'Your Online Consultation Request has been Submitted';
+                $array['from'] = env('MAIL_FROM_ADDRESS');
+                $array['content'] = "Hi $user->name, <p> Thank you for submitting your request.</p>
+
+                    <p>Reference Code: $consultation->ref_code</p>
+
+                    <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
+                    <p style='font-size: 12px; color: #777;'>
+                        This email was sent to $user->email. If you did not register on our platform, please ignore this message.
+                    </p>";
+
+                $array['invoice_path'] = $pdfPath;
+                Mail::to($user->email)->queue(new CommonMail($array));
 
                 // $pageData = getPageDynamicContent('consultancy_payment_success',$lang);
                 $waitingMessage = getPageDynamicContent('consultancy_waiting_page',$lang);
@@ -570,6 +613,44 @@ class ConsultationController extends Controller
                 $consultation->is_extended = 1;
                 $consultation->status = 'in_progress';
                 $consultation->save();
+
+                $user = User::find($consultation->user_id);
+            
+                $totalAmount = $paidAmount;
+                $vatRate = 5;    
+
+                $subtotal = $totalAmount / (1 + ($vatRate / 100));
+                $tax = $totalAmount - $subtotal;
+
+                $invoice = Invoice::create([
+                    'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                    'billable_type' => Consultation::class,
+                    'billable_id' => $consultation->id,
+                    'amount' => $subtotal,
+                    'tax' => $tax,
+                    'total' => $totalAmount,
+                    'paid_at' => now(),
+                ]);
+
+                $pdfPath = InvoiceService::generate(
+                    $invoice,
+                    $user,
+                    'Online Consultation Request'
+                );
+
+                $array['subject'] =  'Your Online Consultation Extend Request has been Submitted';
+                $array['from'] = env('MAIL_FROM_ADDRESS');
+                $array['content'] = "Hi $user->name, <p> Thank you for submitting your request for extending online consultation.</p>
+
+                    <p>Reference Code: $consultation->ref_code</p>
+
+                    <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
+                    <p style='font-size: 12px; color: #777;'>
+                        This email was sent to $user->email. If you did not register on our platform, please ignore this message.
+                    </p>";
+
+                $array['invoice_path'] = $pdfPath;
+                Mail::to($user->email)->queue(new CommonMail($array));
 
                 return response()->json([
                     'status' => true,
