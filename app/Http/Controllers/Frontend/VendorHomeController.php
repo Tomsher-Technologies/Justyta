@@ -33,6 +33,8 @@ use App\Models\Translator;
 use App\Models\MembershipPlan;
 use App\Models\JobPost;
 use App\Mail\CommonMail;
+use App\Models\Invoice;
+use App\Services\InvoiceService;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -201,6 +203,27 @@ class VendorHomeController extends Controller
 
             $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
 
+            $user_id = $vendor->user_id;
+            $user = User::find($user_id);
+
+            $invoice = Invoice::create([
+                'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                'billable_type' => User::class,
+                'billable_id' => $user->id,
+                'amount' => $plan->plain_amount,
+                'tax' => $vatValue,
+                'total' => $plan->amount,
+                'paid_at' => now(),
+            ]);
+
+            // 2. Generate PDF
+            $pdfPath = InvoiceService::generate(
+                $invoice,
+                $user,
+                'Membership Plan Fee'
+            );
+
+            $array['invoice_path'] = $pdfPath;
             $array['subject'] = 'Subscription Successful - ' . env('APP_NAME', 'Justyta');
             $array['from'] = env('MAIL_FROM_ADDRESS');
             $array['content'] = "Hi $vendor->owner_name, 

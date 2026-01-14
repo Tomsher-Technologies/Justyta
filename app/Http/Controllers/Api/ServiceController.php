@@ -51,6 +51,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
+use App\Models\Invoice;
+use App\Services\InvoiceService;
 
 class ServiceController extends Controller
 {
@@ -3362,13 +3364,47 @@ class ServiceController extends Controller
                     $installment = AnnualAgreementInstallment::where('service_request_id', $serviceRequest->id)
                                         ->where('installment_no', 1)->first();
                     $installment->status = 'paid';
-                    $installment->save();              
+                    $installment->save();   
+                    
+                    $totalAmount = $paidAmount;
+                    $vatRate = 5;    
+
+                    $subtotal = $totalAmount / (1 + ($vatRate / 100));
+                    $tax = $totalAmount - $subtotal;
+                }else{
+                    if($serviceRequest->service_slug === 'legal-translation'){
+                        $totalAmount = $legalTranslation->total_amount;
+                        $tax = $legalTranslation->tax;
+                        $subtotal = $legalTranslation->total_amount - $legalTranslation->tax;
+                    }else{
+                        $totalAmount = $serviceRequest->amount;
+                        $tax = $serviceRequest->tax;
+                        $subtotal = $serviceRequest->service_fee + $serviceRequest->govt_fee;
+                    }
                 }
 
-                $request->user()->notify(new ServiceRequestSubmitted($serviceRequest));
+                $user = User::find($serviceRequest->user_id);
+                $service = Service::find($serviceRequest->service_id);
+                $invoice = Invoice::create([
+                    'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                    'billable_type' => ServiceRequest::class,
+                    'billable_id' => $serviceRequest->id,
+                    'amount' => $subtotal,
+                    'tax' => $tax,
+                    'total' => $totalAmount,
+                    'paid_at' => now(),
+                ]);
+
+                $pdfPath = InvoiceService::generate(
+                    $invoice,
+                    $user,
+                    $service?->name ?? 'Service Request'
+                );
+
+                $request->user()->notify(new ServiceRequestSubmitted($serviceRequest, false, $pdfPath));
 
                 $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
-                Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
+                Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true, $pdfPath));
                 
                 return response()->json([
                     'status' => true,

@@ -13,11 +13,13 @@ class ServiceRequestSubmitted extends Notification implements ShouldQueue
 
     public $serviceRequest;
     public $forAdmin;
+    public $invoicePath;
 
-    public function __construct($serviceRequest, $forAdmin = false)
+    public function __construct($serviceRequest, $forAdmin = false, $invoicePath = null)
     {
         $this->serviceRequest = $serviceRequest;
         $this->forAdmin = $forAdmin;
+        $this->invoicePath = $invoicePath;
     }
 
     /**
@@ -35,18 +37,28 @@ class ServiceRequestSubmitted extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        
         $serviceName = $this->serviceRequest->service->name ?? 'Service';
-        if ($this->forAdmin) {
-            return (new MailMessage)
+
+        $mail = $this->forAdmin
+            ? (new MailMessage)
                 ->subject('New '.$serviceName.' Request Submitted')
                 ->line('A new '.$serviceName.' request has been submitted.')
+                ->line('Reference Code: ' . $this->serviceRequest->reference_code)
+            : (new MailMessage)
+                ->subject('Your '.$serviceName.' Request has been Submitted')
+                ->line('Thank you for submitting your request.')
                 ->line('Reference Code: ' . $this->serviceRequest->reference_code);
+
+        // Attach PDF if exists
+        if ($this->invoicePath && file_exists($this->invoicePath)) {
+            $mail->attach($this->invoicePath, [
+                'as' => 'Invoice.pdf',
+                'mime' => 'application/pdf',
+            ]);
         }
 
-        return (new MailMessage)
-            ->subject('Your '.$serviceName.' Request has been Submitted')
-            ->line('Thank you for submitting your request.')
-            ->line('Reference Code: ' . $this->serviceRequest->reference_code);
+        return $mail;
     }
 
     public function toDatabase($notifiable)

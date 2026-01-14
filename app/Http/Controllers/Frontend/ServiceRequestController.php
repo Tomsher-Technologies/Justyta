@@ -60,6 +60,10 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
+use App\Models\Invoice;
+use App\Services\InvoiceService;
+use App\Mail\CommonMail;
+use Illuminate\Support\Facades\Mail;
 
 class ServiceRequestController extends Controller
 {
@@ -231,6 +235,44 @@ class ServiceRequestController extends Controller
 
                 $message = __('frontend.consultation_extended_successfully');
                 $success = 1;
+
+                $user = User::find($consultation->user_id);
+            
+                $totalAmount = $paidAmount;
+                $vatRate = 5;    
+
+                $subtotal = $totalAmount / (1 + ($vatRate / 100));
+                $tax = $totalAmount - $subtotal;
+
+                $invoice = Invoice::create([
+                    'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                    'billable_type' => Consultation::class,
+                    'billable_id' => $consultation->id,
+                    'amount' => $subtotal,
+                    'tax' => $tax,
+                    'total' => $totalAmount,
+                    'paid_at' => now(),
+                ]);
+
+                $pdfPath = InvoiceService::generate(
+                    $invoice,
+                    $user,
+                    'Online Consultation Request'
+                );
+
+                $array['subject'] =  'Your Online Consultation Extend Request has been Submitted';
+                $array['from'] = env('MAIL_FROM_ADDRESS');
+                $array['content'] = "Hi $user->name, <p> Thank you for submitting your request for extending online consultation.</p>
+
+                    <p>Reference Code: $consultation->ref_code</p>
+
+                    <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
+                    <p style='font-size: 12px; color: #777;'>
+                        This email was sent to $user->email. If you did not register on our platform, please ignore this message.
+                    </p>";
+
+                $array['invoice_path'] = $pdfPath;
+                Mail::to($user->email)->queue(new CommonMail($array));
 
                 return view('frontend.user.service-requests.extend_success', compact('message','success'));
 
@@ -1415,6 +1457,44 @@ class ServiceRequestController extends Controller
                     $consultation->save();
                 }
             }
+
+            $user = User::find($consultation->user_id);
+            
+            $totalAmount = $consultation->amount;
+            $vatRate = 5;    
+
+            $subtotal = $totalAmount / (1 + ($vatRate / 100));
+            $tax = $totalAmount - $subtotal;
+
+            $invoice = Invoice::create([
+                'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                'billable_type' => Consultation::class,
+                'billable_id' => $consultation->id,
+                'amount' => $subtotal,
+                'tax' => $tax,
+                'total' => $totalAmount,
+                'paid_at' => now(),
+            ]);
+
+            $pdfPath = InvoiceService::generate(
+                $invoice,
+                $user,
+                'Online Consultation Request'
+            );
+
+            $array['subject'] =  'Your Online Consultation Request has been Submitted';
+            $array['from'] = env('MAIL_FROM_ADDRESS');
+            $array['content'] = "Hi $user->name, <p> Thank you for submitting your request.</p>
+
+                <p>Reference Code: $consultation->ref_code</p>
+
+                <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
+                <p style='font-size: 12px; color: #777;'>
+                    This email was sent to $user->email. If you did not register on our platform, please ignore this message.
+                </p>";
+
+            $array['invoice_path'] = $pdfPath;
+            Mail::to($user->email)->queue(new CommonMail($array));
 
             return redirect()->route('user.consultation-payment.success', ['id' => base64_encode($consultation->id)]);
         }else{
@@ -3448,6 +3528,23 @@ class ServiceRequestController extends Controller
                     ->where('installment_no', 1)->first();
                 $installment->status = 'paid';
                 $installment->save();
+
+                $totalAmount = $paidAmount;
+                $vatRate = 5;    
+
+                $subtotal = $totalAmount / (1 + ($vatRate / 100));
+                $tax = $totalAmount - $subtotal;
+
+            }else{
+                if($serviceRequest->service_slug === 'legal-translation'){
+                    $totalAmount = $legalTranslation->total_amount;
+                    $tax = $legalTranslation->tax;
+                    $subtotal = $legalTranslation->total_amount - $legalTranslation->tax;
+                }else{
+                    $totalAmount = $serviceRequest->amount;
+                    $tax = $serviceRequest->tax;
+                    $subtotal = $serviceRequest->service_fee + $serviceRequest->govt_fee;
+                }
             }
 
             ServiceRequestTimeline::create([
@@ -3456,10 +3553,28 @@ class ServiceRequestController extends Controller
                 'status'             => "pending",
             ]);
 
-            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest));
+            $user = User::find($serviceRequest->user_id);
+            $service = Service::find($serviceRequest->service_id);
+            $invoice = Invoice::create([
+                'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                'billable_type' => ServiceRequest::class,
+                'billable_id' => $serviceRequest->id,
+                'amount' => $subtotal,
+                'tax' => $tax,
+                'total' => $totalAmount,
+                'paid_at' => now(),
+            ]);
+
+            $pdfPath = InvoiceService::generate(
+                $invoice,
+                $user,
+                $service?->name ?? 'Service Request'
+            );
+
+            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest, false, $pdfPath));
 
             $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
-            Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
+            Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true, $pdfPath));
 
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         } else {
