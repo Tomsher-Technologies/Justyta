@@ -217,6 +217,7 @@ class ConsultationController extends Controller
                     'data' => [
                         'consultation_id' => $consultation->id ?? null,
                         'ref_code' => $consultation->ref_code ?? null,
+                        'duration' => $consultation->duration,
                         'success_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
                         'waiting_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
                     ]
@@ -327,6 +328,7 @@ class ConsultationController extends Controller
                 'data'=> [
                     'consultation_id' => $consultation->id,
                     'meeting_number' => $meetingNumber,
+                    'duration' => $consultation->duration,
                     'password'       => '',
                     'role'           => 1,
                     'sdk_key'        => config('services.zoom.sdk_key'),
@@ -376,6 +378,7 @@ class ConsultationController extends Controller
                 'status' => $consultation->status ?? null,
                 'lawyer_id' => $consultation->lawyer_id ?? null,
                 'meeting_number' => $meetingNumber,
+                'duration' => $consultation->duration,
                 'password'       => '',
                 'role'           => 0,
                 'sdk_key'        => config('services.zoom.sdk_key'),
@@ -514,7 +517,7 @@ class ConsultationController extends Controller
             'message' => __('frontend.consultation_extended_successfully'),
             'data' => [
                 'consultation_id' => $consultation->id,
-                'duration' => $consultation->duration,
+                'duration' => $data['duration'],
             ],
         ], 200);
     }
