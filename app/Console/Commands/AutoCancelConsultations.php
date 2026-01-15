@@ -32,6 +32,7 @@ class AutoCancelConsultations extends Command
 
             $assignment = ConsultationAssignment::where('consultation_id', $consultation->id)
                                                 ->where('status', 'assigned')
+                                                ->where('created_at', '<=', $oneMinuteAgo)
                                                 ->first();
 
             if (!$assignment) {
