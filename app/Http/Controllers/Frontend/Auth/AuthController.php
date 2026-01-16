@@ -101,20 +101,22 @@ class AuthController extends Controller
     public function logout()
     {
         $user = Auth::guard('frontend')->user();
-        $user->is_online = 0;
-        $user->save();
+        if($user){
+            $user->is_online = 0;
+            $user->save();
 
-        if ($user->user_type === 'lawyer') {
-            $lawyer = Lawyer::where('user_id', $user->id)->first();
-            $lawyer->is_busy = 0;
-            $lawyer->save();
+            if ($user->user_type === 'lawyer') {
+                $lawyer = Lawyer::where('user_id', $user->id)->first();
+                $lawyer->is_busy = 0;
+                $lawyer->save();
 
-            UserOnlineLog::create([
-                'user_id' => $user->id,
-                'status'  => 0
-            ]);
+                UserOnlineLog::create([
+                    'user_id' => $user->id,
+                    'status'  => 0
+                ]);
+            }
         }
-
+        
         Auth::guard('frontend')->logout();
         return redirect()->route('frontend.login');
     }
