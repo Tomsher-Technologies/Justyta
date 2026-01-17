@@ -77,7 +77,7 @@
                                                 <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
                                                     name="translations[{{ $lang->code }}][title]"
                                                     class="form-control ih-small ip-gray radius-xs b-light px-15"
-                                                    value="{{ old('translations.' . $lang->code . '.title', $trans->title) }}">
+                                                    value="{{ old('translations.' . $lang->code . '.title', $trans->title ?? '') }}">
                                                 @error("translations.$lang->code.title")
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
