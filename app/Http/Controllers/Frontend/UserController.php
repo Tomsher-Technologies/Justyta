@@ -259,7 +259,7 @@ class UserController extends Controller
         $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $keyword    = $request->has('keyword') ? $request->input('keyword') : NULL;
 
-        $query = JobPost::where('status', 1);
+        $query = JobPost::where('status', 1)->whereDate('deadline_date', '>=', Carbon::today());
 
         if (!empty($keyword)) {
             $query->where(function ($q) use ($keyword) {
