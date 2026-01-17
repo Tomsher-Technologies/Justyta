@@ -29,6 +29,9 @@ Route::middleware('set_api_locale')->group(function () {
     Route::get('/page-contents', [HomeController::class, 'pageContents']);
     Route::get('/banners', [HomeController::class, 'getBanners']);
     Route::post('/zoom/webhook', [HomeController::class, 'handleZoomWebhook']);
+   
+    //Contact US
+    Route::post('/contact-us', [HomeController::class, 'contactUs']);
 
 
     Route::middleware(['ensureFrontendRequestsAreStateful', 'auth:sanctum'])->group(function () {
@@ -58,9 +61,6 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/lawyer/dashboard', [LawyerController::class, 'dashboard']);
         Route::get('/lawyer/consultations', [LawyerController::class, 'assignedConsultations']);
         Route::get('/lawyer/account', [LawyerController::class, 'accountDetails']);
-
-        //Contact US
-        Route::post('/contact-us', [HomeController::class, 'contactUs']);
 
         // Job Posts
         Route::get('/job-posts', [JobPostController::class, 'index']); 
