@@ -80,6 +80,11 @@ class AdminDashboardController extends Controller
         $totalUsers = User::where('user_type', 'user')
                             ->when($date1Common && $date2Common, $dateFilter)
                             ->count();
+
+        $totalDemoUsers = DemoUser::where('status', 1)->count();
+
+        $totalUsers = $totalUsers + $totalDemoUsers;
+
         // Service request chart
 
         $daterangeService = $request->has('daterangeService') ? $request->daterangeService : null;
