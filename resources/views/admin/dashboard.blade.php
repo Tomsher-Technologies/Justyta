@@ -36,6 +36,9 @@
                                         </div>
                                     </div>
 
+                                @endcan
+
+                                @can('dashboard_total_subscription_view')
                                     <div class="col-xl-3 col-md-4 col-sm-6 mt-3">
                                         <div class="card shadow-sm border-0 p-3 text-center" style="background:#e6d9ff94;">
                                             <a href="{{ route('admin.subscription-sales') }}" class="">

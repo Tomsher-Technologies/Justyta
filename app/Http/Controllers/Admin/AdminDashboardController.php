@@ -26,7 +26,8 @@ class AdminDashboardController extends Controller
     {
         $this->middleware('auth');
        
-        $this->middleware('permission:dashboard_total_sales_view',  ['only' => ['getServiceSalesData','exportServiceSales','getSubscriptionSalesData','exportSubscriptionSales']]);
+        $this->middleware('permission:dashboard_total_sales_view',  ['only' => ['getServiceSalesData','exportServiceSales']]);
+        $this->middleware('permission:dashboard_total_subscription_view',  ['only' => ['getSubscriptionSalesData','exportSubscriptionSales']]);
         $this->middleware('permission:manage_users',  ['only' => ['allUsers']]);
         $this->middleware('permission:view_users',  ['only' => ['allUsers']]);
         $this->middleware('permission:ban_user',  ['only' => ['updateUserStatus']]);
