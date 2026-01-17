@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\ServiceRequest;
 use App\Models\User;
+use App\Models\DemoUser;
 use App\Models\JobPost;
 use App\Models\TrainingRequest;
 use App\Models\Consultation;
@@ -411,22 +412,51 @@ class AdminDashboardController extends Controller
     public function allUsers(Request $request)
     {
         $sort_search = $request->has('search') ? $request->search : '';
+
+        $usersQuery = DB::table('users')
+                            ->select([
+                                'id',
+                                'name',
+                                'email',
+                                'phone',
+                                'created_at',
+                                DB::raw("'user' as source"),
+                                DB::raw("CASE WHEN banned = 1 THEN 0 ELSE 1 END as status")
+                            ])
+                            ->where('user_type', 'user');
+
+        $demoUsersQuery = DB::table('demo_users')
+                                ->select([
+                                    'id',
+                                    'name',
+                                    'email',
+                                    'phone',
+                                    'created_at',
+                                    DB::raw("'demo' as source"),
+                                    'status'
+                                ]);
+
         $users = User::where('user_type', 'user');
 
-        if($sort_search){
-            $users = $users->where(function ($query) use ($sort_search){
-                        $query->where('name', 'like','%' . $sort_search . '%')
-                            ->orWhere('email', 'like', '%' . $sort_search . '%')
-                            ->orWhere('phone', 'like', '%' . $sort_search . '%');
-                    });
+        if ($sort_search) {
+            $usersQuery->where(function ($q) use ($sort_search) {
+                $q->where('name', 'like', "%$sort_search%")
+                ->orWhere('email', 'like', "%$sort_search%")
+                ->orWhere('phone', 'like', "%$sort_search%");
+            });
+
+            $demoUsersQuery->where(function ($q) use ($sort_search) {
+                $q->where('name', 'like', "%$sort_search%")
+                ->orWhere('email', 'like', "%$sort_search%")
+                ->orWhere('phone', 'like', "%$sort_search%");
+            });
         }
 
         // Date range filter
         if ($request->filled('daterange')) {
             $dates = explode(' to ', $request->daterange);
-
             if (count($dates) === 2) {
-                $users->whereBetween('created_at', [
+                $usersQuery->whereBetween('created_at', [
                     Carbon::parse($dates[0])->startOfDay(),
                     Carbon::parse($dates[1])->endOfDay()
                 ]);
@@ -434,17 +464,21 @@ class AdminDashboardController extends Controller
         }
 
         if ($request->filled('status')) {
-            // 1 = active, 2 = inactive; 
             if ($request->status == 1) {
-                $users->where('banned', 0);
+                $usersQuery->where('banned', 0);
+                $demoUsersQuery->where('status', 1);
             } elseif ($request->status == 2) {
-                $users->where('banned', 1);
+                $usersQuery->where('banned', 1);
+                $demoUsersQuery->where('status', 0);
             }
         }
 
-        $totalUsers = $users->count();
+        $users = $usersQuery
+            ->unionAll($demoUsersQuery)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
 
-        $users = $users->orderBy('id', 'desc')->paginate(20);
+        $totalUsers = $users->total();
 
         return view('admin.users', compact('users','totalUsers'));
     }
@@ -457,5 +491,35 @@ class AdminDashboardController extends Controller
         $user->save();
        
         return 1;
+    }
+
+    public function allDemoUsers(Request $request)
+    {
+        $sort_search = $request->has('search') ? $request->search : '';
+        $users = DemoUser::where('status', 1);
+
+        if($sort_search){
+            $users = $users->where(function ($query) use ($sort_search){
+                        $query->where('name', 'like','%' . $sort_search . '%')
+                            ->orWhere('email', 'like', '%' . $sort_search . '%')
+                            ->orWhere('phone', 'like', '%' . $sort_search . '%');
+                    });
+        }
+
+
+        if ($request->filled('status')) {
+            // 1 = active, 2 = inactive; 
+            if ($request->status == 1) {
+                $users->where('status', 0);
+            } elseif ($request->status == 2) {
+                $users->where('status', 1);
+            }
+        }
+
+        $totalUsers = $users->count();
+
+        $users = $users->orderBy('id', 'asc')->paginate(20);
+
+        return view('admin.demo-users', compact('users','totalUsers'));
     }
 }
