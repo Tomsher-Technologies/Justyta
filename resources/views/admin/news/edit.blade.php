@@ -91,7 +91,7 @@
                                                 </label>
                                                 <textarea name="translations[{{ $lang->code }}][description]" @if ($lang->rtl == 1) dir="rtl" @endif
                                                     class="texteditor form-control ip-gray radius-xs b-light px-15 @error('translations.' . $lang->code . '.description') is-invalid @enderror"
-                                                    rows="10">{{ old('translations.' . $lang->code . '.description', $trans->description) }}</textarea>
+                                                    rows="10">{{ old('translations.' . $lang->code . '.description', $trans->description ?? '') }}</textarea>
 
                                                 @error("translations.$lang->code.description")
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -110,7 +110,7 @@
                                                 <input type="text" name="translations[{{ $lang->code }}][meta_title]"
                                                     class="form-control ih-small ip-gray radius-xs b-light px-15"
                                                     @if ($lang->rtl == 1) dir="rtl" @endif
-                                                    value="{{ old('translations.' . $lang->code . '.meta_title', $trans->meta_title) }}">
+                                                    value="{{ old('translations.' . $lang->code . '.meta_title', $trans->meta_title ?? '') }}">
                                             </div>
 
                                             <div class="form-group">
@@ -118,7 +118,7 @@
                                                     ({{ $lang->name }})
                                                 </label>
                                                 <textarea name="translations[{{ $lang->code }}][meta_description]" @if ($lang->rtl == 1) dir="rtl" @endif
-                                                    class="form-control ip-gray radius-xs b-light px-15" rows="5">{{ old('translations.' . $lang->code . '.meta_description', $trans->meta_description) }}</textarea>
+                                                    class="form-control ip-gray radius-xs b-light px-15" rows="5">{{ old('translations.' . $lang->code . '.meta_description', $trans->meta_description ?? '') }}</textarea>
                                             </div>
 
                                             <div class="form-group">
@@ -126,7 +126,7 @@
                                                     ({{ $lang->name }})
                                                 </label>
                                                 <textarea name="translations[{{ $lang->code }}][meta_keywords]" @if ($lang->rtl == 1) dir="rtl" @endif
-                                                    class="form-control ip-gray radius-xs b-light px-15" rows="3">{{ old('translations.' . $lang->code . '.meta_keywords', $trans->meta_keywords) }}</textarea>
+                                                    class="form-control ip-gray radius-xs b-light px-15" rows="3">{{ old('translations.' . $lang->code . '.meta_keywords', $trans->meta_keywords ?? '') }}</textarea>
                                             </div>
 
                                             <div class="form-group">
@@ -136,7 +136,7 @@
                                                 <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
                                                     name="translations[{{ $lang->code }}][twitter_title]"
                                                     class="form-control ih-small ip-gray radius-xs b-light px-15"
-                                                    value="{{ old('translations.' . $lang->code . '.twitter_title', $trans->twitter_title) }}">
+                                                    value="{{ old('translations.' . $lang->code . '.twitter_title', $trans->twitter_title ?? '') }}">
                                             </div>
 
                                             <div class="form-group">
@@ -145,7 +145,7 @@
                                                 </label>
                                                 <textarea name="translations[{{ $lang->code }}][twitter_description]"
                                                     @if ($lang->rtl == 1) dir="rtl" @endif class="form-control ip-gray radius-xs b-light px-15"
-                                                    rows="5">{{ old('translations.' . $lang->code . '.twitter_description', $trans->twitter_description) }}</textarea>
+                                                    rows="5">{{ old('translations.' . $lang->code . '.twitter_description', $trans->twitter_description ?? '') }}</textarea>
                                             </div>
 
                                             <div class="form-group">
@@ -155,7 +155,7 @@
                                                 <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
                                                     name="translations[{{ $lang->code }}][og_title]"
                                                     class="form-control ih-small ip-gray radius-xs b-light px-15"
-                                                    value="{{ old('translations.' . $lang->code . '.og_title', $trans->og_title) }}">
+                                                    value="{{ old('translations.' . $lang->code . '.og_title', $trans->og_title ?? '') }}">
                                             </div>
 
                                             <div class="form-group">
@@ -164,7 +164,7 @@
                                                 </label>
                                                 <textarea name="translations[{{ $lang->code }}][og_description]"
                                                     @if ($lang->rtl == 1) dir="rtl" @endif class="form-control ip-gray radius-xs b-light px-15"
-                                                    rows="5">{{ old('translations.' . $lang->code . '.og_description', $trans->og_description) }}</textarea>
+                                                    rows="5">{{ old('translations.' . $lang->code . '.og_description', $trans->og_description ?? '') }}</textarea>
                                             </div>
                                         </div>
                                     @endforeach
