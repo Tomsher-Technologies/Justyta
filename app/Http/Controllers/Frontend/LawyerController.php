@@ -342,6 +342,7 @@ class LawyerController extends Controller
         }else{
             
             $assignment->status = $request->action == 'accept' ? 'accepted' : 'rejected';
+            $assignment->platform = 'web';
             $assignment->responded_at = now();
             $assignment->save();
 
