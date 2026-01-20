@@ -1206,26 +1206,32 @@ function createWebPlanRenewOrder($customer, float $amount, string $currency = 'A
 
 function assignLawyer($consultation, $lawyerId)
 {
-    ConsultationAssignment::create([
-        'consultation_id' => $consultation->id,
-        'lawyer_id' => $lawyerId,
-        'assigned_at' => now(),
-        'status' => 'assigned'
-    ]);
+    $exists = ConsultationAssignment::where('consultation_id', $consultation->id)
+                                    ->where('lawyer_id', $lawyerId)
+                                    ->exists();
 
-    $consultation->lawyer_id = $lawyerId;
-    $consultation->save();
+    if (!$exists) {
+        ConsultationAssignment::create([
+            'consultation_id' => $consultation->id,
+            'lawyer_id' => $lawyerId,
+            'assigned_at' => now(),
+            'status' => 'assigned'
+        ]);
 
-    $lawyer = Lawyer::find($lawyerId);
+        $consultation->lawyer_id = $lawyerId;
+        $consultation->save();
 
-    $user = User::find($lawyer->user_id);
-    $user->notify(new ConsultationAssignedNotification($consultation));
+        $lawyer = Lawyer::find($lawyerId);
 
-    $deviceToken = $user->device_token;
-    $title = 'New Consultation Request';
-    $body = 'A new consultation request is waiting for your response. Please check now.';
-    if ($deviceToken != null) {
-        sendPushNotification($deviceToken, $title, $body);
+        $user = User::find($lawyer->user_id);
+        $user->notify(new ConsultationAssignedNotification($consultation));
+
+        $deviceToken = $user->device_token;
+        $title = 'New Consultation Request';
+        $body = 'A new consultation request is waiting for your response. Please check now.';
+        if ($deviceToken != null) {
+            sendPushNotification($deviceToken, $title, $body);
+        }
     }
 }
 
@@ -1254,8 +1260,8 @@ function findBestFitLawyer($consultation)
 
     // Already rejected lawyers
     $lawyerIdsAlreadyRejected = ConsultationAssignment::where('consultation_id', $consultation->id)
-        ->where('status', 'rejected')
-        ->pluck('lawyer_id');
+                                    ->where('status', 'rejected')
+                                    ->pluck('lawyer_id');
 
     $countLanguages = count($languages);
 
