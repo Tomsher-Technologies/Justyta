@@ -1349,6 +1349,7 @@ class ServiceRequestController extends Controller
       
         $consultation->update([
             'amount' => $total_amount,
+            'platform' => 'web',
             'admin_amount' => $admin_amount,
             'lawyer_amount' => $lawyer_amount,
             'commission_percentage' => $commission

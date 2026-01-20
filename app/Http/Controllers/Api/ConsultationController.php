@@ -76,6 +76,7 @@ class ConsultationController extends Controller
         $consultation->update([
             'amount' => $total_amount,
             'admin_amount' => $admin_amount,
+            'platform' => 'mob',
             'lawyer_amount' => $lawyer_amount,
             'commission_percentage' => $commission
         ]);
@@ -349,6 +350,7 @@ class ConsultationController extends Controller
 
         $assignment->status = $request->action == 'accept' ? 'accepted' : 'rejected';
         $assignment->responded_at = now();
+        $assignment->platform = 'mob';
         $assignment->save();
 
         if($request->action == 'accept'){
