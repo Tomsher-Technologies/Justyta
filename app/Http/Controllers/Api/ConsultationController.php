@@ -377,20 +377,21 @@ class ConsultationController extends Controller
                     'sdk_key'        => config('services.zoom.sdk_key'),
                     'signature'      => $signature,
                 ]],200);
-        }
-
-        $lawyer->is_busy = 0;
-        $lawyer->save();
-
-        $nextLawyer = findBestFitLawyer($consultation);
-        if($nextLawyer){
-            assignLawyer($consultation, $nextLawyer->id);
-            return response()->json(['status'=> false, 'message'=>'Lawyer rejected, next lawyer assigned']);
         }else{
-            $consultation->status = 'rejected';
-            $consultation->save();
-            return response()->json(['status'=> false, 'message'=> __('frontend.rejected_no_lawyer_available')]);
+            $lawyer->is_busy = 0;
+            $lawyer->save();
+
+            $nextLawyer = findBestFitLawyer($consultation);
+            if($nextLawyer){
+                assignLawyer($consultation, $nextLawyer->id);
+                return response()->json(['status'=> false, 'message'=>'Lawyer rejected, next lawyer assigned']);
+            }else{
+                $consultation->status = 'rejected';
+                $consultation->save();
+                return response()->json(['status'=> false, 'message'=> __('frontend.rejected_no_lawyer_available')]);
+            }
         }
+
     }
 
     public function checkUserConsultationStatus(Request $request)
