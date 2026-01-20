@@ -364,19 +364,19 @@ class LawyerController extends Controller
                         'duration' => $consultation->duration ?? 0
                     ]
                 ]);
-            }
-
-            $lawyer->is_busy = 0;
-            $lawyer->save();
-
-            $nextLawyer = findBestFitLawyer($consultation);
-            if($nextLawyer){
-                assignLawyer($consultation, $nextLawyer->id);
-                return response()->json(['status'=> true, 'message'=> __('frontend.consultation_request_cancelled')]);
             }else{
-                $consultation->status = 'rejected';
-                $consultation->save();
-                return response()->json(['status'=> true, 'message'=> __('frontend.consultation_request_cancelled')]);
+                $lawyer->is_busy = 0;
+                $lawyer->save();
+
+                $nextLawyer = findBestFitLawyer($consultation);
+                if($nextLawyer){
+                    assignLawyer($consultation, $nextLawyer->id);
+                    return response()->json(['status'=> true, 'message'=> __('frontend.consultation_request_cancelled')]);
+                }else{
+                    $consultation->status = 'rejected';
+                    $consultation->save();
+                    return response()->json(['status'=> true, 'message'=> __('frontend.consultation_request_cancelled')]);
+                }
             }
         }
     }
