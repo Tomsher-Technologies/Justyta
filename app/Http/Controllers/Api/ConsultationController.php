@@ -411,9 +411,22 @@ class ConsultationController extends Controller
         $signature = generateZoomSignature($meetingNumber, $userId, 0);
 
         if (!$consultation) {
+            $consultation = Consultation::where('id',$consultationId)->where('user_id', $userId)->first();
+
             return response()->json([
                 'status' => false,
                 'message' => 'No consultation found',
+                'data' => [
+                    'consultation_id' => $consultation->id ?? null,
+                    'status' => $consultation->status ?? null,
+                    'lawyer_id' => $consultation->lawyer_id ?? null,
+                    'meeting_number' => null,
+                    'duration' => $consultation->duration,
+                    'password'       => '',
+                    'role'           => 0,
+                    'sdk_key'        => null,
+                    'signature'      => null,
+                ],
             ], 200);
         }
         return response()->json([
