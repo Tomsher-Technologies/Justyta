@@ -27,6 +27,6 @@ class CheckVendorSubscriptions extends Command
             }
         }
 
-        $this->info("Expired subscriptions updated: $expired");
+        $this->info("Expired subscriptions updated");
     }
 }
