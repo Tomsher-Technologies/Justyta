@@ -653,6 +653,7 @@ function getServiceHistoryTranslatedFields($slug, $model, $lang)
                 'document_sub_type'     => $model->documentSubType?->getTranslation('name', $lang) ?? NULL,
                 'receive_by'            => __('frontend.'.$model->receive_by),
                 'no_of_pages'           => $model->no_of_pages,
+                'translator_amount'     => $model->translator_amount,
                 'memo'                  => formatFilePathsWithFullUrl($model->memo ?? []),
                 'documents'             => formatFilePathsWithFullUrl($model->documents ?? []),
                 'additional_documents'  => formatFilePathsWithFullUrl($model->additional_documents ?? []),
