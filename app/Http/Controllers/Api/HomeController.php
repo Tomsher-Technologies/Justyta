@@ -93,7 +93,7 @@ class HomeController extends Controller
             ];
         });
 
-        $ads = getActiveAd('lawfirm_services', 'mobile');
+        $ads = getActiveAd('app_home_page', 'mobile');
 
         $data['banner'] = [];
         if ($ads) {

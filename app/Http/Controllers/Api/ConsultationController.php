@@ -149,6 +149,17 @@ class ConsultationController extends Controller
             $pageData = getPageDynamicContent('consultancy_payment_success',$lang);
             $waitingMessage = getPageDynamicContent('consultancy_waiting_page',$lang);
 
+            $ads = getActiveAd('online_consultation_waiting', 'mobile');
+            $banner = [];
+            if ($ads) {
+                $file = $ads->files->first();
+                $banner = [
+                    'file' => getUploadedFile($file->file_path),
+                    'file_type' => $file->file_type,
+                    'url' => $ads->cta_url
+                ];
+            }
+
             return response()->json([
                 'status' => true,
                 'message'=> $pageData['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
@@ -157,6 +168,7 @@ class ConsultationController extends Controller
                     'ref_code' => $consultation->ref_code ?? null,
                     'success_message' => $pageData['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
                     'waiting_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                    'banner' => $banner
                 ]
             ],200);
         }
@@ -255,6 +267,17 @@ class ConsultationController extends Controller
                 // $pageData = getPageDynamicContent('consultancy_payment_success',$lang);
                 $waitingMessage = getPageDynamicContent('consultancy_waiting_page',$lang);
 
+                $ads = getActiveAd('online_consultation_waiting', 'mobile');
+                $banner = [];
+                if ($ads) {
+                    $file = $ads->files->first();
+                    $banner = [
+                        'file' => getUploadedFile($file->file_path),
+                        'file_type' => $file->file_type,
+                        'url' => $ads->cta_url
+                    ];
+                }
+
                 return response()->json([
                     'status' => true,
                     'message'=> $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
@@ -264,6 +287,7 @@ class ConsultationController extends Controller
                         'duration' => $consultation->duration,
                         'success_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
                         'waiting_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                        'banner' => $banner
                     ]
                 ],200);
             }else{
