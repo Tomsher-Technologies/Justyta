@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Mail\JobApplicationReceived;
 use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
 
 class JobPostController extends Controller
 {
@@ -21,8 +22,21 @@ class JobPostController extends Controller
         $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
         $sort       = $request->input('sort', 'newest'); 
         $perPage    = $request->input('limit', 10);
+        $keyword    = $request->has('keyword') ? $request->input('keyword') : NULL;
 
-        $query = JobPost::where('status', 1);
+        $query = JobPost::where('status', 1)->whereDate('deadline_date', '>=', Carbon::today());
+
+        if (!empty($keyword)) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('ref_no', 'LIKE', "%$keyword%")
+                    ->orWhereHas('translations', function ($tq) use ($keyword) {
+                        $tq->where(function ($ttq) use ($keyword) {
+                            $ttq->where('title', 'LIKE', "%$keyword%")
+                                ->orWhere('description', 'LIKE', "%$keyword%");
+                        });
+                    });
+            });
+        }
        
         if ($sort === 'oldest') {
             $query->orderBy('job_posted_date', 'asc');

@@ -86,7 +86,7 @@
                 @endif
 
                 @foreach ($details['service_details'] as $key => $value)
-                    @if (!is_array($value))
+                    @if (!is_array($value) && $key != 'translator_amount')
                         <div class="flex  break-all">
                             <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.' . $key) }}</p>
                             <p class="basis-3/5 text-gray-800">
