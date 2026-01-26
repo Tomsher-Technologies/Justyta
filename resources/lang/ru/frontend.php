@@ -518,4 +518,7 @@ return [
     'subscription_failed' => 'Не удалось оформить подписку. Пожалуйста, попробуйте снова.',
     'subscription_success' => 'Подписка успешно оформлена. Ваш план активен.',
     'monthly' => 'Ежемесячно',
+    'regular_consultation' => 'Обычная консультация',
+    'specialized_consultation' => 'Специализированная консультация',
+
 ];

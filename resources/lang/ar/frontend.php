@@ -518,4 +518,7 @@ return [
     'subscription_failed' => 'فشل الاشتراك. يرجى المحاولة مرة أخرى.',
     'subscription_success' => 'تم الاشتراك بنجاح. خطتك نشطة الآن.',
     'monthly' => 'شهري',
+    'regular_consultation' => 'استشارة عادية',
+    'specialized_consultation' => 'استشارة متخصصة',
+
 ];
