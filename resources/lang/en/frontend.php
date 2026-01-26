@@ -523,5 +523,12 @@ return [
     'subscription_failed' => 'Subscription failed. Please try again.',
     'subscription_success' => 'Subscription successful. Your plan is now active.',
 
-    'monthly' => 'Monthly'
+    'monthly' => 'Monthly',
+
+
+
+    'regular_consultation' => 'Regular Consultation',
+    'specialized_consultation' => 'Specialized Consultation',
+
+
 ];

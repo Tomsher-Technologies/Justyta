@@ -102,7 +102,13 @@
                             <i class="fas fa-user-tie text-success mr-3 fa-lg"></i>
                             <div>
                                 <small class="text-muted">Consultant Type</small>
-                                <div>{{ ucfirst($consultation->consultant_type ?? '-') }}</div>
+                                <div>
+                                    @if($consultation->consultant_type === 'vip')
+                                        Specialized
+                                    @else
+                                        Regular
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>

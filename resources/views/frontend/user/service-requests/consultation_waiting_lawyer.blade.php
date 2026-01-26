@@ -171,6 +171,41 @@
     </style>
 @endsection
 
+
+@section('ads')
+    @php
+        $ads = getActiveAd('online_consultation_waiting', 'web');
+    @endphp
+
+    @if ($ads && $ads->files->isNotEmpty())
+
+        <div class="relative w-full mb-12 px-[50px]" id="adBanner">
+            @php
+                $file = $ads->files->first();
+            @endphp
+
+            <a href="{{ $ads->cta_url ?? '#' }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
+                @if($file->file_type === 'video')
+                    <video id="adVideo{{ $ads->id }}" class="w-full object-cover"  style="height: 500px;" autoplay muted loop playsinline>
+                        <source src="{{ asset($file->file_path) }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                @else
+                    <img src="{{ asset($file->file_path) }}" class="w-full h-80 object-cover" alt="Ad Image">
+                @endif
+            </a>
+
+            @if($file->file_type === 'video')
+                <button 
+                    onclick="toggleMute('adVideo{{ $ads->id }}', this)" 
+                    class="absolute bottom-2 bg-gray-800 bg-opacity-50 text-white px-3 py-1 rounded hover:bg-opacity-80 z-10" style="right: 4rem;">
+                    🔇
+                </button>
+            @endif
+        </div>
+    @endif
+@endsection
+
 @section('script')
     <script src="{{ asset('/coi-serviceworker.js') }}"></script>
 
@@ -193,6 +228,8 @@
                 if (data.status && data.data && !videoFlag) {
                     videoFlag = true;
                     document.getElementById('waitingMessage').classList.add('hidden');
+                    document.getElementById('adBanner').classList.add('hidden');
+                    
                     document.getElementById('video-call-container').classList.remove('hidden');
                     
                     await startCall(data.data, "{{ addslashes(auth('frontend')->user()->name) }}");
