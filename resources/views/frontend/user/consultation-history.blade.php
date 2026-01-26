@@ -72,7 +72,7 @@
                                             {{ __('frontend.consultation') }}
                                         </h3>
                                         <p class="text-sm text-gray-600 mb-1">{{ __('frontend.application_reference_number') }} <span
-                                                class="font-semibold">{{ $request->reference_code }}</span></p>
+                                                class="font-semibold">{{ $request->ref_code }}</span></p>
                                         <p class="text-sm text-gray-600 mb-4">{{ date('d M, Y h:i A', strtotime($request->created_at)) }}</p>
                                         
                                         @php

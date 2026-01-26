@@ -120,11 +120,11 @@
                         <div class="flex items-center space-x-4">
                             <div class="flex items-center">
                                 <input id="consultant-normal" type="radio" value="normal" name="consultant_type" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"  {{ (old('consultant_type','normal') == 'normal') ? 'checked' : '' }} />
-                                <label for="consultant-normal" class="ms-2 text-sm text-gray-900">{{ __('frontend.normal') }}</label>
+                                <label for="consultant-normal" class="ms-2 text-sm text-gray-900">{{ __('frontend.regular_consultation') }}</label>
                             </div>
                             <div class="flex items-center">
                                 <input id="consultant-vip" type="radio" value="vip" name="consultant_type" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"  {{ (old('consultant_type') == 'vip') ? 'checked' : '' }}/>
-                                <label for="consultant-vip" class="ms-2 text-sm text-gray-900">{{ __('frontend.vip') }}</label>
+                                <label for="consultant-vip" class="ms-2 text-sm text-gray-900">{{ __('frontend.specialized_consultation') }}</label>
                             </div>
                         </div>
                         @error('consultant_type')

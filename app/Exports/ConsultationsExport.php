@@ -103,7 +103,7 @@ class ConsultationsExport implements FromCollection, WithHeadings, ShouldAutoSiz
                     'Status' => ucwords(str_replace('_', ' ', $consultation->status ?? '-')),
                     'Applicant Type' => ucfirst($consultation->applicant_type ?? '-'),
                     'Litigation Type' => ucfirst($consultation->litigation_type ?? '-'),
-                    'Consultant Type' => ucfirst($consultation->consultant_type ?? '-'),
+                    'Consultant Type' =>  ($consultation->consultant_type == 'normal') ? 'Regular' : 'Specialized',
                     'You Represent' => $consultation->youRepresent?->getTranslation('name', 'en') ?? '-',
                     'Case Type' => $consultation->caseType?->getTranslation('name', 'en') ?? '-',
                     'Case Stage' => $consultation->caseStage?->getTranslation('name', 'en') ?? '-',

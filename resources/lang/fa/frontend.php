@@ -518,4 +518,7 @@ return [
     'subscription_failed' => 'اشتراک ناموفق بود. لطفاً دوباره تلاش کنید.',
     'subscription_success' => 'اشتراک با موفقیت انجام شد. پلن شما فعال است.',
     'monthly' => 'ماهانه',
+    'regular_consultation' => 'مشاوره عادی',
+    'specialized_consultation' => 'مشاوره تخصصی',
+
 ];

@@ -518,4 +518,7 @@ return [
     'subscription_failed' => '订阅失败，请重试。',
     'subscription_success' => '订阅成功，您的套餐已激活。',
     'monthly' => '每月',
+    'regular_consultation' => '普通咨询',
+    'specialized_consultation' => '专业咨询',
+
 ];

@@ -518,4 +518,7 @@ return [
     'subscription_failed' => 'Échec de l’abonnement. Veuillez réessayer.',
     'subscription_success' => 'Abonnement réussi. Votre forfait est maintenant actif.',
     'monthly' => 'Mensuel',
+    'regular_consultation' => 'Consultation régulière',
+    'specialized_consultation' => 'Consultation spécialisée',
+
 ];
