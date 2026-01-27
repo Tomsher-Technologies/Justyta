@@ -169,8 +169,9 @@ class AuthController extends Controller
     public function forgetRequest(Request $request)
     {
         $email = $request->has('email') ? $request->email : '';
+        $user_type = $request->has('user_type') ? $request->user_type : '';
         if($email){
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)->where('user_type', $user_type)->first();
             if (!$user) {
                 return response()->json([
                     'status' => false,
