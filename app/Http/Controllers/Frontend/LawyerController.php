@@ -33,7 +33,7 @@ class LawyerController extends Controller
         $currentYear = Carbon::now()->year;
         $year = request()->get('consultation_year', $currentYear);
         
-        $todayHours = getTodaysActiveHours(Auth::guard('frontend')->user()->id);
+        // $todayHours = getTodaysActiveHours(Auth::guard('frontend')->user()->id);
 
         $notificationsResult = $result = $this->getNotifications();
         $notifications = $notificationsResult['notifications'];
@@ -73,7 +73,7 @@ class LawyerController extends Controller
                                 ->pluck('total', 'month')
                                 ->toArray();
 
-        return view('frontend.lawyer.dashboard', compact('acceptedConsultationsToday', 'totalAcceptedConsultations','totalRejections','notifications','consultations','monthlyData','lang','year','todayHours'));
+        return view('frontend.lawyer.dashboard', compact('acceptedConsultationsToday', 'totalAcceptedConsultations','totalRejections','notifications','consultations','monthlyData','lang','year'));
     }
 
     public function getNotifications()
@@ -129,7 +129,8 @@ class LawyerController extends Controller
 
         UserOnlineLog::create([
             'user_id' => $user->id,
-            'status'  => $isOnline ? 1 : 0
+            'status'  => $isOnline ? 1 : 0,
+            'platform' => 'web'
         ]);
 
         return response()->json([

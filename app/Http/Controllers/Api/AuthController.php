@@ -78,6 +78,8 @@ class AuthController extends Controller
     protected function loginSuccess($user, $request)
     {
         $user->is_online = 1;
+        $user->last_login_at = now();
+        // $user->last_login_ip = request()->ip();
         $user->device_token = $request->has('device_token') ? $request->device_token : null;
         $user->save();
 
@@ -88,7 +90,8 @@ class AuthController extends Controller
 
             UserOnlineLog::create([
                 'user_id' => $user->id,
-                'status'  => 1
+                'status'  => 1,
+                'platform' => 'mob'
             ]);
         }
 
@@ -284,7 +287,8 @@ class AuthController extends Controller
 
                 UserOnlineLog::create([
                     'user_id' => $user->id,
-                    'status'  => 0
+                    'status'  => 0,
+                    'platform' => 'mob'
                 ]);
             }
             

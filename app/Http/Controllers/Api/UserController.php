@@ -886,7 +886,8 @@ class UserController extends Controller
 
             UserOnlineLog::create([
                 'user_id' => $user->id,
-                'status'  => $request->is_online
+                'status'  => $request->is_online,
+                'platform' => 'mob'
             ]);
 
             if ($user->user_type === 'lawyer') {

@@ -20,7 +20,7 @@
                     <div style="font-size:32px; font-weight:bold; color:#07683b;">INVOICE</div>
                     <div style="font-size:14px; line-height:1.6; color:#4b5563;">
                         Invoice No: {{ $invoice->invoice_no }}<br>
-                        Invoice Date: {{ $invoice->paid_at->format('d M Y') }}
+                        Invoice Date: {{ $invoice->paid_at->format('d M Y h:i A') }}
                     </div>
                 </td>
             </tr>
