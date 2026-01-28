@@ -118,7 +118,7 @@
                     </div>
                     <div>
                         <label for="consultation-time" class="block text-sm font-medium text-gray-700 mb-2">
-                            {{ __('frontend.trade_license_company') }}<span class="text-red-500">*</span></label>
+                            {{ __('frontend.trade_license_company') }}<span class="text-red-500 tradeLicence">*</span></label>
                         <input class="file-input block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" id="trade_license" type="file"   name="trade_license[]" multiple data-preview="trade-preview" />
                         <div id="trade-preview" class="mt-2 grid grid-cols-4 gap-2"></div>
                         @error('trade_license')
@@ -414,6 +414,22 @@
                     }
                 });
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const radios = document.querySelectorAll('input[name="applicant_type"]');
+            const tradeLicence = document.querySelector('.tradeLicence');
+
+            function toggleTradeLicence() {
+                const selected = document.querySelector('input[name="applicant_type"]:checked')?.value;
+                tradeLicence.style.display = (selected === 'company') ? 'inline' : 'none';
+            }
+
+            toggleTradeLicence();
+
+            radios.forEach(radio => {
+                radio.addEventListener('change', toggleTradeLicence);
+            });
         });
     </script>
 @endsection
