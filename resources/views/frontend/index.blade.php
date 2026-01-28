@@ -8,7 +8,7 @@
 <div class="grid grid-cols-1 xl:grid-cols-[17.5%_1fr_20%] w-full justify-items-start items-center gap-6">
     <div class="hidden xl:block "></div>
     <div class="w-full">
-        <h3 class="text-[22px] md:text-[50px] xl:text-[60px] xl:leading-[60px] font-cinzel font-normal text-[#07683B]">Justice Simplified. <br>Anytime. Anywhere</h3>
+        <h3 class="text-[22px] md:text-[50px] xl:text-[60px] xl:leading-[60px] font-cinzel font-normal text-[#07683B] mt">Justice Simplified. <br>Anytime. Anywhere</h3>
 
     </div>
           <button
