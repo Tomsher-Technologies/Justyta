@@ -65,6 +65,14 @@ Route::get('/consultation/status/{consultation}', [HomeController::class, 'statu
 // Protected Dashboards
 Route::prefix('lawyer')->middleware(['auth.frontend', 'checkFrontendUserType:lawyer'])->group(function () {
     Route::get('/dashboard', [LawyerController::class, 'lawyerDashboard'])->name('lawyer.dashboard');
+
+    Route::get('/dashboard/active-hours', function () {
+        return response()->json([
+            'seconds'   => getTodaysActiveSeconds(auth('frontend')->id()),
+            'is_online' => (bool) auth('frontend')->user()->is_online,
+        ]);
+    })->name('lawyer.dashboard.active.hours');
+
     Route::post('/user/change-online-status', [LawyerController::class, 'changeOnlineStatus'])->name('lawyer.changeOnlineStatus');
 
     Route::get('/profile', [LawyerController::class, 'lawyerProfile'])->name('lawyer.profile');
@@ -88,6 +96,9 @@ Route::prefix('vendor')->middleware(['auth.frontend', 'checkFrontendUserType:ven
     Route::get('/lawyers', [VendorHomeController::class, 'lawyers'])->name('vendor.lawyers');
     Route::get('/create-lawyer', [VendorHomeController::class, 'createLawyer'])->name('vendor.create.lawyers');
     Route::post('/store-lawyer', [VendorHomeController::class, 'storeLawyer'])->name('vendor.store.lawyers');
+
+    Route::get('/lawyers/online-status', [VendorHomeController::class, 'getOnlineStatus'])->name('lawyers.online-status');
+
 
     Route::get('/my-account', [VendorHomeController::class, 'account'])->name('vendor.my-account');
     Route::post('/update-profile', [VendorHomeController::class, 'updateProfile'])->name('vendor.update.profile');

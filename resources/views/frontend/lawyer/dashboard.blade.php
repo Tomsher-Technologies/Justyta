@@ -101,7 +101,7 @@
             <div class="bg-white rounded-lg p-5 flex items-start justify-between space-x-4 border border-[#FFE9B1] h-full">
                 <div>
                     <h3 class="text-black text-md">{{ __('frontend.todays_login_hours') }}</h3>
-                    <h4 class="font-semibold text-[24px]">{{ $todayHours ?? 0 }}</h4>
+                    <h4 class="font-semibold text-[24px]"  id="activeHours">00:00:00</h4>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" width="65" height="65" viewBox="0 0 35 35" fill="none">
                     <g clip-path="url(#clip0_390_9523)">
@@ -282,6 +282,50 @@
 @section('script')
     <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
     <script>
+        let totalSeconds = 0;
+        let isOnline = false;
+        let timer = null;
+
+        function formatTime(seconds) {
+            const hrs  = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+
+            return (
+                String(hrs).padStart(2, '0') + ':' +
+                String(mins).padStart(2, '0') + ':' +
+                String(secs).padStart(2, '0')
+            );
+        }
+
+        function startTimer() {
+            if (!isOnline || timer) return;
+
+            console.log('⏱ Timer started');
+
+            timer = setInterval(() => {
+                totalSeconds++;
+                document.getElementById('activeHours').innerText =
+                    formatTime(totalSeconds);
+            }, 1000);
+        }
+
+        fetch('/lawyer/dashboard/active-hours')
+            .then(res => res.json())
+            .then(data => {
+                console.log('API data:', data);
+
+                totalSeconds = parseInt(data.seconds, 10);
+                isOnline = data.is_online === true || data.is_online === 1;
+
+                document.getElementById('activeHours').innerText =
+                    formatTime(totalSeconds);
+
+                startTimer();
+            })
+            .catch(err => console.error('Active hours error:', err));
+
+
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const monthlyData = @json($monthlyData);
 

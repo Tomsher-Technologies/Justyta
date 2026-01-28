@@ -944,7 +944,7 @@ class VendorHomeController extends Controller
         
         $lawyer = Lawyer::with('lawfirm','user', 'emirate')->findOrFail($id);
         $userId = $lawyer->user?->id;
-        $totalHours = getTodaysActiveHours($userId);
+        $totalHours = getTotalActiveHours($userId);
     
         $specialityIds = $lawyer->dropdownOptions()->wherePivot('type', 'specialities')->pluck('dropdown_option_id')->toArray();
         $languageIds = $lawyer->dropdownOptions()->wherePivot('type', 'languages')->pluck('dropdown_option_id')->toArray();
@@ -2032,5 +2032,20 @@ class VendorHomeController extends Controller
         $consultation = $assignment->consultation;
 
         return view('frontend.vendor.consultations.show', compact('consultation', 'assignment'));
+    }
+
+
+    public function getOnlineStatus()
+    {
+        $id = Auth::guard('frontend')->user()->vendor->id;
+        $lawyers = Lawyer::with('user')->where('lawfirm_id', $id)->get(['id', 'user_id']); // get the lawyers you want
+
+        $status = $lawyers->mapWithKeys(function($lawyer){
+            return [
+                $lawyer->id => $lawyer->user->is_online ? true : false
+            ];
+        });
+
+        return response()->json($status);
     }
 }

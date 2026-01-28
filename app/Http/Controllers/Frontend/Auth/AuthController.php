@@ -82,7 +82,8 @@ class AuthController extends Controller
 
             UserOnlineLog::create([
                 'user_id' => $user->id,
-                'status'  => 1
+                'status'  => 1,
+                'platform' => 'web'
             ]);
         }
 
@@ -112,7 +113,8 @@ class AuthController extends Controller
 
                 UserOnlineLog::create([
                     'user_id' => $user->id,
-                    'status'  => 0
+                    'status'  => 0,
+                    'platform' => 'web'
                 ]);
             }
         }
