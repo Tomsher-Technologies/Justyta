@@ -190,10 +190,26 @@
             
         });
 
+        const muteToggle = document.getElementById('muteToggle');
+        const muteIcon = document.getElementById('muteIcon');
+        const unmuteIcon = document.getElementById('unmuteIcon');
+        const muteStatus = document.getElementById('muteStatus');
+
+        let isMuted = false;
+
         function toggleMute(videoId, btn) {
             const video = document.getElementById(videoId);
             video.muted = !video.muted;
-            btn.textContent = video.muted ? '🔇' : '🔊';
+            // btn.textContent = video.muted ? '🔇' : '🔊';
+            isMuted = !isMuted;
+
+            if (!isMuted) {
+                muteIcon.classList.remove('hidden');
+                unmuteIcon.classList.add('hidden');
+            } else {
+                muteIcon.classList.add('hidden');
+                unmuteIcon.classList.remove('hidden');
+            }
         }
     </script>
 </body>

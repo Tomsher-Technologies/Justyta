@@ -78,6 +78,10 @@
                                 @else
                                     <span class="absolute bottom-2 right-2 w-5 h-5 bg-gray-400 border-2 border-white rounded-full" title="Offline"></span>
                                 @endif
+
+                                <span id="online-status-{{ $lawyer->id }}" class="absolute bottom-2 right-2 w-5 h-5 rounded-full border-2 border-white {{ $lawyer->user->is_online ? 'bg-green-500' : 'bg-gray-400' }}" 
+      title="{{ $lawyer->user->is_online ? 'Online' : 'Offline' }}"></span>
+
                             </div>
                             <div>
                                 <div class="border-b pb-4 mb-4">
@@ -134,6 +138,31 @@
                 filterForm.submit();
             }, 500); 
         });
+
+        function updateLawyerStatus() {
+            fetch("{{ route('lawyers.online-status') }}")
+                .then(res => res.json())
+                .then(data => {
+                    Object.keys(data).forEach(lawyerId => {
+                        const indicator = document.getElementById('online-status-' + lawyerId);
+                        if (!indicator) return;
+
+                        if (data[lawyerId]) {
+                            indicator.classList.remove('bg-gray-400');
+                            indicator.classList.add('bg-green-500');
+                            indicator.title = "Online";
+                        } else {
+                            indicator.classList.remove('bg-green-500');
+                            indicator.classList.add('bg-gray-400');
+                            indicator.title = "Offline";
+                        }
+                    });
+                });
+        }
+
+        // Poll every 10 seconds
+        setInterval(updateLawyerStatus, 10000);
+        updateLawyerStatus(); 
     });
 </script>
 @endsection
