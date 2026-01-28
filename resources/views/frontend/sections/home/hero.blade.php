@@ -1,8 +1,11 @@
 <section class="container m-auto flex-wrap xl:flex-col flex justify-between items-start pt-[50px] xl:pb-6 xl:mt-[-150px] px-5">
-    <div class="grid grid-cols-1 xl:grid-cols-[17.5%_1fr_20%] w-full items-center gap-6">
+    {{-- <div class="grid grid-cols-1 xl:grid-cols-[17.5%_1fr_20%] w-full items-center gap-6">
 
         <div class="hidden xl:block"></div>
 
+        <div class="w-full"> --}}
+    <div class="grid grid-cols-1 xl:grid-cols-[17.5%_1fr_20%] w-full justify-items-start items-center gap-6">
+        <div class="hidden xl:block "></div>
         <div class="w-full">
             @if($section->getTranslation('title', $lang))
                 <h3 class="text-[22px] md:text-[50px] xl:text-[60px] xl:leading-[60px] font-cinzel font-normal text-[#07683B]">
