@@ -43,13 +43,8 @@
         </label>
     </div>
 
-<<<<<<< HEAD
     <div class="flex items-center justify-end gap-4">
 
-=======
-    <div class="flex items-center justify-end gap-4 flex-row-reverse">
-        
->>>>>>> aff58361219b01a3c61214d2fa0f43673c1a2832
         <button type="button"
             class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
             <a href="{{ route('lawyer.notifications.index') }}">
