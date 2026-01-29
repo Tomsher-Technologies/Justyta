@@ -20,7 +20,7 @@
             <hr class="my-4 border-[#DFDFDF]">
 
 
-            <div class="relative overflow-x-auto sm:rounded-lg w-[240px] xl:w-full">
+            <div class="relative overflow-x-auto sm:rounded-lg w-[100%] xl:w-full">
                 <table class="w-full border">
                     <thead class="text-md font-normal">
                         <tr class="bg-[#07683B] text-white font-normal">

@@ -27,12 +27,12 @@
             </h2>
             <hr class="mb-5">
             <div class="mb-6 border-b border-gray-200">
-                <ul class="flex flex-wrap -mb-px gap-8  text-sm font-medium text-center" id="default-tab"
+                <ul class="flex overflow-y-auto xl:overflow-auto -mb-px gap-3 md:gap-8  text-sm font-medium text-center" id="default-tab"
                     data-tabs-toggle="#default-tab-content" role="tablist">
                    
                     @foreach ($mainServices as $serv)
-                        <li class="me-2 {{ (($page == 'pending' || $page == 'payment') && $serv['slug'] == 'online-live-consultancy') ? 'hidden' : ''  }}" role="presentation">
-                            <a class="inline-block border-b-2 py-2.5 px-2 rounded-t-lg {{ $tab == $serv['slug'] ? 'bg-[#eadec7]' : '' }}" href="{{ route($route, ['tab' => $serv['slug']]) }}"
+                        <li class="me-2  {{ (($page == 'pending' || $page == 'payment') && $serv['slug'] == 'online-live-consultancy') ? 'hidden' : ''  }}" role="presentation">
+                            <a class="inline-block  text-[10px] leading-[13px] w-[140px] xl:w-auto xl:text-[14px] border-b-2 py-2.5 px-2 rounded-t-lg {{ $tab == $serv['slug'] ? 'bg-[#eadec7]' : '' }}" href="{{ route($route, ['tab' => $serv['slug']]) }}"
                             id="{{ $serv['slug'] }}" >{{ $serv['title'] }}</a>
                         </li>
                     @endforeach

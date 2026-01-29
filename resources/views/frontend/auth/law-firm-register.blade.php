@@ -1,7 +1,7 @@
 @extends('layouts.web_login', ['title' => __('frontend.sign_up')])
 
 @section('content')
-    <section class="px-[20px] py-[20px] md:px-[100px] md:py-[80px]">
+    <section class="px-[20px] py-[20px] xl:px-[100px] xl:py-[80px]">
         <div class="w-full p-8 space-y-6 p-5 bg-white rounded-lg ">
             <form action="{{ route('law-firm.register.submit') }}" id="signupForm" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -16,7 +16,7 @@
 
                     <div>
                         <h3 class="text-xl font-medium text-[#07683B] mb-4">{{ __('frontend.law_firm_information') }}</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                             <div>
                                 <label
                                     class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.law_firm_name') }}<span
@@ -142,7 +142,7 @@
 
                     <div>
                         <h3 class="text-xl font-medium text-[#07683B] mb-4">{{ __('frontend.owner_information') }}</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                             <div>
                                 <label
                                     class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.full_name') }}<span

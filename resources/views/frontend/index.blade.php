@@ -66,8 +66,8 @@
                         </clipPath>
                     </defs>
                 </svg>
-                <h3 class="mb-6 min-h-min md:min-h-[46px]">Online Live Consultancy</h3>
-                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                <h3 class="min-h-min md:min-h-[46px]">Online Live Consultancy</h3>
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4 mt-3">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -105,7 +105,7 @@
                     </defs>
                 </svg>
                 <h3 class="min-h-min md:min-h-[46px]">Request Submission</h3>
-                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4 mt-3">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -143,7 +143,7 @@
                     </defs>
                 </svg>
                 <h3 class="min-h-min md:min-h-[46px]">Legal Translation</h3>
-                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4 mt-3">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -181,7 +181,7 @@
                     </defs>
                 </svg>
                 <h3 class="min-h-min md:min-h-[46px]">Companies Retainership Annual Agreement</h3>
-                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4 mt-3">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -219,7 +219,7 @@
                     </defs>
                 </svg>
                 <h3 class="min-h-min md:min-h-[46px]">Immigration Requests</h3>
-                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4 mt-3">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -333,7 +333,7 @@
                      fill="#B9A572" />
                </svg>
                 <h3 class="min-h-min md:min-h-[46px]">Criminal Complaint</h3>
-                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4 mt-3">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -407,7 +407,7 @@
                     </defs>
                 </svg>
                 <h3 class="min-h-min md:min-h-[46px]">Last Will & Testament</h3>
-                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4 mt-3">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -445,7 +445,7 @@
                     </defs>
                 </svg>
                 <h3 class="min-h-min md:min-h-[46px]">Memo Writing</h3>
-                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4">
+                <a href="{{ route('frontend.login') }}" class="flex items-center gap-4 mt-3">
                     <span>Go to Service</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 22 23"
                         fill="none">
@@ -728,28 +728,28 @@ Justyta isn’t another legal tool ….. it’s the future legal hub of the UAE.
                 <!--    your rights. With a strong foundation in legal research, advocacy, and client-focused solutions, we-->
                 <!--    provide expert legal services tailored to your needs. </p>-->
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-12 mt-8 xl:w-max">
-                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
-                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">124/7 </h3>
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-start xl:items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572] w-[130px]">124/7 </h3>
                         <h5 class="text-[#000] text-[15px] font-medium">Full legal <br/>service availability</h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
-                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">1 Tap </h3>
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-start xl:items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572] w-[130px]">1 Tap </h3>
                         <h5 class="text-[#000] text-[15px] font-medium">To submit <br/>court & prosecution requests</h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
-                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">60%</h3>
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-start xl:items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572] w-[130px]">60%</h3>
                         <h5 class="text-[#000] text-[15px] font-medium">Faster Average processing time <br/> vs traditional methods</h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
-                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">1000's </h3>
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-start xl:items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572] w-[130px]">1000's </h3>
                         <h5 class="text-[#000] text-[15px] font-medium">Served Daily <br/>legal interactions on the platform</h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
-                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">Zero </h3>
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-start xl:items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572] w-[130px]">Zero </h3>
                         <h5 class="text-[#000] text-[15px] font-medium"> Waiting Lines </h5>
                     </div>
-                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-center gap-5 pb-6">
-                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572]">100% </h3>
+                    <div class="border-b !border-[#C9C5C1] flex flex-col xl:flex-row items-start xl:items-center gap-5 pb-6">
+                        <h3 class="font-cinzel text-[30px] font-bold text-[#B9A572] w-[130px]">100% </h3>
                         <h5 class="text-[#000] text-[15px] font-medium">Digital workflow</h5>
                     </div>
                 </div>

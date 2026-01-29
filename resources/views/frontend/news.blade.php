@@ -6,7 +6,7 @@
 
          <div class="container m-auto">
                      <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">latest news</h4>
-         <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+         <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-6">
             <div>
                <img src="images/blog-img1.jpg" class="mb-3" alt="">
                  <span>May 25, 2025</span>

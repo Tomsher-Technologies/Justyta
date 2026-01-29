@@ -10,7 +10,7 @@
     <div class="relative hidden lg:block w-full">
     </div>
 
-    <div class="flex items-center justify-end gap-4">
+    <div class="flex items-center justify-end gap-4 flex-row-reverse">
         <button type="button"
             class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
              <a href="{{ route('translator.notifications.index') }}">
