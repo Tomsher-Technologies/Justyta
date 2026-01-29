@@ -307,7 +307,7 @@ class TranslatorController extends Controller
         $validator = Validator::make($request->all(), [
             'status' => 'required|in:pending,under_review,ongoing,completed,rejected',
             'reason' => 'required_if:status,rejected|nullable|string',
-            'file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            'file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:102400',
             'supporting_docs' => 'nullable',
             'supporting_docs_any' => 'nullable',
         ], [

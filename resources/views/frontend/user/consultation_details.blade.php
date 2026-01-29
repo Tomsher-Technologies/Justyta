@@ -79,7 +79,13 @@
 
                     <div class="flex items-center">
                         <p class="basis-1/2 text-gray-600 font-medium">{{ __('frontend.consultant_type') }} :</p>
-                        <p class="text-gray-800">{{ ucfirst(__('frontend.'.$consultation->consultant_type) ?? '-') }}</p>
+                        <p class="text-gray-800">
+                            @if($consultation->consultant_type == 'vip')
+                                {{ __('frontend.specialized_consultation') ?? '-' }}
+                            @else
+                                {{ __('frontend.regular_consultation') ?? '-' }}
+                            @endif
+                        </p>
                     </div>
 
                     <div class="flex items-center">

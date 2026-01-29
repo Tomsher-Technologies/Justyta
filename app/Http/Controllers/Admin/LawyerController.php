@@ -58,11 +58,13 @@ class LawyerController extends Controller
             });
         }
 
+        $totalLawyers = $query->count();
+
         $lawyers = $query->orderBy('id', 'DESC')->paginate(15);
 
         // $emirates = Emirate::orderBy('name','ASC')->get();
         $lawfirms = Vendor::orderBy('law_firm_name','ASC')->get();
-        return view('admin.lawyers.index', compact('lawyers', 'lawfirms'));
+        return view('admin.lawyers.index', compact('lawyers', 'lawfirms','totalLawyers'));
     }
 
     public function create()
@@ -85,7 +87,6 @@ class LawyerController extends Controller
                     'required',
                     'email',
                     Rule::unique('users', 'email')
-                        ->where('user_type', 'lawyer'),
                 ],
             'phone' => 'required|string|max:20',
             'emirate_id' => 'required|string',
@@ -100,12 +101,12 @@ class LawyerController extends Controller
             'bar_card_expiry' => 'required|date',
             'practicing_lawyer_card_expiry' => 'required|date',
             'password' => 'required|string|min:6|confirmed',
-            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:500',
-            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:500',
-            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:500',
-            'bar_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:500',
-            'practicing_lawyer_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:500',
-            'photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp|max:500'
+            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'bar_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'practicing_lawyer_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp|max:102400'
         ],[
             '*.required' => 'This field is required.',
             'translations.en.name.required' => 'The lawyer name in english is required.',
@@ -122,8 +123,12 @@ class LawyerController extends Controller
                 'user_type' => 'lawyer',
             ]);
 
+            $lawfirm = Vendor::find($request->law_firm);
+            $defaultLawfirm = $lawfirm && $lawfirm->is_default;
+
             $lawyer = new Lawyer([
                 'lawfirm_id'                        => $request->law_firm,
+                'is_default'                        => $defaultLawfirm ? 1 : 0,
                 'full_name'                         => $request->translations['en']['name'], 
                 'email'                             => $request->email,
                 'phone'                             => $request->phone, 
@@ -158,6 +163,20 @@ class LawyerController extends Controller
                 }
             }
 
+            $emirates = [
+                $request->emirate_id => ['priority' => 1], // Home
+            ];
+
+            if (!empty($request->secondary_emirates)) {
+                foreach (array_unique($request->secondary_emirates) as $emirateId) {
+                    if ($emirateId != $request->emirate_id) {
+                        $emirates[$emirateId] = ['priority' => 2];
+                    }
+                }
+            }
+
+            $lawyer->emirates()->sync($emirates);
+
             $dropdowns = collect([
                 'specialities' => $request->specialities,
                 'languages' => $request->languages,
@@ -183,14 +202,18 @@ class LawyerController extends Controller
          
         $specialityIds = $lawyer->dropdownOptions()->wherePivot('type', 'specialities')->pluck('dropdown_option_id')->toArray();
         $languageIds = $lawyer->dropdownOptions()->wherePivot('type', 'languages')->pluck('dropdown_option_id')->toArray();
-
+        $secondaryEmirates = $lawyer->emirates
+                                ->where('pivot.priority', 2)
+                                ->pluck('id')
+                                ->toArray();
+        
         $dropdowns = Dropdown::with(['options.translations' => function ($q) {
             $q->where('language_code', 'en');
         }])->whereIn('slug', ['specialities', 'languages', 'years_experience'])->get()->keyBy('slug');
 
         $lawfirms = Vendor::orderBy('law_firm_name', 'ASC')->get();
         $languages = Language::where('status', 1)->get();
-        return view('admin.lawyers.edit', compact('lawyer','dropdowns','lawfirms','languages','specialityIds','languageIds'));
+        return view('admin.lawyers.edit', compact('lawyer','dropdowns','lawfirms','languages','specialityIds','languageIds','secondaryEmirates'));
     }
 
     public function update(Request $request, $id)
@@ -206,7 +229,6 @@ class LawyerController extends Controller
                     'email',
                     Rule::unique('users', 'email')
                         ->ignore($user->id)
-                        ->where('user_type', 'lawyer'),
                 ],
             'phone' => 'required|string|max:20',
             'emirate_id' => 'required|string',
@@ -220,12 +242,12 @@ class LawyerController extends Controller
             'passport_expiry' => 'required|date',
             'bar_card_expiry' => 'required|date',
             'practicing_lawyer_card_expiry' => 'required|date',
-            'emirate_id_front' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:500',
-            'emirate_id_back' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:500',
-            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:500',
-            'bar_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:500',
-            'practicing_lawyer_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:500',
-            'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp|max:500'
+            'emirate_id_front' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'emirate_id_back' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'bar_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'practicing_lawyer_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp|max:102400'
         ],[
             '*.required' => 'This field is required.',
             'translations.en.name.required' => 'The lawyer name in english is required.',
@@ -241,9 +263,12 @@ class LawyerController extends Controller
         ]);
 
         $uploadPath = 'lawyers/' . $user->id;
+        $lawfirm = Vendor::find($request->law_firm);
+        $defaultLawfirm = $lawfirm && $lawfirm->is_default;
 
         $lawyer->update([
             'lawfirm_id'                        => $request->law_firm,
+            'is_default'                        => $defaultLawfirm ? 1 : 0,
             'full_name'                         => $request->translations['en']['name'], 
             'email'                             => $request->email,
             'phone'                             => $request->phone, 
@@ -277,6 +302,21 @@ class LawyerController extends Controller
                 );
             }
         }
+        
+        $emirates = [
+            $request->emirate_id => ['priority' => 1], // Home
+        ];
+
+        if (!empty($request->secondary_emirates)) {
+            foreach (array_unique($request->secondary_emirates) as $emirateId) {
+                if ($emirateId != $request->emirate_id) {
+                    $emirates[$emirateId] = ['priority' => 2];
+                }
+            }
+        }
+
+        $lawyer->emirates()->sync($emirates);
+
 
         $dropdowns = collect([
             'specialities' => $request->specialities,

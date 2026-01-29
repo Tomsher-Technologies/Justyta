@@ -21,14 +21,19 @@
                                 @foreach ($pages as $page)
                                     <div class="col-md-4 mb-4">
                                         <div class="card shadow-sm h-100 page-card">
-                                            <div class="card-body d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <h6 class="card-title mb-0">{{ $page->name }}</h6>
+                                            <div class="card-body">
+                                                <h6 class="card-title mb-3">{{ $page->name }}</h6>
+                                                <div class="d-flex justify-content-center " style="gap: 10px;">
+                                                    @if(in_array($page->slug, ['contact_page','services_page','news','about_us','home','terms_conditions','privacy_policy','refund_policy']))
+                                                        <a href="{{ route('pages.sections.index', $page->id) }}" class="btn btn-primary btn-xs">
+                                                            <i class="la la-th-list"></i> Manage Sections
+                                                        </a>
+                                                    @endif
+                                                    
+                                                    <a href="{{ route('pages.edit', $page->id) }}" class="btn btn-primary btn-xs">
+                                                        <i class="la la-edit"></i> Edit
+                                                    </a>
                                                 </div>
-                                                <a href="{{ route('pages.edit', $page->id) }}"
-                                                    class="btn btn-primary btn-xs">
-                                                    Edit
-                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -55,8 +60,4 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
     </style>
-@endsection
-
-@section('script')
-    <script type="text/javascript"></script>
 @endsection

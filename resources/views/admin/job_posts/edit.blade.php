@@ -140,7 +140,7 @@
                                                 <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
                                                     name="translations[{{ $lang->code }}][title]"
                                                     class="form-control ih-small ip-gray radius-xs b-light px-15"
-                                                    value="{{ old('translations.' . $lang->code . '.title',  $trans->title) }}">
+                                                    value="{{ old('translations.' . $lang->code . '.title',  $trans->title ?? '') }}">
                                                 @error("translations.$lang->code.title")
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
@@ -154,7 +154,7 @@
                                                 </label>
                                                 <textarea name="translations[{{ $lang->code }}][description]" @if ($lang->rtl == 1) dir="rtl" @endif
                                                     class="texteditor form-control ip-gray radius-xs b-light px-15 @error('translations.' . $lang->code . '.description') is-invalid @enderror"
-                                                    rows="10">{{ old('translations.' . $lang->code . '.description', $trans->description) }}</textarea>
+                                                    rows="10">{{ old('translations.' . $lang->code . '.description', $trans->description ?? '') }}</textarea>
 
                                                 @error("translations.$lang->code.description")
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -168,7 +168,7 @@
                                                 <input type="text" name="translations[{{ $lang->code }}][salary]"
                                                     class="form-control ih-small ip-gray radius-xs b-light px-15"
                                                     @if ($lang->rtl == 1) dir="rtl" @endif
-                                                    value="{{ old('translations.' . $lang->code . '.salary', $trans->salary) }}">
+                                                    value="{{ old('translations.' . $lang->code . '.salary', $trans->salary ?? '') }}">
                                             </div>
                                         </div>
                                     @endforeach

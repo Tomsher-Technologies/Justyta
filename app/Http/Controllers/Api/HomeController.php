@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use App\Mail\ContactEnquiry;
 use Illuminate\Support\Facades\Validator;
 use DB;
-use Mail;
+use Illuminate\Support\Facades\Mail;
 
 class HomeController extends Controller
 {
@@ -93,7 +93,7 @@ class HomeController extends Controller
             ];
         });
 
-        $ads = getActiveAd('lawfirm_services', 'mobile');
+        $ads = getActiveAd('app_home_page', 'mobile');
 
         $data['banner'] = [];
         if ($ads) {
@@ -294,12 +294,13 @@ class HomeController extends Controller
 
     public function contactUs(Request $request){
         $validator = Validator::make($request->all(), [
-            'name' => 'nullable',
+            'name' => 'required',
             'email' => 'required|email',
             'phone' => 'required|numeric',
             'subject' => 'required',
             'message' => 'required'
         ], [
+            'name.required'     => __('messages.full_name_required'),
             'email.required'     => __('messages.email_required'),
             'email.email'        => __('messages.valid_email'),
             'phone.required'     => __('messages.phone_required'),
@@ -316,10 +317,10 @@ class HomeController extends Controller
             ], 200);
         }
 
-        $user = $request->user();
+        // $user = $request->user();
 
         $con                = new Contacts;
-        $con->name          = $request->name ?? $user->name;
+        $con->name          = $request->name ?? NULL;
         $con->email         = $request->email ?? NULL;
         $con->phone         = $request->phone ?? NULL;
         $con->subject       = $request->subject ?? NULL;

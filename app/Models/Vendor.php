@@ -7,9 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Vendor extends Model
 {
     protected $fillable = [
-        'user_id', 'law_firm_name', 'law_firm_email', 'law_firm_phone', 'office_address', 'owner_name', 'owner_email', 'owner_phone', 'emirate_id', 'trn', 'logo', 'about', 'country', 'trade_license', 'trade_license_expiry', 'emirates_id_front', 'emirates_id_back', 'emirates_id_expiry', 'residence_visa', 'residence_visa_expiry', 'passport', 'passport_expiry', 'card_of_law', 'card_of_law_expiry','consultation_commission', 'ministry_of_justice_card', 'ministry_of_justice_card_expiry','website_url','payment_reference'
+        'user_id','is_default', 'law_firm_name', 'law_firm_email', 'law_firm_phone', 'office_address', 'owner_name', 'owner_email', 'owner_phone', 'emirate_id', 'trn', 'logo', 'about', 'country', 'trade_license', 'trade_license_expiry', 'emirates_id_front', 'emirates_id_back', 'emirates_id_expiry', 'residence_visa', 'residence_visa_expiry', 'passport', 'passport_expiry', 'card_of_law', 'card_of_law_expiry','consultation_commission', 'ministry_of_justice_card', 'ministry_of_justice_card_expiry','website_url','payment_reference'
     ];
 
+    public function lawyers()
+    {
+        return $this->hasMany(Lawyer::class,'lawfirm_id');
+    }
      public function location()
     {
         return $this->belongsTo(Emirate::class,'emirate_id');

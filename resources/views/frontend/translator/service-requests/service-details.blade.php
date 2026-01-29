@@ -65,7 +65,7 @@
                     <div class="flex items-center">
                         <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.amount') }}</p>
                         <p class="basis-3/5 text-gray-800">{{ __('frontend.AED') }}
-                            {{ number_format($details['amount'], 2) }}</p>
+                            {{ number_format($details['service_details']['translator_amount'], 2) }}</p>
                     </div>
 
                     <div class="flex items-center">
@@ -86,8 +86,8 @@
                 @endif
 
                 @foreach ($details['service_details'] as $key => $value)
-                    @if (!is_array($value))
-                        <div class="flex ">
+                    @if (!is_array($value) && $key != 'translator_amount')
+                        <div class="flex  break-all">
                             <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.' . $key) }}</p>
                             <p class="basis-3/5 text-gray-800">
                                 @if (Str::startsWith($value, '[') && Str::endsWith($value, ']'))

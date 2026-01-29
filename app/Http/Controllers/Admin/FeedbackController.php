@@ -14,6 +14,8 @@ use App\Exports\ContactsExport;
 use App\Exports\RatingsExport;
 use App\Exports\ProblemsExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
 
 class FeedbackController extends Controller
@@ -102,6 +104,7 @@ class FeedbackController extends Controller
             $query->where('position', $request->position);
         }
 
+        $totalRequests = $query->count();
         $requests = $query->orderBy('created_at', 'desc')->paginate(10);
 
         $dropdowns  = Dropdown::with([
@@ -132,7 +135,32 @@ class FeedbackController extends Controller
             });
         }
 
-        return view('admin.user_feedbacks.training_requests', compact('requests', 'response'));
+        return view('admin.user_feedbacks.training_requests', compact('requests', 'response','totalRequests'));
+    }
+
+    public function destroyTrainingRequest($id)
+    {
+        $req = TrainingRequest::findOrFail($id);
+
+        if (!empty($req->documents) && is_array($req->documents)) {
+            foreach ($req->documents as $file) {
+                // Convert /storage/... URL to actual public path
+                $filePath = public_path(ltrim($file, '/')); // removes leading slash
+
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+        }
+
+        // Delete the folder for this request
+        $folderPath = public_path('storage/training_request/' . $req->id);
+        if (is_dir($folderPath)) {
+            File::deleteDirectory($folderPath);
+        }
+        // Delete the record
+        $req->delete();
+        return redirect()->route('training-requests.index')->with('success', 'Training request deleted successfully.');
     }
 
     public function exportTrainingRequests(){

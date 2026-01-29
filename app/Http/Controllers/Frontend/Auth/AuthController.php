@@ -14,6 +14,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use App\Notifications\ForgotPassword;
 use App\Models\User;
+use App\Models\Invoice;
+use App\Services\InvoiceService;
 use App\Models\UserOnlineLog;
 use App\Models\Vendor;
 use App\Models\MembershipPlan;
@@ -21,6 +23,7 @@ use App\Models\VendorTranslation;
 use App\Models\VendorSubscription;
 use App\Mail\CommonMail;
 use App\Models\Lawyer;
+
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
@@ -79,13 +82,14 @@ class AuthController extends Controller
 
             UserOnlineLog::create([
                 'user_id' => $user->id,
-                'status'  => 1
+                'status'  => 1,
+                'platform' => 'web'
             ]);
         }
 
-        
+
         session(['locale' => $user->language]);
-       
+
         return match ($user->user_type) {
             'lawyer' => redirect()->route('lawyer.dashboard'),
             'vendor' => redirect()->route('vendor.dashboard'),
@@ -98,20 +102,23 @@ class AuthController extends Controller
     public function logout()
     {
         $user = Auth::guard('frontend')->user();
-        $user->is_online = 0;
-        $user->save();
+        if($user){
+            $user->is_online = 0;
+            $user->save();
 
-        if ($user->user_type === 'lawyer') {
-            $lawyer = Lawyer::where('user_id', $user->id)->first();
-            $lawyer->is_busy = 0;
-            $lawyer->save();
+            if ($user->user_type === 'lawyer') {
+                $lawyer = Lawyer::where('user_id', $user->id)->first();
+                $lawyer->is_busy = 0;
+                $lawyer->save();
 
-            UserOnlineLog::create([
-                'user_id' => $user->id,
-                'status'  => 0
-            ]);
+                UserOnlineLog::create([
+                    'user_id' => $user->id,
+                    'status'  => 0,
+                    'platform' => 'web'
+                ]);
+            }
         }
-
+        
         Auth::guard('frontend')->logout();
         return redirect()->route('frontend.login');
     }
@@ -127,16 +134,15 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
             'email'     => [
-                    'required',
-                    'email',
-                    Rule::unique('users', 'email')
-                        ->where('user_type', 'user'),
-                ],
+                'required',
+                'email',
+                Rule::unique('users', 'email')
+            ],
             'phone'     => 'required|regex:/^[0-9+\-\(\)\s]+$/|max:20',
             'password' => [
                 'required',
                 'string',
-                'min:6',
+                'min:8',
                 'confirmed',
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&^])[A-Za-z\d@$!%*#?&^]{8,}$/'
             ],
@@ -165,18 +171,18 @@ class AuthController extends Controller
             'approved' => 1
         ]);
 
-        $array['subject'] = 'Registration Successful - Welcome to '.env('APP_NAME','Justyta').'!';
+        $array['subject'] = 'Registration Successful - Welcome to ' . env('APP_NAME', 'Justyta') . '!';
         $array['from'] = env('MAIL_FROM_ADDRESS');
-        $array['content'] = "Hi $user->name, <p> Congratulations and welcome to ".env('APP_NAME')."! We are delighted to inform you that your registration has been successfully completed. Thank you for choosing us as your trusted partner.</p>
+        $array['content'] = "Hi $user->name, <p> Congratulations and welcome to " . env('APP_NAME') . "! We are delighted to inform you that your registration has been successfully completed. Thank you for choosing us as your trusted partner.</p>
 
             <p>We look forward to serving your legal needs.</p>
-            <p>Thank you for choosing ".env('APP_NAME').". </p><hr>
+            <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
             <p style='font-size: 12px; color: #777;'>
                 This email was sent to $user->email. If you did not register on our platform, please ignore this message.
             </p>";
         Mail::to($user->email)->queue(new CommonMail($array));
 
-        Auth::guard('frontend')->login($user); 
+        Auth::guard('frontend')->login($user);
 
         return redirect()->route('user.dashboard');
     }
@@ -189,11 +195,11 @@ class AuthController extends Controller
     public function resetPassword(Request $request)
     {
         $email = $request->has('email') ? $request->email : '';
-        if($email){
+        if ($email) {
             $user = User::where('email', $request->email)->first();
             if (!$user) {
                 return back()->withErrors(['email' => __('messages.email_not_found')])->withInput();
-            }else{
+            } else {
                 $otp = rand(1000, 9999);
                 $user->otp = $otp;
                 $user->otp_expires_at = Carbon::now()->addMinutes(10);
@@ -204,7 +210,7 @@ class AuthController extends Controller
 
                 return redirect()->route('otp.enter')->with('success', __('messages.otp_send'));
             }
-        }else{
+        } else {
             return back()->withErrors(['email' => __('messages.email_required')])->withInput();
         }
     }
@@ -218,11 +224,11 @@ class AuthController extends Controller
     {
         $code = $request->has('otp') ? $request->otp : '';
         $email = session('reset_email') ?? '';
-        if($code){
+        if ($code) {
             $user = User::where('email', $email)->where('otp', $code)->first();
             if (!$user) {
                 return redirect()->back()->with('error', __('messages.invalid_code'));
-            }else{
+            } else {
                 if (Carbon::parse($user->otp_expires_at)->isPast()) {
                     return redirect()->back()->with('error', __('messages.otp_expired'));
                 }
@@ -233,22 +239,23 @@ class AuthController extends Controller
 
                 return redirect()->route('new-password')->with('success', __('messages.otp_verified_successfully'));
             }
-        }else{
+        } else {
             return redirect()->back()->with('error', __('messages.otp_required'));
         }
     }
 
-    public function resendOtp(Request $request){
+    public function resendOtp(Request $request)
+    {
 
         $email = session('reset_email') ?? '';
 
-        if($email){
-            
+        if ($email) {
+
             $user = User::where('email', $email)->first();
-        
+
             if (!$user) {
                 return redirect()->route('frontend.forgot-password');
-            }else{
+            } else {
                 $otp = rand(1000, 9999);
                 $user->otp = $otp;
                 $user->otp_expires_at = Carbon::now()->addMinutes(10);
@@ -257,7 +264,7 @@ class AuthController extends Controller
 
                 return redirect()->route('otp.enter')->with('success', __('messages.otp_send'));
             }
-        }else{
+        } else {
             return redirect()->route('frontend.forgot-password');
         }
     }
@@ -317,11 +324,13 @@ class AuthController extends Controller
             'email'                             => 'required|email',
             'phone'                             => 'required|string|max:20',
             'owner_name'                        => 'required|string|max:255',
-            'owner_email'                       => ['required', 'email', Rule::unique('users', 'email')
-                                                            ->where('user_type', 'vendor'),
-                                                    ],
+            'owner_email'                       => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')
+            ],
             'owner_phone'                       => 'required|string|max:20',
-            'logo'                              => 'nullable|image|mimes:jpg,jpeg,png|max:200',
+            'logo'                              => 'nullable|image|mimes:jpg,jpeg,png|max:102400',
             'emirate_id'                        => 'required',
             'trn'                               => 'required',
             'firm_description'                  => 'required',
@@ -329,21 +338,21 @@ class AuthController extends Controller
             'country'                           => 'nullable|string|max:255',
             'subscription_plan_id'              => 'required',
             'password'                          => 'required|string|min:6|confirmed',
-            'trade_license'                     => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'trade_license'                     => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'trade_license_expiry'              => 'nullable|date',
-            'emirates_id_front'                 => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
-            'emirates_id_back'                  => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'emirates_id_front'                 => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'emirates_id_back'                  => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'emirates_id_expiry'                => 'required|date',
-            'residence_visa'                    => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'residence_visa'                    => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'residence_visa_expiry'             => 'nullable|date',
-            'passport'                          => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'passport'                          => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'passport_expiry'                   => 'required|date',
-            'card_of_law'                       => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'card_of_law'                       => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'card_of_law_expiry'                => 'required|date',
-            'ministry_of_justice_card'          => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'ministry_of_justice_card'          => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'ministry_of_justice_card_expiry'   => 'required|date',
             'terms'                             => 'required',
-        ],[
+        ], [
             '*.required'                            => __('frontend.this_field_required'),
             'email.email'                           => __('messages.valid_email'),
             'email.unique'                          => __('messages.email_already_exist'),
@@ -357,40 +366,40 @@ class AuthController extends Controller
             'password.confirmed'                    => __('messages.password_confirmation_mismatch'),
             'logo.image'                            => __('frontend.allowed_files'),
             'logo.mimes'                            => __('frontend.allowed_files'),
-            'logo.max'                              => __('frontend.max_file_size', ['size' => '2MB']),
+            'logo.max'                              => __('frontend.max_file_size', ['size' => '100MB']),
             'trade_license.file'                    => __('frontend.allowed_files'),
             'trade_license.mimes'                   => __('frontend.allowed_files'),
-            'trade_license.max'                     => __('frontend.max_file_size', ['size' => '2MB']),
+            'trade_license.max'                     => __('frontend.max_file_size', ['size' => '100MB']),
             'emirates_id_front.file'                => __('frontend.allowed_files'),
             'emirates_id_front.mimes'               => __('frontend.allowed_files'),
-            'emirates_id_front.max'                 => __('frontend.max_file_size', ['size' => '2MB']),
+            'emirates_id_front.max'                 => __('frontend.max_file_size', ['size' => '100MB']),
             'emirates_id_back.file'                 => __('frontend.allowed_files'),
             'emirates_id_back.mimes'                => __('frontend.allowed_files'),
-            'emirates_id_back.max'                  => __('frontend.max_file_size', ['size' => '2MB']),
+            'emirates_id_back.max'                  => __('frontend.max_file_size', ['size' => '100MB']),
             'residence_visa.file'                   => __('frontend.allowed_files'),
             'residence_visa.mimes'                  => __('frontend.allowed_files'),
-            'residence_visa.max'                    => __('frontend.max_file_size', ['size' => '2MB']),
+            'residence_visa.max'                    => __('frontend.max_file_size', ['size' => '100MB']),
             'passport.file'                         => __('frontend.allowed_files'),
             'passport.mimes'                        => __('frontend.allowed_files'),
-            'passport.max'                          => __('frontend.max_file_size', ['size' => '2MB']),
+            'passport.max'                          => __('frontend.max_file_size', ['size' => '100MB']),
             'card_of_law.file'                      => __('frontend.allowed_files'),
             'card_of_law.mimes'                     => __('frontend.allowed_files'),
-            'card_of_law.max'                       => __('frontend.max_file_size', ['size' => '2MB']),
+            'card_of_law.max'                       => __('frontend.max_file_size', ['size' => '100MB']),
             'ministry_of_justice_card.file'         => __('frontend.allowed_files'),
             'ministry_of_justice_card.mimes'        => __('frontend.allowed_files'),
-            'ministry_of_justice_card.max'          => __('frontend.max_file_size', ['size' => '2MB']),
+            'ministry_of_justice_card.max'          => __('frontend.max_file_size', ['size' => '100MB']),
             'trade_license_expiry.date'             => __('frontend.valid_date'),
             'emirates_id_expiry.date'               => __('frontend.valid_date'),
             'residence_visa_expiry.date'            => __('frontend.valid_date'),
             'passport_expiry.date'                  => __('frontend.valid_date'),
             'card_of_law_expiry.date'               => __('frontend.valid_date'),
-            'ministry_of_justice_card_expiry.date'  => __('frontend.valid_date'), 
+            'ministry_of_justice_card_expiry.date'  => __('frontend.valid_date'),
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-        
+
         $user = User::create([
             'name' => $request->law_firm_name,
             'email' => $request->owner_email,
@@ -401,31 +410,31 @@ class AuthController extends Controller
 
         $vendor = new Vendor([
             'consultation_commission'   => 0,
-            'law_firm_name'             => $request->law_firm_name, 
-            'law_firm_email'            => $request->email, 
-            'law_firm_phone'            => $request->phone, 
+            'law_firm_name'             => $request->law_firm_name,
+            'law_firm_email'            => $request->email,
+            'law_firm_phone'            => $request->phone,
             'office_address'            => $request->location,
-            'owner_name'                => $request->owner_name, 
-            'owner_email'               => $request->owner_email,  
-            'owner_phone'               => $request->owner_phone,  
-            'emirate_id'                => $request->emirate_id, 
-            'trn'                       => $request->trn, 
+            'owner_name'                => $request->owner_name,
+            'owner_email'               => $request->owner_email,
+            'owner_phone'               => $request->owner_phone,
+            'emirate_id'                => $request->emirate_id,
+            'trn'                       => $request->trn,
             'website_url'               => $request->website_url,
-            'logo'                      => $request->hasfile('logo') ? uploadImage('vendors/'.$user->id, $request->logo, 'logo_') : NULL,  
-            'country' => 'UAE', 
-            'trade_license'             => $request->hasfile('trade_license') ? uploadImage('vendors/'.$user->id, $request->trade_license, 'trade_license_') : NULL,
+            'logo'                      => $request->hasfile('logo') ? uploadImage('vendors/' . $user->id, $request->logo, 'logo_') : NULL,
+            'country' => 'UAE',
+            'trade_license'             => $request->hasfile('trade_license') ? uploadImage('vendors/' . $user->id, $request->trade_license, 'trade_license_') : NULL,
             'trade_license_expiry'      => $request->trade_license_expiry ? Carbon::parse($request->trade_license_expiry)->format('Y-m-d') : null,
-            'emirates_id_front'         => $request->hasfile('emirates_id_front') ? uploadImage('vendors/'.$user->id, $request->emirates_id_front, 'emirates_id_front_') : NULL,
-            'emirates_id_back'          => $request->hasfile('emirates_id_back') ? uploadImage('vendors/'.$user->id, $request->emirates_id_back, 'emirates_id_back_') : NULL,
+            'emirates_id_front'         => $request->hasfile('emirates_id_front') ? uploadImage('vendors/' . $user->id, $request->emirates_id_front, 'emirates_id_front_') : NULL,
+            'emirates_id_back'          => $request->hasfile('emirates_id_back') ? uploadImage('vendors/' . $user->id, $request->emirates_id_back, 'emirates_id_back_') : NULL,
             'emirates_id_expiry'        => $request->emirates_id_expiry ? Carbon::parse($request->emirates_id_expiry)->format('Y-m-d') : null,
-            'residence_visa'            => $request->hasfile('residence_visa') ? uploadImage('vendors/'.$user->id, $request->residence_visa, 'residence_visa_') : NULL,
+            'residence_visa'            => $request->hasfile('residence_visa') ? uploadImage('vendors/' . $user->id, $request->residence_visa, 'residence_visa_') : NULL,
             'residence_visa_expiry'     => $request->residence_visa_expiry ? Carbon::parse($request->residence_visa_expiry)->format('Y-m-d') : null,
-            'passport'                  => $request->hasfile('passport') ? uploadImage('vendors/'.$user->id, $request->passport, 'passport_') : NULL,
+            'passport'                  => $request->hasfile('passport') ? uploadImage('vendors/' . $user->id, $request->passport, 'passport_') : NULL,
             'passport_expiry'           => $request->passport_expiry ? Carbon::parse($request->passport_expiry)->format('Y-m-d') : null,
-            'card_of_law'               => $request->hasfile('card_of_law') ? uploadImage('vendors/'.$user->id, $request->card_of_law, 'card_of_law_') : NULL,
+            'card_of_law'               => $request->hasfile('card_of_law') ? uploadImage('vendors/' . $user->id, $request->card_of_law, 'card_of_law_') : NULL,
             'card_of_law_expiry'        => $request->card_of_law_expiry ? Carbon::parse($request->card_of_law_expiry)->format('Y-m-d') : null,
-            'ministry_of_justice_card'  => $request->hasfile('ministry_of_justice_card') ? uploadImage('vendors/'.$user->id, $request->ministry_of_justice_card, 'ministry_of_justice_card_') : NULL,
-            'ministry_of_justice_card_expiry'=> $request->ministry_of_justice_card_expiry ? Carbon::parse($request->ministry_of_justice_card_expiry)->format('Y-m-d') : null,
+            'ministry_of_justice_card'  => $request->hasfile('ministry_of_justice_card') ? uploadImage('vendors/' . $user->id, $request->ministry_of_justice_card, 'ministry_of_justice_card_') : NULL,
+            'ministry_of_justice_card_expiry' => $request->ministry_of_justice_card_expiry ? Carbon::parse($request->ministry_of_justice_card_expiry)->format('Y-m-d') : null,
         ]);
 
         $user->vendor()->save($vendor);
@@ -437,22 +446,28 @@ class AuthController extends Controller
             'law_firm_name' => $request->law_firm_name,
             'about' => $request->firm_description
         ]);
-       
+
         $totalAmount = $plan->amount;
-        if($totalAmount != 0){
-            $orderReference = $vendor->id .'--'.$vendor->ref_no;
+
+        $amount = $plan->plain_amount ?? 0;
+        $vatPercent = $plan->vat_amount ?? 0;
+
+        $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
+        if ($totalAmount != 0) {
+            $orderReference = $vendor->id . '--' . $vendor->ref_no;
             $customer = [
-                            'email' => $user->email,
-                            'name'  => $user->name,
-                            'phone' => $user->phone,
-                            'address' => $user->address
-                        ];
-            $payment = createWebPlanOrder($customer, $totalAmount, env('APP_CURRENCY','AED'), $orderReference);
+                'email' => $user->email,
+                'name'  => $user->name,
+                'phone' => $user->phone,
+                'address' => $user->address
+            ];
+            $payment = createWebPlanOrder($customer, $totalAmount, env('APP_CURRENCY', 'AED'), $orderReference);
 
             if (isset($payment['_links']['payment']['href'])) {
                 $vendor->subscriptions()->create([
                     'membership_plan_id'                => $plan->id,
                     'amount'                            => $plan->amount,
+                    'vat_amount'                        => $vatValue,
                     'member_count'                      => $plan->member_count,
                     'job_post_count'                    => $plan->job_post_count,
                     'en_ar_price'                       => $plan->en_ar_price,
@@ -463,8 +478,8 @@ class AuthController extends Controller
                     'annual_free_ad_days'               => $plan->annual_free_ad_days,
                     'unlimited_training_applications'   => $plan->unlimited_training_applications,
                     'welcome_gift'                      => $plan->welcome_gift,
-                    'subscription_start'                => now(),
-                    'subscription_end'                  => now()->addYear(), 
+                    'subscription_start'                => NULL,
+                    'subscription_end'                  => NULL,
                     'status'                            => 'pending',
                     'payment_reference'                 => $payment['reference'] ?? null,
                 ]);
@@ -472,10 +487,11 @@ class AuthController extends Controller
             }
 
             return redirect()->back()->with('error', 'Failed to initiate payment');
-        }else{
+        } else {
             $vendor->subscriptions()->create([
                 'membership_plan_id'                => $plan->id,
                 'amount'                            => $plan->amount,
+                'vat_amount'                        => $vatValue,
                 'member_count'                      => $plan->member_count,
                 'job_post_count'                    => $plan->job_post_count,
                 'en_ar_price'                       => $plan->en_ar_price,
@@ -487,14 +503,14 @@ class AuthController extends Controller
                 'unlimited_training_applications'   => $plan->unlimited_training_applications,
                 'welcome_gift'                      => $plan->welcome_gift,
                 'subscription_start'                => now(),
-                'subscription_end'                  => now()->addYear(), 
+                'subscription_end'                  => now()->addYear(),
                 'status'                            => 'active',
             ]);
 
 
-            $array['subject'] = 'Registration Successful - Welcome to '.env('APP_NAME','Justyta').'!';
+            $array['subject'] = 'Registration Successful - Welcome to ' . env('APP_NAME', 'Justyta') . '!';
             $array['from'] = env('MAIL_FROM_ADDRESS');
-            $array['content'] = "Hi $request->owner_name, <p> Congratulations and welcome to ".env('APP_NAME')."! We are delighted to inform you that your registration has been successfully completed. Thank you for choosing us as your trusted partner. We're excited to have your law firm onboard.</p>
+            $array['content'] = "Hi $request->owner_name, <p> Congratulations and welcome to " . env('APP_NAME') . "! We are delighted to inform you that your registration has been successfully completed. Thank you for choosing us as your trusted partner. We're excited to have your law firm onboard.</p>
 
                 <p>Here are your registration details:</p>
 
@@ -502,9 +518,10 @@ class AuthController extends Controller
                 <li><strong>Firm Name : </strong> $request->law_firm_name </li>
                 <li><strong>Registered Email : </strong> $request->email </li>
                 <li><strong>Plan : </strong> $plan->title </li>
-                <li><strong>Plan Expiry Date : </strong> ".now()->addYear()." </li>
+                <li><strong>Plan Expiry Date : </strong> " . now()->addYear() . " </li>
+                <li><strong>Paid Amount : </strong> Payment Failed</li>
                 </ul>
-                <p>Thank you for choosing ".env('APP_NAME').". </p><hr>
+                <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
                 <p style='font-size: 12px; color: #777;'>
                     This email was sent to $user->email. If you did not register on our platform, please ignore this message.
                 </p>";
@@ -512,11 +529,11 @@ class AuthController extends Controller
 
             session()->flash('success', 'Account created successfully. Please wait for the admin approval. You will be notified via email. Thank you.');
 
-            return redirect()->route('frontend.login'); 
+            return redirect()->route('frontend.login');
         }
     }
 
-    public function purchaseSuccess(Request $request) 
+    public function purchaseSuccess(Request $request)
     {
         $paymentReference = $request->query('ref') ?? NULL;
         $token = getAccessToken();
@@ -526,16 +543,16 @@ class AuthController extends Controller
 
         $response = Http::withToken($token)->get("{$baseUrl}/transactions/outlets/" . $outletRef . "/orders/{$paymentReference}");
         $data = $response->json();
-      
+
         $orderRef = $data['merchantOrderReference'] ?? NULL;
         $subscriptionData = explode('--', $orderRef);
 
         $vendorID = $subscriptionData[0];
-        
+
         $status = $data['_embedded']['payment'][0]['state'] ?? null;
         $paid_amount = $data['_embedded']['payment'][0]['amount']['value'] ?? 0;
 
-        $paidAmount = ($paid_amount != 0) ? $paid_amount/100 : 0;
+        $paidAmount = ($paid_amount != 0) ? $paid_amount / 100 : 0;
         $vendor = Vendor::findOrFail($vendorID);
 
         if ($status === 'PURCHASED' || $status === 'CAPTURED') {
@@ -549,29 +566,58 @@ class AuthController extends Controller
             }
 
             $plan = MembershipPlan::findOrFail($subscription->membership_plan_id);
+            $amount = $plan->plain_amount ?? 0;
+            $vatPercent = $plan->vat_amount ?? 0;
 
-            $array['subject'] = 'Registration Successful - Welcome to '.env('APP_NAME','Justyta').'!';
+            $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
+
+            $user_id = $vendor->user_id;
+            $user = User::find($user_id);
+
+            $invoice = Invoice::create([
+                'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                'billable_type' => User::class,
+                'billable_id' => $user->id,
+                'amount' => $plan->plain_amount,
+                'tax' => $vatValue,
+                'total' => $plan->amount,
+                'paid_at' => now(),
+            ]);
+
+            // 2. Generate PDF
+            $pdfPath = InvoiceService::generate(
+                $invoice,
+                $user,
+                'User Registration Fee'
+            );
+
+
+            $array['subject'] = 'Registration Successful - Welcome to ' . env('APP_NAME', 'Justyta') . '!';
             $array['from'] = env('MAIL_FROM_ADDRESS');
-            $array['content'] = "Hi $vendor->owner_name, <p> Congratulations and welcome to ".env('APP_NAME')."! We are delighted to inform you that your registration has been successfully completed. Thank you for choosing us as your trusted partner. We're excited to have your law firm onboard.</p>
+            $array['content'] = "Hi $vendor->owner_name, <p> Congratulations and welcome to " . env('APP_NAME') . "! We are delighted to inform you that your registration has been successfully completed. Thank you for choosing us as your trusted partner. We're excited to have your law firm onboard.</p>
 
                 <p>Here are your registration details:</p>
 
                 <ul>
                 <li><strong>Firm Name : </strong> $vendor->law_firm_name </li>
                 <li><strong>Registered Email : </strong> $vendor->owner_email </li>
-                <li><strong>Plan : </strong> $plan->title ?? '' </li>
-                <li><strong>Plan Expiry Date : </strong> ".now()->addYear()." </li>
+                <li><strong>Plan : </strong> $plan->title </li>
+                <li><strong>Plan Amount : </strong> AED $plan->amount </li>
+                <li><strong>Plan Expiry Date : </strong> " . now()->addYear() . " </li>
+                 <li><strong>Paid Amount:</strong> " . env('APP_CURRENCY', 'AED') . " " . number_format($plan->amount, 2) . " (Including VAT " . env('APP_CURRENCY', 'AED') . " " . number_format($vatValue, 2) . ")</li>
                 </ul>
-                <p>Thank you for choosing ".env('APP_NAME').". </p><hr>
+                <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
                 <p style='font-size: 12px; color: #777;'>
                     This email was sent to $vendor->owner_email. If you did not register on our platform, please ignore this message.
                 </p>";
+
+            $array['invoice_path'] = $pdfPath;
             Mail::to($vendor->owner_email)->queue(new CommonMail($array));
 
             session()->flash('success', __("frontend.vendor_registration_success"));
 
-            return redirect()->route('frontend.login'); 
-        }else{
+            return redirect()->route('frontend.login');
+        } else {
             $user_id = $vendor->user_id;
             $user = User::find($user_id);
             $user->forceDelete();
@@ -583,13 +629,14 @@ class AuthController extends Controller
             }
 
             session()->flash('error',  __("frontend.vendor_registration_failed"));
-            
+
             return redirect()->route('law-firm.register');
         }
     }
 
-    public function purchaseCancel(Request $request){
-        $ref = $request->get('ref'); 
+    public function purchaseCancel(Request $request)
+    {
+        $ref = $request->get('ref');
 
         if (!$ref) {
             return redirect()->route('frontend.login');
@@ -610,8 +657,7 @@ class AuthController extends Controller
                 Storage::disk('public')->deleteDirectory($folderPath);
             }
         }
-        session()->flash('error',  __("frontend.vendor_registration_failed") );
+        session()->flash('error',  __("frontend.vendor_registration_failed"));
         return redirect()->route('law-firm.register');
     }
 }
-

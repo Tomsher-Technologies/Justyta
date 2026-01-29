@@ -4,34 +4,49 @@
     <div class="container-fluid">
         <div class="row ">
             <div class="col-lg-12">    
-                
+                <h2 class="fw-semibold mb-0 mt-4">Dashboard</h2>
                 @canany(['dashboard_total_sales_view','manage_translators','manage_vendors','manage_lawyers','manage_job_post','manage_training_requests'])
                     <div class="dashboard-card g-4 mt-4">
                         <div class="col-12">
                             <div class="row">
-                                <div class="col-md-12 col-sm-12 mb-2 d-flex justify-content-between align-items-center">
-                                    <h2 class="fw-semibold mb-0">Dashboard</h2>
-                                    <div class="w-22 mb-1 d-flex">
+                                <div class="col-md-12 col-sm-12 d-flex justify-content-end align-items-center">
+                                    
+                                    <div class="mb-1 d-flex">
                                         <form action="{{ route('admin.dashboard') }}" method="get" id="dashboardCommonForm" autocomplete="off">
                                             <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker"  id="dashboard_datepicker"  name="daterangeCommon" placeholder="From Date - To Date" value="{{ request('daterangeCommon') }}" style="width:105% !important;">
                                         </form>
 
-                                        <a href="{{ route('admin.dashboard') }}" class="m-auto" id="resetDashboardDate" title="Reset Filter">
-                                            <i class="fas fa-sync-alt ml-3" style="font-size: 20px; color:#08683d;"></i>
+                                        <a href="{{ route('admin.dashboard') }}" class="mt-2" id="resetDashboardDate" title="Reset Filter">
+                                            <i class="fas fa-sync-alt ml-4" style="font-size: 20px; color:#08683d;"></i>
                                         </a>
                                     </div>
                                 </div>
 
                                 @can('dashboard_total_sales_view')
                                     <!-- Total Users -->
-                                    <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                    <div class="col-xl-3 col-md-4 col-sm-6 mt-3">
                                         <div class="card shadow-sm border-0 p-3 text-center" style="background:#e0f7fa;">
                                             <a href="{{ route('admin.service-sales') }}" class="">
                                                 <div class="icon mb-2">
-                                                    <i class="las la-credit-card fs-2 text-primary"></i>
+                                                    <i class="las la-credit-card fs-36 text-primary"></i>
                                                 </div>
-                                                <h6 class="fw-bold mb-1">Total Sales</h6>
+                                                <h6 class="fw-bold mb-2 " style="color:#d37100;">Total Service Sales</h6>
                                                 <h4 class="text-primary">AED {{ $totalSales ?? 0 }}</h4>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                @endcan
+
+                                @can('dashboard_total_subscription_view')
+                                    <div class="col-xl-3 col-md-4 col-sm-6 mt-3">
+                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#e6d9ff94;">
+                                            <a href="{{ route('admin.subscription-sales') }}" class="">
+                                                <div class="icon mb-2">
+                                                    <i class="las la-credit-card fs-36 text-primary"></i>
+                                                </div>
+                                                <h6 class="fw-bold mb-2 " style="color:#d37100;">Total Subscription Sales</h6>
+                                                <h4 class="text-primary">AED {{ $totalSubscriptionSales ?? 0 }}</h4>
                                             </a>
                                         </div>
                                     </div>
@@ -39,14 +54,14 @@
 
                                 @can('manage_translators')
                                     <!-- Total Translators -->
-                                    <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#f1f8e9;">
+                                    <div class="col-xl-3 col-md-4 col-sm-6 mt-3">
+                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#DFF5EA;">
                                             <a href="{{ route('translators.index') }}">
                                                 <div class="icon mb-2">
-                                                    <i class="las la-language fs-2 text-primary"></i>
+                                                    <i class="las la-language fs-36 text-primary"></i>
                                                 </div>
-                                                <h6 class="fw-bold mb-1">Total Translators</h6>
-                                                <h4 class="text-primary">{{ $userCounts['translator'] ?? 0 }}</h4>
+                                                <h6 class="fw-bold mb-2 " style="color:#d37100;">Total Translators</h6>
+                                                <h3 class="text-primary">{{ $userCounts['translator'] ?? 0 }}</h3>
                                             </a>
                                         </div>
                                     </div>
@@ -54,14 +69,14 @@
 
                                 @can('manage_vendors')
                                     <!-- Total Law Firms -->
-                                    <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#fff3e0;">
+                                    <div class="col-xl-3 col-md-4 col-sm-6 mt-3">
+                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#ffefe5;">
                                             <a href="{{ route('vendors.index') }}">
                                                 <div class="icon mb-2">
-                                                    <i class="las la-gavel fs-2 text-primary"></i>
+                                                    <i class="las la-gavel fs-36 text-primary"></i>
                                                 </div>
-                                                <h6 class="fw-bold mb-1">Total Law Firms</h6>
-                                                <h4 class="text-primary">{{ $userCounts['vendor'] ?? 0 }}</h4>
+                                                <h6 class="fw-bold mb-2 " style="color:#d37100;">Total Law Firms</h6>
+                                                <h3 class="text-primary">{{ $userCounts['vendor'] ?? 0 }}</h3>
                                             </a>
                                         </div>
                                     </div>
@@ -69,14 +84,14 @@
 
                                 @can('manage_lawyers')
                                     <!-- Total Lawyers -->
-                                    <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
+                                    <div class="col-xl-3 col-md-4 col-sm-6 mt-3">
                                         <div class="card shadow-sm border-0 p-3 text-center" style="background:#fce4ec;">
                                             <a href="{{ route('lawyers.index') }}">
                                                 <div class="icon mb-2">
-                                                    <i class="las la-user-tie fs-2 text-primary"></i>
+                                                    <i class="las la-user-tie fs-36 text-primary"></i>
                                                 </div>
-                                                <h6 class="fw-bold mb-1">Total Lawyers</h6>
-                                                <h4 class="text-primary">{{ $userCounts['lawyer'] ??  0}}</h4>
+                                                <h6 class="fw-bold mb-2 " style="color:#d37100;">Total Lawyers</h6>
+                                                <h3 class="text-primary">{{ $userCounts['lawyer'] ??  0}}</h3>
                                             </a>
                                         </div>
                                     </div>
@@ -84,14 +99,14 @@
 
                                 @can('manage_job_post')
                                     <!-- Total Job Posts -->
-                                    <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#ede7f6;">
+                                    <div class="col-xl-3 col-md-4 col-sm-6 mt-3">
+                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#FFF6CC;">
                                             <a href="{{ route('job-posts.index') }}">
                                                 <div class="icon mb-2">
-                                                    <i class="las la-briefcase fs-2 text-primary"></i>
+                                                    <i class="las la-briefcase fs-36 text-primary"></i>
                                                 </div>
-                                                <h6 class="fw-bold mb-1">Total Job Posts</h6>
-                                                <h4 class="text-primary">{{ $totalJobs ?? 0 }}</h4>
+                                                <h6 class="fw-bold mb-2 " style="color:#d37100;">Total Job Posts</h6>
+                                                <h3 class="text-primary">{{ $totalJobs ?? 0 }}</h3>
                                             </a>
                                         </div>
                                     </div>
@@ -99,76 +114,95 @@
 
                                 @can('manage_training_requests')
                                     <!-- Total Training Requests -->
-                                    <div class="col-xl-2 col-md-4 col-sm-6 mt-2">
-                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#e8f5e9;">
+                                    <div class="col-xl-3 col-md-4 col-sm-6 mt-3">
+                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#F2F4F7;">
                                             <a href="{{ route('training-requests.index') }}">
                                                 <div class="icon mb-2">
-                                                    <i class="las la-chalkboard-teacher fs-2 text-primary"></i>
+                                                    <i class="las la-chalkboard-teacher fs-36 text-primary"></i>
                                                 </div>
-                                                <h6 class="fw-bold mb-1">Total Training Requests</h6>
-                                                <h4 class="text-primary">{{ $totalTrainings ?? 0 }}</h4>
+                                                <h6 class="fw-bold mb-2 " style="color:#d37100;">Total Training Requests</h6>
+                                                <h3 class="text-primary">{{ $totalTrainings ?? 0 }}</h3>
                                             </a>
                                         </div>
                                     </div>
                                 @endcan
 
+                                
+                                @can('manage_users')
+                                    <!-- Total Training Requests -->
+                                    <div class="col-xl-3 col-md-4 col-sm-6 mt-3">
+                                        <div class="card shadow-sm border-0 p-3 text-center" style="background:#F2F4F7;">
+                                            <a href="{{ route('users.index') }}">
+                                                <div class="icon mb-2">
+                                                    <i class="las la-users fs-36 text-primary"></i>
+                                                </div>
+                                                <h6 class="fw-bold mb-2 " style="color:#d37100;">Total Users</h6>
+                                                <h3 class="text-primary">{{ $totalUsers ?? 0 }}</h3>
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endcan
                             </div>
                         </div>
                     </div>
                 @endcanany
               
-                <div class="dashboard-card g-4 mt-4">
-                    <div class="row">
-                        <div class="col-md-12 col-sm-12 mb-2 d-flex justify-content-between align-items-center">
-                            <h4 class="fw-semibold mb-0">Total Service Requests</h4>
-                            <div class="w-22 mb-1 d-flex">
-                                <form action="{{ route('admin.dashboard') }}" method="get" id="dashboardServiceForm" autocomplete="off">
-                                    <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker"  id="dashboard_service_datepicker"  name="daterangeService" placeholder="From Date - To Date" value="{{ request('daterangeService') }}" style="width:105% !important;">
-                                </form>
+                @can('view_dashboard_service_requests')
+                    <div class="dashboard-card g-4 mt-4">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 mb-2 d-flex justify-content-between align-items-center">
+                                <h4 class="fw-semibold mb-0">Total Service Requests</h4>
+                                <div class="w-22 mb-1 d-flex">
+                                    <form action="{{ route('admin.dashboard') }}" method="get" id="dashboardServiceForm" autocomplete="off">
+                                        <input type="text" class="form-control ih-small ip-gray radius-xs b-deep px-15 form-control-default date-range-picker"  id="dashboard_service_datepicker"  name="daterangeService" placeholder="From Date - To Date" value="{{ request('daterangeService') }}" style="width:105% !important;">
+                                    </form>
 
-                                <a href="{{ route('admin.dashboard') }}" class="m-auto" id="resetDashboardDate" title="Reset Filter">
-                                    <i class="fas fa-sync-alt ml-3" style="font-size: 20px; color:#08683d;"></i>
-                                </a>
+                                    <a href="{{ route('admin.dashboard') }}" class="m-auto" id="resetDashboardDate" title="Reset Filter">
+                                        <i class="fas fa-sync-alt ml-3" style="font-size: 20px; color:#08683d;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            @foreach ($services as $key => $service)
+                                @if ($service->slug != 'law-firm-services')
+                                    <div class="col-md-2 col-sm-3 mt-4">
+                                        <div class="service-card">
+                                            @if($service->slug === 'legal-translation')
+                                                <a href="{{ route('legal-translation-requests.index') }}" style="color: inherit;">
+                                            @else
+                                                <a href="{{ route('service-requests.index', ['service_id' => $service->slug]) }}" style="color: inherit;">
+                                            @endif
+                                            
+                                                <div class="icon mb-3">
+                                                    <img src="{{ asset(getUploadedImage($service->icon)) }}" class="card-img-top"
+                                                        style="height: 45px; object-fit: contain;" alt="{{ $service->name }}" />
+                                                </div>
+                                                <h6 class="service-title">{{ $service->name ?? '—' }}</h6>
+                                                <h5 class="service-count">{{ $serviceCounts[$service->id] ?? 0 }}</h5>
+                                                {{-- <div class="service-status">
+                                                    <span class="status pending">Pending: 25</span>
+                                                    <span class="status ongoing">Ongoing: 40</span>
+                                                    <span class="status completed">Completed: 170</span>
+                                                    <span class="status rejected">Rejected: 10</span>
+                                                </div> --}}
+                                            </a>
+                                        </div>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                @endcan
+
+                @can('view_dashboard_service_requests')
+                    <div class="row g-4 mt-4 mb-4">
+                        <div class="col-lg-12">
+                            <div class="dashboard-card">
+                                <h4 class="fw-semibold mb-3">Service Requests</h4>
+                                <div id="serviceChart" style="height:500px;"></div>
                             </div>
                         </div>
-                        @foreach ($services as $key => $service)
-                            @if ($service->slug != 'law-firm-services')
-                                <div class="col-md-2 col-sm-3 mt-4">
-                                    <div class="service-card">
-                                        @if($service->slug === 'legal-translation')
-                                            <a href="{{ route('legal-translation-requests.index') }}" style="color: inherit;">
-                                        @else
-                                            <a href="{{ route('service-requests.index', ['service_id' => $service->slug]) }}" style="color: inherit;">
-                                        @endif
-                                        
-                                            <div class="icon">
-                                                <img src="{{ asset(getUploadedImage($service->icon)) }}" class="card-img-top"
-                                                    style="height: 45px; object-fit: contain;" alt="{{ $service->name }}" />
-                                            </div>
-                                            <h6 class="service-title">{{ $service->name ?? '—' }}</h6>
-                                            <h5 class="service-count">{{ $serviceCounts[$service->id] ?? 0 }}</h5>
-                                            {{-- <div class="service-status">
-                                                <span class="status pending">Pending: 25</span>
-                                                <span class="status ongoing">Ongoing: 40</span>
-                                                <span class="status completed">Completed: 170</span>
-                                                <span class="status rejected">Rejected: 10</span>
-                                            </div> --}}
-                                        </a>
-                                    </div>
-                                </div>
-                            @endif
-                        @endforeach
                     </div>
-                </div>
-
-                <div class="row g-4 mt-4 mb-4">
-                    <div class="col-lg-12">
-                        <div class="dashboard-card">
-                            <h4 class="fw-semibold mb-3">Service Requests</h4>
-                            <div id="serviceChart" style="height:500px;"></div>
-                        </div>
-                    </div>
-                </div>
+                @endcan
 
                 {{-- <div class="row g-4">
                     <div class="col-lg-6">
@@ -186,7 +220,7 @@
                     </div>
                 </div> --}}
                 @can('dashboard_service_sales_view')
-                    <div class="row g-4 mb-4">
+                    <div class="row g-4 mb-4  mt-4">
                         <div class="col-12">
                             <div class="dashboard-card">
                                 <div class="col-lg-12 d-flex">
@@ -238,108 +272,110 @@
                     </div>
                 @endcan
 
-                <!-- Recent Requests -->
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="dashboard-card">
-                            <h4 class="fw-semibold mb-3">Recent Service Requests</h4>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>#</th>
-                                            <th class="text-center">Reference Code</th>
-                                            <th class="text-left" width="20%">Service</th>
-                                            <th class="text-center">User</th>
-                                            <th class="text-center">Payment Status</th>
-                                            <th class="text-center">Request Status</th>
-                                            <th class="text-center">Request Date</th>
-                                            <th class="text-center">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @php
-                                            $statusClass = [
-                                                'pending' => 'badge-gray',
-                                                'ongoing' => 'badge-warning',
-                                                'completed' => 'badge-success',
-                                                'rejected' => 'badge-danger',
-                                            ];
-                                        @endphp
-                                        @forelse ($recentRequests as $key => $serviceReq)
+                @can('view_dashboard_service_requests')
+                    <!-- Recent Requests -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="dashboard-card">
+                                <h4 class="fw-semibold mb-3">Recent Service Requests</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
                                             <tr>
-                                                <td class="text-center">{{ $key+1 }}</td>
-                                                <td class="text-center">
-                                                    {{ $serviceReq->reference_code ?? '' }}
-                                                </td>
-                                                <td>
-                                                    {{ $serviceReq->service?->name ?? '—' }}
-                                                </td>
+                                                <th>#</th>
+                                                <th class="text-center">Reference Code</th>
+                                                <th class="text-left" width="20%">Service</th>
+                                                <th class="text-center">User</th>
+                                                <th class="text-center">Payment Status</th>
+                                                <th class="text-center">Request Status</th>
+                                                <th class="text-center">Request Date</th>
+                                                <th class="text-center">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @php
+                                                $statusClass = [
+                                                    'pending' => 'badge-gray',
+                                                    'ongoing' => 'badge-warning',
+                                                    'completed' => 'badge-success',
+                                                    'rejected' => 'badge-danger',
+                                                ];
+                                            @endphp
+                                            @forelse ($recentRequests as $key => $serviceReq)
+                                                <tr>
+                                                    <td class="text-center">{{ $key+1 }}</td>
+                                                    <td class="text-center">
+                                                        {{ $serviceReq->reference_code ?? '' }}
+                                                    </td>
+                                                    <td>
+                                                        {{ $serviceReq->service?->name ?? '—' }}
+                                                    </td>
 
-                                                <td class="text-center">
-                                                    {{ $serviceReq->user?->name ?? '—' }}
+                                                    <td class="text-center">
+                                                        {{ $serviceReq->user?->name ?? '—' }}
 
-                                                    <i class="fas fa-info-circle text-primary ml-2 popover-toggle" tabindex="0" data-toggle="popover" data-placement="bottom" data-html="true" data-trigger="manual"
-                                                    title='<div class="popover-title">User Info</div>'
-                                                    data-content='
-                                                            <div class="custom-popover">
-                                                                <div class="popover-item"><i class="fas fa-user"></i> {{ $serviceReq->user?->name }}</div>
-                                                                <div class="popover-item"><i class="fas fa-envelope"></i> {{ $serviceReq->user?->email }}</div>
-                                                                <div class="popover-item"><i class="fas fa-phone"></i> {{ $serviceReq->user?->phone }}</div>
+                                                        <i class="fas fa-info-circle text-primary ml-2 popover-toggle" tabindex="0" data-toggle="popover" data-placement="bottom" data-html="true" data-trigger="manual"
+                                                        title='<div class="popover-title">User Info</div>'
+                                                        data-content='
+                                                                <div class="custom-popover">
+                                                                    <div class="popover-item"><i class="fas fa-user"></i> {{ $serviceReq->user?->name }}</div>
+                                                                    <div class="popover-item"><i class="fas fa-envelope"></i> {{ $serviceReq->user?->email }}</div>
+                                                                    <div class="popover-item"><i class="fas fa-phone"></i> {{ $serviceReq->user?->phone }}</div>
+                                                                </div>
+                                                            '></i>
+
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @php
+                                                            $paymentStatus = '-';
+                                                            $paymentAmount = '';
+                                                            if(in_array($serviceReq->payment_status, ['pending','failed'])){
+                                                                $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span>';
+                                                                $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
+                                                            }elseif($serviceReq->payment_status === 'success'){
+                                                                $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span>';
+                                                                $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
+                                                            }elseif($serviceReq->payment_status === 'partial'){
+                                                                $paymentStatus = '<span class="badge badge-pill badge-warning">Partially Paid</span>';
+                                                                $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
+                                                            }
+                                                        @endphp     
+                                                        {!! $paymentStatus !!}
+                                                        @can('service_request_sales_view')
+                                                            {!! $paymentAmount !!}
+                                                        @endcan
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge badge-pill {{ $statusClass[$serviceReq->status] ?? 'badge-secondary' }}">
+                                                            {{ ucfirst($serviceReq->status) }}
+                                                        </span>
+                                                    </td>
+
+                                                    <td class="text-center">{{ date('d, M Y h:i A', strtotime($serviceReq->submitted_at)) }}</td>
+                                                    <td class="text-center">
+                                                        @can('view-'.$serviceReq->service_slug)
+                                                            <div class="table-actions">
+                                                                <a href="{{ route('service-request-details', base64_encode($serviceReq->id)) }}"
+                                                                    title="View Service Request">
+                                                                    <span data-feather="eye"></span>
+                                                                </a>
                                                             </div>
-                                                        '></i>
-
-                                                </td>
-                                                <td class="text-center">
-                                                    @php
-                                                        $paymentStatus = '-';
-                                                        $paymentAmount = '';
-                                                        if(in_array($serviceReq->payment_status, ['pending','failed'])){
-                                                            $paymentStatus = '<span class="badge badge-pill badge-danger">Unpaid</span>';
-                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
-                                                        }elseif($serviceReq->payment_status === 'success'){
-                                                            $paymentStatus = '<span class="badge badge-pill badge-success">Paid</span>';
-                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
-                                                        }elseif($serviceReq->payment_status === 'partial'){
-                                                            $paymentStatus = '<span class="badge badge-pill badge-warning">Partially Paid</span>';
-                                                            $paymentAmount = '<br><small>AED '.($serviceReq->amount ?? 0) .'</small>';
-                                                        }
-                                                    @endphp     
-                                                    {!! $paymentStatus !!}
-                                                    @can('service_request_sales_view')
-                                                        {!! $paymentAmount !!}
-                                                    @endcan
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="badge badge-pill {{ $statusClass[$serviceReq->status] ?? 'badge-secondary' }}">
-                                                        {{ ucfirst($serviceReq->status) }}
-                                                    </span>
-                                                </td>
-
-                                                <td class="text-center">{{ date('d, M Y h:i A', strtotime($serviceReq->submitted_at)) }}</td>
-                                                <td class="text-center">
-                                                    @can('view-'.$serviceReq->service_slug)
-                                                        <div class="table-actions">
-                                                            <a href="{{ route('service-request-details', base64_encode($serviceReq->id)) }}"
-                                                                title="View Service Request">
-                                                                <span data-feather="eye"></span>
-                                                            </a>
-                                                        </div>
-                                                    @endcan
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="8" class="text-center">No recent requests found.</td>
-                                            </tr>
-                                        @endforelse
-                                                                               
-                                    </tbody>
-                                </table>
+                                                        @endcan
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="8" class="text-center">No recent requests found.</td>
+                                                </tr>
+                                            @endforelse
+                                                                                
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @endcan
             </div>
 
         </div>
@@ -406,15 +442,7 @@
         }
 
         .icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            margin: 0 auto 15px auto;
-            font-size: 1.5rem;
+            height: 40px;
         }
 
         .service-title {
@@ -425,7 +453,7 @@
         .service-count {
             font-weight: 700;
             color: #333;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .service-status {

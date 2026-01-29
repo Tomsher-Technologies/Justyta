@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
-                    <h4 class="text-capitalize breadcrumb-title">Online Consultation Requests</h4>
+                    <h4 class="text-capitalize breadcrumb-title">Online Consultation Requests ({{ $totalRequests }})</h4>
                     <div class="breadcrumb-action justify-content-center flex-wrap">
                     </div>
                 </div>
@@ -80,8 +80,8 @@
                                     <div class="col-md-3 input-group mt-2  mb-1">
                                         <select name="consultation_type" class="form-control ih-small ip-gray radius-xs b-deep px-15"  data-placeholder="Select Consultation Type">
                                             <option value="">All Consultation Types</option>
-                                            <option value="normal" {{ request()->consultation_type == 'normal' ? 'selected' : '' }}>Normal</option>
-                                            <option value="vip" {{ request()->consultation_type == 'vip' ? 'selected' : '' }}>VIP</option>
+                                            <option value="normal" {{ request()->consultation_type == 'normal' ? 'selected' : '' }}>Regular</option>
+                                            <option value="vip" {{ request()->consultation_type == 'vip' ? 'selected' : '' }}>Specialized</option>
                                         </select>
                                     </div>
 
@@ -194,7 +194,11 @@
                                                     {{ $consultation->lawyer?->lawfirm?->law_firm_name ?? '-' }}
                                                 </td>
                                                 <td class="text-center">
-                                                    {{ ucfirst($consultation->consultant_type) ?? '-' }}
+                                                    @if($consultation->consultant_type === 'vip')
+                                                       Specialized
+                                                    @else
+                                                       Regular
+                                                    @endif
                                                 </td>
                                                  <td class="text-center">
                                                     @php

@@ -32,6 +32,10 @@ use App\Models\ServiceRequestTimeline;
 use App\Models\Translator;
 use App\Models\MembershipPlan;
 use App\Models\JobPost;
+use App\Mail\CommonMail;
+use App\Models\Invoice;
+use App\Services\InvoiceService;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -52,6 +56,253 @@ class VendorHomeController extends Controller
     {
         $this->fileService = $fileService;
     }
+
+    public function membershipPlan()
+    {
+        $id = Auth::guard('frontend')->user()->vendor->id;
+        $vendor = Vendor::with('user', 'latestSubscription.plan')->findOrFail($id);
+        $plans = MembershipPlan::where('is_active', 1)->get();
+        
+        return view('frontend.vendor.membership-plan', compact('vendor','plans'));
+    }
+
+    public function subscribePlan($id)
+    {
+        $vendorId = Auth::guard('frontend')->user()->vendor->id;
+        $vendor = Vendor::with('user', 'latestSubscription.plan')->find($vendorId);
+        $plan = MembershipPlan::where('is_active', 1)->find($id);
+        $totalAmount = $plan->amount;
+
+        $updateStatus = ($vendor->latestSubscription->status == 'pending' || $vendor->latestSubscription->status == 'cancelled') ? 'cancelled' : 'expired';
+        $vendor->latestSubscription->update(['status' => $updateStatus]);   
+
+        $amount = $plan->plain_amount ?? 0;
+        $vatPercent = $plan->vat_amount ?? 0;
+
+        $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
+
+
+        if ($totalAmount != 0) {
+            $orderReference = $vendor->id . '--' . $vendor->ref_no. '--' . time();
+            $customer = [
+                'email' => $vendor->user?->email ?? '',
+                'name'  => $vendor->law_firm_name,
+                'phone' => $vendor->law_firm_phone,
+                'address' => $vendor->user?->address
+            ];
+            $payment = createWebPlanRenewOrder($customer, $totalAmount, env('APP_CURRENCY', 'AED'), $orderReference);
+
+            if (isset($payment['_links']['payment']['href'])) {
+                $vendor->subscriptions()->create([
+                    'membership_plan_id'                => $plan->id,
+                    'amount'                            => $plan->amount,
+                    'vat_amount'                        => $vatValue,
+                    'member_count'                      => $plan->member_count,
+                    'job_post_count'                    => $plan->job_post_count,
+                    'en_ar_price'                       => $plan->en_ar_price,
+                    'for_ar_price'                      => $plan->for_ar_price,
+                    'live_online'                       => $plan->live_online,
+                    'specific_law_firm_choice'          => $plan->specific_law_firm_choice,
+                    'annual_legal_contract'             => $plan->annual_legal_contract,
+                    'annual_free_ad_days'               => $plan->annual_free_ad_days,
+                    'unlimited_training_applications'   => $plan->unlimited_training_applications,
+                    'welcome_gift'                      => $plan->welcome_gift,
+                    'subscription_start'                => NULL,
+                    'subscription_end'                  => NULL,
+                    'status'                            => 'pending',
+                    'payment_reference'                 => $payment['reference'] ?? null,
+                ]);
+                return redirect()->away($payment['_links']['payment']['href']);
+            }
+        }else {
+           
+            $vendor->subscriptions()->create([
+                'membership_plan_id'                => $plan->id,
+                'amount'                            => $plan->amount,
+                'vat_amount'                        => $vatValue,
+                'member_count'                      => $plan->member_count,
+                'job_post_count'                    => $plan->job_post_count,
+                'en_ar_price'                       => $plan->en_ar_price,
+                'for_ar_price'                      => $plan->for_ar_price,
+                'live_online'                       => $plan->live_online,
+                'specific_law_firm_choice'          => $plan->specific_law_firm_choice,
+                'annual_legal_contract'             => $plan->annual_legal_contract,
+                'annual_free_ad_days'               => $plan->annual_free_ad_days,
+                'unlimited_training_applications'   => $plan->unlimited_training_applications,
+                'welcome_gift'                      => $plan->welcome_gift,
+                'subscription_start'                => now(),
+                'subscription_end'                  => now()->addYear(),
+                'status'                            => 'active',
+            ]);
+
+
+            $array['subject'] = 'Subscription Successful - ' . env('APP_NAME', 'Justyta');
+            $array['from'] = env('MAIL_FROM_ADDRESS');
+            $array['content'] = "Hi $vendor->owner_name, 
+
+            <p>Congratulations! Your subscription has been successfully updated on " . env('APP_NAME') . ".</p>
+
+            <p>Here are your subscription details:</p>
+
+            <ul>
+                <li><strong>Firm Name:</strong> $vendor->law_firm_name</li>
+                <li><strong>Registered Email:</strong> $vendor->owner_email</li>
+                <li><strong>Plan:</strong> $plan->title</li>
+                <li><strong>Plan Start Date:</strong> " . \Carbon\Carbon::parse(now())->format('d M, Y') . "</li>
+                <li><strong>Plan Expiry Date:</strong> " . \Carbon\Carbon::parse(now()->addYear())->format('d M, Y') . "</li>
+                <li><strong>Paid Amount:</strong> " . env('APP_CURRENCY', 'AED') . " " . number_format($plan->amount, 2) . " (Including VAT " . env('APP_CURRENCY', 'AED') . " " . number_format($vatValue, 2) . ")</li>
+            </ul>
+
+            <p>Thank you for choosing " . env('APP_NAME') . ". We are excited to continue supporting your law firm!</p>
+
+            <hr>
+            <p style='font-size: 12px; color: #777;'>
+                This email was sent to $vendor->owner_email. If you did not subscribe or renew a plan on our platform, please ignore this message.
+            </p>";
+
+            Mail::to($vendor->owner_email)->queue(new CommonMail($array));
+            return redirect()->route('vendor.membership-plan')->with('success', __('frontend.subscription_success'));
+        }    
+    }
+
+    public function purchaseSuccess(Request $request)
+    {
+        $paymentReference = $request->query('ref') ?? NULL;
+        $token = getAccessToken();
+
+        $baseUrl = config('services.ngenius.base_url');
+        $outletRef = config('services.ngenius.outlet_ref');
+
+        $response = Http::withToken($token)->get("{$baseUrl}/transactions/outlets/" . $outletRef . "/orders/{$paymentReference}");
+        $data = $response->json();
+
+        $orderRef = $data['merchantOrderReference'] ?? NULL;
+        $subscriptionData = explode('--', $orderRef);
+
+        $vendorID = $subscriptionData[0];
+
+        $status = $data['_embedded']['payment'][0]['state'] ?? null;
+        $paid_amount = $data['_embedded']['payment'][0]['amount']['value'] ?? 0;
+
+        $paidAmount = ($paid_amount != 0) ? $paid_amount / 100 : 0;
+        $vendor = Vendor::findOrFail($vendorID);
+
+        if ($status === 'PURCHASED' || $status === 'CAPTURED') {
+            $subscription = VendorSubscription::where('vendor_id', $vendorID)->where('status', 'pending')->first();
+            if ($subscription) {
+                $subscription->status = 'active';
+                $subscription->subscription_start = now();
+                $subscription->subscription_end = now()->addYear();
+                $subscription->amount = $paidAmount;
+                $subscription->save();
+            }
+
+            $plan = MembershipPlan::findOrFail($subscription->membership_plan_id);
+            $amount = $plan->plain_amount ?? 0;
+            $vatPercent = $plan->vat_amount ?? 0;
+
+            $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
+
+            $user_id = $vendor->user_id;
+            $user = User::find($user_id);
+
+            $invoice = Invoice::create([
+                'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                'billable_type' => User::class,
+                'billable_id' => $user->id,
+                'amount' => $plan->plain_amount,
+                'tax' => $vatValue,
+                'total' => $plan->amount,
+                'paid_at' => now(),
+            ]);
+
+            // 2. Generate PDF
+            $pdfPath = InvoiceService::generate(
+                $invoice,
+                $user,
+                'Membership Plan Fee'
+            );
+
+            $array['invoice_path'] = $pdfPath;
+            $array['subject'] = 'Subscription Successful - ' . env('APP_NAME', 'Justyta');
+            $array['from'] = env('MAIL_FROM_ADDRESS');
+            $array['content'] = "Hi $vendor->owner_name, 
+
+            <p>Congratulations! Your subscription has been successfully updated on " . env('APP_NAME') . ".</p>
+
+            <p>Here are your subscription details:</p>
+
+            <ul>
+                <li><strong>Firm Name:</strong> $vendor->law_firm_name</li>
+                <li><strong>Registered Email:</strong> $vendor->owner_email</li>
+                <li><strong>Plan:</strong> $plan->title</li>
+                <li><strong>Plan Start Date:</strong> " . \Carbon\Carbon::parse(now())->format('d M, Y') . "</li>
+                <li><strong>Plan Expiry Date:</strong> " . \Carbon\Carbon::parse(now()->addYear())->format('d M, Y') . "</li>
+                <li><strong>Paid Amount:</strong> " . env('APP_CURRENCY', 'AED') . " " . number_format($subscription->amount, 2) . " (Including VAT " . env('APP_CURRENCY', 'AED') . " " . number_format($vatValue, 2) . ")</li>
+            </ul>
+
+            <p>Thank you for choosing " . env('APP_NAME') . ". We are excited to continue supporting your law firm!</p>
+
+            <hr>
+            <p style='font-size: 12px; color: #777;'>
+                This email was sent to $vendor->owner_email. If you did not subscribe or renew a plan on our platform, please ignore this message.
+            </p>";
+
+            Mail::to($vendor->owner_email)->queue(new CommonMail($array));
+            return redirect()->route('vendor.membership-plan')->with('success', __('frontend.subscription_success'));
+        } else {
+            $lastPlanStatus = $vendor->latestSubscription?->status;
+
+            if ($lastPlanStatus == 'pending') {
+                $vendor->latestSubscription->delete();
+            }
+            $vendor->refresh();
+            $latestPlan = $vendor->latestSubscription;
+            if ($latestPlan && ($latestPlan->status == 'expired')) {
+                if ($latestPlan->subscription_end && Carbon::parse($latestPlan->subscription_end)->isPast()) {
+                    $latestPlan->update(['status' => 'expired']);
+                }else{
+                    $latestPlan->update(['status' => 'active']);
+                }
+            }
+
+            session()->flash('error',  __("frontend.subscription_failed"));
+            return redirect()->route('vendor.membership-plan');
+        }
+    }
+
+    public function purchaseCancel(Request $request)
+    {
+        $ref = $request->get('ref');
+
+        if (!$ref) {
+            return redirect()->route('frontend.login');
+        }
+        $subscription = VendorSubscription::where('payment_reference', $ref)->first();
+
+        if ($subscription) {
+            $vendorID = $subscription->vendor_id;
+
+            $vendor = Vendor::find($vendorID);
+            $lastPlanStatus = $vendor->latestSubscription?->status;
+
+            if ($lastPlanStatus == 'pending') {
+                $vendor->latestSubscription->delete();
+            }
+            $vendor->refresh();
+            $latestPlan = $vendor->latestSubscription;
+            if ($latestPlan && ($latestPlan->status == 'expired')) {
+                if ($latestPlan->subscription_end && Carbon::parse($latestPlan->subscription_end)->isPast()) {
+                    $latestPlan->update(['status' => 'expired']);
+                }else{
+                    $latestPlan->update(['status' => 'active']);
+                }
+            }
+        }
+        session()->flash('error',  __("frontend.subscription_failed"));
+        return redirect()->route('vendor.membership-plan');
+    }
+
 
     public function account()
     {
@@ -81,20 +332,20 @@ class VendorHomeController extends Controller
             //             ->where('user_type', 'vendor'),
             //     ],
             'owner_phone' => 'required|string|max:20',
-            'logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:200',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:102400',
             'emirate_id' => 'required',
             'country' => 'nullable|string|max:255',
             'password' => 'nullable|string|min:6|confirmed',
-            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             'trade_license_expiry' => 'required|date',
-            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
-            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
+            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             'emirates_id_expiry' => 'required|date',
-            // 'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            // 'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             // 'residence_visa_expiry' => 'required|date',
-            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             'passport_expiry' => 'required|date',
-            'card_of_law' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'card_of_law' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             'card_of_law_expiry' => 'required|date'
         ],[
             '*.required' => 'This field is required.',
@@ -443,7 +694,6 @@ class VendorHomeController extends Controller
                     'required',
                     'email',
                     Rule::unique('users', 'email')
-                        ->where('user_type', 'lawyer'),
                 ],
             'phone' => 'required|string|max:20',
             'emirate_id' => 'required|string',
@@ -458,12 +708,12 @@ class VendorHomeController extends Controller
             'bar_card_expiry' => 'required|date',
             'ministry_of_justice_card_expiry' => 'required|date',
             'password' => 'required|string|min:6|confirmed',
-            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf',
-            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf',
-            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp',
-            'bar_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp',
-            'ministry_of_justice_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp',
-            'photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp'
+            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'bar_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'ministry_of_justice_card' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp|max:102400'
         ],[
             '*.required' => __('frontend.this_field_required'),
         ]);
@@ -518,6 +768,11 @@ class VendorHomeController extends Controller
                     ]);
                 }
             }
+
+            $emirates = [
+                $request->emirate_id => ['priority' => 1], // Home
+            ];
+            $lawyer->emirates()->sync($emirates);
 
             $dropdowns = collect([
                 'specialities' => $request->specialities,
@@ -580,12 +835,12 @@ class VendorHomeController extends Controller
             'bar_card_expiry' => 'required|date',
             'ministry_of_justice_card_expiry' => 'required|date',
             'password' => 'nullable|string|min:6|confirmed',
-            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf',
-            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf',
-            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp',
-            'bar_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp',
-            'practicing_lawyer_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp',
-            'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp'
+            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,webp,png,svg,pdf|max:102400',
+            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'bar_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'practicing_lawyer_card' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp|max:102400'
         ],[
             '*.required' => __('frontend.this_field_required'),
         ]);
@@ -629,7 +884,7 @@ class VendorHomeController extends Controller
         ]);
 
         $user->lawyer()->save($lawyer);
-
+        
         foreach ($request->translations as $lang => $fields) {
             if (!empty($fields['name'])) {
                 $lawyer->translations()->updateOrCreate(
@@ -638,6 +893,11 @@ class VendorHomeController extends Controller
                 );
             }
         }
+
+        $emirates = [
+            $request->emirate_id => ['priority' => 1], // Home
+        ];
+        $lawyer->emirates()->sync($emirates);
 
         $dropdowns = collect([
             'specialities' => $request->specialities,
@@ -684,7 +944,7 @@ class VendorHomeController extends Controller
         
         $lawyer = Lawyer::with('lawfirm','user', 'emirate')->findOrFail($id);
         $userId = $lawyer->user?->id;
-        $totalHours = getTodaysActiveHours($userId);
+        $totalHours = getTotalActiveHours($userId);
     
         $specialityIds = $lawyer->dropdownOptions()->wherePivot('type', 'specialities')->pluck('dropdown_option_id')->toArray();
         $languageIds = $lawyer->dropdownOptions()->wherePivot('type', 'languages')->pluck('dropdown_option_id')->toArray();
@@ -941,8 +1201,8 @@ class VendorHomeController extends Controller
                     $requiredFiles[] = 'supporting_docs_any';
                 }
 
-                $validationRules['supporting_docs'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240';
-                $validationRules['supporting_docs_any'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240';
+                $validationRules['supporting_docs'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:102400';
+                $validationRules['supporting_docs_any'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:102400';
 
                 $customMessages['supporting_docs.file'] = __('frontend.supporting_docs_must_be_file');
                 $customMessages['supporting_docs.mimes'] = __('frontend.supporting_docs_invalid_type');
@@ -1772,5 +2032,20 @@ class VendorHomeController extends Controller
         $consultation = $assignment->consultation;
 
         return view('frontend.vendor.consultations.show', compact('consultation', 'assignment'));
+    }
+
+
+    public function getOnlineStatus()
+    {
+        $id = Auth::guard('frontend')->user()->vendor->id;
+        $lawyers = Lawyer::with('user')->where('lawfirm_id', $id)->get(['id', 'user_id']); // get the lawyers you want
+
+        $status = $lawyers->mapWithKeys(function($lawyer){
+            return [
+                $lawyer->id => $lawyer->user->is_online ? true : false
+            ];
+        });
+
+        return response()->json($status);
     }
 }

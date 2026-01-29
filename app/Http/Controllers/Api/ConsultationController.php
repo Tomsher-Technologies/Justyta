@@ -11,6 +11,11 @@ use App\Models\ConsultationPayment;
 use App\Models\Lawyer;
 use Illuminate\Support\Facades\Http;
 use App\Services\ZoomService;
+use App\Models\Invoice;
+use App\Services\InvoiceService;
+use App\Mail\CommonMail;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
 class ConsultationController extends Controller
 {
@@ -71,6 +76,7 @@ class ConsultationController extends Controller
         $consultation->update([
             'amount' => $total_amount,
             'admin_amount' => $admin_amount,
+            'platform' => 'mob',
             'lawyer_amount' => $lawyer_amount,
             'commission_percentage' => $commission
         ]);
@@ -143,6 +149,17 @@ class ConsultationController extends Controller
             $pageData = getPageDynamicContent('consultancy_payment_success',$lang);
             $waitingMessage = getPageDynamicContent('consultancy_waiting_page',$lang);
 
+            $ads = getActiveAd('online_consultation_waiting', 'mobile');
+            $banner = [];
+            if ($ads) {
+                $file = $ads->files->first();
+                $banner = [
+                    'file' => getUploadedFile($file->file_path),
+                    'file_type' => $file->file_type,
+                    'url' => $ads->cta_url
+                ];
+            }
+
             return response()->json([
                 'status' => true,
                 'message'=> $pageData['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
@@ -151,6 +168,7 @@ class ConsultationController extends Controller
                     'ref_code' => $consultation->ref_code ?? null,
                     'success_message' => $pageData['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
                     'waiting_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                    'banner' => $banner
                 ]
             ],200);
         }
@@ -208,8 +226,57 @@ class ConsultationController extends Controller
                     }
                 }
 
+                $user = User::find($consultation->user_id);
+            
+                $totalAmount = $consultation->amount;
+                $vatRate = 5;    
+
+                $subtotal = $totalAmount / (1 + ($vatRate / 100));
+                $tax = $totalAmount - $subtotal;
+
+                $invoice = Invoice::create([
+                    'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                    'billable_type' => Consultation::class,
+                    'billable_id' => $consultation->id,
+                    'amount' => $subtotal,
+                    'tax' => $tax,
+                    'total' => $totalAmount,
+                    'paid_at' => now(),
+                ]);
+
+                $pdfPath = InvoiceService::generate(
+                    $invoice,
+                    $user,
+                    'Online Consultation Request'
+                );
+
+                $array['subject'] =  'Your Online Consultation Request has been Submitted';
+                $array['from'] = env('MAIL_FROM_ADDRESS');
+                $array['content'] = "Hi $user->name, <p> Thank you for submitting your request.</p>
+
+                    <p>Reference Code: $consultation->ref_code</p>
+
+                    <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
+                    <p style='font-size: 12px; color: #777;'>
+                        This email was sent to $user->email. If you did not register on our platform, please ignore this message.
+                    </p>";
+
+                $array['invoice_path'] = $pdfPath;
+                Mail::to($user->email)->queue(new CommonMail($array));
+
                 // $pageData = getPageDynamicContent('consultancy_payment_success',$lang);
                 $waitingMessage = getPageDynamicContent('consultancy_waiting_page',$lang);
+
+                $ads = getActiveAd('online_consultation_waiting', 'mobile');
+                $banner = [];
+                if ($ads) {
+                    $file = $ads->files->first();
+                    $banner = [
+                        'file' => getUploadedFile($file->file_path),
+                        'file_type' => $file->file_type,
+                        'url' => $ads->cta_url
+                    ];
+                }
 
                 return response()->json([
                     'status' => true,
@@ -217,8 +284,10 @@ class ConsultationController extends Controller
                     'data' => [
                         'consultation_id' => $consultation->id ?? null,
                         'ref_code' => $consultation->ref_code ?? null,
+                        'duration' => $consultation->duration,
                         'success_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
                         'waiting_message' => $waitingMessage['content'] ?? __('frontend.lawyer_assigned_waiting_response'),
+                        'banner' => $banner
                     ]
                 ],200);
             }else{
@@ -305,6 +374,7 @@ class ConsultationController extends Controller
 
         $assignment->status = $request->action == 'accept' ? 'accepted' : 'rejected';
         $assignment->responded_at = now();
+        $assignment->platform = 'mob';
         $assignment->save();
 
         if($request->action == 'accept'){
@@ -327,25 +397,27 @@ class ConsultationController extends Controller
                 'data'=> [
                     'consultation_id' => $consultation->id,
                     'meeting_number' => $meetingNumber,
+                    'duration' => $consultation->duration,
                     'password'       => '',
                     'role'           => 1,
                     'sdk_key'        => config('services.zoom.sdk_key'),
                     'signature'      => $signature,
                 ]],200);
-        }
-
-        $lawyer->is_busy = 0;
-        $lawyer->save();
-
-        $nextLawyer = findBestFitLawyer($consultation);
-        if($nextLawyer){
-            assignLawyer($consultation, $nextLawyer->id);
-            return response()->json(['status'=> false, 'message'=>'Lawyer rejected, next lawyer assigned']);
         }else{
-            $consultation->status = 'rejected';
-            $consultation->save();
-            return response()->json(['status'=> false, 'message'=> __('frontend.rejected_no_lawyer_available')]);
+            $lawyer->is_busy = 0;
+            $lawyer->save();
+
+            $nextLawyer = findBestFitLawyer($consultation);
+            if($nextLawyer){
+                assignLawyer($consultation, $nextLawyer->id);
+                return response()->json(['status'=> false, 'message'=>'Lawyer rejected, next lawyer assigned']);
+            }else{
+                $consultation->status = 'rejected';
+                $consultation->save();
+                return response()->json(['status'=> false, 'message'=> __('frontend.rejected_no_lawyer_available')]);
+            }
         }
+
     }
 
     public function checkUserConsultationStatus(Request $request)
@@ -363,9 +435,22 @@ class ConsultationController extends Controller
         $signature = generateZoomSignature($meetingNumber, $userId, 0);
 
         if (!$consultation) {
+            $consultation = Consultation::where('id',$consultationId)->where('user_id', $userId)->first();
+
             return response()->json([
                 'status' => false,
                 'message' => 'No consultation found',
+                'data' => [
+                    'consultation_id' => $consultation->id ?? null,
+                    'status' => $consultation->status ?? null,
+                    'lawyer_id' => $consultation->lawyer_id ?? null,
+                    'meeting_number' => null,
+                    'duration' => $consultation->duration,
+                    'password'       => '',
+                    'role'           => 0,
+                    'sdk_key'        => null,
+                    'signature'      => null,
+                ],
             ], 200);
         }
         return response()->json([
@@ -376,6 +461,7 @@ class ConsultationController extends Controller
                 'status' => $consultation->status ?? null,
                 'lawyer_id' => $consultation->lawyer_id ?? null,
                 'meeting_number' => $meetingNumber,
+                'duration' => $consultation->duration,
                 'password'       => '',
                 'role'           => 0,
                 'sdk_key'        => config('services.zoom.sdk_key'),
@@ -455,7 +541,7 @@ class ConsultationController extends Controller
         $extendAmount = $data['amount'] ?? (float)($base->amount ?? 0);
         $currency = env('APP_CURRENCY', 'AED');
 
-        // $extendAmount =0; // For Testing
+        $extendAmount =0; // For Testing
         if ($extendAmount > 0) {
             $customer = [
                 'email' => $user->email,
@@ -514,7 +600,7 @@ class ConsultationController extends Controller
             'message' => __('frontend.consultation_extended_successfully'),
             'data' => [
                 'consultation_id' => $consultation->id,
-                'duration' => $consultation->duration,
+                'duration' => $data['duration'],
             ],
         ], 200);
     }
@@ -567,6 +653,44 @@ class ConsultationController extends Controller
                 $consultation->is_extended = 1;
                 $consultation->status = 'in_progress';
                 $consultation->save();
+
+                $user = User::find($consultation->user_id);
+            
+                $totalAmount = $paidAmount;
+                $vatRate = 5;    
+
+                $subtotal = $totalAmount / (1 + ($vatRate / 100));
+                $tax = $totalAmount - $subtotal;
+
+                $invoice = Invoice::create([
+                    'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                    'billable_type' => Consultation::class,
+                    'billable_id' => $consultation->id,
+                    'amount' => $subtotal,
+                    'tax' => $tax,
+                    'total' => $totalAmount,
+                    'paid_at' => now(),
+                ]);
+
+                $pdfPath = InvoiceService::generate(
+                    $invoice,
+                    $user,
+                    'Online Consultation Request'
+                );
+
+                $array['subject'] =  'Your Online Consultation Extend Request has been Submitted';
+                $array['from'] = env('MAIL_FROM_ADDRESS');
+                $array['content'] = "Hi $user->name, <p> Thank you for submitting your request for extending online consultation.</p>
+
+                    <p>Reference Code: $consultation->ref_code</p>
+
+                    <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
+                    <p style='font-size: 12px; color: #777;'>
+                        This email was sent to $user->email. If you did not register on our platform, please ignore this message.
+                    </p>";
+
+                $array['invoice_path'] = $pdfPath;
+                Mail::to($user->email)->queue(new CommonMail($array));
 
                 return response()->json([
                     'status' => true,

@@ -78,11 +78,13 @@ class VendorController extends Controller
             });
         }
 
+        $totalLawfirms = $query->count();
+
         $vendors = $query->orderBy('id', 'DESC')->paginate(15); 
 
         $plans = MembershipPlan::get();
 
-        return view('admin.vendors.index', compact('vendors', 'plans'));
+        return view('admin.vendors.index', compact('vendors', 'plans','totalLawfirms'));
     }
 
     public function create()
@@ -104,24 +106,23 @@ class VendorController extends Controller
                     'required',
                     'email',
                     Rule::unique('users', 'email')
-                        ->where('user_type', 'vendor'),
                 ],
             'owner_phone' => 'required|string|max:20',
-            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:200',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:102400',
             'emirate_id' => 'required',
             'country' => 'nullable|string|max:255',
             'subscription_plan_id' => 'required',
             'password' => 'required|string|min:6|confirmed',
-            'trade_license' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'trade_license' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'trade_license_expiry' => 'required|date',
-            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
-            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'emirates_id_expiry' => 'required|date',
-            'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'residence_visa_expiry' => 'nullable|date',
-            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'passport_expiry' => 'required|date',
-            'card_of_law' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'card_of_law' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'card_of_law_expiry' => 'required|date',
             'consultation_commission' => 'required'
         ],[
@@ -184,10 +185,16 @@ class VendorController extends Controller
                 );
             }
         }
+        $amount = $plan->plain_amount ?? 0;
+        $vatPercent = $plan->vat_amount ?? 0;
+
+        $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
+
         
         $vendor->subscriptions()->create([
             'membership_plan_id'                => $plan->id,
             'amount'                            => $plan->amount,
+            'vat_amount'                        => $vatValue,
             'member_count'                      => $plan->member_count,
             'job_post_count'                    => $plan->job_post_count,
             'en_ar_price'                       => $plan->en_ar_price,
@@ -229,24 +236,23 @@ class VendorController extends Controller
                     'email',
                     Rule::unique('users', 'email')
                         ->ignore($user->id)
-                        ->where('user_type', 'vendor'),
                 ],
             'owner_phone' => 'required|string|max:20',
-            'logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:200',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:102400',
             'emirate_id' => 'required',
             'country' => 'nullable|string|max:255',
             'subscription_plan_id' => 'required',
             'password' => 'nullable|string|min:6|confirmed',
-            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             'trade_license_expiry' => 'required|date',
-            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
-            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
+            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             'emirates_id_expiry' => 'required|date',
-            // 'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            // 'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             // 'residence_visa_expiry' => 'required|date',
-            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             'passport_expiry' => 'required|date',
-            'card_of_law' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:200',
+            'card_of_law' => 'nullable|file|mimes:jpg,jpeg,png,svg,webp,pdf|max:102400',
             'card_of_law_expiry' => 'required|date',
             'consultation_commission' => 'required'
         ],[
@@ -312,32 +318,67 @@ class VendorController extends Controller
 
         $plan = MembershipPlan::findOrFail($request->subscription_plan_id);
 
-        if (!$vendor->currentSubscription || $vendor->currentSubscription->membership_plan_id != $plan->id) {
-            
+        $amount = $plan->plain_amount ?? 0;
+        $vatPercent = $plan->vat_amount ?? 0;
+
+        $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
+
+        if($request->has('update_subscription') && $request->update_subscription == 1){
             if ($vendor->currentSubscription) {
-                $vendor->currentSubscription->update([
-                    'status' => 'expired',
-                    'subscription_end' => now(), 
+                if($vendor->currentSubscription->membership_plan_id != $plan->id){
+
+                    $vendor->currentSubscription->update([
+                        'status' => 'expired',
+                        // 'subscription_end' => now(), 
+                    ]);
+
+                    $vendor->subscriptions()->create([
+                        'membership_plan_id'                => $plan->id,
+                        'amount'                            => $plan->amount,
+                        'vat_amount'                        => $vatValue,
+                        'member_count'                      => $plan->member_count,
+                        'job_post_count'                    => $plan->job_post_count,
+                        'en_ar_price'                       => $plan->en_ar_price,
+                        'for_ar_price'                      => $plan->for_ar_price,
+                        'live_online'                       => $plan->live_online,
+                        'specific_law_firm_choice'          => $plan->specific_law_firm_choice,
+                        'annual_legal_contract'             => $plan->annual_legal_contract,
+                        'annual_free_ad_days'               => $plan->annual_free_ad_days,
+                        'unlimited_training_applications'   => $plan->unlimited_training_applications,
+                        'welcome_gift'                      => $plan->welcome_gift,
+                        'subscription_start'                => now(),
+                        'subscription_end'                  => now()->addYear(), 
+                        'status'                            => 'active',
+                    ]);
+                }
+            }else{
+                if ($vendor->latestSubscription && $vendor->latestSubscription->status != 'active' && $vendor->latestSubscription->status != 'expired') {
+                    $vendor->latestSubscription->update([
+                        'status' => 'cancelled',
+                        // 'subscription_start' => now(),
+                        // 'subscription_end' => now(), 
+                    ]);
+                }
+
+                $vendor->subscriptions()->create([
+                    'membership_plan_id'                => $plan->id,
+                    'amount'                            => $plan->amount,
+                    'vat_amount'                        => $vatValue,
+                    'member_count'                      => $plan->member_count,
+                    'job_post_count'                    => $plan->job_post_count,
+                    'en_ar_price'                       => $plan->en_ar_price,
+                    'for_ar_price'                      => $plan->for_ar_price,
+                    'live_online'                       => $plan->live_online,
+                    'specific_law_firm_choice'          => $plan->specific_law_firm_choice,
+                    'annual_legal_contract'             => $plan->annual_legal_contract,
+                    'annual_free_ad_days'               => $plan->annual_free_ad_days,
+                    'unlimited_training_applications'   => $plan->unlimited_training_applications,
+                    'welcome_gift'                      => $plan->welcome_gift,
+                    'subscription_start'                => now(),
+                    'subscription_end'                  => now()->addYear(), 
+                    'status'                            => 'active',
                 ]);
             }
-
-            $vendor->subscriptions()->create([
-                'membership_plan_id'                => $plan->id,
-                'amount'                            => $plan->amount,
-                'member_count'                      => $plan->member_count,
-                'job_post_count'                    => $plan->job_post_count,
-                'en_ar_price'                       => $plan->en_ar_price,
-                'for_ar_price'                      => $plan->for_ar_price,
-                'live_online'                       => $plan->live_online,
-                'specific_law_firm_choice'          => $plan->specific_law_firm_choice,
-                'annual_legal_contract'             => $plan->annual_legal_contract,
-                'annual_free_ad_days'               => $plan->annual_free_ad_days,
-                'unlimited_training_applications'   => $plan->unlimited_training_applications,
-                'welcome_gift'                      => $plan->welcome_gift,
-                'subscription_start'                => now(),
-                'subscription_end'                  => now()->addYear(), 
-                'status'                            => 'active',
-            ]);
         }
 
         session()->flash('success', 'Law Firm updated successfully.');

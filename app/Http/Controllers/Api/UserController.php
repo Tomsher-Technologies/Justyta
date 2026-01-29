@@ -231,6 +231,7 @@ class UserController extends Controller
                     $serviceName =  $slug && isset($serviceMap[$slug]) ? ($serviceMap[$slug][$lang] ?? $serviceMap[$slug][env('APP_LOCALE','en')] ?? $slug) : '';
 
                     return [
+                        'id'   => $notification->id,
                         'message'   => __($notification->data['message'], [
                                             'service'   => $serviceName,
                                             'reference' => $data['reference_code'],
@@ -289,6 +290,24 @@ class UserController extends Controller
             'message'   => __('messages.notifications_cleared_successfully')
         ], 200);
     }
+
+    public function deleteSelectedNotifications(Request $request)
+    {
+        $ids = $request->notification_ids ?? '';
+
+        $ids = explode(',', $ids);
+       
+        if (!empty($ids)) {
+            $user = $request->user();
+            $user->notifications()->whereIn('id', $ids)->delete();
+        }
+        
+        return response()->json([
+            'status'    => true,
+            'message'   => __('messages.selected_notifications_cleared_successfully')
+        ], 200);
+    }
+
 
     public function getUnreadNotificationCount(Request $request)
     {
@@ -801,7 +820,7 @@ class UserController extends Controller
             'start_date'        => 'required',
             'residency_status'  => 'required',
             'documents'         => 'nullable|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:10240',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'emirate_id.required'       => __('messages.emirate_required'),
             'position.required'         => __('messages.position_required'),
@@ -886,7 +905,8 @@ class UserController extends Controller
 
             UserOnlineLog::create([
                 'user_id' => $user->id,
-                'status'  => $request->is_online
+                'status'  => $request->is_online,
+                'platform' => 'mob'
             ]);
 
             if ($user->user_type === 'lawyer') {

@@ -49,7 +49,7 @@ class MembershipPlanController extends Controller
     {
         $request->validate([
             'translations.en.title' => 'required|string|max:255',
-            'icon' => 'required|image|mimes:png,jpg,jpeg,svg|max:2048',
+            'icon' => 'required|image|mimes:png,jpg,jpeg,svg|max:102400',
             'amount' => 'required|numeric',
             'member_count' => 'required|integer',
             'en_ar_price' => 'required|numeric',
@@ -119,8 +119,9 @@ class MembershipPlanController extends Controller
 
         $request->validate([
             'translations.en.title' => 'required|string|max:255',
-            'icon' => 'nullable|image|mimes:png,jpg,jpeg,svg|max:2048',
+            'icon' => 'nullable|image|mimes:png,jpg,jpeg,svg|max:102400',
             'amount' => 'required|numeric',
+            'vat_amount' => 'required|numeric',
             'member_count' => 'required|integer',
             // 'en_ar_price' => 'required|numeric',
             // 'for_ar_price' => 'required|numeric',
@@ -138,9 +139,17 @@ class MembershipPlanController extends Controller
             'translations.en.title.string' => 'The english title must be a valid text string.',
         ]);
 
-        $data = $request->only([
-            'amount', 'member_count', 'job_post_count', 'annual_free_ad_days', 'welcome_gift', 'live_online', 'specific_law_firm_choice', 'annual_legal_contract', 'unlimited_training_applications', 'is_active',
+        $data = $request->only([ 'member_count', 'job_post_count', 'annual_free_ad_days', 'welcome_gift', 'live_online', 'specific_law_firm_choice', 'annual_legal_contract', 'unlimited_training_applications', 'is_active',
         ]);
+
+        $amount = $request->amount ?? 0;
+        $vatPercent = $request->vat_amount ?? 0;
+
+        $vatValue = ($vatPercent != 0 && $amount != 0) ? ($amount * $vatPercent) / 100 : 0;
+        $data['amount'] = $amount + $vatValue;
+
+        $data['plain_amount'] = $request->amount ?? 0;
+        $data['vat_amount'] = $request->vat_amount ?? 0;
 
         if ($request->hasFile('icon')) {
             $iconPath = str_replace('/storage/', '', $plan->icon);

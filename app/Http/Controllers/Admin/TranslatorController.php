@@ -69,10 +69,11 @@ class TranslatorController extends Controller
             });
         }
 
+        $totalTranslators = $query->count();
         $translators = $query->orderBy('id', 'DESC')->paginate(15);
 
         $languages = TranslationLanguage::where('status', 1)->get();
-        return view('admin.translators.index', compact('translators', 'languages'));
+        return view('admin.translators.index', compact('translators', 'languages','totalTranslators'));
     }
 
     public function create()
@@ -89,22 +90,21 @@ class TranslatorController extends Controller
                     'required',
                     'email',
                     Rule::unique('users', 'email')
-                        ->where('user_type', 'translator'),
                 ],
             'phone' => 'required|string|max:20',
             'company_name' => 'nullable|string|max:255',
-            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:200',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:102400',
             'emirate_id' => 'required',
             'country' => 'required',
             'password' => 'required|string|min:6|confirmed',
-            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'trade_license_expiry' => 'nullable|date',
-            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
-            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'emirates_id_front' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'emirates_id_back' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'emirates_id_expiry' => 'required|date',
-            'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'residence_visa_expiry' => 'nullable|date',
-            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'passport' => 'required|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'passport_expiry' => 'required|date',
             'type' => 'required',
         ],[
@@ -176,22 +176,21 @@ class TranslatorController extends Controller
                     'email',
                     Rule::unique('users', 'email')
                         ->ignore($user->id)
-                        ->where('user_type', 'translator'),
                 ],
             'phone' => 'required|string|max:20',
             'company_name' => 'nullable|string|max:255',
-            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:200',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png|max:102400',
             'emirate_id' => 'required',
             'country' => 'required',
             'password' => 'nullable|string|min:6|confirmed',
-            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'trade_license' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'trade_license_expiry' => 'nullable|date',
-            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
-            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'emirates_id_front' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
+            'emirates_id_back' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'emirates_id_expiry' => 'required|date',
-            'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'residence_visa' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'residence_visa_expiry' => 'nullable|date',
-            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:200',
+            'passport' => 'nullable|file|mimes:jpg,jpeg,png,svg,pdf,webp|max:102400',
             'passport_expiry' => 'required|date',
             'type' => 'required',
         ],[

@@ -1,88 +1,115 @@
     <header class="container mx-auto mt-5 px-5">
         <div class="flex items-start justify-between md:justify-start">
-            <a href="{{ route('home') }}" >
-                <img src="{{ asset('assets/images/logo.png') }}"  class="hidden xl:block" alt="Logo" >
+            <a href="{{ route('home') }}">
+                <img src="{{ asset('assets/images/logo.png') }}" class="hidden xl:block" alt="Logo">
             </a>
-            <!-- TOP NAV -->
-<nav class="flex items-center justify-between px-0 xl:px-6 py-0 xl:py-4">
+            <nav class="flex items-center justify-between px-0 xl:px-6 py-0 xl:py-4">
 
-<!-- MOBILE MENU OPEN BUTTON -->
-<button id="btnMenuOpen" class="xl:hidden py-0 xl:py-2">
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none"
-        stroke="black" stroke-width="2">
-        <path d="M4 8h24M4 16h24M4 24h24"></path>
-    </svg>
-</button>
+                <button id="btnMenuOpen" class="xl:hidden py-0 xl:py-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none"
+                        stroke="black" stroke-width="2">
+                        <path d="M4 8h24M4 16h24M4 24h24"></path>
+                    </svg>
+                </button>
 
-<!-- MOBILE / DESKTOP MENU WRAPPER -->
-<div id="mobileNavPanel"
-    class="fixed xl:static top-0 left-0 h-full xl:h-auto w-64 xl:w-auto
+                <div id="mobileNavPanel"
+                    class="fixed xl:static top-0 left-0 h-full xl:h-auto w-64 xl:w-auto
            bg-white xl:bg-transparent shadow-xl xl:shadow-none
            transform -translate-x-full xl:translate-x-0
            transition-transform duration-300 p-10 xl:p-0 z-[9999]">
 
-    <!-- CLOSE BUTTON -->
-    <button id="btnMenuClose"
-        class="xl:hidden absolute top-4 right-4 text-2xl bg-white shadow p-2 rounded-full">
-        ✕
-    </button>
+                    <button id="btnMenuClose"
+                        class="xl:hidden absolute top-4 right-4 text-2xl bg-white shadow p-2 rounded-full">
+                        ✕
+                    </button>
 
-    <!-- MENU LIST -->
-    <ul id="navMenuList" class="flex flex-col xl:flex-row gap-8 font-cinzel font-bold text-[16px]">
-         <a href="{{ route('home') }}" >
-                <img src="{{ asset('assets/images/logo.png') }}"  class="block xl:hidden" width="80" alt="Logo" >
-            </a>
+                    <ul id="navMenuList" class="flex flex-col xl:flex-row gap-8 font-cinzel font-bold text-[16px]">
+                        <a href="{{ route('home') }}">
+                            <img src="{{ asset('assets/images/logo.png') }}" class="block xl:hidden" width="80" alt="Logo">
+                        </a>
 
-        <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.home') }}</a></li>
-        <li><a href="{{ route('aboutus') }}" class="text-[#07683B]">{{ __('frontend.about_us') }}</a></li>
-        <li><a href="{{ route('services') }}" class="text-[#07683B]">{{ __('frontend.services') }}</a></li>
-        <li><a href="{{ route('news') }}" class="text-[#07683B]">{{ __('frontend.news') }}</a></li>
-        <li><a href="{{ route('contactus') }}" class="text-[#07683B]">{{ __('frontend.contact') }}</a></li>
-    </ul>
-</div>
-
-</nav>
+                        <li><a href="{{ route('home') }}" class="text-[#07683B]">{{ __('frontend.home') }}</a></li>
+                        <li><a href="{{ route('aboutus') }}" class="text-[#07683B]">{{ __('frontend.about_us') }}</a></li>
+                        <li><a href="{{ route('services') }}" class="text-[#07683B]">{{ __('frontend.services') }}</a></li>
+                        <li><a href="{{ route('news') }}" class="text-[#07683B]">{{ __('frontend.news') }}</a></li>
+                        <li><a href="{{ route('contactus') }}" class="text-[#07683B]">{{ __('frontend.contact') }}</a></li>
+                    </ul>
+                </div>
+            </nav>
 
             <div class="flex md:flex items-center gap-4 ms-auto ">
-               
+
+                @guest('frontend')
                     <a href="{{ route('frontend.login') }}" class="bg-[#04502E] block text-[8px] xl:text-[16px] text-white px-4 xl:px-8 py-2 rounded-full w-auto ">
                         {{ __('frontend.sign_in') }}
-                        
+
                     </a>
-           <div x-data="{ open: false }" class="relative inline-block">
-    <!-- Button -->
-    <button @click="open = !open"
-        class="flex items-center gap-2 text-[#07683B] border text-[8px] xl:text-[16px] !border-[#07683B] px-4 xl:px-6 py-1 xl:py-2 rounded-full w-auto">
-        
-        {{ __('frontend.sign_up') }}
 
-        <!-- Arrow Icon -->
-        <svg :class="open ? 'rotate-180' : 'rotate-0'"
-            class="w-4 h-4 transition-transform duration-200"
-            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-                d="M19 9l-7 7-7-7" />
-        </svg>
-    </button>
+                    <div x-data="{ open: false }" class="relative inline-block">
+                        <button @click="open = !open"
+                            class="flex items-center gap-2 text-[#07683B] border text-[8px] xl:text-[16px] !border-[#07683B] px-4 xl:px-6 py-1 xl:py-2 rounded-full w-auto">
 
-    <!-- Dropdown -->
-    <div x-show="open" @click.away="open = false"
-        class="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-44 z-50 py-1">
+                            {{ __('frontend.sign_up') }}
 
-        <a href="{{ route('frontend.register') }}"
-            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-            {{ __('frontend.user_signup') }}
-        </a>
+                            <svg :class="open ? 'rotate-180' : 'rotate-0'"
+                                class="w-4 h-4 transition-transform duration-200"
+                                fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
 
-        <a href="{{ route('law-firm.register') }}"
-            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-             {{ __('frontend.lawfirm_signup') }}
-        </a>
+                        <div x-show="open" @click.away="open = false"
+                            class="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-44 z-50 py-1">
 
-    </div>
-</div>
+                            <a href="{{ route('frontend.register') }}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                {{ __('frontend.user_signup') }}
+                            </a>
 
-               
+                            <a href="{{ route('law-firm.register') }}"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                {{ __('frontend.lawfirm_signup') }}
+                            </a>
+
+                        </div>
+                    </div>
+                @endguest
+
+                @auth('frontend')
+                    @php
+                        $user = Auth::guard('frontend')->user();
+                   
+                        switch ($user->user_type) {
+                            case 'lawyer':
+                                $myaccountRoute = route('lawyer.dashboard');
+                                break;
+                            case 'vendor':
+                                $myaccountRoute = route('vendor.dashboard');
+                                break;
+                            case 'translator':
+                                $myaccountRoute = route('translator.dashboard');
+                                break;
+                            default:
+                                $myaccountRoute = route('user.dashboard');
+                                break;
+                        }
+                    @endphp     
+                    <a href="{{ $myaccountRoute }}" class="bg-[#04502E] block text-[8px] xl:text-[16px] text-white px-4 xl:px-8 py-2 rounded-full w-auto">
+                        {{ __('frontend.my_account') }}
+                    </a>
+
+                    <a href="{{ route('frontend.logout') }}" class="gap-2 text-[#07683B] border text-[8px] xl:text-[16px] !border-[#07683B] px-4 xl:px-6 py-1 xl:py-2 rounded-full w-auto">
+                        {{ __('frontend.sign_out') }}
+
+                    </a>
+                @endauth
+
+
+
+                
+
+
                 <div class="relative">
                     {{-- <button type="button"
                         class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
@@ -105,19 +132,19 @@
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
-                        <div id="langDropdown" class="hidden !transform translate-x-[-45px] translate-y-[35px] z-10 mt-2 w-28 divide-y bg-white divide-gray-100 rounded-lg shadow">
+                        <div id="langDropdown" class="hidden z-10 mt-2 w-15 divide-y bg-white divide-gray-100 rounded-lg shadow">
                             <ul class="py-2 text-sm text-gray-700" aria-labelledby="langDropdownBtn">
-                                <li><a href="{{ route('lang.switch', 'en') }}" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
-                                <li><a href="{{ route('lang.switch', 'ar') }}" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
-                                <li><a href="{{ route('lang.switch', 'fr') }}" class="block px-4 py-2 hover:bg-gray-100">FR</a></li>
-                                <li><a href="{{ route('lang.switch', 'fa') }}" class="block px-4 py-2 hover:bg-gray-100">FA</a></li>
-                                <li><a href="{{ route('lang.switch', 'ru') }}" class="block px-4 py-2 hover:bg-gray-100">RU</a></li>
-                                <li><a href="{{ route('lang.switch', 'zh') }}" class="block px-4 py-2 hover:bg-gray-100">ZH</a></li>
+                                <li><a href="{{ route('lang.switch', 'en') }}" onclick="localStorage.setItem('lang', 'en')" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
+                                <li><a href="{{ route('lang.switch', 'ar') }}" onclick="localStorage.setItem('lang', 'ar')" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
+                                <li><a href="{{ route('lang.switch', 'fr') }}" onclick="localStorage.setItem('lang', 'fr')" class="block px-4 py-2 hover:bg-gray-100">FR</a></li>
+                                <li><a href="{{ route('lang.switch', 'fa') }}" onclick="localStorage.setItem('lang', 'fa')" class="block px-4 py-2 hover:bg-gray-100">FA</a></li>
+                                <li><a href="{{ route('lang.switch', 'ru') }}" onclick="localStorage.setItem('lang', 'ru')" class="block px-4 py-2 hover:bg-gray-100">RU</a></li>
+                                <li><a href="{{ route('lang.switch', 'zh') }}" onclick="localStorage.setItem('lang', 'zh')" class="block px-4 py-2 hover:bg-gray-100">ZH</a></li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
-          
+
         </div>
     </header>

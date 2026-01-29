@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\App;
 use App\Notifications\ProblemReported;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\TrainingRequestSubmitted;
@@ -189,7 +190,7 @@ class UserController extends Controller
             'start_date'        => 'required',
             'residency_status'  => 'required',
             'documents'         => 'nullable|array',
-            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:1024',
+            'documents.*'       => 'file|mimes:pdf,jpg,jpeg,webp,png,svg,doc,docx|max:102400',
         ], [
             'emirate_id.required'       => __('messages.emirate_required'),
             'position.required'         => __('messages.position_required'),
@@ -259,7 +260,7 @@ class UserController extends Controller
         $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $keyword    = $request->has('keyword') ? $request->input('keyword') : NULL;
 
-        $query = JobPost::where('status', 1);
+        $query = JobPost::where('status', 1)->whereDate('deadline_date', '>=', Carbon::today());
 
         if (!empty($keyword)) {
             $query->where(function ($q) use ($keyword) {
@@ -299,32 +300,38 @@ class UserController extends Controller
             ->where('user_id', $user->id)
             ->exists();
 
-         $specialties = json_decode($job->specialties);
+        $specialties = json_decode($job->specialties);
 
         if ($specialties) {
-             $specialties = DropdownOption::with('translations')->whereIn('id', $specialties)->get();
+            $specialties = DropdownOption::with('translations')->whereIn('id', $specialties)->get();
 
             $specialties = $specialties->map(function ($item) {
                 return $item->getTranslatedName(app()->getLocale());
             });
         }
-       
+
+        if($job->years_of_experience != null){
+            $yearsExp = DropdownOption::with('translations')->where('id', $job->years_of_experience)->first();
+            if($yearsExp){
+                $job->years_of_experience = $yearsExp->getTranslatedName(app()->getLocale());
+            }
+        }
 
         $jobPost = [
-                    'id' => $job->id,
-                    'ref_no' => $job->ref_no,
-                    'type' => __('messages.' . $job->type),
-                    'title' => $job->getTranslation('title',$lang) ?? NULL,
-                    'description' => $job->getTranslation('description', $lang) ?? NULL,
-                    'salary' => $job->getTranslation('salary', $lang) ?? NULL,
-                    'location' => $job->location?->getTranslation('name', $lang) ?? NULL,
-                    'job_posted_date' => $job->job_posted_date,
-                    'deadline_date' => $job->deadline_date,
-                    'status' => $job->status,
-                    'no_of_vacancies' => $job->no_of_vacancies,
-                    'specialties' => $specialties,
-                    'years_of_experience' => $job->years_of_experience
-                ];
+            'id' => $job->id,
+            'ref_no' => $job->ref_no,
+            'type' => __('messages.' . $job->type),
+            'title' => $job->getTranslation('title', $lang) ?? NULL,
+            'description' => $job->getTranslation('description', $lang) ?? NULL,
+            'salary' => $job->getTranslation('salary', $lang) ?? NULL,
+            'location' => $job->location?->getTranslation('name', $lang) ?? NULL,
+            'job_posted_date' => $job->job_posted_date,
+            'deadline_date' => $job->deadline_date,
+            'status' => $job->status,
+            'no_of_vacancies' => $job->no_of_vacancies,
+            'specialties' => $specialties,
+            'years_of_experience' => $job->years_of_experience
+        ];
 
         return view('frontend.user.job-details', compact('lang', 'jobPost', 'hasApplied'));
     }
@@ -404,7 +411,7 @@ class UserController extends Controller
             'email'     => 'required',
             'phone'     => 'required',
             'position'  => 'required',
-            'resume'    => 'required|file|mimes:pdf,doc,docx|max:2048', // 2MB max
+            'resume'    => 'required|file|mimes:pdf,doc,docx|max:102400', // 2MB max
         ], [
             'full_name.required'    => __('messages.full_name_required'),
             'email.required'        => __('messages.email_required'),
@@ -483,7 +490,7 @@ class UserController extends Controller
             ];
         });
 
-        if($serviceSlug != 'online-live-consultancy') {
+        if ($serviceSlug != 'online-live-consultancy') {
             $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', auth('frontend')->id());
 
             if ($serviceSlug) {
@@ -501,13 +508,13 @@ class UserController extends Controller
             $serviceRequests = $query->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
 
             return view('frontend.user.service-history', compact('serviceRequests', 'mainServices', 'tab', 'lang', 'page', 'pageTitle'));
-        }else{
+        } else {
 
             $conQuery = Consultation::with(['user', 'lawyer', 'emirate'])->where('user_id', auth('frontend')->id())->where('request_success', 1);
-            
+
             $consultations = $conQuery->orderBy('created_at', 'desc')->paginate($perPage)->appends(['tab' => $serviceSlug]);
 
-            return view('frontend.user.consultation-history', compact('consultations','mainServices', 'tab', 'lang', 'page', 'pageTitle'));
+            return view('frontend.user.consultation-history', compact('consultations', 'mainServices', 'tab', 'lang', 'page', 'pageTitle'));
         }
     }
 
@@ -677,7 +684,7 @@ class UserController extends Controller
         $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $id             = base64_decode($id);
         $consultation   = Consultation::with('user', 'lawyer', 'emirate')->findOrFail($id);
-        
+
         return view('frontend.user.consultation_details', compact('consultation'));
     }
 
@@ -709,9 +716,11 @@ class UserController extends Controller
         $user->language = $request->language;
         $user->save();
 
-        session(['locale' => $user->language]);
+        Auth::guard('frontend')->setUser($user->fresh());
 
-        return redirect()->back()->with('success', __('frontend.profile_updated'));
+        session(['locale' => $request->language]);
+
+        return redirect()->route('user.my-account')->with('success', __('frontend.profile_updated'));
     }
 
     public function deleteAccount(Request $request)
@@ -867,7 +876,7 @@ class UserController extends Controller
 
     public function downloadServiceCompletedFiles($id)
     {
-        $user = Auth::user();
+        $user = Auth::guard('frontend')->user();
 
         $serviceRequest = ServiceRequest::findOrFail($id);
 

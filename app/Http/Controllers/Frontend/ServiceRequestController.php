@@ -60,6 +60,10 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use Carbon\Carbon;
+use App\Models\Invoice;
+use App\Services\InvoiceService;
+use App\Mail\CommonMail;
+use Illuminate\Support\Facades\Mail;
 
 class ServiceRequestController extends Controller
 {
@@ -68,7 +72,7 @@ class ServiceRequestController extends Controller
     {
         $language = $request->language;
         $caseType = $request->case_type;
-        $lang       = $request->header('lang') ?? env('APP_LOCALE', 'en');
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
         $lawyers = findAvailableLawyer($caseType, $language);
 
@@ -93,7 +97,7 @@ class ServiceRequestController extends Controller
             'duration' => 'required|numeric|min:1'
         ]);
 
-        $lang       = $request->header('lang') ?? env('APP_LOCALE', 'en');
+        $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
         $user       = auth()->guard('frontend')->user();
         $userId     = $user->id ?? null; 
 
@@ -114,7 +118,7 @@ class ServiceRequestController extends Controller
         $extendAmount = $data['amount'] ?? (float)($base->amount ?? 0);
         $currency = env('APP_CURRENCY', 'AED');
 
-        // $extendAmount =0; // For Testing
+        $extendAmount =0; // For Testing
         if ($extendAmount > 0) {
             $customer = [
                 'email' => $user->email,
@@ -201,7 +205,7 @@ class ServiceRequestController extends Controller
 
             $paidAmount = ($paid_amount != 0) ? $paid_amount/100 : 0;
         
-            $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+            $lang       = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
             $consultation = Consultation::findOrFail($consultationId);
 
@@ -231,6 +235,44 @@ class ServiceRequestController extends Controller
 
                 $message = __('frontend.consultation_extended_successfully');
                 $success = 1;
+
+                $user = User::find($consultation->user_id);
+            
+                $totalAmount = $paidAmount;
+                $vatRate = 5;    
+
+                $subtotal = $totalAmount / (1 + ($vatRate / 100));
+                $tax = $totalAmount - $subtotal;
+
+                $invoice = Invoice::create([
+                    'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                    'billable_type' => Consultation::class,
+                    'billable_id' => $consultation->id,
+                    'amount' => $subtotal,
+                    'tax' => $tax,
+                    'total' => $totalAmount,
+                    'paid_at' => now(),
+                ]);
+
+                $pdfPath = InvoiceService::generate(
+                    $invoice,
+                    $user,
+                    'Online Consultation Request'
+                );
+
+                $array['subject'] =  'Your Online Consultation Extend Request has been Submitted';
+                $array['from'] = env('MAIL_FROM_ADDRESS');
+                $array['content'] = "Hi $user->name, <p> Thank you for submitting your request for extending online consultation.</p>
+
+                    <p>Reference Code: $consultation->ref_code</p>
+
+                    <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
+                    <p style='font-size: 12px; color: #777;'>
+                        This email was sent to $user->email. If you did not register on our platform, please ignore this message.
+                    </p>";
+
+                $array['invoice_path'] = $pdfPath;
+                Mail::to($user->email)->queue(new CommonMail($array));
 
                 return view('frontend.user.service-requests.extend_success', compact('message','success'));
 
@@ -314,7 +356,7 @@ class ServiceRequestController extends Controller
     {
         $consultationId = $request->query('consultation_id');
         $consultantType  = $request->query('consultant_type');
-        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
         $timeslots = ConsultationDuration::where('status', 1)
             ->where('type', $consultantType)
@@ -336,8 +378,8 @@ class ServiceRequestController extends Controller
 
     public function getEmirates(Request $request)
     {
-        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
-
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
+        
         $litigation_type   = $request->litigation_type ?? NULL;
         $litigation_place   = $request->litigation_place ?? NULL;
         $service            = $request->service ?? NULL;
@@ -380,7 +422,7 @@ class ServiceRequestController extends Controller
 
     public function getCaseTypes(Request $request)
     {
-        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
         $litigation_type   = $request->litigation_type ?? NULL;
         $litigation_place   = $request->litigation_place ?? NULL;
@@ -436,7 +478,7 @@ class ServiceRequestController extends Controller
         
     public function getAnnualAgreementPrice(Request $request)
     {
-        $lang           = $request->header('lang') ?? env('APP_LOCALE', 'en');
+        $lang           = app()->getLocale() ?? env('APP_LOCALE', 'en');
 
         $calls          = $request->query('calls');
         $visits         = $request->query('visits');
@@ -1307,6 +1349,7 @@ class ServiceRequestController extends Controller
       
         $consultation->update([
             'amount' => $total_amount,
+            'platform' => 'web',
             'admin_amount' => $admin_amount,
             'lawyer_amount' => $lawyer_amount,
             'commission_percentage' => $commission
@@ -1416,6 +1459,44 @@ class ServiceRequestController extends Controller
                 }
             }
 
+            $user = User::find($consultation->user_id);
+            
+            $totalAmount = $consultation->amount;
+            $vatRate = 5;    
+
+            $subtotal = $totalAmount / (1 + ($vatRate / 100));
+            $tax = $totalAmount - $subtotal;
+
+            $invoice = Invoice::create([
+                'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                'billable_type' => Consultation::class,
+                'billable_id' => $consultation->id,
+                'amount' => $subtotal,
+                'tax' => $tax,
+                'total' => $totalAmount,
+                'paid_at' => now(),
+            ]);
+
+            $pdfPath = InvoiceService::generate(
+                $invoice,
+                $user,
+                'Online Consultation Request'
+            );
+
+            $array['subject'] =  'Your Online Consultation Request has been Submitted';
+            $array['from'] = env('MAIL_FROM_ADDRESS');
+            $array['content'] = "Hi $user->name, <p> Thank you for submitting your request.</p>
+
+                <p>Reference Code: $consultation->ref_code</p>
+
+                <p>Thank you for choosing " . env('APP_NAME') . ". </p><hr>
+                <p style='font-size: 12px; color: #777;'>
+                    This email was sent to $user->email. If you did not register on our platform, please ignore this message.
+                </p>";
+
+            $array['invoice_path'] = $pdfPath;
+            Mail::to($user->email)->queue(new CommonMail($array));
+
             return redirect()->route('user.consultation-payment.success', ['id' => base64_encode($consultation->id)]);
         }else{
             $consultation = Consultation::find($consultationId);
@@ -1427,7 +1508,7 @@ class ServiceRequestController extends Controller
         return redirect()->route('user.dashboard')->with('error', 'Payment failed or cancelled.');
     }
 
-    public function consultationCancelPayment(Request $request){
+    public function consultationPaymentCancel(Request $request){
         $ref = $request->get('ref'); 
 
         $servicePayment = ConsultationPayment::where('payment_reference', $ref)->first();
@@ -3448,6 +3529,23 @@ class ServiceRequestController extends Controller
                     ->where('installment_no', 1)->first();
                 $installment->status = 'paid';
                 $installment->save();
+
+                $totalAmount = $paidAmount;
+                $vatRate = 5;    
+
+                $subtotal = $totalAmount / (1 + ($vatRate / 100));
+                $tax = $totalAmount - $subtotal;
+
+            }else{
+                if($serviceRequest->service_slug === 'legal-translation'){
+                    $totalAmount = $legalTranslation->total_amount;
+                    $tax = $legalTranslation->tax;
+                    $subtotal = $legalTranslation->total_amount - $legalTranslation->tax;
+                }else{
+                    $totalAmount = $serviceRequest->amount;
+                    $tax = $serviceRequest->tax;
+                    $subtotal = $serviceRequest->service_fee + $serviceRequest->govt_fee;
+                }
             }
 
             ServiceRequestTimeline::create([
@@ -3456,10 +3554,28 @@ class ServiceRequestController extends Controller
                 'status'             => "pending",
             ]);
 
-            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest));
+            $user = User::find($serviceRequest->user_id);
+            $service = Service::find($serviceRequest->service_id);
+            $invoice = Invoice::create([
+                'invoice_no' => 'INV-' . now()->format('Ymd') . rand(1000,9999),
+                'billable_type' => ServiceRequest::class,
+                'billable_id' => $serviceRequest->id,
+                'amount' => $subtotal,
+                'tax' => $tax,
+                'total' => $totalAmount,
+                'paid_at' => now(),
+            ]);
+
+            $pdfPath = InvoiceService::generate(
+                $invoice,
+                $user,
+                $service?->name ?? 'Service Request'
+            );
+
+            Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest, false, $pdfPath));
 
             $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
-            Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
+            Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true, $pdfPath));
 
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         } else {
@@ -3673,8 +3789,8 @@ class ServiceRequestController extends Controller
                     $requiredFiles[] = 'supporting_docs_any';
                 }
 
-                $validationRules['supporting_docs'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240';
-                $validationRules['supporting_docs_any'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:10240';
+                $validationRules['supporting_docs'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:102400';
+                $validationRules['supporting_docs_any'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:102400';
 
                 $customMessages['supporting_docs.file'] = __('frontend.supporting_docs_must_be_file');
                 $customMessages['supporting_docs.mimes'] = __('frontend.supporting_docs_invalid_type');

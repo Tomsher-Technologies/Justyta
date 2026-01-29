@@ -6,7 +6,8 @@
                     <span>Main menu</span>
                 </li>
                 <li class="">
-                    <a href="{{ route('admin.dashboard') }}" class="{{ areActiveRoutes(['admin.dashboard','admin.service-sales']) }}">
+                    <a href="{{ route('admin.dashboard') }}"
+                        class="{{ areActiveRoutes(['admin.dashboard', 'admin.service-sales']) }}">
                         <span data-feather="home" class="nav-icon"></span>
                         <span class="menu-text">Dashboard</span>
                     </a>
@@ -16,7 +17,7 @@
                 @can('manage_service')
                     <li class="">
                         <a href="{{ route('services.index') }}"
-                            class="{{ areActiveRoutes(['services.index', 'services.edit','expert-pricing.index','expert-pricing.create','expert-pricing.edit','request-pricing.index','request-pricing.create','request-pricing.edit']) }}">
+                            class="{{ areActiveRoutes(['services.index', 'services.edit', 'expert-pricing.index', 'expert-pricing.create', 'expert-pricing.edit', 'request-pricing.index', 'request-pricing.create', 'request-pricing.edit']) }}">
                             <span data-feather="layers" class="nav-icon"></span>
                             <span class="menu-text">Services</span>
                         </a>
@@ -98,8 +99,10 @@
                 @endcan
 
                 @can('manage_translators')
-                    <li class="has-child {{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index','default-translators.history','translators.default','translator-pricing.create','translator-pricing.edit','translator-pricing']) }}">
-                        <a href="#" class="{{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index','default-translators.history','translators.default','translator-pricing.create','translator-pricing.edit','translator-pricing']) }}">
+                    <li
+                        class="has-child {{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index', 'default-translators.history', 'translators.default', 'translator-pricing.create', 'translator-pricing.edit', 'translator-pricing']) }}">
+                        <a href="#"
+                            class="{{ areActiveRoutes(['translators.create', 'translators.edit', 'translators.index', 'default-translators.history', 'translators.default', 'translator-pricing.create', 'translator-pricing.edit', 'translator-pricing']) }}">
                             {{-- <span data-feather="users" class="nav-icon"></span> --}}
                             <i class="las la-language nav-icon"></i>
                             <span class="menu-text">Translators</span>
@@ -114,12 +117,12 @@
                             @endcan
 
                             <li>
-                                <a class="{{ areActiveRoutes(['translators.edit', 'translators.index','translator-pricing.create','translator-pricing.edit','translator-pricing']) }}"
+                                <a class="{{ areActiveRoutes(['translators.edit', 'translators.index', 'translator-pricing.create', 'translator-pricing.edit', 'translator-pricing']) }}"
                                     href="{{ route('translators.index') }}">All Translators</a>
                             </li>
                             @can('default_translator')
                                 <li>
-                                    <a class="{{ areActiveRoutes(['translators.default','default-translators.history']) }}"
+                                    <a class="{{ areActiveRoutes(['translators.default', 'default-translators.history']) }}"
                                         href="{{ route('translators.default') }}">Set Default Translator</a>
                                 </li>
                             @endcan
@@ -127,15 +130,24 @@
                     </li>
                 @endcan
 
+                @can('manage_users')
+                    <li class="">
+                        <a href="{{ route('users.index') }}" class="{{ areActiveRoutes(['users.index']) }}">
+                            <span data-feather="users" class="nav-icon"></span>
+                            <span class="menu-text">Users</span>
+                        </a>
+                    </li>
+                @endcan
+
                 @can('manage_service_requests')
                     <li class="menu-title m-top-10">
-                        <span>Reports</span> 
+                        <span>Reports</span>
                     </li>
 
                     @can('manage_service_requests')
                         <li class="">
                             <a href="{{ route('service-requests.index') }}"
-                                class="{{ areActiveRoutes(['service-requests.index','service-request-details']) }}">
+                                class="{{ areActiveRoutes(['service-requests.index', 'service-request-details']) }}">
                                 <span data-feather="list" class="nav-icon"></span>
                                 <span class="menu-text">Service Requests</span>
                             </a>
@@ -145,7 +157,7 @@
                     @can('manage_consultation_requests')
                         <li class="">
                             <a href="{{ route('consultations.index') }}"
-                                class="{{ areActiveRoutes(['consultations.index','consultations.show']) }}">
+                                class="{{ areActiveRoutes(['consultations.index', 'consultations.show']) }}">
                                 <span class="las la-video nav-icon"></span>
 
                                 <span class="menu-text">Online Consultations</span>
@@ -156,7 +168,7 @@
                     @can('manage_translation_requests')
                         <li class="">
                             <a href="{{ route('legal-translation-requests.index') }}"
-                                class="{{ areActiveRoutes(['legal-translation-requests.index','translation-request-details']) }}">
+                                class="{{ areActiveRoutes(['legal-translation-requests.index', 'translation-request-details']) }}">
                                 <span class="las la-language nav-icon"></span>
                                 <span class="menu-text">Legal Translation Requests</span>
                             </a>
@@ -176,7 +188,7 @@
 
                 @can('manage_user_feedbacks')
                     <li class="menu-title m-top-10">
-                        <span>User Feedbacks</span> 
+                        <span>User Feedbacks</span>
                     </li>
                     @can('user_contacts')
                         <li class="">
@@ -206,19 +218,17 @@
                         </li>
                     @endcan
                 @endcan
-               
 
-                @canany(['manage_plan', 'manage_dropdown_option','manage_ads'])
+
+                @canany(['manage_plan', 'manage_dropdown_option', 'manage_ads'])
                     <li class="menu-title m-top-10">
-                        <span>Settings</span> 
+                        <span>Settings</span>
                     </li>
 
                     @can('manage_ads')
-                        <li
-                            class="has-child {{ areActiveRoutes(['ads.create', 'ads.edit', 'ads.index']) }}">
-                            <a href="#"
-                                class="{{ areActiveRoutes(['ads.create', 'ads.edit', 'ads.index']) }}">
-                              
+                        <li class="has-child {{ areActiveRoutes(['ads.create', 'ads.edit', 'ads.index']) }}">
+                            <a href="#" class="{{ areActiveRoutes(['ads.create', 'ads.edit', 'ads.index']) }}">
+
                                 <span data-feather="tv" class="nav-icon"></span>
                                 <span class="menu-text">Ads</span>
                                 <span class="toggle-icon"></span>
@@ -226,8 +236,8 @@
                             <ul>
                                 @can('add_ads')
                                     <li>
-                                        <a class="{{ areActiveRoutes(['ads.create']) }}"
-                                            href="{{ route('ads.create') }}">Add Ad</a>
+                                        <a class="{{ areActiveRoutes(['ads.create']) }}" href="{{ route('ads.create') }}">Add
+                                            Ad</a>
                                     </li>
                                 @endcan
 
@@ -242,7 +252,7 @@
                     @can('manage_plan')
                         <li class="">
                             <a href="{{ route('membership-plans.index') }}"
-                                class="{{ areActiveRoutes(['membership-plans.edit', 'membership-plans.index','plan-pricing.create','plan-pricing.edit','plan-pricing']) }}">
+                                class="{{ areActiveRoutes(['membership-plans.edit', 'membership-plans.index', 'plan-pricing.create', 'plan-pricing.edit', 'plan-pricing']) }}">
                                 <i class="las la-dollar-sign nav-icon"></i>
                                 <span class="menu-text">Membership Plans</span>
                             </a>
@@ -250,9 +260,10 @@
                     @endcan
 
                     @can('manage_dropdown_option')
-                        <li class="has-child {{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index', 'document-types.index','free-zones.index','contract-types.index','court-requests.index','public-prosecutions.index','license-types.index','countries.index','emirates.index','case-types.index','request-types.index','request-titles.index']) }}">
+                        <li
+                            class="has-child {{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index', 'document-types.index', 'free-zones.index', 'contract-types.index', 'court-requests.index', 'public-prosecutions.index', 'license-types.index', 'countries.index', 'emirates.index', 'case-types.index', 'request-types.index', 'request-titles.index']) }}">
                             <a href="#"
-                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index','document-types.index','free-zones.index','contract-types.index','court-requests.index','public-prosecutions.index','license-types.index','countries.index','emirates.index','case-types.index','request-types.index','request-titles.index']) }}">
+                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index', 'document-types.index', 'free-zones.index', 'contract-types.index', 'court-requests.index', 'public-prosecutions.index', 'license-types.index', 'countries.index', 'emirates.index', 'case-types.index', 'request-types.index', 'request-titles.index']) }}">
                                 <span data-feather="list" class="nav-icon"></span>
                                 <span class="menu-text">Dropdown Contents</span>
                                 <span class="toggle-icon"></span>
@@ -281,8 +292,8 @@
 
                                 {{-- <li>
                                     <a class="{{ areActiveRoutes(['court-requests.index']) }}"
-                                        href="{{ route('court-requests.index') }}">Court Requests</a>
-                                </li> --}}
+                        href="{{ route('court-requests.index') }}">Court Requests</a>
+                </li> --}}
 
                                 <li>
                                     <a class="{{ areActiveRoutes(['document-types.index']) }}"
@@ -301,11 +312,11 @@
 
                                 {{-- <li>
                                     <a class="{{ areActiveRoutes(['public-prosecutions.index']) }}"
-                                        href="{{ route('public-prosecutions.index') }}">Public Prosecution Types</a>
-                                </li> --}}
+                href="{{ route('public-prosecutions.index') }}">Public Prosecution Types</a>
+                </li> --}}
 
                                 <li>
-                                    <a class="{{ areActiveRoutes(['request-types.index','request-titles.index']) }}"
+                                    <a class="{{ areActiveRoutes(['request-types.index', 'request-titles.index']) }}"
                                         href="{{ route('request-types.index') }}">Request Types & Titles</a>
                                 </li>
 
@@ -327,32 +338,39 @@
                     {{-- @can('update_header')
                         <li class="">
                             <a href="{{ route('dropdowns.index') }}"
-                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index']) }}">
-                                <span data-feather="list" class="nav-icon"></span>
-                                <span class="menu-text">Header</span>
-                            </a>
+            class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index']) }}">
+            <span data-feather="list" class="nav-icon"></span>
+            <span class="menu-text">Header</span>
+            </a>
 
-                        </li>
-                    @endcan
+            </li>
+            @endcan
 
-                    @can('update_footer')
-                        <li class="">
-                            <a href="{{ route('dropdowns.index') }}"
-                                class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index']) }}">
-                                <span data-feather="list" class="nav-icon"></span>
-                                <span class="menu-text">Footer</span>
-                            </a>
+            @can('update_footer')
+            <li class="">
+                <a href="{{ route('dropdowns.index') }}"
+                    class="{{ areActiveRoutes(['dropdowns.index', 'dropdown-options.index']) }}">
+                    <span data-feather="list" class="nav-icon"></span>
+                    <span class="menu-text">Footer</span>
+                </a>
 
-                        </li>
-                    @endcan --}}
+            </li>
+            @endcan --}}
 
                     @can('update_page_contents')
                         <li class="">
-                            <a href="{{ route('pages.index') }}" class="{{ areActiveRoutes(['pages.index', 'pages.edit']) }}">
+                            <a href="{{ route('pages.index') }}"
+                                class="{{ areActiveRoutes(['pages.index', 'pages.edit']) }}">
                                 <span data-feather="file-text" class="nav-icon"></span>
                                 <span class="menu-text">Page Contents</span>
                             </a>
+                        </li>
 
+                        <li class="">
+                            <a href="{{ route('menu-appearance') }}" class="{{ areActiveRoutes(['menu-appearance']) }}">
+                                <span data-feather="layout" class="nav-icon"></span>
+                                <span class="menu-text">Menu Appearance</span>
+                            </a>
                         </li>
                     @endcan
 
@@ -408,7 +426,8 @@
 
                     @can('manage_staff')
                         <li class="has-child {{ areActiveRoutes(['staffs.create', 'staffs.edit', 'staffs.index']) }}">
-                            <a href="#" class="{{ areActiveRoutes(['staffs.create', 'staffs.edit', 'staffs.index']) }}">
+                            <a href="#"
+                                class="{{ areActiveRoutes(['staffs.create', 'staffs.edit', 'staffs.index']) }}">
                                 {{-- <span data-feather="users" class="nav-icon"></span> --}}
                                 <i class="la la-user-lock nav-icon"></i>
                                 <span class="menu-text">Staffs</span>
@@ -430,8 +449,8 @@
                     @endcan
 
                     @can('manage_roles')
-                        <li class="has-child {{ areActiveRoutes(['roles.create', 'roles.edit', 'roles.index']) }}">
-                            <a href="#" class="{{ areActiveRoutes(['roles.create', 'roles.edit', 'roles.index']) }}">
+                        <li class="has-child {{ areActiveRoutes(['roles.create', 'role.edit', 'roles.index']) }}">
+                            <a href="#" class="{{ areActiveRoutes(['roles.create', 'role.edit', 'roles.index']) }}">
                                 <span data-feather="lock" class="nav-icon"></span>
                                 <span class="menu-text">Roles & Permissions</span>
                                 <span class="toggle-icon"></span>
@@ -445,7 +464,7 @@
                                     </li>
                                 @endcan
                                 <li>
-                                    <a class="{{ areActiveRoutes(['roles.edit', 'roles.index']) }}"
+                                    <a class="{{ areActiveRoutes(['role.edit', 'roles.index']) }}"
                                         href="{{ route('roles.index') }}">All Roles</a>
                                 </li>
                             </ul>

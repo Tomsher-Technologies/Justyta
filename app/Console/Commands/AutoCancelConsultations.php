@@ -22,37 +22,35 @@ class AutoCancelConsultations extends Command
      */
     public function handle()
     {
-        $oneMinuteAgo = Carbon::now()->subMinute();
+        $oneMinuteAgo = Carbon::now()->subMinute(1);
 
-        $pending = Consultation::whereIn('status', ['reserved','waiting_lawyer'])
-                                ->where('created_at', '<=', $oneMinuteAgo)
+        $expiredAssignments = ConsultationAssignment::where('status', 'assigned')
+                                ->where('assigned_at', '<=', $oneMinuteAgo)
+                                ->with('consultation')
                                 ->get();
 
-        foreach ($pending as $consultation) {
+        foreach ($expiredAssignments as $assignment) {
 
-            $assignment = ConsultationAssignment::where('consultation_id', $consultation->id)
-                                                ->where('status', 'assigned')
-                                                ->first();
+            $consultation = $assignment->consultation;
 
-            if (!$assignment) {
+            if (!$consultation) {
                 continue;
             }
 
             $assignment->update([
                 'status' => 'rejected',
-                'auto_rejection' => 1
+                'auto_rejection' => 1,
             ]);
 
             unreserveLawyer($assignment->lawyer_id);
 
             $nextLawyer = findBestFitLawyer($consultation);
-
+          
             if ($nextLawyer) {
                 assignLawyer($consultation, $nextLawyer->id);
                 $consultation->update([
                     'status' => 'waiting_lawyer'
                 ]);
-
             } else {
                 $consultation->update([
                     'status' => 'cancelled'

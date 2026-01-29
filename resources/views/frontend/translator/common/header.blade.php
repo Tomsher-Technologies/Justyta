@@ -1,10 +1,10 @@
 <nav class="grid grid-cols-2 gap-5 grid-cols-[2fr_1fr] items-center justify-between mb-5">
 
-<button id="openSidebar" class="xl:hidden py-3">
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="black" stroke-width="2">
-        <path d="M4 8h24M4 16h24M4 24h24"/>
-    </svg>
-</button>
+    <button id="openSidebar" class="xl:hidden py-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="black" stroke-width="2">
+            <path d="M4 8h24M4 16h24M4 24h24" />
+        </svg>
+    </button>
 
 
     <div class="relative hidden lg:block w-full">
@@ -13,7 +13,7 @@
     <div class="flex items-center justify-end gap-4 flex-row-reverse">
         <button type="button"
             class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
-             <a href="{{ route('translator.notifications.index') }}">
+            <a href="{{ route('translator.notifications.index') }}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="33" viewBox="0 0 28 33" fill="none">
                     <path
                         d="M18.6965 25.8946V27.0701C18.6965 28.3171 18.2012 29.513 17.3194 30.3948C16.4376 31.2765 15.2417 31.7719 13.9947 31.7719C12.7477 31.7719 11.5517 31.2765 10.67 30.3948C9.7882 29.513 9.29283 28.3171 9.29283 27.0701V25.8946M26.6074 23.5018C24.7208 21.1927 23.3888 20.0173 23.3888 13.6514C23.3888 7.82183 20.412 5.74493 17.9619 4.73623C17.6364 4.60252 17.3301 4.29543 17.2309 3.96116C16.8011 2.49844 15.5963 1.20984 13.9947 1.20984C12.3931 1.20984 11.1875 2.49918 10.7622 3.96263C10.663 4.30058 10.3566 4.60252 10.0312 4.73623C7.57812 5.7464 4.60419 7.81595 4.60419 13.6514C4.60052 20.0173 3.26857 21.1927 1.38195 23.5018C0.600268 24.4583 1.28498 25.8946 2.65219 25.8946H25.3445C26.7044 25.8946 27.3847 24.4539 26.6074 23.5018Z"
@@ -35,14 +35,14 @@
                     d="m1 1 4 4 4-4" />
             </svg>
         </button>
-        <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-32">
-            <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdownDefaultButton">
-                <li><a href="{{ route('lang.switch', 'en') }}" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
-                <li><a href="{{ route('lang.switch', 'ar') }}" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
-                <li><a href="{{ route('lang.switch', 'fr') }}" class="block px-4 py-2 hover:bg-gray-100">FR</a></li>
-                <li><a href="{{ route('lang.switch', 'fa') }}" class="block px-4 py-2 hover:bg-gray-100">FA</a></li>
-                <li><a href="{{ route('lang.switch', 'ru') }}" class="block px-4 py-2 hover:bg-gray-100">RU</a></li>
-                <li><a href="{{ route('lang.switch', 'zh') }}" class="block px-4 py-2 hover:bg-gray-100">ZH</a></li>
+        <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-15">
+            <ul class="py-2 text-sm text-gray-700" aria-labelledby="langDropdownBtn">
+                <li><a href="{{ route('lang.switch', 'en') }}" onclick="localStorage.setItem('lang', 'en')" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
+                <li><a href="{{ route('lang.switch', 'ar') }}" onclick="localStorage.setItem('lang', 'ar')" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
+                <li><a href="{{ route('lang.switch', 'fr') }}" onclick="localStorage.setItem('lang', 'fr')" class="block px-4 py-2 hover:bg-gray-100">FR</a></li>
+                <li><a href="{{ route('lang.switch', 'fa') }}" onclick="localStorage.setItem('lang', 'fa')" class="block px-4 py-2 hover:bg-gray-100">FA</a></li>
+                <li><a href="{{ route('lang.switch', 'ru') }}" onclick="localStorage.setItem('lang', 'ru')" class="block px-4 py-2 hover:bg-gray-100">RU</a></li>
+                <li><a href="{{ route('lang.switch', 'zh') }}" onclick="localStorage.setItem('lang', 'zh')" class="block px-4 py-2 hover:bg-gray-100">ZH</a></li>
             </ul>
         </div>
 
@@ -76,7 +76,7 @@
                     </h3>
                     <small class="text-[#353434] text-xs">{{ Auth::guard('frontend')->user()->email ?? null }}</small>
                 </div>
-               
+
             </a>
             <ul class="py-2 text-sm text-gray-700 mb-0" aria-labelledby="userDropdownButton">
                 <li>
@@ -98,19 +98,19 @@
                 </li>
                 {{-- <li>
                     <a href="{{ route('translator.service.pending') }}" class="flex items-center gap-2 py-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 27 29"
-                            fill="none">
-                            <path
-                                d="M1.57422 17.1878V11.76C1.57422 6.64288 1.57422 4.08365 3.16458 2.49465C4.75493 0.905654 7.3128 0.904297 12.4299 0.904297H15.1438C20.2609 0.904297 22.8201 0.904297 24.4091 2.49465C25.9981 4.08501 25.9995 6.64288 25.9995 11.76V17.1878C25.9995 22.3049 25.9995 24.8641 24.4091 26.4531C22.8188 28.0421 20.2609 28.0435 15.1438 28.0435H12.4299C7.3128 28.0435 4.75358 28.0435 3.16458 26.4531C1.57558 24.8628 1.57422 22.3049 1.57422 17.1878Z"
-                                stroke="#1C1C1C" stroke-width="1.5" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <path
-                                d="M12.8782 12.665C14.3098 14.0966 16.196 15.5512 16.196 15.5512L18.7796 12.9662C18.7796 12.9662 17.325 11.08 15.8947 9.64844C14.4618 8.21821 12.5756 6.76219 12.5756 6.76219L9.99196 9.3472C9.99196 9.3472 11.4466 11.2334 12.8782 12.665ZM12.8782 12.665L8.35547 17.1877M19.2111 12.5347L15.7645 15.9814M13.0098 6.33203L9.56316 9.77871M8.35547 22.6155H19.2111"
-                                stroke="#1C1C1C" stroke-width="1.5" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                        <span>{{ __('frontend.pending_service') }}</span>
-                    </a>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="23" viewBox="0 0 27 29"
+                    fill="none">
+                    <path
+                        d="M1.57422 17.1878V11.76C1.57422 6.64288 1.57422 4.08365 3.16458 2.49465C4.75493 0.905654 7.3128 0.904297 12.4299 0.904297H15.1438C20.2609 0.904297 22.8201 0.904297 24.4091 2.49465C25.9981 4.08501 25.9995 6.64288 25.9995 11.76V17.1878C25.9995 22.3049 25.9995 24.8641 24.4091 26.4531C22.8188 28.0421 20.2609 28.0435 15.1438 28.0435H12.4299C7.3128 28.0435 4.75358 28.0435 3.16458 26.4531C1.57558 24.8628 1.57422 22.3049 1.57422 17.1878Z"
+                        stroke="#1C1C1C" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path
+                        d="M12.8782 12.665C14.3098 14.0966 16.196 15.5512 16.196 15.5512L18.7796 12.9662C18.7796 12.9662 17.325 11.08 15.8947 9.64844C14.4618 8.21821 12.5756 6.76219 12.5756 6.76219L9.99196 9.3472C9.99196 9.3472 11.4466 11.2334 12.8782 12.665ZM12.8782 12.665L8.35547 17.1877M19.2111 12.5347L15.7645 15.9814M13.0098 6.33203L9.56316 9.77871M8.35547 22.6155H19.2111"
+                        stroke="#1C1C1C" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>{{ __('frontend.pending_service') }}</span>
+                </a>
                 </li>
                 <li>
                     <a href="{{ route('translator.service.history') }}" class="flex items-center gap-2 py-2">
@@ -134,7 +134,7 @@
                         <span>{{ __('frontend.payment_history') }}</span>
                     </a>
                 </li> --}}
-               
+
                 <li class="mt-10">
                     <a href="{{ route('frontend.logout') }}" class="flex items-center justify-between gap-2 py-2">
                         <span>{{ __('frontend.sign_out') }}</span>

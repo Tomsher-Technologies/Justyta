@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\WebsiteContentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\Auth\AuthController;
@@ -15,8 +16,10 @@ require __DIR__ . '/admin.php';
 Route::get('/', [HomeController::class, 'home'])->name('home');
 Route::get('/aboutus', [HomeController::class, 'aboutUs'])->name('aboutus');
 Route::get('/contactus', [HomeController::class, 'contactUs'])->name('contactus');
+Route::post('/contact-submit', [HomeController::class, 'contactSubmit'])->name('contact.submit');
 Route::get('/services', [HomeController::class, 'services'])->name('services');
 Route::get('/news', [HomeController::class, 'news'])->name('news');
+Route::get('/news/{id}', [HomeController::class, 'newsDetails'])->name('news.details');
 Route::get('/refund-policy', [HomeController::class, 'refundPolicy'])->name('refund-policy');
 Route::get('/privacy-policy', [HomeController::class, 'privacyPolicy'])->name('privacy-policy');
 Route::get('/terms-conditions', [HomeController::class, 'termsConditions'])->name('terms-conditions');
@@ -32,6 +35,9 @@ Route::post('/register', [AuthController::class, 'register'])->name('frontend.re
 Route::get('vendor-success-payment', [AuthController::class, 'purchaseSuccess'])->name('purchase-success');
 Route::get('vendor-cancel-payment', [AuthController::class, 'purchaseCancel'])->name('purchase-cancel');
 
+Route::get('plan-renew-success-payment', [VendorHomeController::class, 'purchaseSuccess'])->name('renew-purchase-success');
+Route::get('plan-renew-cancel-payment', [VendorHomeController::class, 'purchaseCancel'])->name('renew-purchase-cancel');
+
 // Vendor/Law firm registration
 Route::get('/law-firm-register', [AuthController::class, 'showLawfirmRegisterForm'])->name('law-firm.register');
 Route::post('/law-firm-register', [AuthController::class, 'registerLawfirm'])->name('law-firm.register.submit');
@@ -43,7 +49,6 @@ Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('otp.veri
 Route::get('/resend-otp', [AuthController::class, 'resendOtp'])->name('otp.resend');
 Route::get('/new-password', [AuthController::class, 'newPasswordForm'])->name('new-password');
 Route::post('/set-new-password', [AuthController::class, 'submitNewPassword'])->name('password.set.submit');
-
 
 Route::get('success-payment', [ServiceRequestController::class, 'paymentSuccess'])->name('successPayment');
 Route::get('cancel-payment', [ServiceRequestController::class, 'paymentCancel'])->name('cancelPayment');
@@ -60,6 +65,14 @@ Route::get('/consultation/status/{consultation}', [HomeController::class, 'statu
 // Protected Dashboards
 Route::prefix('lawyer')->middleware(['auth.frontend', 'checkFrontendUserType:lawyer'])->group(function () {
     Route::get('/dashboard', [LawyerController::class, 'lawyerDashboard'])->name('lawyer.dashboard');
+
+    Route::get('/dashboard/active-hours', function () {
+        return response()->json([
+            'seconds'   => getTodaysActiveSeconds(auth('frontend')->id()),
+            'is_online' => (bool) auth('frontend')->user()->is_online,
+        ]);
+    })->name('lawyer.dashboard.active.hours');
+
     Route::post('/user/change-online-status', [LawyerController::class, 'changeOnlineStatus'])->name('lawyer.changeOnlineStatus');
 
     Route::get('/profile', [LawyerController::class, 'lawyerProfile'])->name('lawyer.profile');
@@ -70,8 +83,8 @@ Route::prefix('lawyer')->middleware(['auth.frontend', 'checkFrontendUserType:law
     Route::get('/lawyer/video', [LawyerController::class, 'lawyerDashboard'])->name('web.lawyer.video');
     Route::get('/web/lawyer/poll', [LawyerController::class, 'poll'])->name('web.lawyer.poll');
     Route::post('/web/lawyer/response', [LawyerController::class, 'lawyerResponse'])->name('web.lawyer.response');
-    Route::get('/lawyer/consultation/ended', [LawyerController::class, 'endedCall'])->name('lawyer.consultation.ended');
-    
+    Route::get('/consultation/ended', [LawyerController::class, 'endedCall'])->name('lawyer.consultation.ended');
+
     // Consultation Requests
     Route::get('/consultations', [LawyerController::class, 'consultationsIndex'])->name('lawyer.consultations.index');
     Route::get('/consultations/{id}', [LawyerController::class, 'showConsultation'])->name('lawyer.consultations.show');
@@ -84,11 +97,18 @@ Route::prefix('vendor')->middleware(['auth.frontend', 'checkFrontendUserType:ven
     Route::get('/create-lawyer', [VendorHomeController::class, 'createLawyer'])->name('vendor.create.lawyers');
     Route::post('/store-lawyer', [VendorHomeController::class, 'storeLawyer'])->name('vendor.store.lawyers');
 
+    Route::get('/lawyers/online-status', [VendorHomeController::class, 'getOnlineStatus'])->name('lawyers.online-status');
+
+
     Route::get('/my-account', [VendorHomeController::class, 'account'])->name('vendor.my-account');
     Route::post('/update-profile', [VendorHomeController::class, 'updateProfile'])->name('vendor.update.profile');
     Route::delete('/account/delete', [VendorHomeController::class, 'deleteAccount'])->name('vendor.delete.account');
     Route::get('/change-password', [VendorHomeController::class, 'changePassword'])->name('vendor.change-password');
     Route::post('/update-password', [VendorHomeController::class, 'updateNewPassword'])->name('vendor.update-new-password');
+
+    Route::get('/membership-plan', [VendorHomeController::class, 'membershipPlan'])->name('vendor.membership-plan');
+    Route::post('/subscribe-plan/{id}', [VendorHomeController::class, 'subscribePlan'])->name('vendor.subscribe.plan');
+
 
     Route::get('/notifications', [VendorHomeController::class, 'notifications'])->name('vendor.notifications.index');
     Route::post('/notifications/clear', [VendorHomeController::class, 'clearAllNotifications'])->name('vendor.notifications.clear');
@@ -107,6 +127,8 @@ Route::prefix('vendor')->middleware(['auth.frontend', 'checkFrontendUserType:ven
     Route::get('/lawyer-details/{id}', [VendorHomeController::class, 'viewLawyer'])->name('vendor.view.lawyers');
 
     //Manage job posts
+
+
     Route::resource('jobs', VendorJobPostController::class);
     Route::post('/jobs/status', [VendorJobPostController::class, 'updateStatus'])->name('jobs.status');
     Route::get('/jobs/details/{id}', [VendorJobPostController::class, 'jobPostDetails'])->name('jobs.details');
@@ -164,7 +186,7 @@ Route::prefix('user')->middleware(['auth.frontend', 'checkFrontendUserType:user'
     Route::get('/user/video', [HomeController::class, 'userDashboard'])->name('web.user.video');
     Route::get('/web/user/check-consultation', [HomeController::class, 'checkUserConsultationStatus'])->name('web.user.check');
     Route::get('/user/consultation-cancel', [HomeController::class, 'consultationCancel'])->name('consultation.cancel');
-    
+
 
     Route::get('/services', [HomeController::class, 'services'])->name('user.services');
 
@@ -186,12 +208,12 @@ Route::prefix('user')->middleware(['auth.frontend', 'checkFrontendUserType:user'
     Route::post('/annual-agreement-request', [ServiceRequestController::class, 'requestAnnualAgreement'])->name('service.annual-agreement-request');
 
     Route::get('/online-live-consultancy', [ServiceRequestController::class, 'showConsultationForm'])->name('service.online.consultation');
-    Route::post('/request-consultation', [ServiceRequestController::class,'requestConsultation'])->name('service.request.consultation');
-    Route::get('/user/consultation/ended', [UserController::class, 'endedCall'])->name('user.consultation.ended');
+    Route::post('/request-consultation', [ServiceRequestController::class, 'requestConsultation'])->name('service.request.consultation');
+    Route::get('/consultation/ended', [UserController::class, 'endedCall'])->name('user.consultation.ended');
     Route::get('/consultation/timeslots', [ServiceRequestController::class, 'getTimeslots'])->name('consultation.timeslots');
     Route::get('/consultation/price', [ServiceRequestController::class, 'getPrice'])->name('consultation.price');
     Route::post('/consultation/extend/pay', [ServiceRequestController::class, 'extendPay'])->name('consultation.extend.pay');
-    Route::get('/consultation/payment-extend-success', [ServiceRequestController::class,'paymentExtendSuccess'])->name('consultation.payment-extend-success');
+    Route::get('/consultation/payment-extend-success', [ServiceRequestController::class, 'paymentExtendSuccess'])->name('consultation.payment-extend-success');
     Route::get('/consultation/payment-extend-cancel', [ServiceRequestController::class, 'paymentExtendCancel'])->name('consultation.payment-extend-cancel');
     Route::get('/consultation/payment-status', [ServiceRequestController::class, 'checkPayment'])->name('consultation.payment-status');
     Route::get('/get-available-lawyers', [ServiceRequestController::class, 'getAvailableLawyers'])->name('get.available.lawyers');
@@ -217,7 +239,7 @@ Route::prefix('user')->middleware(['auth.frontend', 'checkFrontendUserType:user'
     Route::get('/consultation-payment-success/{id}', [ServiceRequestController::class, 'consultationWaitingLawyer'])->name('user.consultation-payment.success');
     Route::get('/consultation-payment-cancel', [ServiceRequestController::class, 'consultationPaymentCancel'])->name('user.consultation-payment.cancel');
     Route::get('/consultation-payment-failed', [ServiceRequestController::class, 'consultationRequestFailed'])->name('user.payment-consultation-failed');
-    
+
 
     // Payment call back
     Route::get('/payment-callback/{order_id}', [ServiceRequestController::class, 'paymentSuccess'])->name('user.web-payment.callback');
@@ -267,7 +289,22 @@ Route::prefix('user')->middleware(['auth.frontend', 'checkFrontendUserType:user'
 });
 
 
+// Route::get('/debug-dev/test-mail', function () {
+//     $email = request('email');
+//     if (!$email) {
+//         return 'Please provide an email address via query parameter: /test-mail?email=your@email.com';
+//     }
 
+//     try {
+//         \Illuminate\Support\Facades\Mail::raw('This is a test email to verify SMTP settings.', function ($message) use ($email) {
+//             $message->to($email)
+//                 ->subject('SMTP Verification Test');
+//         });
+//         return 'Email sent successfully to ' . $email;
+//     } catch (\Exception $e) {
+//         return 'Failed to send email: ' . $e->getMessage();
+//     }
+// });
 
 Route::get('/lang/{lang}', function ($lang) {
     if (in_array($lang, ['en', 'ar', 'fr', 'fa', 'ru', 'zh'])) {

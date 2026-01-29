@@ -18,6 +18,8 @@ Route::middleware('set_api_locale')->group(function () {
         return 'test';
     });
 
+    Route::get('/test-push',  [AuthController::class, 'testPushNotification']);
+
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/user-register', [AuthController::class, 'register']);
     Route::post('/forget-password', [AuthController::class, 'forgetRequest']);
@@ -27,6 +29,9 @@ Route::middleware('set_api_locale')->group(function () {
     Route::get('/page-contents', [HomeController::class, 'pageContents']);
     Route::get('/banners', [HomeController::class, 'getBanners']);
     Route::post('/zoom/webhook', [HomeController::class, 'handleZoomWebhook']);
+   
+    //Contact US
+    Route::post('/contact-us', [HomeController::class, 'contactUs']);
 
 
     Route::middleware(['ensureFrontendRequestsAreStateful', 'auth:sanctum'])->group(function () {
@@ -56,9 +61,6 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/lawyer/dashboard', [LawyerController::class, 'dashboard']);
         Route::get('/lawyer/consultations', [LawyerController::class, 'assignedConsultations']);
         Route::get('/lawyer/account', [LawyerController::class, 'accountDetails']);
-
-        //Contact US
-        Route::post('/contact-us', [HomeController::class, 'contactUs']);
 
         // Job Posts
         Route::get('/job-posts', [JobPostController::class, 'index']); 
@@ -131,6 +133,7 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/notifications', [UserController::class, 'getGroupedUserNotifications']);
         Route::delete('/notifications/clear', [UserController::class, 'clearAllNotifications']);
         Route::get('/notifications/unread-count', [UserController::class, 'getUnreadNotificationCount']);
+        Route::post('/notifications/delete-selected', [UserController::class, 'deleteSelectedNotifications'])->name('notifications.delete.selected');
 
         //Training 
         Route::get('/training-data', [UserController::class, 'getTrainingFormData']);

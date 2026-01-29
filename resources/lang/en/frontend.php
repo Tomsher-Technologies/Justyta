@@ -402,17 +402,17 @@ return [
     'at_least_one_file_required' => 'Please upload at least one document (either Supporting Documents or Additional Documents).',
     'supporting_docs_must_be_file' => 'Supporting documents must be a valid file.',
     'supporting_docs_invalid_type' => 'Supporting documents must be PDF, JPG, JPEG, PNG, DOC, or DOCX.',
-    'supporting_docs_too_large' => 'Supporting documents must not exceed 10MB.',
+    'supporting_docs_too_large' => 'Supporting documents must not exceed 100MB.',
     'supporting_docs_any_must_be_file' => 'Additional documents must be a valid file.',
     'supporting_docs_any_invalid_type' => 'Additional documents must be PDF, JPG, JPEG, PNG, DOC, or DOCX.',
-    'supporting_docs_any_too_large' => 'Additional documents must not exceed 10MB.',
+    'supporting_docs_any_too_large' => 'Additional documents must not exceed 100MB.',
     'rejection_reason' => "Rejection Reason",
     'status_required' => 'Status is required.',
     'status_invalid' => 'Invalid status selected.',
     'reason_required_when_rejected' => 'Reason is required when rejecting the request.',
     'reason_must_be_text' => 'Reason must be text.',
     'file_invalid_type' => 'File must be of type: PDF, DOC, DOCX, JPG, JPEG, or PNG.',
-    'file_too_large' => 'File size must not exceed 10MB.',
+    'file_too_large' => 'File size must not exceed 100MB.',
     'job_post_limit_reached' => 'Job post limit based on your membership plan has reached.',
     'law_firm_services' => 'Law Firm Services',
     'online_consultation' => 'Online Consultation',
@@ -501,8 +501,6 @@ return [
     'special_welcome_gift' => 'Special Welcome Gift',
     'no_welcome_gift' => 'No Welcome Gift',
     'search_services' => 'Search Services...',
-
-
     'new_online_request' => 'New Consultation Request',
     'accept' => 'Accept',
     'reject' => 'Reject',
@@ -511,4 +509,26 @@ return [
     'max_select3' => 'You can select maximum 3 options.',
     'maxlength2' => 'Maximum 2 characters allowed.',
     'maxlength25' => 'Maximum 25 characters allowed.',
+    'maxlength15' => 'Maximum 15 characters allowed.',
+    'privacy_policy' => 'Privacy Policy',
+    'refund_policy' => 'Refund Policy',
+    'go_to_service' => 'Go to Service',
+    'file_size_info' => 'File upload allowed formats: PDF, JPG, JPEG, WEBP, PNG, SVG, DOC, DOCX • Max size: 100 MB',
+    'file_size_info_image' => 'File upload allowed formats: PDF, JPG, JPEG, WEBP, PNG, SVG • Max size: 100 MB',
+    'including_vat' => 'Including VAT',
+    'subscribe_now' => 'Subscribe Now',
+    'current_plan' => 'Current Plan',
+    'sdate' => 'Start Date',
+    'edate' => 'End Date',
+    'subscription_failed' => 'Subscription failed. Please try again.',
+    'subscription_success' => 'Subscription successful. Your plan is now active.',
+
+    'monthly' => 'Monthly',
+
+
+
+    'regular_consultation' => 'Regular Consultation',
+    'specialized_consultation' => 'Specialized Consultation',
+
+
 ];

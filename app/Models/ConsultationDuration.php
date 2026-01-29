@@ -10,7 +10,9 @@ class ConsultationDuration extends Model
 
     public function translations()
     {
-        return $this->hasMany(ConsultationDurationTranslation::class);
+        return $this->hasMany(
+            ConsultationDurationTranslation::class,'consultation_duration_id', 'id'  
+        );
     }
 
     public function translation($lang = null)

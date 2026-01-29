@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
-                    <h4 class="text-capitalize breadcrumb-title">Service Requests</h4>
+                    <h4 class="text-capitalize breadcrumb-title">Service Requests ({{ $totalRequests }})</h4>
                     <div class="breadcrumb-action justify-content-center flex-wrap">
                     </div>
                 </div>

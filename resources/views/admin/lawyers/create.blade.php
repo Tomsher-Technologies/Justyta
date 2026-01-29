@@ -119,13 +119,16 @@
                                             <div id="logoPreview" class="mt-2" style="display:none;"></div>
                                         </div>
 
+                                        @php
+                                            $emirates = \App\Models\Emirate::with('translations')->get();
+                                        @endphp
                                         <div class="col-md-4 mb-3">
-                                            <label class="col-form-label color-dark fw-500 align-center">Emirate <span
+                                            <label class="col-form-label color-dark fw-500 align-center">Home Emirate <span
                                                     class="text-danger">*</span></label>
 
                                             <select name="emirate_id" class="form-control select2 ih-small ip-gray radius-xs b-light px-15">
                                                 <option value="">Select Emirate</option>
-                                                @foreach (\App\Models\Emirate::with('translations')->get() as $emirate)
+                                                @foreach ($emirates as $emirate)
                                                     <option value="{{ $emirate->id }}"
                                                         {{ old('emirate_id') == $emirate->id ? 'selected' : '' }}>
                                                         {{ $emirate->translation('en')?->name }}
@@ -133,6 +136,22 @@
                                                 @endforeach
                                             </select>
                                             @error('emirate_id')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-4 mb-3">
+                                            <label class="col-form-label color-dark fw-500 align-center">Secondary Emirates </label>
+
+                                            <select name="secondary_emirates[]" id="select-tag0" class="form-control select2 ip-gray radius-xs b-light px-15" multiple>
+                                                <option value="">Select Emirates</option>
+                                                @foreach($emirates as $option)
+                                                    <option value="{{ $option->id }}" {{ in_array($option->id, old('secondary_emirates', [])) ? 'selected' : '' }}>
+                                                        {{ $option->translation('en')?->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('secondary_emirates')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>

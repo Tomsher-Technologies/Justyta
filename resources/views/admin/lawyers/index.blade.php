@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-main">
-                    <h4 class="text-capitalize breadcrumb-title">All Lawyers</h4>
+                    <h4 class="text-capitalize breadcrumb-title">All Lawyers ({{ $totalLawyers }})</h4>
                     <div class="breadcrumb-action justify-content-center flex-wrap">
 
                         @can('add_lawyer')
@@ -27,12 +27,17 @@
                             <form method="GET" action="{{ route('lawyers.index') }}" autocomplete="off">
                                 <div class="row mb-2">
                                     <div class="col-md-4 input-group  mb-1">
-                                        <label class="col-md-12 col-form-label color-dark fw-500 align-center pl-0">Search with keyword</label>
-                                        <input type="text" name="keyword" value="{{ request('keyword') }}" class="col-md-12 form-control ih-small ip-gray radius-xs b-light px-15" placeholder="Search name, email, phone or reference no.">
+                                        <label class="col-md-12 col-form-label color-dark fw-500 align-center pl-0">Search
+                                            with keyword</label>
+                                        <input type="text" name="keyword" value="{{ request('keyword') }}"
+                                            class="col-md-12 form-control ih-small ip-gray radius-xs b-light px-15"
+                                            placeholder="Search name, email, phone or reference no.">
                                     </div>
                                     <div class="col-md-3 input-group  mb-1">
-                                        <label class="col-md-12 col-form-label color-dark fw-500 align-center pl-0">Law firm</label>
-                                        <select name="lawfirm_id" class="col-md-12 form-control ih-small ip-gray radius-xs b-light px-15 select2" >
+                                        <label class="col-md-12 col-form-label color-dark fw-500 align-center pl-0">Law
+                                            firm</label>
+                                        <select name="lawfirm_id"
+                                            class="col-md-12 form-control ih-small ip-gray radius-xs b-light px-15 select2">
                                             <option value="">-- Select Law firm --</option>
                                             @foreach ($lawfirms as $lf)
                                                 <option value="{{ $lf->id }}"
@@ -44,7 +49,8 @@
                                     </div>
 
                                     <div class="col-md-3 input-group  mb-1">
-                                        <label class="col-md-12 col-form-label color-dark fw-500 align-center pl-0">Status</label>
+                                        <label
+                                            class="col-md-12 col-form-label color-dark fw-500 align-center pl-0">Status</label>
                                         <select name="status"
                                             class="col-md-12 form-control ih-small ip-gray radius-xs b-light px-15">
                                             <option value="">--Select Status--</option>
@@ -62,8 +68,14 @@
                                     </div>
                                 </div>
                             </form>
+                            <div class="d-flex align-items-center mb-2">
+                                <span style="width: 26px;height: 16px;background-color: #d4ffe6;border: 1px solid #9fd9b8;display: inline-block;margin-right: 8px;border-radius: 3px;"></span>
+                                <span style="color: #000;">Default Lawyers for online consultation</span>
+                            </div>
 
                             <div class="table-responsive">
+                                
+
                                 <table class="table table-bordered table-basic mb-0">
                                     <thead>
                                         <tr class="userDatatable-header">
@@ -81,11 +93,15 @@
                                             @if ($lawyers->isNotEmpty())
                                                 @foreach ($lawyers as $key => $lawyer)
                                                     <tr>
-                                                        <td class="text-center">
+                                                        <td class="text-center"
+                                                            @if ($lawyer->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             {{ $key + 1 + ($lawyers->currentPage() - 1) * $lawyers->perPage() }}
                                                         </td>
-                                                        <td class="text-center">{{ $lawyer->ref_no }}</td>
-                                                        <td>
+                                                        <td class="text-center"
+                                                            @if ($lawyer->is_default == 1) style="background-color: #d4ffe6;" @endif>
+                                                            {{ $lawyer->ref_no }}</td>
+                                                        <td
+                                                            @if ($lawyer->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             <div class="d-flex align-items-center">
                                                                 @if ($lawyer->profile_photo)
                                                                     <img src="{{ asset(getUploadedImage($lawyer->profile_photo)) }}"
@@ -104,7 +120,8 @@
                                                                     '></i>
                                                             </div>
                                                         </td>
-                                                        <td>
+                                                        <td
+                                                            @if ($lawyer->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             {{ $lawyer->lawfirm->law_firm_name ?? '-' }}
                                                             <i class="fas fa-info-circle text-primary ml-2 popover-toggle"
                                                                 tabindex="0" data-toggle="popover" data-placement="bottom"
@@ -118,9 +135,16 @@
                                                                         </div>
                                                                     '></i>
                                                         </td>
-                                                       
-                                                        <td class="text-center"> 0</td>
-                                                        <td class="text-center">
+
+                                                        <td class="text-center"
+                                                            @if ($lawyer->is_default == 1) style="background-color: #d4ffe6;" @endif>
+                                                            <a href="{{ route('consultations.index', ['lawyer_id' => $lawyer->id, 'status' => 'completed']) }}"
+                                                                style="color: black; text-decoration: underline;">
+                                                                {{ $lawyer->completedConsultations->count() }}
+                                                            </a>
+                                                        </td>
+                                                        <td class="text-center"
+                                                            @if ($lawyer->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             @can('edit_lawyer')
                                                                 <div class="atbd-switch-wrap">
                                                                     <div
@@ -137,7 +161,8 @@
                                                                 </div>
                                                             @endcan
                                                         </td>
-                                                        <td class="text-center">
+                                                        <td class="text-center"
+                                                            @if ($lawyer->is_default == 1) style="background-color: #d4ffe6;" @endif>
                                                             @can('edit_lawyer')
                                                                 <div class="table-actions">
                                                                     <a href="{{ route('lawyers.edit', $lawyer->id) }}"
@@ -182,10 +207,8 @@
 @endsection
 
 @section('style')
-<!-- Bootstrap Select CSS -->
+    <!-- Bootstrap Select CSS -->
     <style>
-
-        
         .popover-header {
             background-color: var(--secondary);
             /*#e2d8bf*/
@@ -210,7 +233,7 @@
             /* margin-bottom: 8px; */
             color: var(--primary);
             /* border-bottom: 1px solid #e9ecef;
-                                                                                                padding-bottom: 4px; */
+                                                                                                    padding-bottom: 4px; */
         }
 
         .custom-popover .popover-item i {
@@ -223,11 +246,9 @@
 @section('script_first')
     <script src="{{ asset('assets/js/bootstrap/popper.js') }}"></script>
     <!-- Bootstrap Select JS -->
-    
 @endsection
 
 @section('script')
-    
     <script type="text/javascript">
         function update_status(el) {
             if (el.checked) {

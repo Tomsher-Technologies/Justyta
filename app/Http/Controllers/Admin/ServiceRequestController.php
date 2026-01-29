@@ -104,11 +104,12 @@ class ServiceRequestController extends Controller
             });
         }
 
+        $totalRequests = $query->count();
         $serviceRequests = $query->orderByDesc('id')->paginate(30);
 
         $translators = Translator::select('id','name')->get();
         
-        return view('admin.translation_requests.index', compact('serviceRequests','translators'));
+        return view('admin.translation_requests.index', compact('serviceRequests','translators','totalRequests'));
     }
 
     public function showTranslationRequest($id){
@@ -275,9 +276,11 @@ class ServiceRequestController extends Controller
             $query->where('reference_code', 'like', '%' . $request->keyword . '%');
         }
 
+        $totalRequests = $query->count();
+
         $serviceRequests = $query->orderByDesc('id')->paginate(30);
 
-        return view('admin.service_requests.index', compact('serviceRequests','services'));
+        return view('admin.service_requests.index', compact('serviceRequests','services','totalRequests'));
     }
 
     public function show($id){

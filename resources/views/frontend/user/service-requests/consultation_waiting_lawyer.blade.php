@@ -59,10 +59,19 @@
             height: auto !important;
         }
 
+        #remote-video video,
+        #local-video video {
+            position: absolute !important;
+            inset: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+        }
+
     </style>
 
     <div class="grid grid-cols-1 gap-6">
-        <div class="bg-white p-4 rounded-[20px] border !border-[#FFE9B1] flex flex-col h-[calc(100vh-150px)]">
+        <div class="bg-white p-4 rounded-[20px] border !border-[#FFE9B1] flex flex-col  h-[calc(100vh-150px)]  min-h-0">
 
             <!-- Waiting Message -->
             <div id="waitingMessage" class="flex-1 flex items-center justify-center">
@@ -83,8 +92,8 @@
             </div>
 
             <!-- Video Call Container -->
-            <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-full ">
-                <div class="relative w-full flex-1 max-w-5xl bg-black">
+            <div id="video-call-container" class="hidden flex flex-col flex-1 items-center space-y-6 bg-gradient-to-b from-gray-50  rounded-2xl w-[85%]  min-h-0 m-auto">
+                <div class="relative w-full flex-1 max-w-5xl bg-black  min-h-0">
                     <!-- Remote Video Large -->
                     <video-player-container id="remote-video"
                         class="relative w-full h-full bg-black rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(2,6,23,0.3)]">
@@ -162,6 +171,50 @@
     </style>
 @endsection
 
+
+@section('ads')
+    @php
+        $ads = getActiveAd('online_consultation_waiting', 'web');
+    @endphp
+
+    @if ($ads && $ads->files->isNotEmpty())
+
+        <div class="relative w-full mb-12 px-[50px]" id="adBanner">
+            @php
+                $file = $ads->files->first();
+            @endphp
+
+            <a href="{{ $ads->cta_url ?? '#' }}" target="_blank" title="{{ $ads->cta_text ?? 'View More' }}">
+                @if($file->file_type === 'video')
+                    <video id="adVideo{{ $ads->id }}" class="w-full object-cover"  style="height: 500px;" autoplay muted loop playsinline>
+                        <source src="{{ asset($file->file_path) }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                @else
+                    <img src="{{ asset($file->file_path) }}" class="w-full h-80 object-cover" alt="Ad Image">
+                @endif
+            </a>
+
+            @if($file->file_type === 'video')
+                <button 
+                    onclick="toggleMute('adVideo{{ $ads->id }}', this)" 
+                    class="absolute bottom-2 bg-gray-800 bg-opacity-50 text-white px-3 py-1 rounded hover:bg-opacity-80 z-10" style="right: 4rem;">
+                    <!-- Unmute Icon -->
+                    <svg id="unmuteIcon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white-600 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9v6h4l5 5V4l-5 5H9" />
+                    </svg>
+
+                    <!-- Mute Icon -->
+                    <svg id="muteIcon" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white-500 " fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9v6h4l5 5V4l-5 5H9" />
+                        <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+            @endif
+        </div>
+    @endif
+@endsection
+
 @section('script')
     <script src="{{ asset('/coi-serviceworker.js') }}"></script>
 
@@ -184,6 +237,8 @@
                 if (data.status && data.data && !videoFlag) {
                     videoFlag = true;
                     document.getElementById('waitingMessage').classList.add('hidden');
+                    document.getElementById('adBanner').classList.add('hidden');
+                    
                     document.getElementById('video-call-container').classList.remove('hidden');
                     
                     await startCall(data.data, "{{ addslashes(auth('frontend')->user()->name) }}");
@@ -232,18 +287,32 @@
            
             $("#extension-cancel").on("click", function() {
                 $("#extendModal").addClass("hidden");
-                resumeCallTimer(0, true);
-                if (commandChannel) {
-                    const commandData = JSON.stringify({
-                        action: "resume-timer",
-                        additionalMs: 0
-                    });
-                    try {
-                        commandChannel.send(commandData);
-                    } catch (e) {
-                        console.warn("commandChannel.send failed", e);
-                    }
-                }
+
+
+                // resumeCallTimer(0, true);
+                // sendCommand("resume-timer", 0);
+
+                const consultation_Id = $("#modal-consultation-id").val();
+                checkPaymentStatus(consultation_Id);
+                $("#extension-pay").prop("disabled", false).text("Pay & Extend");
+                
+                // sendCommand({
+                //     action: "resume-timer",
+                //     additionalMs: 0
+                // });
+
+                
+                // if (commandChannel) {
+                //     const commandData = JSON.stringify({
+                //         action: "resume-timer",
+                //         additionalMs: 0
+                //     });
+                //     try {
+                //         commandChannel.send(commandData);
+                //     } catch (e) {
+                //         console.warn("commandChannel.send failed", e);
+                //     }
+                // }
             });
 
             let checkInterval = null;
@@ -257,7 +326,7 @@
                     return;
                 }
 
-                // $("#extension-pay").prop("disabled", true).text("Processing...");
+                $("#extension-pay").prop("disabled", true).text("Processing...");
 
                 $.ajax({
                     url: "{{ route('consultation.extend.pay') }}",  // new route
@@ -305,17 +374,23 @@
                             const extendedMinutes = Number(res.extended_minutes) || 0;
                             resumeCallTimer(extendedMinutes, true);
 
-                            if (commandChannel) {
-                                const commandData = JSON.stringify({
-                                    action: "resume-timer",
-                                    additionalMs: extendedMinutes * 60 * 1000
-                                });
-                                try {
-                                    commandChannel.send(commandData);
-                                } catch (e) {
-                                    console.warn("commandChannel.send failed", e);
-                                }
-                            }
+                            // sendCommand({
+                            //     action: "resume-timer",
+                            //     additionalMs: extendedMinutes * 60 * 1000
+                            // });
+
+                            sendCommand("resume-timer", extendedMinutes * 60 * 1000);
+                            // if (commandChannel) {
+                            //     const commandData = JSON.stringify({
+                            //         action: "resume-timer",
+                            //         additionalMs: extendedMinutes * 60 * 1000
+                            //     });
+                            //     try {
+                            //         commandChannel.send(commandData);
+                            //     } catch (e) {
+                            //         console.warn("commandChannel.send failed", e);
+                            //     }
+                            // }
 
                             $("#extendModal").addClass("hidden");
 

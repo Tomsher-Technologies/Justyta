@@ -19,6 +19,22 @@ use Carbon\Carbon;
 
 class AuthController extends Controller
 {
+    public function testPushNotification(Request $request)
+    {
+        $deviceToken = $request->input('device_token');
+
+        if (!$deviceToken) {
+            return response()->json(['status' => false, 'message' => 'Device token is required'], 400);
+        }
+
+        $title = 'Test Notification';
+        $body = 'This is a test push notification from Justyta.';
+
+        $result = sendPushNotification($deviceToken, $title, $body);
+
+        return $result;
+    }
+
     public function login(Request $request)
     {
         
@@ -50,18 +66,21 @@ class AuthController extends Controller
             return response()->json(['status' => false, 'message' => __('messages.invalid_credentials'), 'user' => null], 200);
         }
 
-        if ($user->is_banned) {
+        if ($user->banned) {
             return response()->json([
                 'status' => false,
                 'message' => __('messages.account_disabled_deleted'),
             ], 200);
         }
-        return $this->loginSuccess($user);
+        return $this->loginSuccess($user, $request);
     }
 
-    protected function loginSuccess($user)
+    protected function loginSuccess($user, $request)
     {
         $user->is_online = 1;
+        $user->last_login_at = now();
+        // $user->last_login_ip = request()->ip();
+        $user->device_token = $request->has('device_token') ? $request->device_token : null;
         $user->save();
 
         if ($user->user_type === 'lawyer') {
@@ -71,7 +90,8 @@ class AuthController extends Controller
 
             UserOnlineLog::create([
                 'user_id' => $user->id,
-                'status'  => 1
+                'status'  => 1,
+                'platform' => 'mob'
             ]);
         }
 
@@ -101,7 +121,6 @@ class AuthController extends Controller
                     'required',
                     'email',
                     Rule::unique('users', 'email')
-                        ->where('user_type', 'user'),
                 ],
             'phone'     => 'required|string|max:20',
             'password'  => 'required|string|min:6',
@@ -153,8 +172,9 @@ class AuthController extends Controller
     public function forgetRequest(Request $request)
     {
         $email = $request->has('email') ? $request->email : '';
+        $user_type = $request->has('user_type') ? $request->user_type : '';
         if($email){
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('email', $request->email)->where('user_type', $user_type)->first();
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -267,7 +287,8 @@ class AuthController extends Controller
 
                 UserOnlineLog::create([
                     'user_id' => $user->id,
-                    'status'  => 0
+                    'status'  => 0,
+                    'platform' => 'mob'
                 ]);
             }
             

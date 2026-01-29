@@ -1,0 +1,448 @@
+@extends('layouts.admin_default', ['title' => 'Edit Section - ' . $page->name])
+
+@section('content')
+    <div class="container-fluid">
+        <div class="row mt-4 mb-4">
+            <div class="col-lg-10 mx-auto">
+                <div class="card card-horizontal card-default card-md mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0 h4">Edit Section for: {{ $page->name }} ({{ $section->section_key }})</h5>
+                    </div>
+                    <div class="card-body pb-md-30">
+                        <form class="form-horizontal row" autocomplete="off"
+                            action="{{ route('pages.sections.update', [$page, $section]) }}" method="POST"
+                            enctype="multipart/form-data">
+                            @csrf
+                            @method('PUT')
+
+                            {{-- <div class="col-md-4 mb-3">
+                            <label class="col-form-label color-dark fw-500">Section Type <span
+                                    class="text-danger">*</span></label>
+                            <select name="section_type" class="form-control ih-small ip-gray radius-xs b-light px-15" required readonly>
+                                <option value="">Select Type</option>
+                                <option value="hero" {{ old('section_type', $section->section_type) == 'hero' ? 'selected' : '' }}>Hero</option>
+                                <option value="features" {{ old('section_type', $section->section_type) == 'features' ? 'selected' : '' }}>Features</option>
+                                <option value="services" {{ old('section_type', $section->section_type) == 'services' ? 'selected' : '' }}>Services</option>
+                                <option value="about" {{ old('section_type', $section->section_type) == 'about' ? 'selected' : '' }}>About</option>
+                                <option value="testimonial" {{ old('section_type', $section->section_type) == 'testimonial' ? 'selected' : '' }}>Testimonial</option>
+                                <option value="cta" {{ old('section_type', $section->section_type) == 'cta' ? 'selected' : '' }}>Call to Action</option>
+                                <option value="news" {{ old('section_type', $section->section_type) == 'news' ? 'selected' : '' }}>News</option>
+                                <option value="custom" {{ old('section_type', $section->section_type) == 'custom' ? 'selected' : '' }}>Custom</option>
+                            </select>
+                            @error('section_type')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div> --}}
+
+                            <div class="col-md-4 mb-3">
+                                <label class="col-form-label color-dark fw-500">Section Key <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" name="section_key"
+                                    class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                    value="{{ old('section_key', $section->section_key) }}" required readonly />
+                                <small class="text-muted">Unique identifier for this section</small>
+                                @error('section_key')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="col-form-label color-dark fw-500">Order <span
+                                        class="text-danger">*</span></label>
+                                <input type="number" name="order"
+                                    class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                    value="{{ old('order', $section->order) }}" required />
+                                @error('order')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="col-form-label color-dark fw-500">Status</label>
+                                <select name="status" class="form-control ih-small ip-gray radius-xs b-light px-15">
+                                    <option value="1" {{ old('status', $section->status) == 1 ? 'selected' : '' }}>
+                                        Active</option>
+                                    <option value="0" {{ old('status', $section->status) == 0 ? 'selected' : '' }}>
+                                        Inactive</option>
+                                </select>
+                            </div>
+
+                            @if ($section->section_key === 'home_banner' || $section->section_key === 'home_impact' || $section->section_key === 'home_reimagined' || $section->section_key === 'home_app_download')
+                                <div class="col-md-6 mb-3">
+                                    <label class="col-form-label color-dark fw-500">Image</label>
+                                    <input type="file" name="image" accept="image/*"
+                                        class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                        onchange="previewImage(event)" />
+                                    @if ($section->image)
+                                        <img id="currentImage" src="{{ asset(getUploadedImage($section->image)) }}"
+                                            alt="Current Image" class="mt-3 img-thumbnail" style="max-height: 150px;" />
+                                    @endif
+                                    <img id="imagePreview" src="#" alt="New Image Preview"
+                                        class="mt-3 img-thumbnail d-none" style="max-height: 150px;" />
+                                    @error('image')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            @endif
+
+                            @if ($section->section_key != 'home_banner')
+                                <div class="col-md-12 mt-3">
+                                    <ul class="nav nav-tabs custom-lang-tabs w-100" id="langTabs" role="tablist"
+                                        style="display: flex; flex-wrap: wrap;">
+                                        @foreach ($languages as $lang)
+                                            <li class="nav-item flex-fill text-center">
+                                                <a class="nav-link @if ($loop->first) active @endif"
+                                                    id="tab-{{ $lang->code }}" data-toggle="tab"
+                                                    href="#lang-{{ $lang->code }}" role="tab"
+                                                    aria-controls="lang-{{ $lang->code }}"
+                                                    aria-selected="{{ $loop->first ? 'true' : 'false' }}">
+                                                    <span class="flag-icon flag-icon-{{ $lang->flag }} mr-1"></span>
+                                                    {{ $lang->name }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+
+                                    <div class="tab-content custom-tab-content" id="langTabsContent">
+                                        @foreach ($languages as $lang)
+                                            @php
+                                                $trans = $section->translations->firstWhere('lang', $lang->code);
+                                            @endphp
+                                            <div class="tab-pane fade @if ($loop->first) show active @endif"
+                                                id="lang-{{ $lang->code }}" role="tabpanel"
+                                                aria-labelledby="tab-{{ $lang->code }}">
+
+                                                <div class="form-group">
+                                                    <label class="col-form-label color-dark fw-500">Title
+                                                        ({{ $lang->name }})
+                                                        @if ($lang->code == 'en')
+                                                            <span class="text-danger">*</span>
+                                                        @endif
+                                                    </label>
+                                                    <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
+                                                        name="translations[{{ $lang->code }}][title]"
+                                                        class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                                        value="{{ old('translations.' . $lang->code . '.title', $trans->title ?? '') }}">
+                                                    @error("translations.$lang->code.title")
+                                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+
+                                                @if($section->section_key === 'home_banner' || $section->section_key === 'home_impact' || $section->section_key === 'home_reimagined' || $section->section_key === 'about_main' || $section->section_key === 'contact_main')
+                                                    <div class="form-group">
+                                                        <label class="col-form-label color-dark fw-500">Subtitle
+                                                            ({{ $lang->name }})</label>
+                                                        <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
+                                                            name="translations[{{ $lang->code }}][subtitle]"
+                                                            class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                                            value="{{ old('translations.' . $lang->code . '.subtitle', $trans->subtitle ?? '') }}">
+                                                    </div>
+                                                @endif
+
+                                                @if($section->section_key === 'home_new_era' || $section->section_key === 'home_impact' || $section->section_key === 'home_reimagined' || $section->section_key === 'home_app_download' || $section->section_key === 'about_main' || $section->section_key === 'about_vision' || $section->section_key === 'about_why_exist' || $section->section_key === 'contact_main' || $section->section_key === 'terms_conditions_main' || $section->section_key === 'privacy_policy_main' || $section->section_key === 'refund_policy_main')
+                                                    <div class="form-group">
+                                                        <label class="col-form-label color-dark fw-500">Description
+                                                            ({{ $lang->name }})</label>
+                                                        <textarea name="translations[{{ $lang->code }}][description]" @if ($lang->rtl == 1) dir="rtl" @endif
+                                                            class="texteditor form-control ip-gray radius-xs b-light px-15" rows="10">{{ old('translations.' . $lang->code . '.description', $trans->description ?? '') }}</textarea>
+                                                        @error("translations.$lang->code.description")
+                                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                @endif
+
+                                                @if($section->section_key === 'home_hero' || $section->section_key === 'home_banner' || $section->section_key === 'home_reimagined' || $section->section_key === 'home_news')
+                                                    <div class="form-group">
+                                                        <label class="col-form-label color-dark fw-500">Button Text
+                                                            ({{ $lang->name }})</label>
+                                                        <input type="text" @if ($lang->rtl == 1) dir="rtl" @endif
+                                                            name="translations[{{ $lang->code }}][button_text]"
+                                                            class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                                            value="{{ old('translations.' . $lang->code . '.button_text', $trans->button_text ?? '') }}">
+                                                    </div>
+                                                @endif
+
+                                                @if($section->section_key === 'home_hero' || $section->section_key === 'home_banner' || $section->section_key === 'home_reimagined')
+                                                    <div class="form-group">
+                                                        <label class="col-form-label color-dark fw-500">Button Link
+                                                            ({{ $lang->name }})</label>
+                                                        <input type="text"
+                                                            name="translations[{{ $lang->code }}][button_link]"
+                                                            class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                                            value="{{ old('translations.' . $lang->code . '.button_link', $trans->button_link ?? '') }}">
+                                                    </div>
+                                                @endif
+
+                                                @if($section->section_key === 'home_banner' || $section->section_key === 'home_impact' || $section->section_key === 'home_reimagined')
+                                                    <div class="form-group mt-4">
+                                                        <label class="col-form-label color-dark fw-500 mb-2">Page Section Items
+                                                            ({{ $lang->name }})</label>
+                                                        <div class="repeater-container" data-lang="{{ $lang->code }}">
+                                                            @php
+                                                                $contentItems = $trans->content ?? [];
+                                                                if (is_null($contentItems)) {
+                                                                    $contentItems = [];
+                                                                }
+                                                            @endphp
+
+                                                            @foreach ($contentItems as $index => $item)
+                                                                <div class="repeater-item card mb-3 border">
+                                                                    <div class="card-body p-3 relative">
+                                                                        <button type="button"
+                                                                            class="btn btn-danger btn-xs absolute top-0 right-0 m-2 remove-item">x</button>
+                                                                        <div class="row">
+                                                                            <div class="col-md-12 mb-2">
+                                                                                <label>Title</label>
+                                                                                <input type="text"
+                                                                                    name="translations[{{ $lang->code }}][content][{{ $index }}][title]"
+                                                                                    class="form-control"
+                                                                                    value="{{ $item['title'] ?? '' }}">
+                                                                            </div>
+                                                                            <div class="col-md-6 mb-2 d-none">
+                                                                                <label>URL</label>
+                                                                                <input type="text"
+                                                                                    name="translations[{{ $lang->code }}][content][{{ $index }}][url]"
+                                                                                    class="form-control"
+                                                                                    value="{{ $item['url'] ?? '' }}">
+                                                                            </div>
+                                                                            <div class="col-md-12 mb-2">
+                                                                                <label>Description</label>
+                                                                                <textarea name="translations[{{ $lang->code }}][content][{{ $index }}][description]" class="form-control"
+                                                                                    rows="2">{{ $item['description'] ?? '' }}</textarea>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                        <button type="button" class="btn btn-info btn-sm add-repeater-item"
+                                                            data-lang="{{ $lang->code }}">+ Add Item</button>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            @if($section->section_key === 'home_services' || $section->section_key === 'home_new_era')
+                                <div class="col-md-12 mb-3">
+                                    <label class="col-form-label color-dark fw-500">Services <span class="text-danger">*</span></label>
+                                    <select name="services[]" multiple class="form-control select2 ih-small ip-gray radius-xs b-light px-15" data-live-search="true" data-placeholder="Select Services" required >
+                                        @foreach($services as $service)
+                                            <option value="{{ $service->id }}"
+                                                {{ in_array($service->id, json_decode($section->services) ?? []) ? 'selected' : '' }}>
+                                                {{ $service->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+
+                            @if ($section->section_key === 'home_app_download')
+                                <div class="col-md-4 mb-3 mt-3">
+                                    <label class="col-form-label color-dark fw-500">Play Store Image <span
+                                            class="text-danger">*</span></label>
+                                    <input type="file" name="image2" accept="image/*"
+                                        class="form-control ih-small ip-gray radius-xs b-light px-15" required/>
+                                    @if ($section->image2)
+                                        <img id="" src="{{ asset(getUploadedImage($section->image2)) }}"
+                                            alt="Current Image" class="mt-3 img-thumbnail" style="max-height: 150px;" />
+                                    @endif
+
+                                    @error('image2')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-8 mb-3 mt-3">
+                                    <label class="col-form-label color-dark fw-500">Play Store Link <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" name="link2"
+                                        class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                        value="{{ old('link2', $section->link2) }}" required />
+                                    @error('link2')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="col-form-label color-dark fw-500">App Store Image <span
+                                            class="text-danger">*</span></label>
+                                    <input type="file" name="image1" accept="image/*"
+                                        class="form-control ih-small ip-gray radius-xs b-light px-15" required/>
+                                    @if ($section->image1)
+                                        <img id="" src="{{ asset(getUploadedImage($section->image1)) }}"
+                                            alt="Current Image" class="mt-3 img-thumbnail" style="max-height: 150px;" />
+                                    @endif
+
+                                    @error('image1')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-8 mb-3">
+                                    <label class="col-form-label color-dark fw-500">App Store Link <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" name="link1"
+                                        class="form-control ih-small ip-gray radius-xs b-light px-15"
+                                        value="{{ old('link1', $section->link1) }}" required />
+                                    @error('link1')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            @endif
+
+                            <div class="col-md-12 text-right mt-4 form-group d-flex flex-wrap align-items-end">
+                                <button type="submit" class="btn btn-primary btn-sm ">Update</button>
+                                <a href="{{ route('pages.sections.index', $page) }}" class="btn btn-secondary btn-square btn-sm ml-2">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('style')
+    <style>
+        .custom-lang-tabs {
+            border-bottom: 0;
+            background: #f1f1f1;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+
+        .custom-lang-tabs .nav-link {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: #555;
+            border-radius: 0;
+            transition: background-color 0.3s ease;
+            padding: 12px 0;
+        }
+
+        .custom-lang-tabs .nav-link:hover {
+            background-color: #e2e6ea;
+        }
+
+        .custom-lang-tabs .nav-link.active {
+            background-color: #d3be89cf;
+            color: #000;
+            font-weight: 500;
+        }
+
+        .custom-tab-content {
+            border: 1px solid #ddd;
+            border-top: none;
+            padding: 20px;
+            border-radius: 0 0 8px 8px;
+            background-color: #fff;
+        }
+    </style>
+@endsection
+
+@section('script')
+    <script src="{{ asset('assets/js/tinymce/tinymce.min.js') }}"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let firstErrorTab = null;
+
+            document.querySelectorAll('.tab-pane').forEach(function(pane) {
+                if (pane.querySelector('.is-invalid')) {
+                    firstErrorTab = pane;
+                    return false;
+                }
+            });
+
+            if (firstErrorTab) {
+                let id = firstErrorTab.id;
+                let tabTrigger = document.querySelector(`a[data-toggle="tab"][href="#${id}"]`);
+                if (tabTrigger) {
+                    $(tabTrigger).tab('show');
+                }
+            }
+
+            document.querySelectorAll('.texteditor').forEach(function(el) {
+                tinymce.init({
+                    target: el,
+                    directionality: el.getAttribute('dir') === 'rtl' ? 'rtl' : 'ltr',
+                    height: 300,
+                    license_key: 'gpl',
+                    toolbar: 'undo redo | bold italic underline removeformat | alignleft aligncenter alignright | link | bullist numlist | outdent indent | blockquote | table | code',
+                    plugins: 'directionality code lists link table advlist',
+                    menubar: true,
+                    statusbar: true,
+                });
+            });
+        });
+
+        function previewImage(event) {
+            const input = event.target;
+            const preview = document.getElementById('imagePreview');
+            const currentImage = document.getElementById('currentImage');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                    if (currentImage) {
+                        currentImage.classList.add('d-none');
+                    }
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.src = '#';
+                preview.classList.add('d-none');
+                if (currentImage) {
+                    currentImage.classList.remove('d-none');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.add-repeater-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    const container = this.previousElementSibling;
+                    const index = container.querySelectorAll('.repeater-item').length;
+
+                    const template = `
+                        <div class="repeater-item card mb-3 border">
+                            <div class="card-body p-3 relative">
+                                <button type="button" class="btn btn-danger btn-xs absolute top-0 right-0 m-2 remove-item">x</button>
+                                <div class="row">
+                                    <div class="col-md-12 mb-2">
+                                        <label>Title</label>
+                                        <input type="text" name="translations[${lang}][content][${index}][title]" class="form-control" value="">
+                                    </div>
+                                    <div class="col-md-6 mb-2 d-none">
+                                        <label>URL</label>
+                                        <input type="text" name="translations[${lang}][content][${index}][url]" class="form-control" value="">
+                                    </div>
+                                    <div class="col-md-12 mb-2">
+                                        <label>Description</label>
+                                        <textarea name="translations[${lang}][content][${index}][description]" class="form-control" rows="2"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', template);
+                });
+            });
+
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.classList.contains('remove-item')) {
+                    e.target.closest('.repeater-item').remove();
+                }
+            });
+        });
+    </script>
+@endsection

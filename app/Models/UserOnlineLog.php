@@ -10,7 +10,7 @@ class UserOnlineLog extends Model
 
     protected $fillable = [
         'user_id',
-        'status',
+        'status','platform'
     ];
     public function user()
     {
