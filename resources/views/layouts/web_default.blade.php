@@ -179,16 +179,16 @@
     @yield('script')
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const serverLang = "{{ app()->getLocale() }}";
-            const localLang = localStorage.getItem('lang');
+        // document.addEventListener("DOMContentLoaded", function() {
+        //     const serverLang = "{{ app()->getLocale() }}";
+        //     const localLang = localStorage.getItem('lang');
 
-            if (localLang && localLang !== serverLang) {
-                window.location.href = "{{ url('/lang') }}/" + localLang;
-            }
+        //     if (localLang && localLang !== serverLang) {
+        //         window.location.href = "{{ url('/lang') }}/" + localLang;
+        //     }
 
             
-        });
+        // });
 
         const muteToggle = document.getElementById('muteToggle');
         const muteIcon = document.getElementById('muteIcon');

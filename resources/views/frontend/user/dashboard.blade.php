@@ -47,6 +47,13 @@
                 <h3 class="mb-6 text-lg font-semibold">{{ __('frontend.law_firm_jobs') }}</h3>
             </a>
         </div>
+
+        <div class="bg-white p-4 xl:p-8 rounded-lg text-center">
+            <a href="{{ route('news') }}">
+                <img src="{{ asset('assets/images/news.png') }}" alt="{{ __('frontend.news') }}" class="mb-4 w-20 h-20 mx-auto object-contain" />
+                <h3 class="mb-6 text-lg font-semibold">{{ __('frontend.news') }}</h3>
+            </a>
+        </div>
         
     </div>
 @endsection

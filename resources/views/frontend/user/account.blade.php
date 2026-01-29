@@ -46,7 +46,7 @@
 
 
                         <!-- Address -->
-                        <div>
+                        <div class="hidden">
                             <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.address') }}</label>
                             <textarea name="address" rows="5"
                                 class="bg-[#F9F9F9] border @error('address') border-red-500 @else border-gray-300 @enderror text-sm rounded-[10px] block w-full p-3.5"
@@ -81,6 +81,7 @@
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
                         </div>
+
                     </div>
 
                     <!-- Submit -->

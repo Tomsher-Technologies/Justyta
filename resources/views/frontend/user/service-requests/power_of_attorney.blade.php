@@ -10,8 +10,8 @@
                 </h2>
                 <hr class="mb-5" />
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6">
-                    <div class="border-b pb-6 col-span-2">
+                <div class="grid grid-cols-1 xl:grid-cols-1 gap-x-6 gap-y-4 mb-6">
+                    <div class="border-b pb-6 col-span-1 xl:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('frontend.applicant_type')  }}<span class="text-red-500">*</span></label>
                         <div class="flex items-center space-x-4">
                             <div class="flex items-center">
@@ -187,7 +187,7 @@
                     </div>
 
                     <div>
-                        <button type="submit" class="text-white bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md w-full px-8 py-4 text-center transition-colors duration-200 uppercase cursor-pointer">
+                        <button type="submit" class="text-white mt-4 xl:mt-0 bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md w-full px-8 py-4 text-center transition-colors duration-200 uppercase cursor-pointer">
                             {{ __('frontend.submit') }}
                         </button>
                     </div>

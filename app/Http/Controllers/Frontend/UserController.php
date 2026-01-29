@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\App;
 use App\Notifications\ProblemReported;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\TrainingRequestSubmitted;
@@ -309,6 +310,12 @@ class UserController extends Controller
             });
         }
 
+        if($job->years_of_experience != null){
+            $yearsExp = DropdownOption::with('translations')->where('id', $job->years_of_experience)->first();
+            if($yearsExp){
+                $job->years_of_experience = $yearsExp->getTranslatedName(app()->getLocale());
+            }
+        }
 
         $jobPost = [
             'id' => $job->id,
@@ -709,9 +716,11 @@ class UserController extends Controller
         $user->language = $request->language;
         $user->save();
 
-        session(['locale' => $user->language]);
+        Auth::guard('frontend')->setUser($user->fresh());
 
-        return redirect()->back()->with('success', __('frontend.profile_updated'));
+        session(['locale' => $request->language]);
+
+        return redirect()->route('user.my-account')->with('success', __('frontend.profile_updated'));
     }
 
     public function deleteAccount(Request $request)

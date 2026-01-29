@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\JobPost;
 use App\Models\Vendor;
 use App\Models\Dropdown;
+use App\Models\DropdownOption;
 use App\Models\JobApplication;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -101,6 +102,28 @@ class JobPostController extends Controller
             ], 200);
         }
 
+        $user   = $request->user();
+        $hasApplied = JobApplication::where('job_post_id', $job->id)
+                        ->where('user_id', $user->id)
+                        ->exists();
+
+        $specialties = json_decode($job->specialties);
+
+        if ($specialties) {
+             $specialties = DropdownOption::with('translations')->whereIn('id', $specialties)->get();
+
+            $specialties = $specialties->map(function ($item) {
+                return $item->getTranslatedName(app()->getLocale());
+            });
+        }
+
+        if($job->years_of_experience != null){
+            $yearsExp = DropdownOption::with('translations')->where('id', $job->years_of_experience)->first();
+            if($yearsExp){
+                $job->years_of_experience = $yearsExp->getTranslatedName(app()->getLocale());
+            }
+        }
+
         $ads = getActiveAd('lawfirm_jobs', 'mobile');
 
         $response['banner'] = [];
@@ -127,7 +150,11 @@ class JobPostController extends Controller
                 'job_posted_date' => $job->job_posted_date,
                 'deadline_date' => $job->deadline_date,
                 'status' => $job->status,
-                'banner' => $response['banner'] 
+                'banner' => $response['banner'],
+                'no_of_vacancies' => $job->no_of_vacancies,
+                'specialties' => $specialties,
+                'years_of_experience' => $job->years_of_experience,
+                'is_applied' => $hasApplied,
             ]
         ], 200);
     }
