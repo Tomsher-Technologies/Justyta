@@ -1,6 +1,6 @@
  <footer class="bg-[#4D1717] px-4 xl:px-[100px] py-[40px] xl:py-[80px] text-white" id="footer">
      <div class="grid grid-cols-2 xl:grid-cols-4 gap-y-10 xl:gap-y-[unset]">
-         <div class="col-span-2 xl:col-span-1">
+         <div class="col-span-2 xl:col-span-1 mr-2">
              @php
                 $lang = app()->getLocale() ??   'en';
                 $settings = \App\Models\WebsiteSetting::pluck('value', 'key')->toArray();
@@ -11,7 +11,7 @@
                  <br />Designed by <a href="https://www.tomsher.com/"
                      target="_blank">Tomsher</a></p>
          </div>
-         <div>
+         <div class="xl:col-span-1 ml-2">
              <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ setting('block_heading_2', $lang, $settings) }}</h3>
              <ul class="flex flex-col items-start gap-2 xl:gap-4">
                  <li>
@@ -26,9 +26,12 @@
                  <li>
                      <a href="{{ route('contactus') }}">{{ __('frontend.contact_us') }}</a>
                  </li>
+                 <li>
+                     <a href="{{ route('news') }}">{{ __('frontend.news') }}</a>
+                 </li>
              </ul>
          </div>
-         <div>
+         <div class="xl:col-span-1">
              <h3 class="font-cinzel font-bold text-[20px] mb-5">{{ setting('block_heading_3', $lang, $settings) }}</h3>
              <ul class="flex flex-col items-start gap-2 xl:gap-4">
 

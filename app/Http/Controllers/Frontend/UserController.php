@@ -309,6 +309,12 @@ class UserController extends Controller
             });
         }
 
+        if($job->years_of_experience != null){
+            $yearsExp = DropdownOption::with('translations')->where('id', $job->years_of_experience)->first();
+            if($yearsExp){
+                $job->years_of_experience = $yearsExp->getTranslatedName(app()->getLocale());
+            }
+        }
 
         $jobPost = [
             'id' => $job->id,
@@ -709,8 +715,8 @@ class UserController extends Controller
         $user->language = $request->language;
         $user->save();
 
-        session(['locale' => $user->language]);
-
+        session(['locale' => $request->language]);
+        
         return redirect()->back()->with('success', __('frontend.profile_updated'));
     }
 
