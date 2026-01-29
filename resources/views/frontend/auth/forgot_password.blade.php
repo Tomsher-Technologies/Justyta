@@ -1,7 +1,7 @@
 @extends('layouts.web_login', ['title' => 'Forgot Password'])
 
 @section('content')
-    <section class="bg-[#FFF7F0] px-[20px] py-[20px] md:px-[100px] md:py-[80px]">
+    <section class="bg-[#FFF7F0] px-[20px] py-[20px] xl:px-[100px] xl:py-[80px]">
         <div class="flex items-center justify-center">
             <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg">
                 <h2 class="text-3xl font-semibold text-gray-900 mb-2">
