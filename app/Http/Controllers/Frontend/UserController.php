@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\App;
 use App\Notifications\ProblemReported;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\TrainingRequestSubmitted;
@@ -715,9 +716,11 @@ class UserController extends Controller
         $user->language = $request->language;
         $user->save();
 
+        Auth::guard('frontend')->setUser($user->fresh());
+
         session(['locale' => $request->language]);
-        
-        return redirect()->back()->with('success', __('frontend.profile_updated'));
+
+        return redirect()->route('user.my-account')->with('success', __('frontend.profile_updated'));
     }
 
     public function deleteAccount(Request $request)
