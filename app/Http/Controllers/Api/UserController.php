@@ -231,6 +231,7 @@ class UserController extends Controller
                     $serviceName =  $slug && isset($serviceMap[$slug]) ? ($serviceMap[$slug][$lang] ?? $serviceMap[$slug][env('APP_LOCALE','en')] ?? $slug) : '';
 
                     return [
+                        'id'   => $notification->id,
                         'message'   => __($notification->data['message'], [
                                             'service'   => $serviceName,
                                             'reference' => $data['reference_code'],
@@ -289,6 +290,24 @@ class UserController extends Controller
             'message'   => __('messages.notifications_cleared_successfully')
         ], 200);
     }
+
+    public function deleteSelectedNotifications(Request $request)
+    {
+        $ids = $request->notification_ids ?? '';
+
+        $ids = explode(',', $ids);
+       
+        if (!empty($ids)) {
+            $user = $request->user();
+            $user->notifications()->whereIn('id', $ids)->delete();
+        }
+        
+        return response()->json([
+            'status'    => true,
+            'message'   => __('messages.selected_notifications_cleared_successfully')
+        ], 200);
+    }
+
 
     public function getUnreadNotificationCount(Request $request)
     {

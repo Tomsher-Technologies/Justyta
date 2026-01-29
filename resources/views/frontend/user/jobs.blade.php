@@ -3,11 +3,11 @@
 @section('content')
 <div class="grid grid-cols-1 gap-6">
     <div class=" bg-white p-4 xl:p-10 rounded-[20px] border !border-[#FFE9B1] h-[calc(100vh-150px)]">
-        <div class="flex items-center justify-between mb-5">
+        <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between mb-5 ">
             <h1 class="text-xl font-semibold text-gray-800">{{ __('frontend.law_firm_jobs') }}</h1>
 
-            <form class="w-[80%]">
-                <div class="flex items-center gap-3">
+            <form class="w-[100%] xl:w-[80%]">
+                <div class="flex flex-col xl:flex-row  items-start xl:items-center gap-3">
                     
                     <!-- Search Box -->
                     <div class="flex-1 relative">

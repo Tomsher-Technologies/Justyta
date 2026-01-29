@@ -133,6 +133,7 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/notifications', [UserController::class, 'getGroupedUserNotifications']);
         Route::delete('/notifications/clear', [UserController::class, 'clearAllNotifications']);
         Route::get('/notifications/unread-count', [UserController::class, 'getUnreadNotificationCount']);
+        Route::post('/notifications/delete-selected', [UserController::class, 'deleteSelectedNotifications'])->name('notifications.delete.selected');
 
         //Training 
         Route::get('/training-data', [UserController::class, 'getTrainingFormData']);

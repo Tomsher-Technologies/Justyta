@@ -2,8 +2,8 @@
 
 @section('content')
 <div class="grid grid-cols-1 gap-6">
-    <div class=" bg-white p-10 rounded-[20px] border !border-[#FFE9B1]">
-        <div class="flex justify-between items-start mb-6">
+    <div class=" bg-white p-4 xl:p-10 rounded-[20px] border !border-[#FFE9B1]">
+        <div class="flex flex-col xl:flex-row gap-3 justify-between items-start mb-6">
             <div>
                 <h2 class="text-2xl font-medium mb-2">{{ $jobPost['title'] }}</h2>
                 <span
@@ -53,7 +53,6 @@
                         {{-- <p class="text-sm text-gray-500">Yearly salary</p> --}}
                     </div>
 
-
                     <div class="mb-2 text-center">
                         <svg class="text-center m-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="rgba(185,165,114,1)"><path d="M12 20.8995L16.9497 15.9497C19.6834 13.2161 19.6834 8.78392 16.9497 6.05025C14.2161 3.31658 9.78392 3.31658 7.05025 6.05025C4.31658 8.78392 4.31658 13.2161 7.05025 15.9497L12 20.8995ZM12 23.7279L5.63604 17.364C2.12132 13.8492 2.12132 8.15076 5.63604 4.63604C9.15076 1.12132 14.8492 1.12132 18.364 4.63604C21.8787 8.15076 21.8787 13.8492 18.364 17.364L12 23.7279ZM12 13C13.1046 13 14 12.1046 14 11C14 9.89543 13.1046 9 12 9C10.8954 9 10 9.89543 10 11C10 12.1046 10.8954 13 12 13ZM12 15C9.79086 15 8 13.2091 8 11C8 8.79086 9.79086 7 12 7C14.2091 7 16 8.79086 16 11C16 13.2091 14.2091 15 12 15Z"></path></svg>
                         <p class="text-gray-600 font-semibold my-2 text-[16px] text-black">{{ __('frontend.job_location') }}</p>
@@ -62,7 +61,7 @@
                 </div>
 
                 <div class="bg-white border border-gray-200 rounded-lg p-5">
-                    <h3 class="text-lg font-medium mb-4">{{ __('frontend.job_overview') }}</h3>
+                    <h3 class="text-lg font-medium mb-6">{{ __('frontend.job_overview') }}</h3>
                     <div class="grid grid-cols-2 gap-4 text-gray-700 text-sm ">
                         <div class="mb-2 text-center">
                             <svg class="text-center m-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="rgba(185,165,114,1)"><path d="M9 1V3H15V1H17V3H21C21.5523 3 22 3.44772 22 4V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H7V1H9ZM20 10H4V19H20V10ZM15.0355 11.136L16.4497 12.5503L11.5 17.5L7.96447 13.9645L9.37868 12.5503L11.5 14.6716L15.0355 11.136ZM7 5H4V8H20V5H17V6H15V5H9V6H7V5Z"></path></svg>
@@ -93,7 +92,7 @@
                         <div class="mb-2 text-center">
                             <svg class="text-center m-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="rgba(185,165,114,1)"><path d="M12 6.99999C16.4183 6.99999 20 10.5817 20 15C20 19.4183 16.4183 23 12 23C7.58172 23 4 19.4183 4 15C4 10.5817 7.58172 6.99999 12 6.99999ZM12 8.99999C8.68629 8.99999 6 11.6863 6 15C6 18.3137 8.68629 21 12 21C15.3137 21 18 18.3137 18 15C18 11.6863 15.3137 8.99999 12 8.99999ZM12 10.5L13.3225 13.1797L16.2798 13.6094L14.1399 15.6953L14.645 18.6406L12 17.25L9.35497 18.6406L9.86012 15.6953L7.72025 13.6094L10.6775 13.1797L12 10.5ZM18 1.99999V4.99999L16.6366 6.13755C15.5305 5.5577 14.3025 5.17884 13.0011 5.04948L13 1.99899L18 1.99999ZM11 1.99899L10.9997 5.04939C9.6984 5.17863 8.47046 5.55735 7.36441 6.13703L6 4.99999V1.99999L11 1.99899Z"></path></svg>
                             <p class="text-[#767F8C] my-1 uppercase">{{ __('frontend.years_of_experience') }}</p>
-                            <p class="text-[#18191C] text-[15px] font-medium uppercase">{{ $jobPost['no_of_vacancies'] }}</p>
+                            <p class="text-[#18191C] text-[15px] font-medium uppercase">{{ $jobPost['years_of_experience'] }}</p>
                         </div>
                     </div>
                 </div>
