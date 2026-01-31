@@ -73,6 +73,15 @@ Route::prefix('lawyer')->middleware(['auth.frontend', 'checkFrontendUserType:law
         ]);
     })->name('lawyer.dashboard.active.hours');
 
+    Route::get('/online-status', function () {
+        $is_online = getOnlineStatus();
+        return response()->json([
+            'is_online' => $is_online,
+            'seconds'   => getTodaysActiveSeconds(auth('frontend')->id()),
+        ]);
+    });
+
+
     Route::post('/user/change-online-status', [LawyerController::class, 'changeOnlineStatus'])->name('lawyer.changeOnlineStatus');
 
     Route::get('/profile', [LawyerController::class, 'lawyerProfile'])->name('lawyer.profile');

@@ -56,6 +56,7 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/report-problem-content', [UserController::class, 'getReportProblemFormData']);
         Route::post('/rate-us', [UserController::class, 'rateUs']);
         Route::post('/user/online-status', [UserController::class, 'updateOnlineStatus']);
+        Route::get('/lawyer/online-status', [UserController::class, 'getLawyerOnlineStatus']);
 
         //Lawyer Account APIs
         Route::get('/lawyer/dashboard', [LawyerController::class, 'dashboard']);

@@ -44,10 +44,7 @@ class LawyerController extends Controller
                                         ->whereDate('assigned_at', Carbon::today())
                                         ->count();
 
-        $totalAcceptedConsultations = ConsultationAssignment::with('consultation')
-                                        ->where('lawyer_id', $lawyerId)
-                                        ->where('status', 'accepted')
-                                        ->count();
+        $totalAcceptedConsultations = lawyerTotalAcceptedConsultations($lawyerId);
 
         $totalRejections = ConsultationAssignment::with('consultation')
                                         ->where('lawyer_id', $lawyerId)

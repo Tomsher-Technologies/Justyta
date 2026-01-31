@@ -282,8 +282,8 @@
 @section('script')
     <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
     <script>
-        let totalSeconds = 0;
-        let isOnline = false;
+        // let totalSeconds = 0;
+        //  isOnlineLawyer = false;
         let timer = null;
 
         function formatTime(seconds) {
@@ -299,31 +299,46 @@
         }
 
         function startTimer() {
-            if (!isOnline || timer) return;
+            if (!window.isOnlineLawyer || timer) return;
 
             console.log('⏱ Timer started');
 
             timer = setInterval(() => {
-                totalSeconds++;
+                window.todayActiveSeconds++;
                 document.getElementById('activeHours').innerText =
-                    formatTime(totalSeconds);
+                    formatTime(window.todayActiveSeconds);
             }, 1000);
         }
 
-        fetch('/lawyer/dashboard/active-hours')
-            .then(res => res.json())
-            .then(data => {
-                console.log('API data:', data);
-
-                totalSeconds = parseInt(data.seconds, 10);
-                isOnline = data.is_online === true || data.is_online === 1;
-
-                document.getElementById('activeHours').innerText =
-                    formatTime(totalSeconds);
-
+        setInterval(() => {
+            if (window.isOnlineLawyer) {
                 startTimer();
-            })
-            .catch(err => console.error('Active hours error:', err));
+            } else {
+                stopTimer();
+            }
+        }, 1000);
+
+        function stopTimer() {
+            if (timer) {
+                console.log('⏹ Timer stopped');
+                clearInterval(timer);
+                timer = null;
+            }
+        }
+
+        fetch('/lawyer/dashboard/active-hours')
+        .then(res => res.json())
+        .then(data => {
+           
+            window.todayActiveSeconds = parseInt(data.seconds, 10);
+            window.isOnlineLawyer = data.is_online === true || data.is_online === 1;
+
+            document.getElementById('activeHours').innerText =
+                formatTime(window.todayActiveSeconds);
+
+            startTimer();
+        })
+        .catch(err => console.error('Active hours error:', err));
 
 
         const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
