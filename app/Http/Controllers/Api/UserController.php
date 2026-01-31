@@ -937,7 +937,7 @@ class UserController extends Controller
             'message' => 'Success',
             'data' => [
                 'is_online' => $user->is_online,
-                'todaySeconds' => $todaySeconds,
+                'today_seconds' => $todaySeconds,
             ]
         ]);
     }
