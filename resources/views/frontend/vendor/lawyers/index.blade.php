@@ -6,9 +6,9 @@
         <h2 class="text-xl font-semibold text-gray-800">{{ __('frontend.lawyers') }}</h2>
 
         @if (isVendorCanCreateLawyers())
-        <a href="{{ route('vendor.create.lawyers') }}" class="text-white bg-[#07683B] rounded-full py-2.5 px-6">
-            {{ __('frontend.create_lawyer') }}
-        </a>
+            <a href="{{ route('vendor.create.lawyers') }}" class="text-white bg-[#07683B] rounded-full py-2.5 px-6">
+                {{ __('frontend.create_lawyer') }}
+            </a>
         @endif
     </div>
     <form method="GET" id="filterForm" action="{{ route('vendor.lawyers') }}" autocomplete="off">
@@ -47,16 +47,17 @@
                     class="form-control select2 ip-gray radius-xs b-light px-15">
                     <option value="">{{ __('frontend.select_speciality') }}</option>
                     @foreach($dropdowns['specialities']->options as $option)
-                    <option value="{{ $option->id }}" {{ ($option->id == request()->specialities ) ? 'selected' : '' }}>
-                        {{ $option->getTranslation('name', app()->getLocale()) ?? '-' }}
-                    </option>
+                        <option value="{{ $option->id }}" {{ ($option->id == request()->specialities ) ? 'selected' : '' }}>
+                            {{ $option->getTranslation('name', app()->getLocale()) ?? '-' }}
+                        </option>
                     @endforeach
                 </select>
             </div>
 
             <div class="col-span-1 mb-3">
-                <a href="{{ route('vendor.lawyers') }}"
-                    class="bg-[#d0ba82] text-black px-6 py-2.5 text-center rounded-full">{{ __('frontend.reset') }}</a>
+                <a href="{{ route('vendor.lawyers') }}" class="bg-[#d0ba82] text-black px-6 py-2.5 text-center rounded-full">
+                    {{ __('frontend.reset') }}
+                </a>
             </div>
 
         </div>

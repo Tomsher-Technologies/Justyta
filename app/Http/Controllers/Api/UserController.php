@@ -925,4 +925,20 @@ class UserController extends Controller
             ]
         ]);
     }
+
+    public function getLawyerOnlineStatus(Request $request)
+    {
+        $lang       = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        $todaySeconds = getTodaysActiveSeconds($user->id);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Success',
+            'data' => [
+                'is_online' => $user->is_online,
+                'todaySeconds' => $todaySeconds,
+            ]
+        ]);
+    }
 }
