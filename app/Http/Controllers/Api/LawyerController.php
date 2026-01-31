@@ -70,12 +70,14 @@ class LawyerController extends Controller
         });
 
         $todayHours = getTodaysActiveHours($userId);
+        $todaySeconds = getTodaysActiveSeconds($userId);
         
         return response()->json([
             'status' => true,
             'message' => 'Success',
             'data' => [
                 'today_hours' => $todayHours,
+                'today_seconds' => $todaySeconds,
                 'total_consultations' => $totalConsultations,
                 'todays_consultations' => $todaysConsultations,
                 'recent_consultations' => $recentCons,

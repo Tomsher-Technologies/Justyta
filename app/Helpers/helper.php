@@ -198,7 +198,15 @@ function getTotalActiveHours($userId)
     return $hours;
 }
 
+function lawyerTotalAcceptedConsultations($lawyerId)
+{
+    $count = ConsultationAssignment::with('consultation')
+                                        ->where('lawyer_id', $lawyerId)
+                                        ->where('status', 'accepted')
+                                        ->count();
 
+    return $count;
+}
 
 function getCaseTypes($litigation_type, $litigation_place, $lang = 'en')
 {
