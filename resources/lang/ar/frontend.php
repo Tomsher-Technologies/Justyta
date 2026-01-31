@@ -520,5 +520,6 @@ return [
     'monthly' => 'شهري',
     'regular_consultation' => 'استشارة عادية',
     'specialized_consultation' => 'استشارة متخصصة',
+    'new' => 'جديد',
 
 ];
