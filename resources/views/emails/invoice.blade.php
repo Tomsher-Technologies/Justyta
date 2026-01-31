@@ -106,6 +106,8 @@
             This invoice reflects professional legal services facilitated through the Justyta platform.
             Fees are non-refundable once services are initiated. All services comply with UAE legal
             regulations.
+             This e-invoice has been generated electronically by the system and is valid without any 
+physical signature or company seal, in accordance with applicable laws and regulations.
         </div>
 
     </div>
