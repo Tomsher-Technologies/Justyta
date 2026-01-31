@@ -520,5 +520,6 @@ return [
     'monthly' => '每月',
     'regular_consultation' => '普通咨询',
     'specialized_consultation' => '专业咨询',
+    'new' => '新',
 
 ];

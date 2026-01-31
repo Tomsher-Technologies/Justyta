@@ -520,5 +520,6 @@ return [
     'monthly' => 'Ежемесячно',
     'regular_consultation' => 'Обычная консультация',
     'specialized_consultation' => 'Специализированная консультация',
+    'new' => 'Новый',
 
 ];
