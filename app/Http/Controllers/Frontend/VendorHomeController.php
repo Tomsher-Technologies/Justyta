@@ -959,10 +959,7 @@ class VendorHomeController extends Controller
                                     ->orderBy('id', 'desc')
                                     ->paginate(10);
 
-        $totalAcceptedConsultations = ConsultationAssignment::with('consultation')
-                                        ->where('lawyer_id', $id)
-                                        ->where('status', 'accepted')
-                                        ->count();
+        $totalAcceptedConsultations = lawyerTotalAcceptedConsultations($id);
 
         $totalRejections = ConsultationAssignment::with('consultation')
                                         ->where('lawyer_id', $id)

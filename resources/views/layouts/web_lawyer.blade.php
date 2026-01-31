@@ -265,6 +265,42 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
     <script src="{{ asset('assets/js/moment.js') }}"></script>
     <script src="{{ asset('assets/js/bootstrap/daterangepicker.min.js') }}"></script>
+    <script>
+        window.isOnlineLawyer = false;
+        window.todayActiveSeconds = 0;
+        const onlineToggle = document.getElementById('switch-online');
+        window.isOnlineLawyer = onlineToggle.checked;
+
+        function syncOnlineStatus() {
+            fetch('/lawyer/online-status', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                const isOnline = data.is_online == 1;
+
+                if (onlineToggle.checked !== isOnline) {
+                    onlineToggle.checked = isOnline;
+
+                    const label = onlineToggle.closest('label')
+                        .querySelector('span');
+
+                    label.textContent = isOnline
+                        ? "{{ __('frontend.online') }}"
+                        : "{{ __('frontend.offline') }}";
+                }
+                window.isOnlineLawyer = isOnline;
+                window.todayActiveSeconds = parseInt(data.seconds, 10);
+            })
+            .catch(() => {});
+        }
+        
+        // poll every 10 seconds
+        setInterval(syncOnlineStatus, 10000);
+    </script>
+
 
     <script>
         

@@ -198,7 +198,15 @@ function getTotalActiveHours($userId)
     return $hours;
 }
 
+function lawyerTotalAcceptedConsultations($lawyerId)
+{
+    $count = ConsultationAssignment::with('consultation')
+                                        ->where('lawyer_id', $lawyerId)
+                                        ->where('status', 'accepted')
+                                        ->count();
 
+    return $count;
+}
 
 function getCaseTypes($litigation_type, $litigation_place, $lang = 'en')
 {
@@ -1562,9 +1570,13 @@ function getFullStatusHistory(ServiceRequest $serviceRequest): array
 
     function getOnlineStatus()
     {
-        $userId = Auth::guard('frontend')->user()->id;
-        $user = User::find($userId);
-        return $user->is_online;
+        $user = Auth::guard('frontend')->user();
+
+        if (!$user) {
+            return 0;
+        }
+       
+        return User::where('id', $user->id)->value('is_online');
     }
 
     function getServiceData($serviceids){
