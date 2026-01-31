@@ -46,6 +46,12 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     {{ $notification['message'] ?? '-' }} {{ $notification['status'] ?? '' }}
+                                    @if($notification['read_status'])
+                                        <span class="ml-2 px-1 py-0.5 text-xs font-semibold text-red-600 border border-red-600 rounded">
+                                            {{ $notification['read_status'] }}
+                                        </span>
+                                    @endif 
+
                                 </td>
                                 <td class="px-6 py-4">
                                     {{ $notification['time'] }}

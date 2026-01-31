@@ -602,6 +602,8 @@ class VendorHomeController extends Controller
                                         'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                                     ]),
                                     'time'      => $notification->created_at->format('d M, Y h:i A'),
+                                    'read_status' => $notification->read_at !== null ? '' : __('frontend.new'),
+
                                 ];
                             });
 
