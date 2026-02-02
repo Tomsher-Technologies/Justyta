@@ -274,6 +274,19 @@ class ServiceRequestController extends Controller
                 $array['invoice_path'] = $pdfPath;
                 Mail::to($user->email)->queue(new CommonMail($array));
 
+                $arrayAdmin['subject'] =  'New Online Consultation Extend Request has been Submitted';
+                $arrayAdmin['from'] = env('MAIL_FROM_ADDRESS');
+                $arrayAdmin['content'] = "Hi Admin, <p> User $user->name has submitted request for extending online consultation.</p>
+
+                    <p>Reference Code: $consultation->ref_code</p>
+                    <p>Kindly check the admin panel for more details. </p><hr>
+                    <p style='font-size: 12px; color: #777;'>
+                        This email was sent to Admin.
+                    </p>";
+
+                $arrayAdmin['invoice_path'] = $pdfPath;
+                Mail::to(env('MAIL_ADMIN'))->queue(new CommonMail($arrayAdmin));
+
                 return view('frontend.user.service-requests.extend_success', compact('message','success'));
 
             }else{
@@ -1496,6 +1509,19 @@ class ServiceRequestController extends Controller
 
             $array['invoice_path'] = $pdfPath;
             Mail::to($user->email)->queue(new CommonMail($array));
+
+            $arrayAdmin['subject'] =  'New Online Consultation Request has been Submitted';
+            $arrayAdmin['from'] = env('MAIL_FROM_ADDRESS');
+            $arrayAdmin['content'] = "Hi Admin, <p> User $user->name has submitted request for online consultation.</p>
+
+                <p>Reference Code: $consultation->ref_code</p>
+                <p>Kindly check the admin panel for more details. </p><hr>
+                <p style='font-size: 12px; color: #777;'>
+                    This email was sent to Admin.
+                </p>";
+
+            $arrayAdmin['invoice_path'] = $pdfPath;
+            Mail::to(env('MAIL_ADMIN'))->queue(new CommonMail($arrayAdmin));
 
             return redirect()->route('user.consultation-payment.success', ['id' => base64_encode($consultation->id)]);
         }else{
@@ -3575,7 +3601,21 @@ class ServiceRequestController extends Controller
             Auth::guard('frontend')->user()->notify(new ServiceRequestSubmitted($serviceRequest, false, $pdfPath));
 
             $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
-            Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true, $pdfPath));
+            Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
+
+
+            $arrayAdmin['subject'] =  'New '.$service?->name.' Request has been Submitted';
+            $arrayAdmin['from'] = env('MAIL_FROM_ADDRESS');
+            $arrayAdmin['content'] = "Hi Admin, <p> User $user->name has submitted request for $service->name.</p>
+
+                <p>Reference Code: $serviceRequest->reference_code</p>
+                <p>Kindly check the admin panel for more details. </p><hr>
+                <p style='font-size: 12px; color: #777;'>
+                    This email was sent to Admin.
+                </p>";
+
+            $arrayAdmin['invoice_path'] = $pdfPath;
+            Mail::to(env('MAIL_ADMIN'))->queue(new CommonMail($arrayAdmin));
 
             return redirect()->route('user.payment-request-success', ['reqid' => base64_encode($serviceRequest->id)]);
         } else {
