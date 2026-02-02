@@ -53,6 +53,8 @@ use GuzzleHttp\Client;
 use Carbon\Carbon;
 use App\Models\Invoice;
 use App\Services\InvoiceService;
+use App\Mail\CommonMail;
+use Illuminate\Support\Facades\Mail;
 
 class ServiceController extends Controller
 {
@@ -3404,7 +3406,21 @@ class ServiceController extends Controller
                 $request->user()->notify(new ServiceRequestSubmitted($serviceRequest, false, $pdfPath));
 
                 $usersToNotify = getUsersWithPermissions(['view-'.$serviceRequest->service_slug,'change-status-'.$serviceRequest->service_slug]);
-                Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true, $pdfPath));
+                Notification::send($usersToNotify, new ServiceRequestSubmitted($serviceRequest, true));
+
+
+                $arrayAdmin['subject'] =  'New '.$service?->name.' Request has been Submitted';
+                $arrayAdmin['from'] = env('MAIL_FROM_ADDRESS');
+                $arrayAdmin['content'] = "Hi Admin, <p> User $user->name has submitted request for $service->name.</p>
+
+                    <p>Reference Code: $serviceRequest->reference_code</p>
+                    <p>Kindly check the admin panel for more details. </p><hr>
+                    <p style='font-size: 12px; color: #777;'>
+                        This email was sent to Admin.
+                    </p>";
+
+                $arrayAdmin['invoice_path'] = $pdfPath;
+                Mail::to(env('MAIL_ADMIN'))->queue(new CommonMail($arrayAdmin));
                 
                 return response()->json([
                     'status' => true,
