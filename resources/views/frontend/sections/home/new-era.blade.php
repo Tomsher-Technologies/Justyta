@@ -1,4 +1,4 @@
-    <section class="bg-[#B9A572] px-5 md:px-5 lg:px-5 py-[80px] gap-4">
+    <section class="bg-[#B9A572] px-10 md:px-10 lg:px-10 py-[80px] gap-4">
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <div class="text-white">
                 @if (!empty($section->getTranslation('title', $lang)))

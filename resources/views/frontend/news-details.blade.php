@@ -6,7 +6,7 @@
 $translation = $news->translate($lang);
 @endphp
 
-<section class="py-[40px] px-5 md:px-5 lg:px-5 my-14 relative overflow-hidden flex-grow">
+<section class="py-[40px] px-10 md:px-10 lg:px-10 my-14 relative overflow-hidden flex-grow">
     <div class="container m-auto">
         <div class="bg-white p-6 rounded-lg shadow-sm">
             @if($news->image)
