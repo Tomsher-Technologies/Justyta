@@ -1,4 +1,4 @@
-    <section class="bg-[#FFF] px-5 md:px-5 lg:px-5 py-[80px]">
+    <section class="bg-[#FFF] px-10 md:px-10 lg:px-10 py-[80px]">
         <div class="grid grid-cols-1 xl:grid-cols-2 items-center">
             <div>
                 <h3 class="xl:text-[40px] text-[28px] leading-[32px]  font-cinzel font-bold xl:leading-[55px] mb-5"> {!! $section->getTranslation('title', $lang) !!}</h3>
