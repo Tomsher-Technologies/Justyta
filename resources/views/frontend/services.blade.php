@@ -1,7 +1,7 @@
 @extends('layouts.web_login', ['title' => 'Services'])
 
 @section('content')
-    <section class="py-[40px] md:py-[0px] px-5 md:px-5 lg:px-5 mb-12">
+    <section class="py-[40px] md:py-[0px] px-10 md:px-10 lg:px-10 mb-12">
 
         @php
             $pageData = $page->sections->first();

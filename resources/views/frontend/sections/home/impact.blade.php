@@ -1,4 +1,4 @@
-    <section class="bg-[#fff] px-5 md:px-5 lg:px-5 py-[80px] relative">
+    <section class="bg-[#fff] px-10 md:px-10 lg:px-10 py-[80px] relative">
         <div class="bg-[#FFF9F4] p-4 xl:p-12 h-full ">
             <div class="w-[100%] xl:w-[60%]">
                 <h4 class="text-[24px] font-medium mb-3"> {!! $section->getTranslation('subtitle', $lang) !!}</h4>

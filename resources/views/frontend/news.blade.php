@@ -1,7 +1,7 @@
 @extends('layouts.web_login', ['title' => 'Services'])
 
 @section('content')
-    <section class="py-[40px] px-5 md:px-5 lg:px-5 my-14 relative overflow-hidden flex-grow">
+    <section class="py-[40px] px-10 md:px-10 lg:px-10 my-14 relative overflow-hidden flex-grow">
 
         @php
             $pageData = $page->sections->first();

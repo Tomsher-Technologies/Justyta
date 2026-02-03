@@ -1,4 +1,4 @@
-    <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 py-[80px]">
+    <section class="bg-[#FFF7F0] px-10 md:px-10 lg:px-10 py-[80px]">
         <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">{!! $section->getTranslation('title', $lang) !!}</h4>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             @foreach ($news as $item)
