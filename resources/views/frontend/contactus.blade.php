@@ -1,7 +1,7 @@
 @extends('layouts.web_login', ['title' => 'Contact Us'])
 
 @section('content')
-    <section class="py-[40px] my-14 min-h-screen">
+    <section class="py-[40px] my-14 min-h-screen px-10 md:px-10 lg:px-10">
 
         @php
             $pageData = $page->sections->first();

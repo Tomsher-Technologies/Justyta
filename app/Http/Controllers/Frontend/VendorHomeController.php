@@ -249,6 +249,30 @@ class VendorHomeController extends Controller
             </p>";
 
             Mail::to($vendor->owner_email)->queue(new CommonMail($array));
+
+            $arrayAdmin['subject'] =  'Subscription Successful - ' . env('APP_NAME', 'Justyta');
+            $arrayAdmin['from'] = env('MAIL_FROM_ADDRESS');
+            $arrayAdmin['content'] = "Hi Admin, <p> User $vendor->owner_name has subscribed to $plan->title plan.</p>
+
+                <p>Subscription details:</p>
+
+                <ul>
+                    <li><strong>Firm Name:</strong> $vendor->law_firm_name</li>
+                    <li><strong>Registered Email:</strong> $vendor->owner_email</li>
+                    <li><strong>Plan:</strong> $plan->title</li>
+                    <li><strong>Plan Start Date:</strong> " . \Carbon\Carbon::parse(now())->format('d M, Y') . "</li>
+                    <li><strong>Plan Expiry Date:</strong> " . \Carbon\Carbon::parse(now()->addYear())->format('d M, Y') . "</li>
+                    <li><strong>Paid Amount:</strong> " . env('APP_CURRENCY', 'AED') . " " . number_format($subscription->amount, 2) . " (Including VAT " . env('APP_CURRENCY', 'AED') . " " . number_format($vatValue, 2) . ")</li>
+                </ul>
+                <p>Kindly check the admin panel for more details. </p><hr>
+                <p style='font-size: 12px; color: #777;'>
+                    This email was sent to Admin.
+                </p>";
+
+            $arrayAdmin['invoice_path'] = $pdfPath;
+            Mail::to(env('MAIL_ADMIN'))->queue(new CommonMail($arrayAdmin));
+
+
             return redirect()->route('vendor.membership-plan')->with('success', __('frontend.subscription_success'));
         } else {
             $lastPlanStatus = $vendor->latestSubscription?->status;
@@ -602,6 +626,8 @@ class VendorHomeController extends Controller
                                         'status' => isset($data['status']) ? ucwords(str_replace('_', ' ', (string)$data['status'])) : "",
                                     ]),
                                     'time'      => $notification->created_at->format('d M, Y h:i A'),
+                                    'read_status' => $notification->read_at !== null ? '' : __('frontend.new'),
+
                                 ];
                             });
 
@@ -959,10 +985,7 @@ class VendorHomeController extends Controller
                                     ->orderBy('id', 'desc')
                                     ->paginate(10);
 
-        $totalAcceptedConsultations = ConsultationAssignment::with('consultation')
-                                        ->where('lawyer_id', $id)
-                                        ->where('status', 'accepted')
-                                        ->count();
+        $totalAcceptedConsultations = lawyerTotalAcceptedConsultations($id);
 
         $totalRejections = ConsultationAssignment::with('consultation')
                                         ->where('lawyer_id', $id)

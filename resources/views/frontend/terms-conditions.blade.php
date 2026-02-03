@@ -3,7 +3,7 @@
 @section('content')    
 
     <section class="py-[40px] md:py-[0px] px-0 md:px-10 lg:px-20 xl:px-0">
-      <div class="container m-auto px-5 md:px-20">
+      <div class="container m-auto px-10 md:px-10 lg:px-10">
          <!-- Title -->
          @php
             $pageData = $page->sections->first();

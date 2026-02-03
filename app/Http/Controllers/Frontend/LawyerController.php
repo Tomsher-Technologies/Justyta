@@ -44,10 +44,7 @@ class LawyerController extends Controller
                                         ->whereDate('assigned_at', Carbon::today())
                                         ->count();
 
-        $totalAcceptedConsultations = ConsultationAssignment::with('consultation')
-                                        ->where('lawyer_id', $lawyerId)
-                                        ->where('status', 'accepted')
-                                        ->count();
+        $totalAcceptedConsultations = lawyerTotalAcceptedConsultations($lawyerId);
 
         $totalRejections = ConsultationAssignment::with('consultation')
                                         ->where('lawyer_id', $lawyerId)
@@ -171,9 +168,10 @@ class LawyerController extends Controller
                                     'id'   => $notification->id,
                                     'message'   => __($notification->data['message'], [
                                         'reference' => $data['reference_code'] ?? $data['reference'] ?? "",
-                                        'status' => $data['status'] ?? "",
+                                        'status' => $data['status'] ?? ""
                                     ]),
                                     'time'      => $notification->created_at->format('d M, Y h:i A'),
+                                    'read_status' => $notification->read_at !== null ? '' : __('frontend.new'),
                                 ];
                             });
 

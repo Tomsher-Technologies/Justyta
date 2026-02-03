@@ -3,7 +3,7 @@
 @section('content') 
 
 @if($page && $page->sections->count() > 0)
-<div class="py-[30px] md:py-[80px]">
+<div class="py-[30px] md:py-[80px] px-10 md:px-10 lg:px-10">
 
     @foreach($page->sections as $section)
         @if($section->status == 1)
