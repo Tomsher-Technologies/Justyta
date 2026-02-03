@@ -1,4 +1,4 @@
-    <section class="bg-[#FFF7F0] px-5 md:px-5 lg:px-5 py-[80px]">
+    <section class="bg-[#FFF7F0] px-10 md:px-10 lg:px-10 py-[80px]">
         <div class="grid grid-cols-1 xl:grid-cols-2 w-[100%] xl:w-[80%] m-auto items-center gap-6">
             <img src="{{ asset($section->image) }}" alt="">
             <div>
