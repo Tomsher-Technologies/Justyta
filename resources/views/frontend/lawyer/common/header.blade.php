@@ -1,7 +1,13 @@
-<nav class="grid grid-cols-3 gap-5 items-center justify-between mb-5">
+<nav class="grid grid-cols-[1fr_auto_auto] gap-5 items-center justify-between mb-5 pt-4 xl:pt-0">
+
+   <button id="openSidebar" class="xl:hidden py-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="black" stroke-width="2">
+            <path d="M4 8h24M4 16h24M4 24h24" />
+        </svg>
+    </button>
 
 
-    <div class="relative hidden lg:block w-full">
+    <div class="relative hidden xl:block w-full">
         {{-- <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
             <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -19,12 +25,12 @@
         </div> --}}
     </div>
 
-    <div class="flex items-center">
+    <div class="flex items-center justify-center">
         @php
         $onlineStatus = getOnlineStatus();
         @endphp
         <label for="switch-online" class="flex items-center cursor-pointer">
-            <span class="mr-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+            <span class="mr-1.5 text-sm font-medium text-gray-900 hidden xl:block">
                 @if($onlineStatus == 1)
                 {{ __('frontend.online') }}
                 @else
@@ -81,7 +87,7 @@
         </div>
 
         <button id="userDropdownButton" data-dropdown-toggle="userDropdown"
-            class="flex items-center p-3 px-5 space-x-2 text-white bg-[#04502E] hover:bg-[#023A21] p-1 rounded-full">
+            class="flex items-center p-0 md:p-3  px-1 xl:px-5 space-x-2 text-white bg-[#04502E] hover:bg-[#023A21] p-1 rounded-full">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="21" viewBox="0 0 22 21" fill="none">
                 <g clip-path="url(#clip0_331_567)">
                     <path

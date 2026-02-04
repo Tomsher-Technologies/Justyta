@@ -67,7 +67,7 @@
                          @if (!empty($link['icon']) && !empty($link['url']))
                              <li>
                                  <a href="{{ $link['url'] }}" target="_blank"
-                                     class="bg-white block h-8 w-8 xl:h-12 xl:w-12 p-1.5 xl:p-3 rounded-full social-icon-svg"
+                                     class="bg-white block h-8 w-8 xl:h-12 xl:w-12 p-2 xl:p-3 rounded-full social-icon-svg"
                                      title="{{ $link['title'] ?? '' }}">
                                      {!! $link['icon'] !!}
                                  </a>

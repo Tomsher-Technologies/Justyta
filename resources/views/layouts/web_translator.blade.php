@@ -63,7 +63,7 @@
 </head>
 
 <body class="min-h-screen flex flex-col !m-0">
-    <div class="flex min-h-screen flex-wrap bg-[#FDF8F4] text-[#1A1A1A] px-[0px] xl:px-[50px] gradient-primary xl:!pt-10">
+    <div class="lg:flex min-h-screen flex-wrap bg-[#FDF8F4] text-[#1A1A1A] px-[0px] xl:px-[50px] gradient-primary xl:!pt-10">
         <!-- Sidebar -->
         @include('frontend.translator.common.sidebar')
         <!-- Main Content -->

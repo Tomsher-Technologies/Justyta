@@ -5,7 +5,7 @@
     <h2 class="text-xl font-medium text-gray-800 mb-4">
         {{ __('frontend.dashboard') }}
     </h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6 gap-4 mb-6">
         <a href="{{ route('vendor.lawyers') }}">
             <div class="bg-white rounded-lg p-6 flex justify-between items-start space-x-4 border border-[#FFE9B1] h-full">
                 <div>
@@ -233,7 +233,7 @@
         <h2 class="text-xl font-medium text-gray-900 mb-4">
             {{ __('frontend.recent_consultations') }}
         </h2>
-        <div class="relative overflow-x-auto sm:rounded-lg w-[240px] xl:w-full w-[240px] xl:w-full">
+        <div class="relative overflow-x-auto sm:rounded-lg w-full">
             <table class="w-full border">
                 <thead class="text-md font-normal">
                     <tr class="bg-[#07683B] text-white font-normal">
