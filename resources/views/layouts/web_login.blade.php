@@ -26,7 +26,7 @@
    </style>
 </head>
 
-<body class="bg-white min-h-screen flex flex-col">
+<body class="bg-white flex flex-col">
     @include('frontend.include.header')
 
     @yield('content')
