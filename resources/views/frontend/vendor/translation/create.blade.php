@@ -118,7 +118,7 @@
                         {{ __('frontend.upload_documents') }}
                     </h2>
 
-                    <div class="grid grid-cols-3 gap-x-6 gap-6">
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-x-6 gap-6">
                         <div>
                             <label for="memo" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.memo') }}
                                 {{-- <span class="text-red-500">*</span> --}}

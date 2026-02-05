@@ -11,7 +11,7 @@
     <form method="GET" id="filterForm" action="{{ route('vendor.consultations.index') }}" autocomplete="off">
         <div class="grid grid-cols-1 md:grid-cols-12 items-end gap-4 mb-8">
 
-            <div class="relative col-span-2">
+            <div class="relative col-span-4 xl:col-span-2">
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                     <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -24,13 +24,13 @@
                     placeholder="{{ __('frontend.search_ref_no') }}" required />
             </div>
 
-            <div class="col-span-3">
+            <div class="col-span-4  xl:col-span-3">
                 <label for="countries" class="block mb-2 text-sm font-medium text-gray-900">{{ __('frontend.date') }}</label>
                
                 <input type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5 date-range-picker" name="daterange" placeholder="{{ __('frontend.from_date_to_date') }}" value="{{ request('daterange') }}">
             </div>
 
-            <div class="col-span-3">
+            <div class="col-span-4  xl:col-span-3">
                 <label for="status" class="block mb-2 text-sm font-medium text-gray-900">{{ __('frontend.case_type') }}</label>
               
                 <select name="specialities" id="select-tag" class=" bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"  data-placeholder="{{ __('frontend.case_type') }}">
@@ -44,7 +44,7 @@
 
             </div>
 
-            <div class="col-span-3">
+            <div class="col-span-4  xl:col-span-3">
                 <label for="lawyer_id" class="block mb-2 text-sm font-medium text-gray-900">{{ __('frontend.lawyer') }}</label>
               
                 <select name="lawyer_id" id="lawyer_id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3.5"  data-placeholder="{{ __('frontend.select_lawyer') }}">
@@ -63,7 +63,7 @@
             </div>
         </div>
     </form>
-    <div class="relative overflow-x-auto sm:rounded-lg w-[240px] xl:w-full">
+    <div class="relative overflow-x-auto sm:rounded-lg w-full">
         <table class="w-full border">
             <thead class="text-md font-normal">
                 <tr class="bg-[#07683B] text-white font-normal">

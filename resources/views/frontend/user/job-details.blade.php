@@ -12,7 +12,7 @@
             <div>
                 @if (!$hasApplied)
                      <a  href="{{ route('user.job.details.apply',['id' => base64_encode($jobPost['id'])]) }}"
-                    class="inline-flex items-center px-4 py-2 text-white bg-[#07683B] hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-full text-base dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
+                    class="inline-flex text-[12px] xl:[16px] items-center px-4 py-2 text-white bg-[#07683B] hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-full text-base dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
                         {{ __('frontend.apply_now') }}
                         <svg class="w-4 h-4 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 14 10">
@@ -27,7 +27,7 @@
                 @endif
                
                 <a href="{{ Session::has('jobs_last_url') ? Session::get('jobs_last_url') : route('user-lawfirm-jobs') }}"
-                    class="inline-flex items-center mt-3 xl:mt-0 px-4 py-2 text-white bg-[#c4b07e] hover:bg-[#c4b07e]-800 focus:ring-4 focus:ring-green-300 font-medium rounded-full text-base dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
+                    class="inline-flex text-[12px] xl:[16px] items-center mt-3 xl:mt-0 px-4 py-2 text-white bg-[#c4b07e] hover:bg-[#c4b07e]-800 focus:ring-4 focus:ring-green-300 font-medium rounded-full text-base dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800">
                     <svg class="w-4 h-4 me-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10" aria-hidden="true">
                         <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 5H1m0 0l4-4M1 5l4 4" />
@@ -61,7 +61,7 @@
                 </div>
 
                 <div class="bg-white border border-gray-200 rounded-lg p-5">
-                    <h3 class="text-lg font-medium mb-6">{{ __('frontend.job_overview') }}</h3>
+                    <h3 class="text-lg font-medium mb-12 xl:mb-6">{{ __('frontend.job_overview') }}</h3>
                     <div class="grid grid-cols-2 gap-4 text-gray-700 text-sm ">
                         <div class="mb-2 text-center">
                             <svg class="text-center m-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="rgba(185,165,114,1)"><path d="M9 1V3H15V1H17V3H21C21.5523 3 22 3.44772 22 4V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H7V1H9ZM20 10H4V19H20V10ZM15.0355 11.136L16.4497 12.5503L11.5 17.5L7.96447 13.9645L9.37868 12.5503L11.5 14.6716L15.0355 11.136ZM7 5H4V8H20V5H17V6H15V5H9V6H7V5Z"></path></svg>

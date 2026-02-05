@@ -1,4 +1,4 @@
-<nav class="grid grid-cols-2 gap-5 grid-cols-[2fr_1fr] items-center justify-between mb-5">
+<nav class="grid gap-5 grid-cols-[1fr_auto_auto] items-center justify-between mb-5">
     <!-- Mobile Menu Button -->
     <button id="openSidebar" class="xl:hidden py-3">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="black" stroke-width="2">
@@ -24,7 +24,7 @@
         </div> --}}
     </div>
 
-    <div class="flex items-center justify-end gap-4 flex-row-reverse">
+    <div class="flex items-center justify-start xl:justify-end gap-4">
         <button type="button"
             class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">
             <a href="{{ route('vendor.notifications.index') }}">
