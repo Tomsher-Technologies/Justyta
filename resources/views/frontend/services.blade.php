@@ -1,7 +1,7 @@
 @extends('layouts.web_login', ['title' => 'Services'])
 
 @section('content')
-    <section class="py-[40px] md:py-[0px] px-10 md:px-10 lg:px-10 mb-12">
+    <section class="py-[40px] md:py-[0px] px-5 md:px-10 lg:px-10 mb-12">
 
         @php
             $pageData = $page->sections->first();
@@ -10,7 +10,7 @@
         <div class="container m-auto mt-8">
             <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">{{ $pageData?->getTranslation('title', $lang) }}</h4>
 
-            <div class="grid grid-cols-1 xl:grid-cols-5 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
                 @foreach ($services as $service)
                     <div class="bg-white p-8  rounded-lg border border-gray-300">
                         <img src="{{ asset(getUploadedImage($service->icon)) }}" alt="Service Image"
