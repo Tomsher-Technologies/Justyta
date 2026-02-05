@@ -27,7 +27,7 @@
                     placeholder="{{ __('frontend.search_name_email_phone') }}" />
             </div>
 
-            <div class="col-span-2">
+            <div class="col-span-4 xl:col-span-2">
                 <label for="status" class="block mb-2 text-sm font-medium text-gray-900">{{ __('frontend.status')
                     }}</label>
                 <select name="status"
@@ -63,7 +63,7 @@
         </div>
     </form>
     @if ($lawyers->isNotEmpty())
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3  gap-6">
         @foreach ($lawyers as $key => $lawyer)
         <div
             class="{{ $lawyer->user->banned == 1 ? 'bg-gray-100 opacity-50' : 'bg-white' }} rounded-lg border border-[#DDD3B9] p-6 relative">

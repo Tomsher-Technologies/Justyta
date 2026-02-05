@@ -1,8 +1,8 @@
 @extends('layouts.web_login', ['title' => __('frontend.sign_up')])
 
 @section('content')
-<section class="px-[20px] py-[20px] md:px-[100px] md:py-[80px]">
-    <div class="w-full p-8 space-y-6 p-5 bg-white rounded-lg ">
+<section class="px-5 md:px-10 lg:px-10 py-[20px]">
+    <div class="w-full  space-y-6 p-5 xl:p-8 bg-white rounded-lg ">
         <form action="{{ route('law-firm.register.submit') }}" id="signupForm" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="space-y-8">
@@ -16,7 +16,7 @@
 
                 <div>
                     <h3 class="text-xl font-medium text-[#07683B] mb-4">{{ __('frontend.law_firm_information') }}</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                         <div>
                             <label
                                 class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.law_firm_name') }}<span
@@ -147,7 +147,7 @@
                             ({{ __('frontend.file_size_info_image') }})
                         </small>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                         <div>
                             <label
                                 class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.full_name') }}<span
@@ -415,7 +415,7 @@
                     <!-- Modal header -->
                     <div class="flex items-center justify-end p-4 pb-0">
                         <button type="button"
-                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                            class="text-gray-400 absolute top-5 right-5 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
                             data-modal-hide="plan-modal">
                             <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 14 14">
@@ -428,117 +428,130 @@
 
                     <!-- Modal body -->
                     <div class="p-4 md:p-5 space-y-4">
-                        <section class="py-10 px-4 md:px-16 pt-0">
+                        <section class="py-10 px-4 md:px-8 pt-0">
                             <div class="mb-10 text-center">
-                                <h3 class="text-3xl font-medium text-gray-800">{{ __('frontend.membership_plans') }}</h3>
+                                <h3 class="text-xl xl:text-3xl font-medium text-[#04502e]">{{ __('frontend.membership_plans') }}</h3>
                                 <p class="text-[#52575D]">{{ __('frontend.choose_plan_description') }}</p>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                @foreach ($plans as $plan)
-                                <div class="bg-white rounded-2xl border border-gray-300 p-6 flex flex-col h-full">
-                                    <!-- Header -->
-                                    <div class="flex items-start justify-between mb-4">
-                                        <div>
-                                            <h2 class="text-xl font-medium text-gray-800">{{ $plan->getTranslation('title') }}
-                                            </h2>
-                                            <p class="text-2xl font-semibold text-gray-800 mb-0">
-                                                {{ number_format($plan->amount, 2) }} {{ __('frontend.AED') }}
-                                            </p>
+                    <div
+    class="flex gap-4 overflow-x-auto snap-x snap-mandatory
+           md:grid md:grid-cols-2 md:gap-8 md:overflow-visible
+           -mx-4 px-4 md:mx-0 md:px-0">
 
-                                            @php
-                                                $vatValue =  ($plan->plain_amount != 0 && $plan->vat_amount != 0) ? ($plan->plain_amount * $plan->vat_amount) / 100 : 0;
-                                            @endphp
+    @foreach ($plans as $plan)
+        <div
+            class="bg-white rounded-2xl border border-gray-300 p-4 xl:p-6 flex flex-col h-full
+                   min-w-[85%] sm:min-w-[70%] md:min-w-0 snap-start">
 
-                                            <span class="text-xs">{{ __('frontend.including_vat') }} {{ __('frontend.AED') }} {{ number_format($vatValue, 2) }}</span>
-                                            
-                                        </div>
-                                        @if ($plan->icon)
-                                        <img src="{{ asset(getUploadedImage($plan->icon)) }}"
-                                            alt="{{ $plan->getTranslation('title') }}" class="h-16 w-16 object-contain">
-                                        @endif
-                                    </div>
+            <!-- Header -->
+            <div class="flex flex-col xl:flex-row items-start justify-between mb-4">
+                <div>
+                    <h2 class="text-xl font-medium text-[#04502e]">
+                        {{ $plan->getTranslation('title') }}
+                    </h2>
 
-                                    <!-- Features -->
-                                    <ul class="space-y-2 text-sm text-gray-600 flex-1">
-                                        <li class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 mt-1 text-green-600" fill="currentColor"
-                                                viewBox="0 0 20 20">
-                                                <path
-                                                    d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
-                                            </svg>
-                                            {{ $plan->live_online ? __('frontend.live_online_access') : '-' }}
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 mt-1 text-green-600" fill="currentColor"
-                                                viewBox="0 0 20 20">
-                                                <path
-                                                    d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
-                                            </svg>
-                                            {{ $plan->specific_law_firm_choice ? __('frontend.specific_law_firm_choice') : '-' }}
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 mt-1 text-green-600" fill="currentColor"
-                                                viewBox="0 0 20 20">
-                                                <path
-                                                    d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
-                                            </svg>
-                                            {{ $plan->annual_legal_contract ? __('frontend.annual_legal_contract') : '-' }}
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 mt-1 text-green-600" fill="currentColor"
-                                                viewBox="0 0 20 20">
-                                                <path
-                                                    d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
-                                            </svg>
-                                            {{ __('frontend.up_to') }} {{ $plan->member_count }} {{ __('frontend.user_access') }}
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 mt-1 text-green-600" fill="currentColor"
-                                                viewBox="0 0 20 20">
-                                                <path
-                                                    d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
-                                            </svg>
-                                            {{ $plan->job_post_count === 0 ? __('frontend.unlimited_job_posts') : $plan->job_post_count . ' '. __('frontend.job_posts_month') }}
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 mt-1 text-green-600" fill="currentColor"
-                                                viewBox="0 0 20 20">
-                                                <path
-                                                    d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
-                                            </svg>
-                                            @if ($plan->annual_free_ad_days != 0)
-                                            {{ $plan->annual_free_ad_days }} {{ __('frontend.free_ad_days') }}
-                                            @else
-                                            -
-                                            @endif
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 mt-1 text-green-600" fill="currentColor"
-                                                viewBox="0 0 20 20">
-                                                <path
-                                                    d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
-                                            </svg>
-                                            {{ $plan->unlimited_training_applications ? __('frontend.unlimited_training_applications') : '-' }}
-                                        </li>
-                                        <li class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 mt-1 text-green-600" fill="currentColor"
-                                                viewBox="0 0 20 20">
-                                                <path
-                                                    d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" />
-                                            </svg>
-                                            @if ($plan->welcome_gift === 'premium')
-                                            {{ __('frontend.premium_welcome_gift') }}
-                                            @elseif($plan->welcome_gift === 'special')
-                                            {{ __('frontend.special_welcome_gift') }}
-                                            @else
-                                            {{ __('frontend.no_welcome_gift') }}
-                                            @endif
-                                        </li>
-                                    </ul>
-                                </div>
-                                @endforeach
-                            </div>
+                    <p class="text-md xl:text-2xl font-semibold text-gray-800 mb-0">
+                        {{ number_format($plan->amount, 2) }} {{ __('frontend.AED') }}
+                    </p>
+
+                    @php
+                        $vatValue = ($plan->plain_amount != 0 && $plan->vat_amount != 0)
+                            ? ($plan->plain_amount * $plan->vat_amount) / 100
+                            : 0;
+                    @endphp
+
+                    <span class="text-xs">
+                        {{ __('frontend.including_vat') }}
+                        {{ __('frontend.AED') }}
+                        {{ number_format($vatValue, 2) }}
+                    </span>
+                </div>
+
+                @if ($plan->icon)
+                    <img
+                        src="{{ asset(getUploadedImage($plan->icon)) }}"
+                        alt="{{ $plan->getTranslation('title') }}"
+                        class="h-16 w-16 object-contain"
+                    >
+                @endif
+            </div>
+
+            <!-- Features -->
+            <ul class="space-y-2 text-sm text-gray-600 flex-1">
+                <li class="flex items-start gap-2">
+                    <svg class="w-4 h-4 mt-1 text-green-600 hidden md:block" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"/>
+                    </svg>
+                    {{ $plan->live_online ? __('frontend.live_online_access') : '-' }}
+                </li>
+
+                <li class="flex items-start gap-2">
+                    <svg class="w-4 h-4 mt-1 text-green-600 hidden md:block" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"/>
+                    </svg>
+                    {{ $plan->specific_law_firm_choice ? __('frontend.specific_law_firm_choice') : '-' }}
+                </li>
+
+                <li class="flex items-start gap-2">
+                    <svg class="w-4 h-4 mt-1 text-green-600 hidden md:block" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"/>
+                    </svg>
+                    {{ $plan->annual_legal_contract ? __('frontend.annual_legal_contract') : '-' }}
+                </li>
+
+                <li class="flex items-start gap-2">
+                    <svg class="w-4 h-4 mt-1 text-green-600 hidden md:block" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"/>
+                    </svg>
+                    {{ __('frontend.up_to') }} {{ $plan->member_count }} {{ __('frontend.user_access') }}
+                </li>
+
+                <li class="flex items-start gap-2">
+                    <svg class="w-4 h-4 mt-1 text-green-600 hidden md:block" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"/>
+                    </svg>
+                    {{ $plan->job_post_count === 0
+                        ? __('frontend.unlimited_job_posts')
+                        : $plan->job_post_count . ' ' . __('frontend.job_posts_month') }}
+                </li>
+
+                <li class="flex items-start gap-2">
+                    <svg class="w-4 h-4 mt-1 text-green-600 hidden md:block" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"/>
+                    </svg>
+                    @if ($plan->annual_free_ad_days != 0)
+                        {{ $plan->annual_free_ad_days }} {{ __('frontend.free_ad_days') }}
+                    @else
+                        -
+                    @endif
+                </li>
+
+                <li class="flex items-start gap-2">
+                    <svg class="w-4 h-4 mt-1 text-green-600 hidden md:block" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"/>
+                    </svg>
+                    {{ $plan->unlimited_training_applications ? __('frontend.unlimited_training_applications') : '-' }}
+                </li>
+
+                <li class="flex items-start gap-2">
+                    <svg class="w-4 h-4 mt-1 text-green-600 hidden md:block" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"/>
+                    </svg>
+                    @if ($plan->welcome_gift === 'premium')
+                        {{ __('frontend.premium_welcome_gift') }}
+                    @elseif ($plan->welcome_gift === 'special')
+                        {{ __('frontend.special_welcome_gift') }}
+                    @else
+                        {{ __('frontend.no_welcome_gift') }}
+                    @endif
+                </li>
+            </ul>
+        </div>
+    @endforeach
+</div>
+
+
                         </section>
                     </div>
                 </div>

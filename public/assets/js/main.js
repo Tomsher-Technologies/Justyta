@@ -1158,7 +1158,6 @@
 })(jQuery);
 
 
-
   function stickyFooter() {
     const footer = $('#footer');
     const footerHeight = footer.outerHeight();

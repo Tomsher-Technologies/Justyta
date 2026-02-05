@@ -341,7 +341,7 @@
 
     <div class="bg-white rounded-lg p-6 mt-5">
         <h2 class="text-xl font-medium text-gray-900 mb-4">{{ __('frontend.consultations') }}</h2>
-        <div class="relative overflow-x-auto sm:rounded-lg w-[240px] xl:w-full">
+        <div class="relative overflow-x-auto sm:rounded-lg w-full">
             <table class="w-full border">
                 <thead class="text-md font-normal">
                     <tr class="bg-[#07683B] text-white font-normal">
