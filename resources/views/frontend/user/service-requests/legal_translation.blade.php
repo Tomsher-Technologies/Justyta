@@ -10,8 +10,8 @@
             </h2>
             <hr class="mb-5" />
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6">
-                <div class="border-b pb-6 col-span-2">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-4 mb-6">
+                <div class="border-b pb-6 xl:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('frontend.priority_level')  }}<span class="text-red-500">*</span></label>
                     <div class="flex items-center space-x-4">
                         <div class="flex items-center">
@@ -196,7 +196,7 @@
                     <div class="text-gray-700 text-lg mb-4 mt-5 xl:mt-0 text-center">{{ __('frontend.completion_hours') }} <span class="font-semibold text-xl text-[#07683B]" id="translation_completion_hours">0</span></div>
                     <div class="text-gray-700 text-lg mb-4 mt-5 xl:mt-0 text-center">{{ __('frontend.payment_amount') }} <span class="font-semibold text-xl text-[#07683B]" id="translation_price_result">{{ __('frontend.AED') }} 0.00</span></div>
 
-                    <button type="submit" id="submit_button" class="text-white bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md w-full px-8 py-4 text-center transition-colors duration-200 uppercase cursor-pointer">
+                    <button type="submit" id="submit_button" class="text-white bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md w-full px-8 py-4 text-center transition-colors duration-200 uppercase cursor-pointer mt-5">
                         {{ __('frontend.submit') }}
                     </button>
                 </div>

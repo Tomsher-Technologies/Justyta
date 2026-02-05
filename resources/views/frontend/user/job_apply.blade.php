@@ -7,7 +7,7 @@
         <hr class="mb-5">
         <form method="POST" action="{{ route('user.job.apply') }}" id="jobApplyForm" enctype="multipart/form-data">
             @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-4 mb-6">
                 <div>
                     <label for="emirate" class="block text-sm font-medium text-gray-700 mb-2">{{ __('frontend.full_name') }}<span
                             class="text-red-500">*</span></label>
