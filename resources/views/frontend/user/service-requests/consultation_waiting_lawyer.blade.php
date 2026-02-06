@@ -237,7 +237,12 @@
                 if (data.status && data.data && !videoFlag) {
                     videoFlag = true;
                     document.getElementById('waitingMessage').classList.add('hidden');
-                    document.getElementById('adBanner').classList.add('hidden');
+                    
+                    const adBanner = document.getElementById('adBanner');
+
+                    if (adBanner) {
+                        adBanner.classList.add('hidden');
+                    }
                     
                     document.getElementById('video-call-container').classList.remove('hidden');
                     
