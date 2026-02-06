@@ -241,7 +241,7 @@
                     const adBanner = document.getElementById('adBanner');
 
                     if (adBanner) {
-                        adBanner.classList.add('hidden');
+                        adBanner.classList.add('hidden'); 
                     }
                     
                     document.getElementById('video-call-container').classList.remove('hidden');
