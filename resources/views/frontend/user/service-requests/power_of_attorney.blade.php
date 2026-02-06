@@ -10,7 +10,7 @@
                 </h2>
                 <hr class="mb-5" />
                 
-                <div class="grid grid-cols-1 xl:grid-cols-1 gap-x-6 gap-y-4 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-x-6 gap-y-4 mb-6">
                     <div class="border-b pb-6 col-span-1 xl:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('frontend.applicant_type')  }}<span class="text-red-500">*</span></label>
                         <div class="flex items-center space-x-4">

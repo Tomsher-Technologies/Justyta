@@ -7,10 +7,10 @@
             <h1 class="text-xl font-semibold text-gray-800">{{ __('frontend.law_firm_jobs') }}</h1>
 
             <form class="w-[100%] xl:w-[80%]">
-                <div class="flex flex-col xl:flex-row  items-start xl:items-center gap-3">
+                <div class="grid grid-cols-[1fr_auto_auto] gap-4">
                     
                     <!-- Search Box -->
-                    <div class="flex-1 relative">
+                    <div class="col-span-3 xl:col-span-1 relative mt-4 xl:mt-0 w-full">
                         <input type="search" id="default-search" name="keyword" 
                             value="{{ request()->keyword }}"
                             class="block w-full p-4 ps-12 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
@@ -27,13 +27,13 @@
 
                     <!-- Search Button -->
                     <button type="submit"
-                        class="text-white bg-[#07683B] hover:bg-green-700 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2">
+                        class="text-white w-full bg-[#07683B] hover:bg-green-700 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-4">
                         {{ __('frontend.find_jobs') }}
                     </button>
 
                     <!-- Reset Button -->
                     <a href="{{ route('user-lawfirm-jobs') }}"
-                        class="text-black bg-[#c4b07e] hover:bg-[#a8956b] focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-2">
+                        class="text-black w-full bg-[#c4b07e] hover:bg-[#a8956b] focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-4 py-4">
                         {{ __('frontend.reset') }}
                     </a>
 

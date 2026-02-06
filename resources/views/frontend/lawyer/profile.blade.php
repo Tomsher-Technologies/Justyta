@@ -1,10 +1,10 @@
 @extends('layouts.web_lawyer', ['title' => __('frontend.profile')])
 
 @section('content')
-    <div class="bg-white rounded-lg p-6">
+    <div class="bg-white rounded-lg">
       
         
-        <div class="bg-white rounded-2xl  p-6 pb-12">
+        <div class="bg-white rounded-2xl  p-6 pb-6 xl:pb-12">
 
         <div class="grid grid-cols-1 border-b border-gray-200 pb-8 mb-8">
             <div class="flex items-center gap-6 col-span-12">
@@ -35,59 +35,59 @@
             <div class="border-r">
                 <h3 class="text-xl font-medium text-[#07683B] mb-6">{{ __('frontend.profile_information') }}</h3>
                 <div class="space-y-6">
-                    <div class="flex items-center">
-                        <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.gender') }} :</p>
-                        <p class="basis-3/5 text-gray-800">&nbsp; {{ ucfirst($lawyer->gender) }}</p>
+                    <div class="grid grid-cols-1 xl:grid-cols-2">
+                        <p class=" text-gray-600 font-medium">{{ __('frontend.gender') }} :</p>
+                        <p class=" text-gray-800"> {{ ucfirst($lawyer->gender) }}</p>
                     </div>
-                    <div class="flex items-center">
-                        <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.preferred_working_hours') }} :</p>
-                        <p class="basis-3/5 text-gray-800">&nbsp; {{ ucfirst($lawyer->working_hours) }}</p>
+                    <div class="grid grid-cols-1 xl:grid-cols-2">
+                        <p class=" text-gray-600 font-medium">{{ __('frontend.preferred_working_hours') }} :</p>
+                        <p class=" text-gray-800"> {{ ucfirst($lawyer->working_hours) }}</p>
                     </div>
-                    <div class="flex items-center">
-                        <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.date_of_birth') }} :</p>
-                        <p class="basis-3/5 text-gray-800">&nbsp; {{ date('d M Y', strtotime($lawyer->date_of_birth)) }}
+                    <div class="grid grid-cols-1 xl:grid-cols-2">
+                        <p class=" text-gray-600 font-medium">{{ __('frontend.date_of_birth') }} :</p>
+                        <p class=" text-gray-800"> {{ date('d M Y', strtotime($lawyer->date_of_birth)) }}
                         </p>
                     </div>
-                    <div class="flex items-center">
-                        <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.emirate') }} :</p>
-                        <p class="basis-3/5 text-gray-800">&nbsp;
+                    <div class="grid grid-cols-1 xl:grid-cols-2">
+                        <p class=" text-gray-600 font-medium">{{ __('frontend.emirate') }} :</p>
+                        <p class=" text-gray-800">
                             {{ $lawyer->emirate?->getTranslation('name', app()->getLocale()) }}</p>
                     </div>
-                    <div class="flex items-center">
-                        <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.nationality') }} :</p>
-                        <p class="basis-3/5 text-gray-800">&nbsp;
+                    <div class="grid grid-cols-1 xl:grid-cols-2">
+                        <p class=" text-gray-600 font-medium">{{ __('frontend.nationality') }} :</p>
+                        <p class=" text-gray-800">
                             {{ $lawyer->nationalityCountry?->getTranslation('name', app()->getLocale()) }}</p>
                     </div>
-                    <div class="flex items-center">
-                        <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.years_of_experience') }} :</p>
-                        <p class="basis-3/5 text-gray-800">&nbsp;
+                    <div class="grid grid-cols-1 xl:grid-cols-2">
+                        <p class=" text-gray-600 font-medium">{{ __('frontend.years_of_experience') }} :</p>
+                        <p class=" text-gray-800">
                             {{ $lawyer->yearsExperienceOption?->getTranslation('name', app()->getLocale()) }}</p>
                     </div>
-                    <div class="flex items-center">
-                        <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.specialities') }} :</p>
-                        <p class="basis-3/5 text-gray-800">
+                    <div class="grid grid-cols-1 xl:grid-cols-2">
+                        <p class=" text-gray-600 font-medium">{{ __('frontend.specialities') }} :</p>
+                        <p class=" text-gray-800">
                             @foreach ($lawyer->specialities as $si => $speciality)
                                 {{ $speciality->dropdownOption?->getTranslation('name', app()->getLocale()) ?? '' }}
                                 {{ $si != count($lawyer->specialities) - 1 ? ', ' : '' }}
                             @endforeach
                         </p>
                     </div>
-                    <div class="flex items-center">
-                        <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.languages_spoken') }} :</p>
-                        <p class="basis-3/5 text-gray-800">
+                    <div class="grid grid-cols-1 xl:grid-cols-2">
+                        <p class=" text-gray-600 font-medium">{{ __('frontend.languages_spoken') }} :</p>
+                        <p class=" text-gray-800">
                             @foreach ($lawyer->languages as $la => $language)
                                 {{ $language->dropdownOption?->getTranslation('name', app()->getLocale()) ?? '' }}
                                 {{ $la != count($lawyer->languages) - 1 ? ', ' : '' }}
                             @endforeach
                         </p>
                     </div>
-                    <div class="flex items-center">
-                        <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.email') }} :</p>
-                        <p class="basis-3/5 text-blue-600 hover:underline">{{ $lawyer->email }}</p>
+                    <div class="grid grid-cols-1 xl:grid-cols-2">
+                        <p class=" text-gray-600 font-medium">{{ __('frontend.email') }} :</p>
+                        <p class=" text-blue-600 hover:underline">{{ $lawyer->email }}</p>
                     </div>
-                    <div class="flex items-center">
-                        <p class="basis-2/5 text-gray-600 font-medium">{{ __('frontend.phone_number') }} :</p>
-                        <p class="basis-3/5 text-gray-800">{{ $lawyer->phone }}</p>
+                    <div class="grid grid-cols-1 xl:grid-cols-2">
+                        <p class=" text-gray-600 font-medium">{{ __('frontend.phone_number') }} :</p>
+                        <p class=" text-gray-800">{{ $lawyer->phone }}</p>
                     </div>
                 </div>
             </div>
@@ -96,8 +96,12 @@
                 <h3 class="text-xl font-medium text-[#07683B] mb-6">{{ __('frontend.documents') }}</h3>
                 <div class="space-y-6">
                     <div>
-                        <p class="text-gray-600 font-medium mb-2">{{ __('frontend.emirates_id') }} :</p>
+                        <p class="text-gray-600 font-medium mb-1">{{ __('frontend.emirates_id') }} :</p>
+                            <span class="text-sm text-gray-500 self-center mb-3">{{ __('frontend.expiry_date') }}:
+                                {{ date('d M Y', strtotime($lawyer->emirate_id_expiry)) }}</span>
                         <div class="flex flex-wrap gap-3">
+
+                         
 
                             @php
                                 $emirate_id_frontfile = $lawyer->emirate_id_front;
@@ -154,13 +158,14 @@
                                     @endif
                                 </span>
                             </div>
-                            <span class="text-sm text-gray-500 self-center">{{ __('frontend.expiry_date') }}:
-                                {{ date('d M Y', strtotime($lawyer->emirate_id_expiry)) }}</span>
+                       
                         </div>
                     </div>
 
                     <div>
                         <p class="text-gray-600 font-medium mb-2">{{ __('frontend.passport') }} :</p>
+                           <span class="text-sm text-gray-500 self-center mb-3">{{ __('frontend.expiry_date') }}:
+                                {{ date('d M Y', strtotime($lawyer->passport_expiry)) }}</span>
                         <div class="flex flex-wrap gap-3">
                             @php
                                 $passportfile = $lawyer->passport;
@@ -187,13 +192,14 @@
                                     @endif
                                 </span>
                             </div>
-                            <span class="text-sm text-gray-500 self-center">{{ __('frontend.expiry_date') }}:
-                                {{ date('d M Y', strtotime($lawyer->passport_expiry)) }}</span>
+                         
                         </div>
                     </div>
 
                     <div>
                         <p class="text-gray-600 font-medium mb-2">{{ __('frontend.residence_visa') }} :</p>
+                           <span class="text-sm text-gray-500 self-center mb-3">{{ __('frontend.expiry_date') }}:
+                                {{ date('d M Y', strtotime($lawyer->residence_visa_expiry)) }}</span>
                         <div class="flex flex-wrap gap-3">
                             @php
                                 $residence_visafile = $lawyer->residence_visa;
@@ -221,13 +227,14 @@
                                     @endif
                                 </span>
                             </div>
-                            <span class="text-sm text-gray-500 self-center">{{ __('frontend.expiry_date') }}:
-                                {{ date('d M Y', strtotime($lawyer->residence_visa_expiry)) }}</span>
+                         
                         </div>
                     </div>
 
                     <div>
                         <p class="text-gray-600 font-medium mb-2">{{ __('frontend.bar_card_legal_certificate') }} :</p>
+                              <span class="text-sm text-gray-500 self-center mb-3">{{ __('frontend.expiry_date') }}:
+                                {{ date('d M Y', strtotime($lawyer->bar_card_expiry)) }}</span>
                         <div class="flex flex-wrap gap-3">
                              @php
                                 $bar_cardfile = $lawyer->bar_card;
@@ -252,13 +259,14 @@
                                     @endif
                                 </span>
                             </div>
-                            <span class="text-sm text-gray-500 self-center">{{ __('frontend.expiry_date') }}:
-                                {{ date('d M Y', strtotime($lawyer->bar_card_expiry)) }}</span>
+                      
                         </div>
                     </div>
 
                     <div>
                         <p class="text-gray-600 font-medium mb-2">{{ __('frontend.ministry_of_justice_card') }}:</p>
+                          <span class="text-sm text-gray-500 self-center mb-3">{{ __('frontend.expiry_date') }}:
+                                {{ date('d M Y', strtotime($lawyer->practicing_lawyer_card_expiry)) }}</span>
                         <div class="flex flex-wrap gap-3">
                             @php
                                 $practicing_lawyer_cardfile = $lawyer->practicing_lawyer_card;
@@ -285,8 +293,7 @@
                                     @endif
                                 </span>
                             </div>
-                            <span class="text-sm text-gray-500 self-center">{{ __('frontend.expiry_date') }}:
-                                {{ date('d M Y', strtotime($lawyer->practicing_lawyer_card_expiry)) }}</span>
+                          
                         </div>
                     </div>
 

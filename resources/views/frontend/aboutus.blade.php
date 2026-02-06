@@ -3,7 +3,7 @@
 @section('content') 
 
 @if($page && $page->sections->count() > 0)
-<div class="py-[30px] md:py-[80px] px-10 md:px-10 lg:px-10">
+<div class="py-[30px] md:py-[80px] px-5 md:px-10 lg:px-10">
 
     @foreach($page->sections as $section)
         @if($section->status == 1)
@@ -12,7 +12,7 @@
             @endphp
             
             @if($sectionType == 'about_main' || $sectionType == 'custom')
-                <section class="px-5 md:px-5 lg:px-5 xl:px-0">
+                <section>
                     <div class="container m-auto pb-0">
                         <div class="flex justify-between flex-col xl:flex-row gap-[50px]">
                             <div>
@@ -101,10 +101,7 @@
 <style>
 .prose ul li {
     position: relative;
-    padding-left: 2rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
+
 }
 
 .prose ul li::before {

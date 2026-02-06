@@ -1,4 +1,4 @@
-    <section class="bg-[#FFF7F0] px-10 md:px-10 lg:px-10 py-[80px]">
+    <section class="bg-[#FFF7F0] px-5 md:px-10 lg:px-10 py-[80px]">
         <div class="grid grid-cols-1 xl:grid-cols-2 w-[100%] xl:w-[80%] m-auto items-center gap-6">
             <img src="{{ asset($section->image) }}" alt="">
             <div>
@@ -8,12 +8,12 @@
                 @php
                 $items = $section->getTranslation('content', $lang);
                 @endphp
-                <ul class="mt-6 grid grid-cols-2 gap-3 mb-8">
+                <ul class="mt-6 grid grid-cols-1 xl:grid-cols-2 gap-3 mb-8">
                     @if(!empty($items) && is_array($items) && count($items) > 0)
                     @foreach($items as $item)
-                    <li class="flex items-center gap-3">
-                        <svg class="w-6 h-6 text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                            width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <li class="flex items-start gap-3">
+                        <svg class=" !max-w-[20px] text-[#B9A572]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                             fill="currentColor" viewBox="0 0 24 24">
                             <path fill-rule="evenodd"
                                 d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
                                 clip-rule="evenodd" />

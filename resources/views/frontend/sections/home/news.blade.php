@@ -1,6 +1,6 @@
-    <section class="bg-[#FFF7F0] px-10 md:px-10 lg:px-10 py-[80px]">
+    <section class="bg-[#FFF7F0] px-5 md:px-10 lg:px-10 py-[80px]">
         <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">{!! $section->getTranslation('title', $lang) !!}</h4>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-10 xl:gap-4">
             @foreach ($news as $item)
                 @php
                     $translation = $item->translate($lang);
@@ -18,7 +18,7 @@
                 </div>
             @endforeach
         </div>
-        <div class="text-center mt-5">
+        <div class="text-center mt-4 xl:mt-10">
             <a href="{{ route('news') }}"
                 class="inline-block px-6 py-2 text-white bg-[#034833] rounded hover:bg-[#023324] transition">{!! $section->getTranslation('button_text', $lang) !!}</a>
         </div>

@@ -17,7 +17,7 @@
 
     <hr class="my-4 border-[#DFDFDF]" />
     
-    <div class="relative overflow-x-auto sm:rounded-lg w-[240px] xl:w-full">
+    <div class="relative overflow-x-auto sm:rounded-lg w-full">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <!-- Left: Consultation Details -->
             <div class="col-span-1 border-r pr-8">

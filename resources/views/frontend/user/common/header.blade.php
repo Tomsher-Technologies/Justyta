@@ -1,4 +1,4 @@
-<nav class="grid grid-cols-2 gap-5 grid-cols-[2fr_1fr] items-center justify-between mb-5">
+<nav class="grid grid-cols-[1fr_auto_auto] md:pt-3 lg:pt-3 items-center justify-between mb-5">
     <!-- Mobile Menu Button -->
     <button id="openSidebar" class="xl:hidden py-3">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="black" stroke-width="2">
@@ -7,7 +7,7 @@
     </button>
 
 
-    <div class="relative hidden lg:block w-full">
+    <div class="relative hidden lg:block !xl:w-75">
         <div class="absolute inset-y-0 start-0 flex items-center ps-6 pointer-events-none">
             <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -25,7 +25,7 @@
         </div>
     </div>
 
-    <div class="flex items-center justify-start xl:justify-end gap-4 flex-row-reverse">
+    <div class="flex items-center justify-start md:justify-end xl:justify-end gap-4">
 
         <button type="button"
             class="relative inline-flex items-center text-sm font-medium text-center text-black rounded-lg w-auto">

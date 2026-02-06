@@ -1,13 +1,13 @@
 @extends('layouts.web_login', ['title' => 'Contact Us'])
 
 @section('content')
-    <section class="py-[40px] my-14 min-h-screen px-10 md:px-10 lg:px-10">
+    <section class="py-[20px] my-0 xl:my-14 px-5 md:px-10 lg:px-10">
 
         @php
             $pageData = $page->sections->first();
         @endphp
 
-        <div class="container m-auto px-5">
+        <div class="container m-auto xl:px-5">
             <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">{{ $pageData?->getTranslation('title', $lang) }}</h4>
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 <div>

@@ -1,14 +1,14 @@
 @extends('layouts.web_login', ['title' => 'Services'])
 
 @section('content')
-    <section class="py-[40px] px-10 md:px-10 lg:px-10 my-14 relative overflow-hidden flex-grow">
+    <section class="py-[40px] px-5 md:px-10 lg:px-10 my-14 relative overflow-hidden flex-grow">
 
         @php
             $pageData = $page->sections->first();
         @endphp
         <div class="container m-auto">
             <h4 class="mb-3 text-[30px] text-[#034833] font-cinzel">{{ $pageData?->getTranslation('title', $lang) }}</h4>
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+            <div class="grid grid-cols-1 gap-10 xl:gap-5 md:grid-cols-2 xl:grid-cols-4">
                 @foreach ($news as $item)
                     @php
                         $translation = $item->translate($lang);
