@@ -518,7 +518,7 @@
 
         const $select = $("#timeslot-select");
         $select.empty().append('<option value="">Select a timeslot</option>');
-        $("#extension-price").text("Amount: $0");
+        $("#extension-price").text("Amount: AED 0");
 
         // Fetch timeslots via AJAX
         $.ajax({
