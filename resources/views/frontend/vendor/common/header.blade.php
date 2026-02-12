@@ -39,30 +39,36 @@
                 </div>
             </a>
         </button>
-        <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown"
-            class="text-gray-700 hover:bg-gray-100 focus:ring-0 focus:outline-none font-medium rounded-lg text-sm px-2 py-1 text-center inline-flex items-center"
-            type="button">
-            <span class="fi fi-gb text-lg uppercase">{{ app()->getLocale() }}</span>
-            <svg class="w-2.5 h-2.5 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 10 6">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="m1 1 4 4 4-4" />
-            </svg>
-        </button>
-        <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-15">
-            <ul class="py-2 text-sm text-gray-700" aria-labelledby="langDropdownBtn">
-                <li><a href="{{ route('lang.switch', 'en') }}" onclick="localStorage.setItem('lang', 'en')" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
-                <li><a href="{{ route('lang.switch', 'ar') }}" onclick="localStorage.setItem('lang', 'ar')" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
-                <li><a href="{{ route('lang.switch', 'fr') }}" onclick="localStorage.setItem('lang', 'fr')" class="block px-4 py-2 hover:bg-gray-100">FR</a></li>
-                <li><a href="{{ route('lang.switch', 'fa') }}" onclick="localStorage.setItem('lang', 'fa')" class="block px-4 py-2 hover:bg-gray-100">FA</a></li>
-                <li><a href="{{ route('lang.switch', 'ru') }}" onclick="localStorage.setItem('lang', 'ru')" class="block px-4 py-2 hover:bg-gray-100">RU</a></li>
-                <li><a href="{{ route('lang.switch', 'zh') }}" onclick="localStorage.setItem('lang', 'zh')" class="block px-4 py-2 hover:bg-gray-100">ZH</a></li>
-            </ul>
+
+        <!-- Language Dropdown - Wrapped in relative container -->
+        <div class="relative">
+            <button id="langDropdownBtn"
+                class="text-gray-700 hover:bg-gray-100 focus:ring-0 focus:outline-none font-medium rounded-lg text-sm px-2 py-1 text-center inline-flex items-center"
+                type="button">
+                <span class="fi fi-gb text-lg uppercase">{{ app()->getLocale() }}</span>
+                <svg class="w-2.5 h-2.5 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m1 1 4 4 4-4" />
+                </svg>
+            </button>
+            <div id="langDropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-15 absolute right-0 mt-1">
+                <ul class="py-2 text-sm text-gray-700" aria-labelledby="langDropdownBtn">
+                    <li><a href="{{ route('lang.switch', 'en') }}" onclick="localStorage.setItem('lang', 'en')" class="block px-4 py-2 hover:bg-gray-100">EN</a></li>
+                    <li><a href="{{ route('lang.switch', 'ar') }}" onclick="localStorage.setItem('lang', 'ar')" class="block px-4 py-2 hover:bg-gray-100">AR</a></li>
+                    <li><a href="{{ route('lang.switch', 'fr') }}" onclick="localStorage.setItem('lang', 'fr')" class="block px-4 py-2 hover:bg-gray-100">FR</a></li>
+                    <li><a href="{{ route('lang.switch', 'fa') }}" onclick="localStorage.setItem('lang', 'fa')" class="block px-4 py-2 hover:bg-gray-100">FA</a></li>
+                    <li><a href="{{ route('lang.switch', 'ru') }}" onclick="localStorage.setItem('lang', 'ru')" class="block px-4 py-2 hover:bg-gray-100">RU</a></li>
+                    <li><a href="{{ route('lang.switch', 'zh') }}" onclick="localStorage.setItem('lang', 'zh')" class="block px-4 py-2 hover:bg-gray-100">ZH</a></li>
+                </ul>
+            </div>
         </div>
 
+        <!-- User Dropdown - Already has relative container -->
         <div class="relative">
-            <button id="userDropdownButton" data-dropdown-toggle="userDropdown"
-                class="flex items-center p-3 px-5 space-x-2 text-white bg-[#04502E] hover:bg-[#023A21] p-1 rounded-full">
+            <button id="userDropdownButton"
+                class="flex items-center p-3 px-5 space-x-2 text-white bg-[#04502E] hover:bg-[#023A21] p-1 rounded-full"
+                type="button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="21" viewBox="0 0 22 21" fill="none">
                     <g clip-path="url(#clip0_331_567)">
                         <path
@@ -154,3 +160,59 @@
         </div>
     </div>
 </nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Language Dropdown
+    const langBtn = document.getElementById('langDropdownBtn');
+    const langDropdown = document.getElementById('langDropdown');
+    
+    // User Dropdown
+    const userBtn = document.getElementById('userDropdownButton');
+    const userDropdown = document.getElementById('userDropdown');
+    
+    // Toggle language dropdown
+    if (langBtn) {
+        langBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            langDropdown.classList.toggle('hidden');
+            if (userDropdown) {
+                userDropdown.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Toggle user dropdown
+    if (userBtn) {
+        userBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('hidden');
+            if (langDropdown) {
+                langDropdown.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        if (langDropdown) {
+            langDropdown.classList.add('hidden');
+        }
+        if (userDropdown) {
+            userDropdown.classList.add('hidden');
+        }
+    });
+    
+    // Prevent dropdown close when clicking inside
+    if (langDropdown) {
+        langDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+    if (userDropdown) {
+        userDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+});
+</script>
