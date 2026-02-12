@@ -151,7 +151,7 @@
                         <option value="">Select a timeslot</option>
                     </select>
 
-                    <div id="extension-price" class="mb-4">Amount: $0</div>
+                    <div id="extension-price" class="mb-4">Amount: AED 0</div>
 
                     <div class="flex justify-end gap-3">
                         <button id="extension-cancel" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
@@ -237,7 +237,12 @@
                 if (data.status && data.data && !videoFlag) {
                     videoFlag = true;
                     document.getElementById('waitingMessage').classList.add('hidden');
-                    document.getElementById('adBanner').classList.add('hidden');
+                    
+                    const adBanner = document.getElementById('adBanner');
+
+                    if (adBanner) {
+                        adBanner.classList.add('hidden'); 
+                    }
                     
                     document.getElementById('video-call-container').classList.remove('hidden');
                     
@@ -266,7 +271,7 @@
                 const consultantType = $("#modal-consultant-type").val();
 
                 if (!duration) {
-                    $("#extension-price").text("Amount: $0");
+                    $("#extension-price").text("Amount: AED 0");
                     return;
                 }
 
@@ -276,9 +281,9 @@
                     data: { consultation_id: consultationId, duration: duration, consultant_type: consultantType },
                     success: function(res) {
                         if (res.status) {
-                            $("#extension-price").text("Amount: $" + res.data.total);
+                            $("#extension-price").text("Amount: AED " + res.data.total);
                         } else {
-                            $("#extension-price").text("Amount: $0");
+                            $("#extension-price").text("Amount: AED 0");
                         }
                     }
                 });
