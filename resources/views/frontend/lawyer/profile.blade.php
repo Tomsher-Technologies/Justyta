@@ -7,7 +7,7 @@
         <div class="bg-white rounded-2xl  p-6 pb-6 xl:pb-12">
 
         <div class="grid grid-cols-1 border-b border-gray-200 pb-8 mb-8">
-            <div class="flex items-center gap-6 col-span-12">
+            <div class="flex flex-col xl:flex-row items-center gap-6 col-span-12">
                 <img class="w-24 h-24 rounded-full object-cover shadow-md"
                     src="{{ asset(getUploadedUserImage($lawyer->profile_photo)) }}"
                     alt="{{ $lawyer->getTranslation('full_name', app()->getLocale()) }}">

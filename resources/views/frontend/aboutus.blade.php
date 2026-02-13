@@ -67,7 +67,7 @@
             @endif
             
             @if($sectionType == 'features')
-                <section class="py-[20px] md:py-[20px] px-5 md:px-5 lg:px-5 xl:px-0">
+                <section class="py-[20px] md:py-[20px]  xl:px-0">
                     <div class="container m-auto">
                         @if($section->getTranslation('title', $lang))
                             <h3 class="text-[30px] font-cinzel font-bold leading-[55px] mb-5 text-[#034833]">
