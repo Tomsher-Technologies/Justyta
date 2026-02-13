@@ -179,6 +179,62 @@
         });
     </script>
 
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Language Dropdown
+    const langBtn = document.getElementById('langDropdownBtn');
+    const langDropdown = document.getElementById('langDropdown');
+    
+    // User Dropdown
+    const userBtn = document.getElementById('userDropdownButton');
+    const userDropdown = document.getElementById('userDropdown');
+    
+    // Toggle language dropdown
+    if (langBtn) {
+        langBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            langDropdown.classList.toggle('hidden');
+            if (userDropdown) {
+                userDropdown.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Toggle user dropdown
+    if (userBtn) {
+        userBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('hidden');
+            if (langDropdown) {
+                langDropdown.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        if (langDropdown) {
+            langDropdown.classList.add('hidden');
+        }
+        if (userDropdown) {
+            userDropdown.classList.add('hidden');
+        }
+    });
+    
+    // Prevent dropdown close when clicking inside
+    if (langDropdown) {
+        langDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+    if (userDropdown) {
+        userDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+});
+</script>
+
     @yield('script')
 </body>
 
