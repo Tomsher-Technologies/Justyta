@@ -4,7 +4,7 @@
     <h2 class="text-xl font-semibold text-gray-800 mb-4" data-modal-target="default-modal" data-modal-toggle="default-modal">
         Dashboard
     </h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 @if(Auth::guard('frontend')->user()->translator?->type == 'inhouse') lg:grid-cols-4 @else lg:grid-cols-6 @endif  gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 @if(Auth::guard('frontend')->user()->translator?->type == 'inhouse') lg:grid-cols-4 @else 2xl:grid-cols-6 @endif  gap-4 mb-6">
         <div class="bg-white rounded-lg p-6 flex justify-between items-start space-x-4 border border-[#FFE9B1] h-full">
             <div>
                 <h3 class="text-black text-md">{{ __('frontend.total_translations') }}</h3>
