@@ -19,7 +19,7 @@
 
                         <!-- Language Tabs -->
                         <div class="mb-4 border-b border-gray-200">
-                            <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+                            <nav class="-mb-px flex space-x-4 overflow-x-auto" aria-label="Tabs">
                                 @foreach($languages as $lang)
                                     <a
                                         href="#"
