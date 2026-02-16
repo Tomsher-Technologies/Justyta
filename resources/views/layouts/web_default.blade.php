@@ -18,6 +18,16 @@
     <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
 
     <style>
+        .ad-video {
+            height: 500px;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .ad-video {
+                height: 280px; /* adjust as needed */
+            }
+        }
         /* Target the Select2 control box */
         .select2-container--default .select2-selection--single {
             background-color: #F9F9F9 !important;
