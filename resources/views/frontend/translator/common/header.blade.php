@@ -1,4 +1,4 @@
-<nav class="grid grid-cols-2 gap-5 grid-cols-[2fr_1fr] items-center justify-between mb-5">
+<nav class="grid grid-cols-2 gap-5 grid-cols-[1fr_auto] items-center justify-between mb-5">
 
     <button id="openSidebar" class="xl:hidden py-3">
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" stroke="black" stroke-width="2">
@@ -160,58 +160,3 @@
     </div>
 </nav>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Language Dropdown
-    const langBtn = document.getElementById('langDropdownBtn');
-    const langDropdown = document.getElementById('langDropdown');
-    
-    // User Dropdown
-    const userBtn = document.getElementById('userDropdownButton');
-    const userDropdown = document.getElementById('userDropdown');
-    
-    // Toggle language dropdown
-    if (langBtn) {
-        langBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            langDropdown.classList.toggle('hidden');
-            if (userDropdown) {
-                userDropdown.classList.add('hidden');
-            }
-        });
-    }
-    
-    // Toggle user dropdown
-    if (userBtn) {
-        userBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            userDropdown.classList.toggle('hidden');
-            if (langDropdown) {
-                langDropdown.classList.add('hidden');
-            }
-        });
-    }
-    
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function() {
-        if (langDropdown) {
-            langDropdown.classList.add('hidden');
-        }
-        if (userDropdown) {
-            userDropdown.classList.add('hidden');
-        }
-    });
-    
-    // Prevent dropdown close when clicking inside
-    if (langDropdown) {
-        langDropdown.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-    }
-    if (userDropdown) {
-        userDropdown.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-    }
-});
-</script>

@@ -24,8 +24,8 @@
                             </span>
                         @endif
                     </h2>
-                    <p class="text-base text-gray-500">{{ $lawyer->ref_no }}</p>
-                    <p class="text-base text-gray-500">{{ $lawyer->lawfirm?->law_firm_name ?? '-' }}</p>
+                    <p class="text-base text-center xl:text-start text-gray-500">{{ $lawyer->ref_no }}</p>
+                    <p class="text-base text-center xl:text-start text-gray-500">{{ $lawyer->lawfirm?->law_firm_name ?? '-' }}</p>
                 </div>
             </div>
         </div>
