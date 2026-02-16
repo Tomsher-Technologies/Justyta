@@ -13,6 +13,7 @@ use App\Models\TrainingRequest;
 use App\Models\AnnualAgreementInstallment;
 use App\Models\Emirate;
 use App\Models\Service;
+use App\Models\Consultation;
 use App\Models\Lawyer;
 use App\Models\UserOnlineLog;
 use Illuminate\Support\Facades\Storage;
@@ -367,37 +368,58 @@ class UserController extends Controller
         $perPage = $request->get('limit', 10);
 
         if($serviceSlug != ''){
-            $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', $user->id);
 
-            if ($serviceSlug) {
-                if($serviceSlug === 'law-firm-services'){
-                    $slugs = Service::whereHas('parent', function ($query) {
-                        $query->where('slug', 'law-firm-services');
-                    })->pluck('slug');
+            if($serviceSlug !== 'online-live-consultancy'){
+                $query = ServiceRequest::with('user', 'service')->where('request_success', 1)->where('user_id', $user->id);
 
-                    $query->whereIn('service_slug', $slugs);
-                }elseif($serviceSlug === 'online-live-consultancy'){
+                if ($serviceSlug) {
+                    if($serviceSlug === 'law-firm-services'){
+                        $slugs = Service::whereHas('parent', function ($query) {
+                            $query->where('slug', 'law-firm-services');
+                        })->pluck('slug');
 
-                }else{
-                    $query->where('service_slug', $serviceSlug);
-                }    
-            } 
-            $paginatedserviceRequests = $query->orderBy('id', 'desc')->paginate($perPage);
+                        $query->whereIn('service_slug', $slugs);
+                    }else{
+                        $query->where('service_slug', $serviceSlug);
+                    }    
+                } 
+                $paginatedserviceRequests = $query->orderBy('id', 'desc')->paginate($perPage);
 
-            $serviceRequests = collect($paginatedserviceRequests->items())
-                    ->map(function ($serviceRequest) use($lang) {
-                        
-                        return [
-                            'id'    => $serviceRequest->id,
-                            'title' => __('messages.booked_service'),
-                            'content' => __('messages.service_reference_number') .$serviceRequest->reference_code,
-                            'time'  => $serviceRequest->submitted_at,
-                            'service' => $serviceRequest->service->getTranslation('title',$lang),                        
-                            'slug' => $serviceRequest->service->slug,
-                            'service_status' => __('messages.'.$serviceRequest->status) ?? null,
-                            'payment_status' => ($serviceRequest->payment_status != NULL) ? (($serviceRequest->payment_status == 'pending') ? __('messages.un_paid') : __('messages.paid')) : null,
-                        ];
-            });
+                $serviceRequests = collect($paginatedserviceRequests->items())
+                        ->map(function ($serviceRequest) use($lang) {
+                            
+                            return [
+                                'id'    => $serviceRequest->id,
+                                'title' => __('messages.booked_service'),
+                                'content' => __('messages.service_reference_number') .$serviceRequest->reference_code,
+                                'time'  => $serviceRequest->submitted_at,
+                                'service' => $serviceRequest->service->getTranslation('title',$lang),                        
+                                'slug' => $serviceRequest->service->slug,
+                                'service_status' => __('messages.'.$serviceRequest->status) ?? null,
+                                'payment_status' => ($serviceRequest->payment_status != NULL) ? (($serviceRequest->payment_status == 'pending') ? __('messages.un_paid') : __('messages.paid')) : null,
+                            ];
+                });
+            }elseif($serviceSlug === 'online-live-consultancy'){
+                $service   = \App\Models\Service::with('translations')->where('slug', 'online-live-consultancy')->first();
+                $conQuery = Consultation::with(['user', 'lawyer', 'emirate'])->where('user_id', $user->id)->where('request_success', 1);
+
+                $paginatedserviceRequests = $conQuery->orderBy('id', 'desc')->paginate($perPage);
+
+                $serviceRequests = collect($paginatedserviceRequests->items())
+                        ->map(function ($serviceRequest) use($lang, $service) {
+                            
+                            return [
+                                'id'    => $serviceRequest->id,
+                                'title' => __('frontend.consultation'),
+                                'content' => __('frontend.application_reference_number') .$serviceRequest->ref_code,
+                                'time'  => $serviceRequest->created_at,
+                                'service' => $service->getTranslation('title',$lang),                        
+                                'slug' => $service->slug,
+                                'service_status' => __('frontend.'.$serviceRequest->status) ?? null,
+                                'payment_status' => __('frontend.paid'),
+                            ];
+                });
+            }
 
             $ads = getActiveAd('service_history', 'mobile');
 
@@ -570,51 +592,87 @@ class UserController extends Controller
     public function getServiceHistoryDetails(Request $request){
         $lang           = $request->header('lang') ?? env('APP_LOCALE','en');
         $id             = $request->id;
-        $serviceRequest = ServiceRequest::with('service')->findOrFail($id);
+        $serviceSlug     = $request->service_slug ?? null;
 
-        $relation = getServiceRelationName($serviceRequest->service_slug);
+        if($serviceSlug === 'online-live-consultancy'){
+            $service   = \App\Models\Service::with('translations')->where('slug', 'online-live-consultancy')->first();
+            $consultation   = Consultation::with('user', 'lawyer', 'emirate')->findOrFail($id);
 
-        if (!$relation || !$serviceRequest->relationLoaded($relation)) {
-            $serviceRequest->load($relation);
+            $dataService = [
+                'id'                => $consultation->id,
+                'service_slug'      => $service->slug,
+                'service_name'      => $service->getTranslation('title',$lang),
+                'reference_code'    => $consultation->ref_code,
+                'status'            => __('frontend.'.$consultation->status) ?? null,
+                'payment_status'    => __('frontend.paid') ?? null,
+                'payment_reference' => null,
+                'amount'            => number_format($consultation->amount, 2),
+                'submitted_at'      => $consultation->created_at,
+                'service_details'   => [
+                    'applicant_type' => ucfirst(__('frontend.'.$consultation->applicant_type) ?? '-') ,
+                    'litigation_type' => ucfirst(__('frontend.'.$consultation->litigation_type) ?? '-'),
+                    'consultant_type' => $consultation->consultant_type == 'vip' ? __('frontend.specialized_consultation') : __('frontend.regular_consultation'),
+                    'user_name' => $consultation->user?->name,
+                    'lawyer_name' => $consultation->lawyer?->getTranslation('full_name', $lang),
+                    'case_type' => $consultation->caseType?->getTranslation('name', $lang) ?? '-',
+                    'emirate' => $consultation->emirate?->getTranslation('name', $lang) ?? '-',
+                    'you_represent' => $consultation->youRepresent?->getTranslation('name', $lang),
+                    'case_stage' => $consultation->caseStage?->getTranslation('name', $lang),
+                    'language' => ucfirst($consultation->languageValue?->getTranslation('name', $lang)),
+                    'duration' => $consultation->duration,
+                    'meeting_start_time' => $consultation->meeting_start_time,
+                    'meeting_end_time' => $consultation->meeting_end_time
+                ],
+            ];
+
+        }else{
+            $serviceRequest = ServiceRequest::with('service')->findOrFail($id);
+
+            $relation = getServiceRelationName($serviceRequest->service_slug);
+
+            if (!$relation || !$serviceRequest->relationLoaded($relation)) {
+                $serviceRequest->load($relation);
+            }
+
+            $serviceDetails = $serviceRequest->$relation;
+
+            if (!$serviceDetails) {
+                return response()->json([
+                    'status'    => false,
+                    'message'   =>  __('frontend.no_details_found')
+                ],200);
+            }
+
+            $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
+
+            $dataService = [
+                'id'                => $serviceRequest->id,
+                'service_slug'      => $serviceRequest->service_slug,
+                'service_name'      => $serviceRequest->service->getTranslation('title',$lang),
+                'reference_code'    => $serviceRequest->reference_code,
+                'status'            => $serviceRequest->status,
+                'payment_status'    => $serviceRequest->payment_status,
+                'payment_reference' => $serviceRequest->payment_reference,
+                'amount'            => $serviceRequest->amount,
+                'submitted_at'      => $serviceRequest->submitted_at,
+                'service_details' => $translatedData,
+            ];
+
+            if($serviceRequest->service_slug === 'annual-retainer-agreement'){
+                $installmentAnnual = AnnualAgreementInstallment::where('service_request_id',$serviceRequest->id)->get();
+
+                $installments = $installmentAnnual->map(function ($inst) {
+                    return [
+                        'id' => $inst->id,
+                        'installment_no' => $inst->installment_no,
+                        'amount' => $inst->amount ?? 0,
+                        'status' => $inst->status,
+                    ];
+                });
+                $dataService['installments'] = $installments;
+            }
         }
-
-        $serviceDetails = $serviceRequest->$relation;
-
-        if (!$serviceDetails) {
-            return response()->json([
-                'status'    => false,
-                'message'   =>  __('frontend.no_details_found')
-            ],200);
-        }
-
-        $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
-
-        $dataService = [
-            'id'                => $serviceRequest->id,
-            'service_slug'      => $serviceRequest->service_slug,
-            'service_name'      => $serviceRequest->service->getTranslation('title',$lang),
-            'reference_code'    => $serviceRequest->reference_code,
-            'status'            => $serviceRequest->status,
-            'payment_status'    => $serviceRequest->payment_status,
-            'payment_reference' => $serviceRequest->payment_reference,
-            'amount'            => $serviceRequest->amount,
-            'submitted_at'      => $serviceRequest->submitted_at,
-            'service_details' => $translatedData,
-        ];
-
-        if($serviceRequest->service_slug === 'annual-retainer-agreement'){
-            $installmentAnnual = AnnualAgreementInstallment::where('service_request_id',$serviceRequest->id)->get();
-
-            $installments = $installmentAnnual->map(function ($inst) {
-                return [
-                    'id' => $inst->id,
-                    'installment_no' => $inst->installment_no,
-                    'amount' => $inst->amount ?? 0,
-                    'status' => $inst->status,
-                ];
-            });
-            $dataService['installments'] = $installments;
-        }
+        
 
         $ads = getActiveAd('service_history_details', 'mobile');
 
