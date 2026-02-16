@@ -118,7 +118,7 @@
 
                             <div class="col-md-4 mb-3">
                                 <label class="col-form-label color-dark fw-500 align-center">
-                                    Website File <span class="text-danger">*</span>
+                                    Website File <span class="text-danger">*</span> &nbsp; <strong>(Recommended size: 1920 × 500 px)</strong>
                                 </label>
                                 <input type="file" name="web_file" class="form-control ih-small ip-gray radius-xs b-light px-15 " value="{{ old('web_file') }}" />
 
