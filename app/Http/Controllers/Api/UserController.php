@@ -623,6 +623,7 @@ class UserController extends Controller
                     'meeting_start_time' => $consultation->meeting_start_time,
                     'meeting_end_time' => $consultation->meeting_end_time
                 ],
+                'timeline'          => []
             ];
 
         }else{
@@ -644,6 +645,17 @@ class UserController extends Controller
             }
 
             $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
+            $timeline = getFullStatusHistory($serviceRequest);
+
+            $timeline = array_map(function ($item) {
+                            return [
+                                'id'       => $item['id'] ?? null,
+                                'status'   => $item['status'] ?? null,
+                                'label'    => __('frontend.'.$item['status']) ?? $item['label'] ?? null,
+                                'date'     => $item['date'] ?? null,
+                                'row_date' => $item['raw_date'] ?? null,
+                            ];
+                        }, $timeline);
 
             $dataService = [
                 'id'                => $serviceRequest->id,
@@ -655,7 +667,8 @@ class UserController extends Controller
                 'payment_reference' => $serviceRequest->payment_reference,
                 'amount'            => $serviceRequest->amount,
                 'submitted_at'      => $serviceRequest->submitted_at,
-                'service_details' => $translatedData,
+                'service_details'   => $translatedData,
+                'timeline'          => $timeline
             ];
 
             if($serviceRequest->service_slug === 'annual-retainer-agreement'){

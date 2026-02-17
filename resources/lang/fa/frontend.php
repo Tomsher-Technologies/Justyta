@@ -521,5 +521,6 @@ return [
     'regular_consultation' => 'مشاوره عادی',
     'specialized_consultation' => 'مشاوره تخصصی',
     'new' => 'جدید',
-
+    'translator_amount' => 'مبلغ مترجم',
+    'please_select_file_to_upload' => 'لطفاً یک فایل برای بارگذاری انتخاب کنید.',
 ];

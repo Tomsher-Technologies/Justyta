@@ -29,7 +29,7 @@
 
                 <span
                     class="{{ $statusClass[$status] ?? '!bg-gray-200 w-auto !text-gray-700' }} text-xs font-medium px-5 py-2 rounded-full xl:ml-2 mt-1 xl:mt-0">
-                    {{ ucfirst($status) }}
+                    {{ __('frontend.'.$status) }}
                 </span>
             </div>
             <a href="{{ Session::has('service_last_url') ? Session::get('service_last_url') : route('user.service.history') }}"
@@ -290,7 +290,7 @@
                                 <span
                                     class="absolute -left-3 flex items-center justify-center w-4 h-4 rounded-full border-2 {{ $dotClasses }}"></span>
                                 <h3 class="font-semibold {{ $textClasses }} text-lg">
-                                    {{ $step['label'] }} @if ($isRejectedStatus && isset($step['meta']['rejection_details']['reason']))
+                                    {{ __('frontend.'.$step['status']) }} @if ($isRejectedStatus && isset($step['meta']['rejection_details']['reason']))
                                         - <span
                                             class="text-sm">({{ $step['meta']['rejection_details']['reason'] }})</span>
                                     @endif

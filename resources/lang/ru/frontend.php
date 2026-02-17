@@ -521,5 +521,6 @@ return [
     'regular_consultation' => 'Обычная консультация',
     'specialized_consultation' => 'Специализированная консультация',
     'new' => 'Новый',
-
+    'translator_amount' => 'Сумма переводчика',
+    'please_select_file_to_upload' => 'Пожалуйста, выберите файл для загрузки.',
 ];

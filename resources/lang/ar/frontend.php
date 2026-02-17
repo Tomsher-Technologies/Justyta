@@ -521,5 +521,6 @@ return [
     'regular_consultation' => 'استشارة عادية',
     'specialized_consultation' => 'استشارة متخصصة',
     'new' => 'جديد',
-
+    'translator_amount' => 'مبلغ المترجم',
+    'please_select_file_to_upload' => 'يرجى اختيار ملف للتحميل.',
 ];
