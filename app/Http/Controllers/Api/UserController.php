@@ -658,6 +658,11 @@ class UserController extends Controller
                             ];
                         }, $timeline);
 
+            $completedFiles = $serviceRequest->completed_files ?? [];
+
+            $completedFiles = array_map(function ($file) {
+                                return asset($file);
+                            }, $completedFiles);
             $dataService = [
                 'id'                => $serviceRequest->id,
                 'service_slug'      => $serviceRequest->service_slug,
@@ -669,7 +674,8 @@ class UserController extends Controller
                 'amount'            => $serviceRequest->amount,
                 'submitted_at'      => $serviceRequest->submitted_at,
                 'service_details'   => $translatedData,
-                'timeline'          => $timeline
+                'timeline'          => $timeline,
+                'translated_files'  => $completedFiles ?? []
             ];
 
             if($serviceRequest->service_slug === 'annual-retainer-agreement'){
