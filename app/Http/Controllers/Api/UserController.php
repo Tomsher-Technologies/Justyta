@@ -654,6 +654,7 @@ class UserController extends Controller
                                 'label'    => __('frontend.'.$item['status']) ?? $item['label'] ?? null,
                                 'date'     => $item['date'] ?? null,
                                 'row_date' => $item['raw_date'] ?? null,
+                                'reason'   => $item['meta']['rejection_details']['reason'] ?? null
                             ];
                         }, $timeline);
 
