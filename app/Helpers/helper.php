@@ -377,7 +377,7 @@ function getUploadedUserImage(?string $path, string $default = 'assets/img/defau
     return asset($default);
 }
 
-function getUploadedFile(?string $path): string
+function getUploadedFile(?string $path)
 {
     if ($path) {
         $relativePath = str_replace('/storage/', '', $path);
