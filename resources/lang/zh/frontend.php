@@ -521,5 +521,6 @@ return [
     'regular_consultation' => '普通咨询',
     'specialized_consultation' => '专业咨询',
     'new' => '新',
-
+    'translator_amount' => '译员金额',
+    'please_select_file_to_upload' => '请选择要上传的文件。',
 ];

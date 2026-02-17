@@ -359,6 +359,14 @@ class ServiceRequestController extends Controller
         $serviceRequest->status = $request->status;
         $serviceRequest->save();
 
+        \App\Models\ServiceRequestTimeline::create([
+            'service_request_id' => $serviceRequest->id,
+            'service_slug' => $serviceRequest->service_slug,
+            'status' => $request->status,
+            'note' => '',
+            'changed_by' => auth()->user()->id,
+        ]);
+
         $user = $serviceRequest->user; 
         $user->notify(new ServiceRequestStatusChanged($serviceRequest));
         return response()->json(['status' => true,'message' => 'Service request status updated successfully.']);
