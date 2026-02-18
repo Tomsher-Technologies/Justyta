@@ -129,6 +129,7 @@ Route::middleware('set_api_locale')->group(function () {
         Route::get('/service-history-details', [UserController::class, 'getServiceHistoryDetails']);
         Route::get('/pending-services', [UserController::class, 'getServicePending']);
         Route::get('/payment-history', [UserController::class, 'getServicePaymentHistory']);
+        Route::post('/request/re-upload', [UserController::class, 'reUploadAfterRejection']);
 
         //Notifications
         Route::get('/notifications', [UserController::class, 'getGroupedUserNotifications']);
