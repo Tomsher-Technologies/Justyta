@@ -663,6 +663,10 @@ class UserController extends Controller
             $completedFiles = array_map(function ($file) {
                                 return asset($file);
                             }, $completedFiles);
+
+
+            
+            
             $dataService = [
                 'id'                => $serviceRequest->id,
                 'service_slug'      => $serviceRequest->service_slug,
@@ -677,6 +681,13 @@ class UserController extends Controller
                 'timeline'          => $timeline,
                 'translated_files'  => $completedFiles ?? []
             ];
+
+            if ($serviceRequest->status === 'rejected') {
+                $rejectionDetails = $serviceRequest->getLatestRejectionDetails();
+                if ($rejectionDetails) {
+                    $dataService['rejection_meta'] = $rejectionDetails->meta;
+                }
+            }
 
             if($serviceRequest->service_slug === 'annual-retainer-agreement'){
                 $installmentAnnual = AnnualAgreementInstallment::where('service_request_id',$serviceRequest->id)->get();
