@@ -526,6 +526,7 @@ return [
     'regular_consultation' => 'Regular Consultation',
     'specialized_consultation' => 'Specialized Consultation',
     'new' => 'New',
-
+    'translator_amount' => 'Translator Amount',
+    'please_select_file_to_upload' => 'Please select a file to upload.',
 
 ];

@@ -23,11 +23,11 @@
         }
 
         /* Mobile */
-        @media (max-width: 768px) {
+        /* @media (max-width: 768px) {
             .ad-video {
-                height: 280px; /* adjust as needed */
+                height: 280px; 
             }
-        }
+        } */
         /* Target the Select2 control box */
         .select2-container--default .select2-selection--single {
             background-color: #F9F9F9 !important;

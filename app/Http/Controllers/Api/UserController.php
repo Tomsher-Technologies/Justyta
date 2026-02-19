@@ -623,6 +623,7 @@ class UserController extends Controller
                     'meeting_start_time' => $consultation->meeting_start_time,
                     'meeting_end_time' => $consultation->meeting_end_time
                 ],
+                'timeline'          => []
             ];
 
         }else{
@@ -644,7 +645,28 @@ class UserController extends Controller
             }
 
             $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
+            $timeline = getFullStatusHistory($serviceRequest);
 
+            $timeline = array_map(function ($item) {
+                            return [
+                                'id'       => $item['id'] ?? null,
+                                'status'   => $item['status'] ?? null,
+                                'label'    => __('frontend.'.$item['status']) ?? $item['label'] ?? null,
+                                'date'     => $item['date'] ?? null,
+                                'row_date' => $item['raw_date'] ?? null,
+                                'reason'   => $item['meta']['rejection_details']['reason'] ?? null
+                            ];
+                        }, $timeline);
+
+            $completedFiles = $serviceRequest->completed_files ?? [];
+
+            $completedFiles = array_map(function ($file) {
+                                return asset($file);
+                            }, $completedFiles);
+
+
+            
+            
             $dataService = [
                 'id'                => $serviceRequest->id,
                 'service_slug'      => $serviceRequest->service_slug,
@@ -655,8 +677,17 @@ class UserController extends Controller
                 'payment_reference' => $serviceRequest->payment_reference,
                 'amount'            => $serviceRequest->amount,
                 'submitted_at'      => $serviceRequest->submitted_at,
-                'service_details' => $translatedData,
+                'service_details'   => $translatedData,
+                'timeline'          => $timeline,
+                'translated_files'  => $completedFiles ?? []
             ];
+
+            if ($serviceRequest->status === 'rejected') {
+                $rejectionDetails = $serviceRequest->getLatestRejectionDetails();
+                if ($rejectionDetails) {
+                    $dataService['rejection_meta'] = $rejectionDetails->meta;
+                }
+            }
 
             if($serviceRequest->service_slug === 'annual-retainer-agreement'){
                 $installmentAnnual = AnnualAgreementInstallment::where('service_request_id',$serviceRequest->id)->get();
@@ -997,6 +1028,144 @@ class UserController extends Controller
                 'is_online' => $user->is_online,
                 'today_seconds' => $todaySeconds,
             ]
+        ]);
+    }
+
+    public function reUploadAfterRejection(Request $request)
+    {
+       
+        $id = $request->request_id ?? null;
+        $lang = $request->header('lang') ?? env('APP_LOCALE','en');
+        $user       = $request->user();
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => __('frontend.unauthorized')], 403);
+        }
+
+        $serviceRequest = ServiceRequest::with('statusHistories')->find($id);
+
+        if (!$serviceRequest) {
+            return response()->json(['status' => false, 'message' => 'Service request not found'], 404);
+        }
+
+        if ($serviceRequest->user_id != $user->id) {
+            return response()->json(['status' => false, 'message' => __('frontend.unauthorized')], 403);
+        }
+
+        if ($serviceRequest->status !== 'rejected') {
+            return response()->json(['status' => false, 'message' => __('frontend.status_not_rejected')], 400);
+        }
+
+        $rejectionDetails = $serviceRequest->getLatestRejectionDetails();
+        $rejectionMeta = $rejectionDetails ? $rejectionDetails->meta : [];
+
+        $requiredFiles = [];
+        $validationRules = [];
+        $customMessages = [];
+        $needsAtLeastOneFile = false;
+
+        if (isset($rejectionMeta['rejection_details'])) {
+            $rejectionDetailsMeta = $rejectionMeta['rejection_details'];
+
+            $supportingDocsRequired = isset($rejectionDetailsMeta['supporting_docs']) && $rejectionDetailsMeta['supporting_docs'];
+            $supportingDocsAnyRequired = isset($rejectionDetailsMeta['supporting_docs_any']) && $rejectionDetailsMeta['supporting_docs_any'];
+
+            if ($supportingDocsRequired || $supportingDocsAnyRequired) {
+                $needsAtLeastOneFile = true;
+
+                if ($supportingDocsRequired) {
+                    $requiredFiles[] = 'supporting_docs';
+                }
+                if ($supportingDocsAnyRequired) {
+                    $requiredFiles[] = 'supporting_docs_any';
+                }
+
+                $validationRules['supporting_docs'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:102400';
+                $validationRules['supporting_docs_any'] = 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:102400';
+
+                $customMessages['supporting_docs.file'] = __('frontend.supporting_docs_must_be_file');
+                $customMessages['supporting_docs.mimes'] = __('frontend.supporting_docs_invalid_type');
+                $customMessages['supporting_docs.max'] = __('frontend.supporting_docs_too_large');
+
+                $customMessages['supporting_docs_any.file'] = __('frontend.supporting_docs_any_must_be_file');
+                $customMessages['supporting_docs_any.mimes'] = __('frontend.supporting_docs_any_invalid_type');
+                $customMessages['supporting_docs_any.max'] = __('frontend.supporting_docs_any_too_large');
+            }
+        }
+
+        try {
+            $validatedData = $request->validate($validationRules, $customMessages);
+
+            if ($needsAtLeastOneFile) {
+                if (!$request->hasFile('supporting_docs') && !$request->hasFile('supporting_docs_any')) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'files' => [__('frontend.at_least_one_file_required')]
+                    ]);
+                }
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => __('frontend.validation_failed'),
+                'errors' => $e->errors(),
+                'required_files' => $requiredFiles
+            ], 422);
+        }
+
+
+        $relation = getServiceRelationName($serviceRequest->service_slug);
+        $serviceDetails = null;
+
+        if ($relation) {
+            $serviceDetails = $serviceRequest->$relation;
+        }
+
+        if (!$serviceDetails) {
+            return response()->json(['status' => false, 'message' => __('frontend.service_details_not_found')], 404);
+        }
+
+        $requestFolder = "uploads/{$serviceRequest->service_slug}/{$serviceDetails->id}/";
+
+        foreach ($requiredFiles as $fileName) {
+            if ($request->hasFile($fileName)) {
+                $file = $request->file($fileName);
+
+                $uniqueName = $fileName . '_' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $filename = $requestFolder . $uniqueName;
+
+                $fileContents = file_get_contents($file);
+                Storage::disk('public')->put($filename, $fileContents);
+                $fileUrl = Storage::url($filename);
+
+                $fieldMapping = [
+                    'supporting_docs' => 'documents',
+                    'supporting_docs_any' => 'additional_documents'
+                ];
+
+                if (isset($fieldMapping[$fileName])) {
+                    $field = $fieldMapping[$fileName];
+                    $updatedFiles = [$fileUrl];
+                    $serviceDetails->update([$field => $updatedFiles]);
+                }
+            }
+        }
+
+        $serviceRequest->update(['status' => 'pending']);
+
+        \App\Models\ServiceRequestTimeline::create([
+            'service_request_id' => $serviceRequest->id,
+            'service_slug' => $serviceRequest->service_slug,
+            'status' => 'pending',
+            'note' => 'Files re-uploaded after rejection',
+            'changed_by' => $user->id,
+            'meta' => [
+                'action' => 'reupload_after_rejection',
+                'files_uploaded' => $requiredFiles
+            ]
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => __('frontend.file_uploaded_successfully'),
         ]);
     }
 }

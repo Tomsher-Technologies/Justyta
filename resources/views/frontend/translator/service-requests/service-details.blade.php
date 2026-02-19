@@ -111,7 +111,7 @@
                         <div class="mt-2 mb-6">
                             <span
                                 class="{{ $statusClass[$status] ?? '!bg-gray-200 !text-gray-700' }} text-xs font-medium px-5 py-2 rounded-full ml-2">
-                                {{ ucfirst($status) }}
+                                {{ __('frontend.'.$status) }}
                             </span>
                         </div>
                     </div>
@@ -126,19 +126,37 @@
                                         </p>
                                         <div class="flex flex-wrap gap-3">
                                             @foreach ($files as $index => $file)
-                                                @php $isImage = Str::endsWith($file, ['.png', '.jpg', '.jpeg', '.webp']); @endphp
+
+                                                @php
+                                                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                                    $isImage = in_array($ext, ['png','jpg','jpeg','webp','svg']);
+                                                    $isPdf   = $ext === 'pdf';
+                                                    $isDoc   = in_array($ext, ['doc','docx']);
+                                                @endphp
+
+                                                
 
                                                 @if ($isImage)
                                                     <a data-fancybox="gallery" href="{{ $file }}">
-                                                        <img src="{{ $file }}"
-                                                            class="h-28 object-cover rounded-lg border border-gray-300 hover:opacity-75"
-                                                            alt="">
+                                                        <img src="{{ $file }}" class="h-28 w-28 object-fit rounded-lg border border-gray-300 hover:opacity-75">
                                                     </a>
-                                                @else
-                                                    <a href="{{ $file }}" data-fancybox="gallery">
+
+                                                @elseif ($isPdf)
+                                                    <a data-fancybox href="{{ $file }}" target="_blank">
                                                         <img src="{{ asset('assets/images/file.png') }}"
-                                                            class="h-28 object-cover rounded-lg border border-gray-300 hover:opacity-75"
-                                                            alt="">
+                                                            class="h-28 w-28 object-fit rounded-lg border border-gray-300 hover:opacity-75">
+                                                    </a>
+
+                                                @elseif ($isDoc)
+                                                    <a href="{{ $file }}" target="_blank">
+                                                        <img src="{{ asset('assets/images/file.png') }}"
+                                                            class="h-28 w-28 object-fit rounded-lg border border-gray-300 hover:opacity-75">
+                                                    </a>
+
+                                                @else
+                                                    <a href="{{ $file }}" target="_blank">
+                                                        <img src="{{ asset('assets/images/file.png') }}"
+                                                            class="h-28 w-28 object-fit rounded-lg border border-gray-300 hover:opacity-75">
                                                     </a>
                                                 @endif
                                             @endforeach
@@ -169,7 +187,7 @@
                                 <span
                                     class="absolute -left-3 flex items-center justify-center w-4 h-4 rounded-full border-2 {{ $dotClasses }}"></span>
                                 <h3 class="font-semibold {{ $textClasses }} text-lg">
-                                    {{ $step['label'] }} @if ($isRejectedStatus && isset($step['meta']['rejection_details']['reason']))
+                                    {{ __('frontend.'.$step['status']) }} @if ($isRejectedStatus && isset($step['meta']['rejection_details']['reason']))
                                         - <span class="text-sm">({{ $step['meta']['rejection_details']['reason'] }})</span>
                                     @endif
                                 </h3>
@@ -221,11 +239,11 @@
                     <div class="flex gap-4 mb-6">
                         <select id="status-select"
                             class="border border-[#DFDFDF] rounded-lg px-4 py-3 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-700">
-                            <option value="pending">{{ __('frontend.pending') }}</option>
-                            <option value="under_review">{{ __('frontend.under_review') }}</option>
-                            <option value="ongoing">{{ __('frontend.ongoing') }}</option>
-                            <option value="completed">{{ __('frontend.completed') }}</option>
-                            <option value="rejected">{{ __('frontend.rejected') }}</option>
+                            <option value="pending" @if($details['status'] == 'pending') selected @endif>{{ __('frontend.pending') }}</option>
+                            <option value="under_review" @if($details['status'] == 'under_review') selected @endif>{{ __('frontend.under_review') }}</option>
+                            <option value="ongoing" @if($details['status'] == 'ongoing') selected @endif>{{ __('frontend.ongoing') }}</option>
+                            <option value="completed" @if($details['status'] == 'completed') selected @endif>{{ __('frontend.completed') }}</option>
+                            <option value="rejected" @if($details['status'] == 'rejected') selected @endif>{{ __('frontend.rejected') }}</option>
                         </select>
                         <button type="button"
                             class="update-status-btn bg-green-700 hover:bg-green-800 text-white font-medium rounded-lg px-8 py-3 transition">

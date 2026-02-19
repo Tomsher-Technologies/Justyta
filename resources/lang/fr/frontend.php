@@ -521,5 +521,6 @@ return [
     'regular_consultation' => 'Consultation régulière',
     'specialized_consultation' => 'Consultation spécialisée',
     'new' => 'Nouveau',
-
+    'translator_amount' => 'Montant du traducteur',
+    'please_select_file_to_upload' => 'Veuillez sélectionner un fichier à téléverser.',
 ];

@@ -636,7 +636,7 @@ class UserController extends Controller
 
         $translatedData = getServiceHistoryTranslatedFields($serviceRequest->service_slug, $serviceDetails, $lang);
 
-        $timeline = getFullStatusHistory($serviceRequest);
+        $timeline = ($serviceRequest->service_slug === 'legal-translation') ? getFullStatusHistory($serviceRequest) : [];
 
         $installments = [];
 

@@ -3802,7 +3802,7 @@ class ServiceRequestController extends Controller
         }
 
         if ($serviceRequest->status !== 'rejected') {
-            return response()->json(['success' => false, 'message' => __('status_not_rejected')], 400);
+            return response()->json(['success' => false, 'message' => __('frontend.status_not_rejected')], 400);
         }
 
         $rejectionDetails = $serviceRequest->getLatestRejectionDetails();
@@ -3915,7 +3915,7 @@ class ServiceRequestController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => __('frontend.files_uploaded_successfully'),
+            'message' => __('frontend.file_uploaded_successfully'),
         ]);
     }
 }
