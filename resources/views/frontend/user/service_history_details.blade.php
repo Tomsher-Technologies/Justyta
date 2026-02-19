@@ -247,19 +247,37 @@
                                 <p class="text-gray-600 font-medium mb-2">{{ __('frontend.' . $key) }} :</p>
                                 <div class="flex flex-wrap gap-3">
                                     @foreach ($files as $index => $file)
-                                        @php $isImage = Str::endsWith($file, ['.png', '.jpg', '.jpeg', '.webp']); @endphp
+
+                                        @php
+                                            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                                            $isImage = in_array($ext, ['png','jpg','jpeg','webp','svg']);
+                                            $isPdf   = $ext === 'pdf';
+                                            $isDoc   = in_array($ext, ['doc','docx']);
+                                        @endphp
+
+                                        
 
                                         @if ($isImage)
                                             <a data-fancybox="gallery" href="{{ $file }}">
-                                                <img src="{{ $file }}"
-                                                    class="h-28 object-cover rounded-lg border border-gray-300 hover:opacity-75"
-                                                    alt="">
+                                                <img src="{{ $file }}" class="h-28 w-28 object-fit rounded-lg border border-gray-300 hover:opacity-75">
                                             </a>
-                                        @else
-                                            <a href="{{ $file }}" data-fancybox="gallery">
+
+                                        @elseif ($isPdf)
+                                            <a data-fancybox href="{{ $file }}" target="_blank">
                                                 <img src="{{ asset('assets/images/file.png') }}"
-                                                    class="h-28 object-cover rounded-lg border border-gray-300 hover:opacity-75"
-                                                    alt="">
+                                                    class="h-28 w-28 object-fit rounded-lg border border-gray-300 hover:opacity-75">
+                                            </a>
+
+                                        @elseif ($isDoc)
+                                            <a href="{{ $file }}" target="_blank">
+                                                <img src="{{ asset('assets/images/file.png') }}"
+                                                    class="h-28 w-28 object-fit rounded-lg border border-gray-300 hover:opacity-75">
+                                            </a>
+
+                                        @else
+                                            <a href="{{ $file }}" target="_blank">
+                                                <img src="{{ asset('assets/images/file.png') }}"
+                                                    class="h-28 w-28 object-fit rounded-lg border border-gray-300 hover:opacity-75">
                                             </a>
                                         @endif
                                     @endforeach
