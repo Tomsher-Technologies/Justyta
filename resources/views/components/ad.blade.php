@@ -1,4 +1,8 @@
 @php
+
+    $device = request()->header('User-Agent') && preg_match('/Mobile|Android|iPhone/i', request()->header('User-Agent'))
+        ? 'mobile'
+        : 'web';
     $ads = getActiveAd($page, $device ?? 'web');
 @endphp
  
