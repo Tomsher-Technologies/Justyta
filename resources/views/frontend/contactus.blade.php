@@ -81,6 +81,16 @@
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                             @enderror
                         </div>
+
+                        <div class="mb-5">
+                            <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+
+                            @error('g-recaptcha-response')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+
                         <button type="submit"
                             class="text-white bg-[#04502E] hover:bg-[#02331D] focus:ring-4 focus:ring-blue-300 font-normal rounded-xl text-md px-8 py-4 text-center transition-colors duration-200">{{ __('frontend.submit') }}</button>
                     </form>
@@ -107,6 +117,9 @@
 @endsection
 
 @section('script')
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+
     <script>
         const subjectInput = document.querySelector('[name="subject"]');
         const maxSubjectLength = 255;
