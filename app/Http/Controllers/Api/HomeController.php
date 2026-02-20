@@ -13,6 +13,7 @@ use App\Mail\ContactEnquiry;
 use Illuminate\Support\Facades\Validator;
 use DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 
 class HomeController extends Controller
 {
@@ -298,7 +299,8 @@ class HomeController extends Controller
             'email' => 'required|email',
             'phone' => 'required|numeric',
             'subject' => 'required',
-            'message' => 'required'
+            'message' => 'required',
+            'captcha' => 'required',
         ], [
             'name.required'     => __('messages.full_name_required'),
             'email.required'     => __('messages.email_required'),
@@ -315,6 +317,21 @@ class HomeController extends Controller
                 'status' => false,
                 'message' => $message,
             ], 200);
+        }
+
+        $response = Http::asForm()->post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            [
+                'secret'   => config('services.recaptcha.secret_key'),
+                'response' => $request->input('captcha'),
+                'remoteip' => $request->ip(),
+            ]
+        );
+
+        if (!($response->json()['success'] ?? false)) {
+            return back()
+                ->withErrors(['g-recaptcha-response' => 'Captcha verification failed'])
+                ->withInput();
         }
 
         // $user = $request->user();
