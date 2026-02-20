@@ -19,15 +19,19 @@
 
     <style>
         .ad-video {
+            width: 100%;
             height: 500px;
         }
 
-        /* Mobile */
-        /* @media (max-width: 768px) {
+        @media (max-width: 768px) {
             .ad-video {
-                height: 280px; 
+                height: 100%;
             }
-        } */
+
+            .min-h-screen {
+                min-height: 50vh;
+            }
+        }
         /* Target the Select2 control box */
         .select2-container--default .select2-selection--single {
             background-color: #F9F9F9 !important;
@@ -200,20 +204,16 @@
             
         // });
 
-        const muteToggle = document.getElementById('muteToggle');
-        const muteIcon = document.getElementById('muteIcon');
-        const unmuteIcon = document.getElementById('unmuteIcon');
-        const muteStatus = document.getElementById('muteStatus');
-
-        let isMuted = false;
-
-        function toggleMute(videoId, btn) {
+        function toggleMute(videoId) {
             const video = document.getElementById(videoId);
-            video.muted = !video.muted;
-            // btn.textContent = video.muted ? '🔇' : '🔊';
-            isMuted = !isMuted;
+            const muteIcon = document.getElementById('muteIcon');
+            const unmuteIcon = document.getElementById('unmuteIcon');
 
-            if (!isMuted) {
+            if (!video) return;
+
+            video.muted = !video.muted;
+
+            if (video.muted) {
                 muteIcon.classList.remove('hidden');
                 unmuteIcon.classList.add('hidden');
             } else {
