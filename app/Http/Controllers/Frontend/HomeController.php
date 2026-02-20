@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\Consultation;
+use Illuminate\Support\Facades\Http;
 
 class HomeController extends Controller
 {
@@ -225,7 +226,23 @@ class HomeController extends Controller
             'mobile' => 'required|string|max:20',
             'subject' => 'required|string|max:255',
             'message' => 'required|string|max:2000',
+            'g-recaptcha-response' => 'required',
         ]);
+
+        $response = Http::asForm()->post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            [
+                'secret'   => config('services.recaptcha.secret_key'),
+                'response' => $request->input('g-recaptcha-response'),
+                'remoteip' => $request->ip(),
+            ]
+        );
+
+        if (!($response->json()['success'] ?? false)) {
+            return back()
+                ->withErrors(['g-recaptcha-response' => 'Captcha verification failed'])
+                ->withInput();
+        }
 
         \App\Models\Contacts::create([
             'name' => $request->name,
