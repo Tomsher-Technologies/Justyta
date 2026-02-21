@@ -300,7 +300,7 @@ class HomeController extends Controller
             'phone' => 'required|numeric',
             'subject' => 'required',
             'message' => 'required',
-            'captcha' => 'required',
+            // 'captcha' => 'required',
         ], [
             'name.required'     => __('messages.full_name_required'),
             'email.required'     => __('messages.email_required'),
@@ -319,20 +319,20 @@ class HomeController extends Controller
             ], 200);
         }
 
-        $response = Http::asForm()->post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            [
-                'secret'   => config('services.recaptcha.secret_key'),
-                'response' => $request->input('captcha'),
-                'remoteip' => $request->ip(),
-            ]
-        );
+        // $response = Http::asForm()->post(
+        //     'https://www.google.com/recaptcha/api/siteverify',
+        //     [
+        //         'secret'   => config('services.recaptcha.secret_key'),
+        //         'response' => $request->input('captcha'),
+        //         'remoteip' => $request->ip(),
+        //     ]
+        // );
 
-        if (!($response->json()['success'] ?? false)) {
-            return back()
-                ->withErrors(['g-recaptcha-response' => 'Captcha verification failed'])
-                ->withInput();
-        }
+        // if (!($response->json()['success'] ?? false)) {
+        //     return back()
+        //         ->withErrors(['g-recaptcha-response' => 'Captcha verification failed'])
+        //         ->withInput();
+        // }
 
         // $user = $request->user();
 
