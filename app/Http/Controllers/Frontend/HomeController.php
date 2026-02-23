@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\Consultation;
 use Illuminate\Support\Facades\Http;
+use App\Mail\ContactEnquiry;
+use Illuminate\Support\Facades\Mail;
 
 class HomeController extends Controller
 {
@@ -244,14 +246,15 @@ class HomeController extends Controller
                 ->withInput();
         }
 
-        \App\Models\Contacts::create([
+        $con = \App\Models\Contacts::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->mobile,
             'subject' => $request->subject,
             'message' => $request->message,
         ]);
-
+      
+        Mail::to(env('MAIL_ADMIN'))->queue(new ContactEnquiry($con));
         return redirect()->back()->with('success', __('Your message has been sent successfully.'));
     }
 }
