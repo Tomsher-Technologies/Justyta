@@ -523,4 +523,5 @@ return [
     'new' => 'جدید',
     'translator_amount' => 'مبلغ مترجم',
     'please_select_file_to_upload' => 'لطفاً یک فایل برای بارگذاری انتخاب کنید.',
+    'please_select_duration' => 'لطفاً مدت زمان را انتخاب کنید',
 ];
