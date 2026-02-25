@@ -523,4 +523,5 @@ return [
     'new' => 'Новый',
     'translator_amount' => 'Сумма переводчика',
     'please_select_file_to_upload' => 'Пожалуйста, выберите файл для загрузки.',
+    'please_select_duration' => 'Пожалуйста, выберите продолжительность',
 ];

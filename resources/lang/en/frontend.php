@@ -528,5 +528,6 @@ return [
     'new' => 'New',
     'translator_amount' => 'Translator Amount',
     'please_select_file_to_upload' => 'Please select a file to upload.',
+    'please_select_duration' => 'Please select a duration',
 
 ];

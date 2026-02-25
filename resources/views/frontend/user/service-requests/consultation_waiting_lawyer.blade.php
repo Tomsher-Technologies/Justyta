@@ -289,7 +289,7 @@
                 const duration = $("#timeslot-select").val();
 
                 if (!duration) {
-                    alert("Please select a duration");
+                    toastr.error("{{ __('frontend.please_select_duration') }}");
                     return;
                 }
 

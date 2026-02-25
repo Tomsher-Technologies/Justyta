@@ -523,4 +523,5 @@ return [
     'new' => 'Nouveau',
     'translator_amount' => 'Montant du traducteur',
     'please_select_file_to_upload' => 'Veuillez sélectionner un fichier à téléverser.',
+    'please_select_duration' => 'Veuillez sélectionner une durée',
 ];
