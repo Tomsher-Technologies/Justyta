@@ -222,8 +222,9 @@
                 const btn = document.getElementById("extend-call-btn");
                 const consultationId = btn.dataset.consultationId;
                 const consultantType = btn.dataset.consultantType;
-
+                $("#extension-pay").prop("disabled", false).text("Pay & Extend");
                 extendCall(consultationId, consultantType);
+
             });
 
             $("#timeslot-select").on("change", function() {
@@ -260,7 +261,7 @@
 
                 // const consultation_Id = $("#modal-consultation-id").val();
                 // checkPaymentStatus(consultation_Id);
-                // $("#extension-pay").prop("disabled", false).text("Pay & Extend");
+                $("#extension-pay").prop("disabled", false).text("Pay & Extend");
                 
                 // sendCommand({
                 //     action: "resume-timer",

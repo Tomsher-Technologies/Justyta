@@ -14,7 +14,11 @@
                     
                 </div>
 
-                <h1 class="text-2xl font-light text-gray-800 mb-4">{{ __('frontend.failed') }}</h1>
+                @if($success == 1)
+                    <h1 class="text-2xl font-light text-gray-800 mb-4">{{ __('frontend.success') }}</h1>
+                @else
+                    <h1 class="text-2xl font-light text-gray-800 mb-4">{{ __('frontend.failed') }}</h1>
+                @endif
 
                 
                 <div class="text-gray-600 mb-6">{!! $message !!}</div>
