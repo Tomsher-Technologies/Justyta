@@ -523,4 +523,5 @@ return [
     'new' => 'جديد',
     'translator_amount' => 'مبلغ المترجم',
     'please_select_file_to_upload' => 'يرجى اختيار ملف للتحميل.',
+    'please_select_duration' => 'يرجى اختيار المدة',
 ];

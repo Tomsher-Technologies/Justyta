@@ -523,4 +523,5 @@ return [
     'new' => '新',
     'translator_amount' => '译员金额',
     'please_select_file_to_upload' => '请选择要上传的文件。',
+    'please_select_duration' => '请选择时长',
 ];
