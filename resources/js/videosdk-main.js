@@ -378,7 +378,7 @@
 
             const extendBtn = document.getElementById("extend-call-btn");
             // if (remainingMs <= 5 * 60 * 1000 && extendBtn) {
-            if (remainingMs <= 5 * 60 * 1000 * 1000 && extendBtn) {
+            if (remainingMs <= 5 * 60 * 1000 && extendBtn) {
                 extendBtn.classList.remove("hidden");
             }
 
