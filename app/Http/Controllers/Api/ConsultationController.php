@@ -209,6 +209,7 @@ class ConsultationController extends Controller
                 }
 
                 $consultation = Consultation::findOrFail($consultationId);
+                $consultation->request_success = 1;
                 if ($consultation->lawyer_id) {
                     assignLawyer($consultation, $consultation->lawyer_id);
                     $consultation->status = 'waiting_lawyer';
