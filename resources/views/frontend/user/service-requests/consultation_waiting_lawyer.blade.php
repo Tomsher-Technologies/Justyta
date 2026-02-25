@@ -255,12 +255,12 @@
                 $("#extendModal").addClass("hidden");
 
 
-                // resumeCallTimer(0, true);
-                // sendCommand("resume-timer", 0);
+                resumeCallTimer(0, true);
+                sendCommand("resume-timer", 0);
 
-                const consultation_Id = $("#modal-consultation-id").val();
-                checkPaymentStatus(consultation_Id);
-                $("#extension-pay").prop("disabled", false).text("Pay & Extend");
+                // const consultation_Id = $("#modal-consultation-id").val();
+                // checkPaymentStatus(consultation_Id);
+                // $("#extension-pay").prop("disabled", false).text("Pay & Extend");
                 
                 // sendCommand({
                 //     action: "resume-timer",
