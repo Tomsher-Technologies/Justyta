@@ -42,7 +42,14 @@ function sendPushNotification(string $deviceToken, string $title = '', string $b
     static $messaging = null;
 
     if ($messaging === null) {
-        $factory = (new Factory)->withServiceAccount(base_path(env('FIREBASE_CREDENTIALS')));
+
+        $relativePath = str_replace('\\', '/', env('FIREBASE_CREDENTIALS'));
+
+        // Remove "storage/app/" if present (avoid duplication)
+        $relativePath = str_replace('storage/app/', '', $relativePath);
+
+        $fullPath = storage_path('app/' . $relativePath);
+        $factory = (new Factory)->withServiceAccount($fullPath);
         $messaging = $factory->createMessaging();
     }
 
